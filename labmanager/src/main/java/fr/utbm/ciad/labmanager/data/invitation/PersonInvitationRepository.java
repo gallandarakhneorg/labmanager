@@ -50,4 +50,12 @@ public interface PersonInvitationRepository extends JpaRepository<PersonInvitati
 	 */
 	int countDistinctByGuestIdOrInviterId(long guestId, long inviterId);
 
+	/** Replies the outgoing of the given type.
+	 *
+	 * @param type the invitation type to search for.
+	 * @return the list of invitations.
+	 * @since 4.0
+	 */
+	List<PersonInvitation> findAllDistinctByType(PersonInvitationType type);
+
 }

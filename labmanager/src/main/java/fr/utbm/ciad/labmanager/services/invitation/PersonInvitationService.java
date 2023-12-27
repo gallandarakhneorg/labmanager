@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.invitation;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,9 +32,17 @@ import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for the person invitations.
@@ -72,6 +81,128 @@ public class PersonInvitationService extends AbstractService {
 		this.invitationRepository = invitationRepository;
 		this.personService = personService;
 		this.nameParser = nameParser;
+	}
+
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllOutgoingInvitations() {
+		return this.invitationRepository.findAllDistinctByType(PersonInvitationType.OUTGOING_GUEST);
+	}
+
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @param filter the filter of the invitations.
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllOutgoingIvitations(Specification<PersonInvitation> filter) {
+		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter));
+	}
+
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @param filter the filter of the outgoing invitations.
+	 * @param sortOrder the order specification to use for sorting the outgoing invitations.
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllOutgoingInvitations(Specification<PersonInvitation> filter, Sort sortOrder) {
+		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter), sortOrder);
+	}
+
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @param sortOrder the order specification to use for sorting the outgoing invitations.
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllOutgoingInvitations(Sort sortOrder) {
+		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON, sortOrder);
+	}
+
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	public Page<PersonInvitation> getAllOutgoingInvitations(Pageable pageable) {
+		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON, pageable);
+	}
+
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	public Page<PersonInvitation> getAllOutgoingInvitations(Pageable pageable, Specification<PersonInvitation> filter) {
+		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter), pageable);
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllIncomingInvitations() {
+		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON);
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @param filter the filter of the invitations.
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllIncomingIvitations(Specification<PersonInvitation> filter) {
+		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter));
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @param filter the filter of the incoming invitations.
+	 * @param sortOrder the order specification to use for sorting the incoming invitations.
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllIncomingInvitations(Specification<PersonInvitation> filter, Sort sortOrder) {
+		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter), sortOrder);
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @param sortOrder the order specification to use for sorting the incoming invitations.
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	public List<PersonInvitation> getAllIncomingInvitations(Sort sortOrder) {
+		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON, sortOrder);
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	public Page<PersonInvitation> getAllIncomingInvitations(Pageable pageable) {
+		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON, pageable);
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	public Page<PersonInvitation> getAllIncomingInvitations(Pageable pageable, Specification<PersonInvitation> filter) {
+		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter), pageable);
 	}
 
 	/** Replies the invitations for the given person whatever if he/she is guest or inviter.
@@ -213,6 +344,111 @@ public class PersonInvitationService extends AbstractService {
 	 */
 	public boolean isAssociated(long id) {
 		return !this.invitationRepository.findAllByGuestIdOrInviterId(id, id).isEmpty();
+	}
+
+	/** Start the editing of the given person invitation.
+	 *
+	 * @param invitation the person invitation to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the person invitation and its related resources.
+	 */
+	public EditingContext startEditing(PersonInvitation invitation) {
+		assert invitation != null;
+		return new EditingContext(invitation);
+	}
+
+	/** Context for editing a {@link PersonInvitation}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = 44656900669005156L;
+
+		private PersonInvitation invitation;
+
+		/** Constructor.
+		 *
+		 * @param invitation the edited invitation.
+		 */
+		EditingContext(PersonInvitation invitation) {
+			this.invitation = invitation;
+		}
+
+		/** Replies the person invitation.
+		 *
+		 * @return the person invitation.
+		 */
+		public PersonInvitation getPersonInvitation() {
+			return this.invitation;
+		}
+
+		/** Save the person invitation in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the invitation object that was provided before the saving.
+		 * Invoke {@link #getPersonInvitation()} for obtaining the new invitation
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.invitation = PersonInvitationService.this.invitationRepository.save(this.invitation);
+		}
+
+	}
+
+	/** Specification that is validating outgoing invitations.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public static class OutgoingInvitationSpecification implements Specification<PersonInvitation> {
+
+		private static final long serialVersionUID = -922262104471108626L;
+
+		/** Singleton for this criteria.
+		 */
+		public static final OutgoingInvitationSpecification SINGLETON = new OutgoingInvitationSpecification();
+
+		@Override
+		public Predicate toPredicate(Root<PersonInvitation> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			return criteriaBuilder.equal(root.get("type"), PersonInvitationType.OUTGOING_GUEST); //$NON-NLS-1$
+		}
+
+	}
+
+	/** Specification that is validating incoming invitations.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public static class IncomingInvitationSpecification implements Specification<PersonInvitation> {
+
+		private static final long serialVersionUID = 1354215003601539541L;
+
+		/** Singleton for this criteria.
+		 */
+		public static final IncomingInvitationSpecification SINGLETON = new IncomingInvitationSpecification();
+
+		@Override
+		public Predicate toPredicate(Root<PersonInvitation> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			final Predicate p0 = criteriaBuilder.equal(root.get("type"), PersonInvitationType.INCOMING_GUEST_PHD_STUDENT); //$NON-NLS-1$
+			final Predicate p1 = criteriaBuilder.equal(root.get("type"), PersonInvitationType.INCOMING_GUEST_PROFESSOR); //$NON-NLS-1$
+			return criteriaBuilder.or(p0, p1);
+		}
+
 	}
 
 }

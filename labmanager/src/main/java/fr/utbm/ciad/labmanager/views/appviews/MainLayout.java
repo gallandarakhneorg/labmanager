@@ -57,12 +57,12 @@ import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
 import fr.utbm.ciad.labmanager.views.appviews.assocstructures.AssociatedStructuresListView;
 import fr.utbm.ciad.labmanager.views.appviews.assocstructures.MyAssociatedStructuresView;
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferencesListView;
-import fr.utbm.ciad.labmanager.views.appviews.invitations.IncomingInvitationsView;
+import fr.utbm.ciad.labmanager.views.appviews.invitations.IncomingInvitationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.MyIncomingInvitationsView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.MyOutgoingInvitationsView;
-import fr.utbm.ciad.labmanager.views.appviews.invitations.OutgoingInvitationsView;
+import fr.utbm.ciad.labmanager.views.appviews.invitations.OutgoingInvitationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.journals.JournalsListView;
-import fr.utbm.ciad.labmanager.views.appviews.jurys.JurysView;
+import fr.utbm.ciad.labmanager.views.appviews.jurys.JuryMembershipsListView;
 import fr.utbm.ciad.labmanager.views.appviews.jurys.MyJurysView;
 import fr.utbm.ciad.labmanager.views.appviews.organizations.AddressesListView;
 import fr.utbm.ciad.labmanager.views.appviews.organizations.OrganizationsListView;
@@ -161,6 +161,14 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	private SideNavItem projects;
 
 	private SideNavItem associatedStructures;
+
+	private SideNavItem diffusionSection;
+
+	private SideNavItem juryMemberships;
+
+	private SideNavItem outgoingInvitations;
+
+	private SideNavItem incomingInvitations;
 
 	/** Constructor.
 	 *
@@ -311,30 +319,33 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	protected void createScientificInfluenceNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyIncomingInvitationsView.class)
 				|| this.accessChecker.hasAccess(MyOutgoingInvitationsView.class)
-				|| this.accessChecker.hasAccess(IncomingInvitationsView.class)
-				|| this.accessChecker.hasAccess(OutgoingInvitationsView.class)
+				|| this.accessChecker.hasAccess(IncomingInvitationsListView.class)
+				|| this.accessChecker.hasAccess(OutgoingInvitationsListView.class)
 				|| this.accessChecker.hasAccess(MyJurysView.class)
-				|| this.accessChecker.hasAccess(JurysView.class)) {
-			final SideNavItem diffusion = new SideNavItem("Rayonnement");
+				|| this.accessChecker.hasAccess(JuryMembershipsListView.class)) {
+			this.diffusionSection = new SideNavItem(""); //$NON-NLS-1$
 			if (this.accessChecker.hasAccess(MyIncomingInvitationsView.class)) {
-				diffusion.addItem(new SideNavItem("My Incoming Invitations", MyIncomingInvitationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.diffusionSection.addItem(new SideNavItem("My Incoming Invitations", MyIncomingInvitationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
 			if (this.accessChecker.hasAccess(MyOutgoingInvitationsView.class)) {
-				diffusion.addItem(new SideNavItem("My Outgoing Invitations", MyOutgoingInvitationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
-			}
-			if (this.accessChecker.hasAccess(IncomingInvitationsView.class)) {
-				diffusion.addItem(new SideNavItem("Incoming Invitations", IncomingInvitationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
-			}
-			if (this.accessChecker.hasAccess(MyOutgoingInvitationsView.class)) {
-				diffusion.addItem(new SideNavItem("Outgoing Invitations", OutgoingInvitationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.diffusionSection.addItem(new SideNavItem("My Outgoing Invitations", MyOutgoingInvitationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
 			if (this.accessChecker.hasAccess(MyJurysView.class)) {
-				diffusion.addItem(new SideNavItem("My Jurys", MyJurysView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.diffusionSection.addItem(new SideNavItem("My Jurys", MyJurysView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			if (this.accessChecker.hasAccess(JurysView.class)) {
-				diffusion.addItem(new SideNavItem("Jurys", JurysView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+			if (this.accessChecker.hasAccess(IncomingInvitationsListView.class)) {
+				this.incomingInvitations = new SideNavItem("", IncomingInvitationsListView.class, LineAwesomeIcon.SIGN_IN_ALT_SOLID.create()); //$NON-NLS-1$
+				this.diffusionSection.addItem(this.incomingInvitations);
 			}
-			nav.addItem(diffusion);
+			if (this.accessChecker.hasAccess(OutgoingInvitationsListView.class)) {
+				this.outgoingInvitations = new SideNavItem("", OutgoingInvitationsListView.class, LineAwesomeIcon.SIGN_OUT_ALT_SOLID.create()); //$NON-NLS-1$
+				this.diffusionSection.addItem(this.outgoingInvitations);
+			}
+			if (this.accessChecker.hasAccess(JuryMembershipsListView.class)) {
+				this.juryMemberships = new SideNavItem("", JuryMembershipsListView.class, LineAwesomeIcon.USER_GRADUATE_SOLID.create()); //$NON-NLS-1$
+				this.diffusionSection.addItem(this.juryMemberships);
+			}
+			nav.addItem(this.diffusionSection);
 		}
 	}
 
@@ -682,6 +693,19 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			for (final LanguageRecord menuItem : this.languageLinks) {
 				menuItem.menuText.setText(StringUtils.capitalize(menuItem.locale.getDisplayLanguage(getLocale())));
 			}
+		}
+
+		if (this.diffusionSection != null) {
+			this.diffusionSection.setLabel(getTranslation("views.navitem.diffusionSection")); //$NON-NLS-1$
+		}
+		if (this.incomingInvitations != null) {
+			this.incomingInvitations.setLabel(getTranslation("views.navitem.incoming_invitations")); //$NON-NLS-1$
+		}
+		if (this.outgoingInvitations != null) {
+			this.outgoingInvitations.setLabel(getTranslation("views.navitem.outgoing_invitations")); //$NON-NLS-1$
+		}
+		if (this.juryMemberships != null) {
+			this.juryMemberships.setLabel(getTranslation("views.navitem.jury_memberships")); //$NON-NLS-1$
 		}
 	}
 

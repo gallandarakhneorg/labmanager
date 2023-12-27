@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.jury;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,10 @@ import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for the jury memberships.
@@ -74,6 +79,67 @@ public class JuryMembershipService extends AbstractService {
 		this.membershipRepository = membershipRepository;
 		this.personService = personService;
 		this.nameParser = nameParser;
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	public List<JuryMembership> getAllJuryMemberships() {
+		return this.membershipRepository.findAll();
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @param filter the filter of the axes.
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	public List<JuryMembership> getAllJuryMemberships(Specification<JuryMembership> filter) {
+		return this.membershipRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @param filter the filter of the jury memberships.
+	 * @param sortOrder the order specification to use for sorting the jury memberships.
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	public List<JuryMembership> getAllJuryMemberships(Specification<JuryMembership> filter, Sort sortOrder) {
+		return this.membershipRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @param sortOrder the order specification to use for sorting the jury memberships.
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	public List<JuryMembership> getAllJuryMemberships(Sort sortOrder) {
+		return this.membershipRepository.findAll(sortOrder);
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	public Page<JuryMembership> getAllJuryMemberships(Pageable pageable) {
+		return this.membershipRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	public Page<JuryMembership> getAllJuryMemberships(Pageable pageable, Specification<JuryMembership> filter) {
+		return this.membershipRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the list of jury memberships for the person with the given identifier.
@@ -231,6 +297,63 @@ public class JuryMembershipService extends AbstractService {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty()
 				|| !this.membershipRepository.findAllByCandidateId(id).isEmpty()
 				|| !this.membershipRepository.findAllByPromotersId(id).isEmpty();
+	}
+
+	/** Start the editing of the given jury membership.
+	 *
+	 * @param jury the jury membership to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the jury membership and its related resources.
+	 */
+	public EditingContext startEditing(JuryMembership jury) {
+		assert jury != null;
+		return new EditingContext(jury);
+	}
+
+	/** Context for editing a {@link JuryMembership}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = 4365799320652677325L;
+
+		private JuryMembership jury;
+
+		/** Constructor.
+		 *
+		 * @param jury the edited jury membership.
+		 */
+		EditingContext(JuryMembership jury) {
+			this.jury = jury;
+		}
+
+		/** Replies the jury membership.
+		 *
+		 * @return the jury membership.
+		 */
+		public JuryMembership getJuryMembership() {
+			return this.jury;
+		}
+
+		/** Save the jury membership in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the jury membership object that was provided before the saving.
+		 * Invoke {@link #getJuryMembership()} for obtaining the new jury membership
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.jury = JuryMembershipService.this.membershipRepository.save(this.jury);
+		}
+
 	}
 
 }
