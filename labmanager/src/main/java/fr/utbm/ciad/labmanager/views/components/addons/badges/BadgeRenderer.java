@@ -60,7 +60,7 @@ public class BadgeRenderer<ITEM> extends ComponentRenderer<Component, ITEM>{
 				Component createdComponent = null;
 				if (vaadinIcon != null) {
 					final var icon = vaadinIcon.create();
-					icon.getStyle().set("padding", "var(--lumo-space-xs"); //$NON-NLS-1$ //$NON-NLS-2$
+					icon.getStyle().set("padding", "var(--lumo-space-xs)"); //$NON-NLS-1$ //$NON-NLS-2$
 					if (isEmpty) {
 						createdComponent = icon;
 					} else {

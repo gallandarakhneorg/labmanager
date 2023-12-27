@@ -188,7 +188,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		content.add(this.creationDuration, 1);
 
 		this.budget = new NumberField();
-		this.budget.setPrefixComponent(VaadinIcon.DOLLAR.create());
+		this.budget.setPrefixComponent(VaadinIcon.EURO.create());
 		this.budget.setClearButtonVisible(true);
 		content.add(this.budget, 1);
 

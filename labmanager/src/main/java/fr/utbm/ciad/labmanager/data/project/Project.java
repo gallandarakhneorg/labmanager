@@ -176,7 +176,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 
 	/** Names of the images of the project if it has one.
 	 */
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "ProjectImages", joinColumns = @JoinColumn(name="project_id"))
 	@Column(name = "paths_to_images")
 	private List<String> pathsToImages;

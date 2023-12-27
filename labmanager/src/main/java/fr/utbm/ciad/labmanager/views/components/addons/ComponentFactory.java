@@ -518,6 +518,7 @@ public final class ComponentFactory {
 		dialog.setCloseOnOutsideClick(true);
 		dialog.setDraggable(true);
 		dialog.setResizable(true);			
+		dialog.setWidthFull();
 		dialog.setHeaderTitle(title);
 		dialog.add(content);
 

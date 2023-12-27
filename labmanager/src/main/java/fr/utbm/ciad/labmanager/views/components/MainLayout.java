@@ -69,7 +69,7 @@ import fr.utbm.ciad.labmanager.views.appviews.persons.MyMembershipsView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.MyProfileView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.MyProjectsView;
-import fr.utbm.ciad.labmanager.views.appviews.projects.ProjectsView;
+import fr.utbm.ciad.labmanager.views.appviews.projects.ProjectsListView;
 import fr.utbm.ciad.labmanager.views.appviews.publications.MyPublicationsView;
 import fr.utbm.ciad.labmanager.views.appviews.publications.PublicationsView;
 import fr.utbm.ciad.labmanager.views.appviews.scientificaxes.ScientificAxesView;
@@ -150,6 +150,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	private SideNavItem teachingActivites;
 
 	private SideNavItem projectSection;
+
+	private SideNavItem projects;
 
 	private SideNavItem associatedStructures;
 
@@ -271,7 +273,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 */
 	protected void createProjectInnovationNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyProjectsView.class)
-				|| this.accessChecker.hasAccess(ProjectsView.class)
+				|| this.accessChecker.hasAccess(ProjectsListView.class)
 				|| this.accessChecker.hasAccess(MyAssociatedStructuresView.class)
 				|| this.accessChecker.hasAccess(AssociatedStructuresView.class)) {
 			this.projectSection = new SideNavItem(""); //$NON-NLS-1$
@@ -281,8 +283,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			if (this.accessChecker.hasAccess(MyAssociatedStructuresView.class)) {
 				this.projectSection.addItem(new SideNavItem("My Associated Structures", MyAssociatedStructuresView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			if (this.accessChecker.hasAccess(ProjectsView.class)) {
-				this.projectSection.addItem(new SideNavItem("Projects", ProjectsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+			if (this.accessChecker.hasAccess(ProjectsListView.class)) {
+				this.projects = new SideNavItem("", ProjectsListView.class, LineAwesomeIcon.CUBES_SOLID.create()); //$NON-NLS-1$
+				this.projectSection.addItem(this.projects);
 			}
 			if (this.accessChecker.hasAccess(AssociatedStructuresView.class)) {
 				this.associatedStructures = new SideNavItem("", AssociatedStructuresView.class, LineAwesomeIcon.LINK_SOLID.create()); //$NON-NLS-1$
@@ -540,6 +543,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		this.conferences.setLabel(getTranslation("views.navitem.conferences")); //$NON-NLS-1$
 
 		this.projectSection.setLabel(getTranslation("views.navitem.projectSection")); //$NON-NLS-1$
+		this.projects.setLabel(getTranslation("views.navitem.projects")); //$NON-NLS-1$
 		this.associatedStructures.setLabel(getTranslation("views.navitem.associated_structures")); //$NON-NLS-1$
 
 		this.teachingSection.setLabel(getTranslation("views.navitem.teachingSection")); //$NON-NLS-1$

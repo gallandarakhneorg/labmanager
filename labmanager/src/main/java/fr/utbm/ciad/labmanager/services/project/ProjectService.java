@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.project;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ import fr.utbm.ciad.labmanager.data.project.Role;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -80,6 +82,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Service for the research projects.
@@ -1261,6 +1264,17 @@ public class ProjectService extends AbstractService {
 		return Optional.empty();
 	}
 
+	/** Start the editing of the given project.
+	 *
+	 * @param project the project to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the project and its related resources.
+	 */
+	public EditingContext startEditing(Project project) {
+		assert project != null;
+		return new EditingContext(project);
+	}
+
 	/** Specification that i validating public project.
 	 * 
 	 * @author $Author: sgalland$
@@ -1282,6 +1296,159 @@ public class ProjectService extends AbstractService {
 			final Predicate p1 = criteriaBuilder.equal(root.get("confidential"), Boolean.FALSE); //$NON-NLS-1$
 			final Predicate p2 = criteriaBuilder.equal(root.get("status"), ProjectStatus.ACCEPTED); //$NON-NLS-1$
 			return criteriaBuilder.and(p1, p2);
+		}
+
+	}
+
+	/** Context for editing a {@link Project}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+		
+		private static final long serialVersionUID = 9099829302259658470L;
+
+		private String pathToLogo;
+
+		private String pathToPpt;
+
+		private String pathToPressDoc;
+
+		private String pathToRequirements;
+
+		private List<String> pathsToImages;
+		
+		private long id;
+
+		private Project project;
+
+		/** Constructor.
+		 *
+		 * @param project the edited project.
+		 */
+		EditingContext(Project project) {
+			this.id = project.getId();
+			this.pathToLogo = project.getPathToLogo();
+			this.pathToPpt = project.getPathToPowerpoint();
+			this.pathToPressDoc = project.getPathToPressDocument();
+			this.pathToRequirements = project.getPathToScientificRequirements();
+			this.pathsToImages = new ArrayList<>(project.getPathsToImages());
+			this.project = project;
+		}
+
+		/** Replies the project.
+		 *
+		 * @return the project.
+		 */
+		public Project getProject() {
+			return this.project;
+		}
+
+		/** Save the project in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the project object that was provided before the saving.
+		 * Invoke {@link #getProject()} for obtaining the new project
+		 * instance, since the content of the saved object may have totally changed.
+		 *
+		 * @param components list of components to update if the service detects an inconsistent value.
+		 * @throws IOException if files cannot be saved on the server.
+		 */
+		@Transactional
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.project = ProjectService.this.projectRepository.save(this.project);
+			// Save the uploaded file if needed.
+			if (this.id != this.project.getId()) {
+				// Special case where the field value does not corresponds to the correct path
+				deleteLogo(this.id);
+				deletePpt(this.id);
+				deletePressDocument(this.id);
+				deleteRequirements(this.id);
+				deleteImages(this.id);
+				for (final var component : components) {
+					component.updateValue();
+				}
+				this.project = ProjectService.this.projectRepository.save(this.project);
+			}
+			var uploaded = false;
+			if (Strings.isNullOrEmpty(this.project.getPathToLogo())) {
+				deleteLogo(this.project.getId());
+			} else {
+				uploaded = true;
+			}
+			if (Strings.isNullOrEmpty(this.project.getPathToPowerpoint())) {
+				deletePpt(this.project.getId());
+			} else {
+				uploaded = true;
+			}
+			if (Strings.isNullOrEmpty(this.project.getPathToPressDocument())) {
+				deletePressDocument(this.project.getId());
+			} else {
+				uploaded = true;
+			}
+			if (Strings.isNullOrEmpty(this.project.getPathToScientificRequirements())) {
+				deleteRequirements(this.project.getId());
+			} else {
+				uploaded = true;
+			}
+			if (this.project.getPathsToImages().isEmpty()) {
+				deleteImages(this.project.getId());
+			} else {
+				uploaded = true;
+			}
+			if (uploaded) {
+				for (final var component : components) {
+					component.saveUploadedFileOnServer();
+				}
+			}
+			this.id = this.project.getId();
+			this.pathToLogo = this.project.getPathToLogo();
+			this.pathToPpt = this.project.getPathToPowerpoint();
+			this.pathToPressDoc = this.project.getPathToPressDocument();
+			this.pathToRequirements = this.project.getPathToScientificRequirements();
+			this.pathsToImages = new ArrayList<>(this.project.getPathsToImages());
+		}
+
+		private void deleteLogo(long id) {
+			if (!Strings.isNullOrEmpty(this.pathToLogo)) {
+				final var ext = FileSystem.extension(this.pathToLogo);
+				ProjectService.this.fileManager.deleteProjectLogo(id, ext);
+			}
+		}
+
+		private void deletePpt(long id) {
+			if (!Strings.isNullOrEmpty(this.pathToPpt)) {
+				final var ext = FileSystem.extension(this.pathToPpt);
+				ProjectService.this.fileManager.deleteProjectPowerpoint(id, ext);
+			}
+		}
+
+		private void deletePressDocument(long id) {
+			if (!Strings.isNullOrEmpty(this.pathToPressDoc)) {
+				ProjectService.this.fileManager.deleteProjectPressDocument(id);
+			}
+		}
+
+		private void deleteRequirements(long id) {
+			if (!Strings.isNullOrEmpty(this.pathToRequirements)) {
+				ProjectService.this.fileManager.deleteProjectScientificRequirements(id);
+			}
+		}
+
+		private void deleteImages(long id) {
+			if (!this.pathsToImages.isEmpty()) {
+				for (var i = this.pathsToImages.size() - 1; i >= 0; --i) {
+					final var path = this.pathsToImages.get(i);
+					final var ext = FileSystem.extension(path);
+					ProjectService.this.fileManager.deleteProjectImage(id, i, ext);
+				}
+			}
 		}
 
 	}
