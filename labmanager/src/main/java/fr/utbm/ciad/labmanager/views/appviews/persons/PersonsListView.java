@@ -23,12 +23,13 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.StandardPersonListView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +44,12 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Route(value = "persons", layout = MainLayout.class)
-@PermitAll
-public class PersonsView extends StandardPersonListView implements HasDynamicTitle {
+@RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
+public class PersonsListView extends StandardPersonListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = 1616874715478139507L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsListView.class);
 
 	/** Constructor.
 	 *
@@ -60,7 +61,7 @@ public class PersonsView extends StandardPersonListView implements HasDynamicTit
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param authenticatedUser the connected user.
 	 */
-    public PersonsView(@Autowired PersonService personService, @Autowired UserService userService,
+    public PersonsListView(@Autowired PersonService personService, @Autowired UserService userService,
     		@Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator membershipComparator,
     		@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
     	super(personService, userService, membershipService, membershipComparator,

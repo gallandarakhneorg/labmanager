@@ -36,11 +36,14 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.RESEARCHGATE_ICON;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.SCOPUS_ICON;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
 
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
@@ -183,37 +186,40 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createPersonalInformationComponents(rootContainer);
 		createContactInformationComponents(rootContainer);
 		createResearcherIdsComponents(rootContainer);
 		createIndexesComponents(rootContainer);
 		createSocialLinksComponents(rootContainer);
-		if (isAdmin) {
-			createAdministrationComponents(rootContainer,
-					content -> {
-						this.webpageConvention = new ComboBox<>();
-						this.webpageConvention.setItems(WebPageNaming.values());
-						this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
-						this.webpageConvention.setValue(WebPageNaming.UNSPECIFIED);
-						content.add(this.webpageConvention, 2);
+		if (isBaseAdmin()) {
+			Consumer<FormLayout> builderCallback = null;
+			if (isAdvancedAdmin()) {
+				builderCallback = content -> {
+					this.webpageConvention = new ComboBox<>();
+					this.webpageConvention.setItems(WebPageNaming.values());
+					this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
+					this.webpageConvention.setValue(WebPageNaming.UNSPECIFIED);
+					content.add(this.webpageConvention, 2);
 
-						this.userLogin = new TextField();
-						this.userLogin.setClearButtonVisible(true);
-						this.userLogin.setPrefixComponent(VaadinIcon.HASH.create());
-						content.add(this.userLogin);
-						
-						this.userRole = new ComboBox<>();
-						this.userRole.setItems(UserRole.values());
-						this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
-						this.userRole.setPrefixComponent(VaadinIcon.MEDAL.create());
-						this.userRole.setValue(UserRole.USER);
-						content.add(this.userRole);
+					this.userLogin = new TextField();
+					this.userLogin.setClearButtonVisible(true);
+					this.userLogin.setPrefixComponent(VaadinIcon.HASH.create());
+					content.add(this.userLogin);
+					
+					this.userRole = new ComboBox<>();
+					this.userRole.setItems(UserRole.values());
+					this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
+					this.userRole.setPrefixComponent(VaadinIcon.MEDAL.create());
+					this.userRole.setValue(UserRole.USER);
+					content.add(this.userRole);
 
-						getEntityDataBinder().forField(this.webpageConvention).bind(Person::getWebPageNaming, Person::setWebPageNaming);
-						getUserDataBinder().forField(this.userLogin).bind(User::getLogin, User::setLogin);
-						getUserDataBinder().forField(this.userRole).bind(User::getRole, User::setRole);
-					},
+					getEntityDataBinder().forField(this.webpageConvention).bind(Person::getWebPageNaming, Person::setWebPageNaming);
+					getUserDataBinder().forField(this.userLogin).bind(User::getLogin, User::setLogin);
+					getUserDataBinder().forField(this.userRole).bind(User::getRole, User::setRole);
+				};
+			}
+			createAdministrationComponents(rootContainer, builderCallback,
 					it -> it.bind(Person::isValidated, Person::setValidated));
 		}
 	}

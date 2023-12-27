@@ -22,11 +22,12 @@ package fr.utbm.ciad.labmanager.views.appviews.projects;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.projects.StandardProjectListView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Route(value = "projects", layout = MainLayout.class)
-@PermitAll
+@RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
 public class ProjectsListView extends StandardProjectListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = 5681894363702948200L;

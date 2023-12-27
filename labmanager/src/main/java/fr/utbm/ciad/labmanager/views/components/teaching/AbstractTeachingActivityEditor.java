@@ -130,7 +130,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		createStudentDetails(rootContainer);
 		createTeacherDetails(rootContainer);

@@ -86,7 +86,7 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
     }
 
     private static List<GrantedAuthority> getAuthorities(User user) {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())); //$NON-NLS-1$
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().toGrantedRole()));
     }
 
 }

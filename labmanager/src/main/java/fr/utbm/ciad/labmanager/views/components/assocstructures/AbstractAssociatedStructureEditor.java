@@ -107,11 +107,11 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		createCreationDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
-		if (isAdmin) {
+		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					null,
 					it -> it.bind(AssociatedStructure::isValidated, AssociatedStructure::setValidated));

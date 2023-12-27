@@ -22,11 +22,12 @@ package fr.utbm.ciad.labmanager.views.appviews.organizations;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.organizations.StandardOrganizationListView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Route(value = "organizations", layout = MainLayout.class)
-@PermitAll
+@RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
 public class OrganizationsListView extends StandardOrganizationListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = -6870101518355964055L;

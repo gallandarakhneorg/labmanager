@@ -35,7 +35,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.Constants;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Value;

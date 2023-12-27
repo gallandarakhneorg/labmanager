@@ -19,15 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.assocstructures;
 
-import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.StandardAssociatedStructureListView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -41,8 +40,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Route(value = "assocstructures", layout = MainLayout.class)
-@PermitAll
-@Uses(Icon.class)
+@RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
 public class AssociatedStructuresListView extends StandardAssociatedStructureListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = -2694471588623830169L;

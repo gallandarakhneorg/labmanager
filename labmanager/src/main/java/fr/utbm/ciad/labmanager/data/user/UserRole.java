@@ -35,12 +35,84 @@ import org.springframework.context.support.MessageSourceAccessor;
 public enum UserRole {
 	/** The user is a regular user of the application.
 	 */
-    USER,
+    USER {
+
+		@Override
+		public boolean hasBaseAdministrationRights() {
+			return false;
+		}
+
+		@Override
+		public boolean hasAdvancedAdministrationRights() {
+			return false;
+		}
+
+		@Override
+		public String toGrantedRole() {
+			return USER_GRANT;
+		}
+    	
+    },
+
+	/** The user is a responsible in the research organization.
+	 */
+    RESPONSIBLE {
+
+		@Override
+		public boolean hasBaseAdministrationRights() {
+			return true;
+		}
+
+		@Override
+		public boolean hasAdvancedAdministrationRights() {
+			return false;
+		}
+
+		@Override
+		public String toGrantedRole() {
+			return RESPONSIBLE_GRANT;
+		}
+    	
+    },
 
     /** The user is an administrator of the application.
      */
-    ADMIN;
+    ADMIN {
 
+		@Override
+		public boolean hasBaseAdministrationRights() {
+			return true;
+		}
+
+		@Override
+		public boolean hasAdvancedAdministrationRights() {
+			return true;
+		}
+
+		@Override
+		public String toGrantedRole() {
+			return ADMIN_GRANT;
+		}
+
+    };
+
+	/** Name of the grant for {@code USER}.
+	 *
+	 * @see #toGrantedRole()
+	 */
+	public static final String USER_GRANT = "ROLE_USER"; //$NON-NLS-1$
+
+	/** Name of the grant for {@code RESPONSIBLE}.
+	 *
+	 * @see #toGrantedRole()
+	 */
+	public static final String RESPONSIBLE_GRANT = "ROLE_RESPONSIBLE"; //$NON-NLS-1$
+
+	/** Name of the grant for {@code ADMIN}.
+	 *
+	 * @see #toGrantedRole()
+	 */
+	public static final String ADMIN_GRANT = "ROLE_ADMIN"; //$NON-NLS-1$
 
 	private static final String MESSAGE_PREFIX = "userRole."; //$NON-NLS-1$
 
@@ -72,5 +144,28 @@ public enum UserRole {
 		}
 		throw new IllegalArgumentException("Invalid user role: " + name); //$NON-NLS-1$
 	}
+
+	/** Replies if the given role has the base administration rights.
+	 * Base administration rights include the update of the database content
+	 * for all the users.
+	 *
+	 * @return {@code true} if the role has the rights.
+	 */
+	public abstract boolean hasBaseAdministrationRights(); 
+
+	/** Replies if the given role has the advanced administration rights.
+	 * Advanced administration rights include the management of the user
+	 * accounts.
+	 *
+	 * @return {@code true} if the role has the rights.
+	 */
+	public abstract boolean hasAdvancedAdministrationRights();
+
+	/** Replies a string representation of the role's grant.
+	 *
+	 * @return the role's grant.
+	 * @see #grant
+	 */
+	public abstract String toGrantedRole();
 
 }

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components;
+package fr.utbm.ciad.labmanager.views.appviews;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -28,6 +28,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Footer;
@@ -49,6 +50,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
@@ -67,17 +69,17 @@ import fr.utbm.ciad.labmanager.views.appviews.organizations.OrganizationsListVie
 import fr.utbm.ciad.labmanager.views.appviews.persons.MembershipsView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.MyMembershipsView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.MyProfileView;
-import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsView;
+import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsListView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.MyProjectsView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.ProjectsListView;
 import fr.utbm.ciad.labmanager.views.appviews.publications.MyPublicationsView;
 import fr.utbm.ciad.labmanager.views.appviews.publications.PublicationsView;
-import fr.utbm.ciad.labmanager.views.appviews.scientificaxes.ScientificAxesView;
+import fr.utbm.ciad.labmanager.views.appviews.scientificaxes.ScientificAxesListView;
 import fr.utbm.ciad.labmanager.views.appviews.supervisions.MySupervisionsView;
 import fr.utbm.ciad.labmanager.views.appviews.supervisions.MySupervisorsView;
 import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.MyTeachingActivitiesView;
-import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesView;
+import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesListView;
 import fr.utbm.ciad.labmanager.views.appviews.welcome.WelcomeView;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
@@ -85,6 +87,7 @@ import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserve
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** The main view is a top-level placeholder for other views.
@@ -107,6 +110,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private final AccessAnnotationChecker accessChecker;
 
+	private final MessageSourceAccessor messages;
+
 	private Anchor loginLink;
 
 	private MenuItem logoutLink;
@@ -118,6 +123,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	private Avatar avatar;
 
 	private Text username;
+
+	private Span roleInUserMenu;
 
 	private SideNavItem positionSection;
 
@@ -159,10 +166,12 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 *
 	 * @param authenticatedUser the logged-in user.
 	 * @param accessChecker the access checker.
+	 * @param messages the accessor to the localized messages in the Spring framework.
 	 * @param applicationName name of the application.
 	 */
 	public MainLayout(@Autowired AuthenticatedUser authenticatedUser, @Autowired AccessAnnotationChecker accessChecker,
-			@Value("${labmanager.application-name}") String applicationName) {
+			@Autowired MessageSourceAccessor messages, @Value("${labmanager.application-name}") String applicationName) {
+		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
 		this.accessChecker = accessChecker;
 		this.applicationName = applicationName;
@@ -205,7 +214,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	protected void createProfileNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyProfileView.class)
 				|| this.accessChecker.hasAccess(MyMembershipsView.class)
-				|| this.accessChecker.hasAccess(PersonsView.class)
+				|| this.accessChecker.hasAccess(PersonsListView.class)
 				|| this.accessChecker.hasAccess(MembershipsView.class)) {
 			this.positionSection = new SideNavItem(null);
 			if (this.accessChecker.hasAccess(MyProfileView.class)) {
@@ -215,8 +224,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			if (this.accessChecker.hasAccess(MyMembershipsView.class)) {
 				this.positionSection.addItem(new SideNavItem("My Positions", MyMembershipsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			if (this.accessChecker.hasAccess(PersonsView.class)) {
-				this.allpersons = new SideNavItem(null, PersonsView.class, LineAwesomeIcon.USERS_SOLID.create());
+			if (this.accessChecker.hasAccess(PersonsListView.class)) {
+				this.allpersons = new SideNavItem(null, PersonsListView.class, LineAwesomeIcon.USERS_SOLID.create());
 				this.positionSection.addItem(this.allpersons);
 			}
 			if (this.accessChecker.hasAccess(MembershipsView.class)) {
@@ -335,13 +344,13 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 */
 	protected void createTeachingNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)
-				|| this.accessChecker.hasAccess(TeachingActivitiesView.class)) {
+				|| this.accessChecker.hasAccess(TeachingActivitiesListView.class)) {
 			this.teachingSection = new SideNavItem(""); //$NON-NLS-1$
-			if (this.accessChecker.hasAccess(TeachingActivitiesView.class)) {
+			if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)) {
 				this.teachingSection.addItem(new SideNavItem("My Activities", MyTeachingActivitiesView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)) {
-				this.teachingActivites = new SideNavItem("", TeachingActivitiesView.class, LineAwesomeIcon.CHALKBOARD_TEACHER_SOLID.create()); //$NON-NLS-1$
+			if (this.accessChecker.hasAccess(TeachingActivitiesListView.class)) {
+				this.teachingActivites = new SideNavItem("", TeachingActivitiesListView.class, LineAwesomeIcon.CHALKBOARD_TEACHER_SOLID.create()); //$NON-NLS-1$
 				this.teachingSection.addItem(this.teachingActivites);
 			}
 			nav.addItem(this.teachingSection);
@@ -354,15 +363,15 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 */
 	protected void createStructureManagementNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(OrganizationsListView.class)
-				|| this.accessChecker.hasAccess(ScientificAxesView.class)
+				|| this.accessChecker.hasAccess(ScientificAxesListView.class)
 				|| this.accessChecker.hasAccess(AddressesListView.class)) {
 			this.organizationsSection = new SideNavItem(""); //$NON-NLS-1$
 			if (this.accessChecker.hasAccess(OrganizationsListView.class)) {
 				this.organizations = new SideNavItem("", OrganizationsListView.class, LineAwesomeIcon.UNIVERSITY_SOLID.create()); //$NON-NLS-1$
 				this.organizationsSection.addItem(this.organizations);
 			}
-			if (this.accessChecker.hasAccess(ScientificAxesView.class)) {
-				this.scientificAxes = new SideNavItem("", ScientificAxesView.class, LineAwesomeIcon.LAYER_GROUP_SOLID.create()); //$NON-NLS-1$
+			if (this.accessChecker.hasAccess(ScientificAxesListView.class)) {
+				this.scientificAxes = new SideNavItem("", ScientificAxesListView.class, LineAwesomeIcon.LAYER_GROUP_SOLID.create()); //$NON-NLS-1$
 				this.organizationsSection.addItem(this.scientificAxes);
 			}
 			if (this.accessChecker.hasAccess(AddressesListView.class)) {
@@ -456,49 +465,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			div.getElement().getStyle().set("gap", "var(--lumo-space-s)"); //$NON-NLS-1$//$NON-NLS-2$
 			userName.add(div);
 
-			final var mainMenu = userName.getSubMenu();
-
-			this.languagesLink = mainMenu.addItem(""); //$NON-NLS-1$s
-			final var locales = LanguageSelect.getAvailableLocales();
-			this.languageLinks = new LanguageRecord[locales.length];
-			final var languageSubMenu = this.languagesLink.getSubMenu();
-			final var currentLang = getLocale().getLanguage();
-			final var langItems = new ArrayList<MenuItem>(locales.length);
-			MenuItem currentLanguageItem = null;
-			int i = 0;
-			for (final var locale : locales) {
-				final var hl = new HorizontalLayout();
-				hl.setSpacing(false);
-				hl.setAlignItems(Alignment.CENTER);
-
-				final var countryCode = CountryCode.fromLocale(locale);
-				final var flag = new CountryFlag(countryCode);
-				flag.setSizeFromHeight(2, Unit.EX);
-				flag.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
-
-				final var text = new Span(""); //$NON-NLS-1$
-				this.languageLinks[i] = new LanguageRecord(locale, text);
-				hl.add(flag, text);
-				final var menuItem = languageSubMenu.addItem(hl, e -> {
-					final var current = e.getSource();
-					langItems.stream().filter(it -> it != current).forEach(it -> it.setChecked(false));
-					LanguageSelect.setUILocale(locale);
-				});
-				menuItem.setCheckable(true);
-				langItems.add(menuItem);
-				if (currentLanguageItem == null && currentLang.equalsIgnoreCase(locale.getLanguage())) {
-					currentLanguageItem = menuItem;
-				}
-				++i;
-			}
-
-			if (currentLanguageItem != null) {
-				currentLanguageItem.setChecked(true);
-			}
-			
-			this.logoutLink = mainMenu.addItem("", e -> { //$NON-NLS-1$
-				this.authenticatedUser.logout();
-			});
+			createUserMenu(userName.getSubMenu());
 
 			layout.add(userMenu);
 		} else {
@@ -506,6 +473,65 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			layout.add(this.loginLink);
 		}
 		return layout;
+	}
+
+	/** Invoked for creating the user menu.
+	 *
+	 * @param mainMenu the user menu to fill up.
+	 */
+	protected void createUserMenu(SubMenu mainMenu) {
+		//
+		// User role
+		//
+		this.roleInUserMenu = new Span();
+		mainMenu.add(this.roleInUserMenu);
+
+		//
+		// Language selection
+		//
+		this.languagesLink = mainMenu.addItem(""); //$NON-NLS-1$s
+		final var locales = LanguageSelect.getAvailableLocales();
+		this.languageLinks = new LanguageRecord[locales.length];
+		final var languageSubMenu = this.languagesLink.getSubMenu();
+		final var currentLang = getLocale().getLanguage();
+		final var langItems = new ArrayList<MenuItem>(locales.length);
+		MenuItem currentLanguageItem = null;
+		int i = 0;
+		for (final var locale : locales) {
+			final var hl = new HorizontalLayout();
+			hl.setSpacing(false);
+			hl.setAlignItems(Alignment.CENTER);
+
+			final var countryCode = CountryCode.fromLocale(locale);
+			final var flag = new CountryFlag(countryCode);
+			flag.setSizeFromHeight(2, Unit.EX);
+			flag.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			final var text = new Span(""); //$NON-NLS-1$
+			this.languageLinks[i] = new LanguageRecord(locale, text);
+			hl.add(flag, text);
+			final var menuItem = languageSubMenu.addItem(hl, e -> {
+				final var current = e.getSource();
+				langItems.stream().filter(it -> it != current).forEach(it -> it.setChecked(false));
+				LanguageSelect.setUILocale(locale);
+			});
+			menuItem.setCheckable(true);
+			langItems.add(menuItem);
+			if (currentLanguageItem == null && currentLang.equalsIgnoreCase(locale.getLanguage())) {
+				currentLanguageItem = menuItem;
+			}
+			++i;
+		}
+		if (currentLanguageItem != null) {
+			currentLanguageItem.setChecked(true);
+		}
+		
+		//
+		// Logout
+		//
+		this.logoutLink = mainMenu.addItem("", e -> { //$NON-NLS-1$
+			this.authenticatedUser.logout();
+		});
 	}
 
 	@Override
@@ -531,50 +557,6 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	}
 
 	@Override
-	public void localeChange(LocaleChangeEvent event) {
-		this.viewTitle.setText(getCurrentPageTitle());
-
-		this.positionSection.setLabel(getTranslation("views.navitem.positionSection")); //$NON-NLS-1$
-		this.myprofile.setLabel(this.getTranslation("views.navitem.my_profile")); //$NON-NLS-1$
-		this.allpersons.setLabel(getTranslation("views.navitem.all_persons")); //$NON-NLS-1$
-		
-		this.scientificActivitySection.setLabel(getTranslation("views.navitem.scientificactivitiesSection")); //$NON-NLS-1$
-		this.journals.setLabel(getTranslation("views.navitem.journals")); //$NON-NLS-1$
-		this.conferences.setLabel(getTranslation("views.navitem.conferences")); //$NON-NLS-1$
-
-		this.projectSection.setLabel(getTranslation("views.navitem.projectSection")); //$NON-NLS-1$
-		this.projects.setLabel(getTranslation("views.navitem.projects")); //$NON-NLS-1$
-		this.associatedStructures.setLabel(getTranslation("views.navitem.associated_structures")); //$NON-NLS-1$
-
-		this.teachingSection.setLabel(getTranslation("views.navitem.teachingSection")); //$NON-NLS-1$
-		this.teachingActivites.setLabel(getTranslation("views.navitem.teaching_activities")); //$NON-NLS-1$
-
-		this.organizationsSection.setLabel(getTranslation("views.navitem.organizationsSection")); //$NON-NLS-1$
-		this.organizations.setLabel(getTranslation("views.navitem.organizations")); //$NON-NLS-1$
-		this.scientificAxes.setLabel(getTranslation("views.navitem.scientific_axes")); //$NON-NLS-1$
-		this.addresses.setLabel(getTranslation("views.navitem.addresses")); //$NON-NLS-1$
-
-		this.documentations.setLabel(getTranslation("views.navitem.documentations")); //$NON-NLS-1$
-		this.documentation.setLabel(getTranslation("views.navitem.online_manuals")); //$NON-NLS-1$
-		this.about.setLabel(getTranslation("views.navitem.about_app")); //$NON-NLS-1$
-
-		if (this.loginLink != null) {
-			this.loginLink.setText(getTranslation("views.sign_in")); //$NON-NLS-1$
-		}
-		if (this.logoutLink != null) {
-			this.logoutLink.setText(getTranslation("views.sign_out")); //$NON-NLS-1$
-		}
-		if (this.languagesLink != null) {
-			this.languagesLink.setText(getTranslation("views.languages")); //$NON-NLS-1$
-		}
-		if (this.languageLinks != null) {
-			for (final LanguageRecord menuItem : this.languageLinks) {
-				menuItem.menuText.setText(StringUtils.capitalize(menuItem.locale.getDisplayLanguage(getLocale())));
-			}
-		}
-	}
-
-	@Override
 	public void authenticatedUserIdentityChange() {
 		final var maybeUser = this.authenticatedUser.get();
 		if (maybeUser.isPresent()) {
@@ -592,6 +574,113 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			}
 			if (this.username != null) {
 				this.username.setText(fullname);
+			}
+			updateUserRoleInMenu(user.getRole());
+		}
+	}
+
+	private void updateUserRoleInMenu(UserRole role) {
+		if (role != null && this.roleInUserMenu != null) {
+			final var roleName = role.getLabel(this.messages, getLocale());
+			this.roleInUserMenu.setText(getTranslation("views.roleInUserMenu", roleName)); //$NON-NLS-1$
+			String color = null;
+			switch (role) {
+			case USER:
+				color = "var(--lumo-primary-text-color)"; //$NON-NLS-1$
+				break;
+			case RESPONSIBLE:
+				color = "var(--lumo-success-text-color)"; //$NON-NLS-1$
+				break;
+			case ADMIN:
+				color = "var(--lumo-error-text-color)"; //$NON-NLS-1$
+				break;
+			}
+			if (color != null) {
+				this.roleInUserMenu.getStyle().setColor(color);
+			}
+		}
+	}
+
+	@Override
+	public void localeChange(LocaleChangeEvent event) {
+		if (this.authenticatedUser != null && this.authenticatedUser.get().isPresent()) {
+			updateUserRoleInMenu(this.authenticatedUser.get().get().getRole());
+		}
+		
+		this.viewTitle.setText(getCurrentPageTitle());
+
+		if (this.positionSection != null) {
+			this.positionSection.setLabel(getTranslation("views.navitem.positionSection")); //$NON-NLS-1$
+		}
+		if (this.myprofile != null) {
+			this.myprofile.setLabel(this.getTranslation("views.navitem.my_profile")); //$NON-NLS-1$
+		}
+		if (this.allpersons != null) {
+			this.allpersons.setLabel(getTranslation("views.navitem.all_persons")); //$NON-NLS-1$
+		}
+		
+		if (this.scientificActivitySection != null) {
+			this.scientificActivitySection.setLabel(getTranslation("views.navitem.scientificactivitiesSection")); //$NON-NLS-1$
+		}
+		if (this.journals != null) {
+			this.journals.setLabel(getTranslation("views.navitem.journals")); //$NON-NLS-1$
+		}
+		if (this.conferences != null) {
+			this.conferences.setLabel(getTranslation("views.navitem.conferences")); //$NON-NLS-1$
+		}
+
+		if (this.projectSection != null) {
+			this.projectSection.setLabel(getTranslation("views.navitem.projectSection")); //$NON-NLS-1$
+		}
+		if (this.projects != null) {
+			this.projects.setLabel(getTranslation("views.navitem.projects")); //$NON-NLS-1$
+		}
+		if (this.associatedStructures != null) {
+			this.associatedStructures.setLabel(getTranslation("views.navitem.associated_structures")); //$NON-NLS-1$
+		}
+
+		if (this.teachingSection != null) {
+			this.teachingSection.setLabel(getTranslation("views.navitem.teachingSection")); //$NON-NLS-1$
+		}
+		if (this.teachingActivites != null) {
+			this.teachingActivites.setLabel(getTranslation("views.navitem.teaching_activities")); //$NON-NLS-1$
+		}
+
+		if (this.organizationsSection != null) {
+			this.organizationsSection.setLabel(getTranslation("views.navitem.organizationsSection")); //$NON-NLS-1$
+		}
+		if (this.organizations != null) {
+			this.organizations.setLabel(getTranslation("views.navitem.organizations")); //$NON-NLS-1$
+		}
+		if (this.scientificAxes != null) {
+			this.scientificAxes.setLabel(getTranslation("views.navitem.scientific_axes")); //$NON-NLS-1$
+		}
+		if (this.addresses != null) {
+			this.addresses.setLabel(getTranslation("views.navitem.addresses")); //$NON-NLS-1$
+		}
+
+		if (this.documentations != null) {
+			this.documentations.setLabel(getTranslation("views.navitem.documentations")); //$NON-NLS-1$
+		}
+		if (this.documentation != null) {
+			this.documentation.setLabel(getTranslation("views.navitem.online_manuals")); //$NON-NLS-1$
+		}
+		if (this.about != null) {
+			this.about.setLabel(getTranslation("views.navitem.about_app")); //$NON-NLS-1$
+		}
+
+		if (this.loginLink != null) {
+			this.loginLink.setText(getTranslation("views.sign_in")); //$NON-NLS-1$
+		}
+		if (this.logoutLink != null) {
+			this.logoutLink.setText(getTranslation("views.sign_out")); //$NON-NLS-1$
+		}
+		if (this.languagesLink != null) {
+			this.languagesLink.setText(getTranslation("views.languages")); //$NON-NLS-1$
+		}
+		if (this.languageLinks != null) {
+			for (final LanguageRecord menuItem : this.languageLinks) {
+				menuItem.menuText.setText(StringUtils.capitalize(menuItem.locale.getDisplayLanguage(getLocale())));
 			}
 		}
 	}

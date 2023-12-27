@@ -35,7 +35,6 @@ import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.slf4j.Logger;
@@ -68,7 +67,9 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 
 	private Checkbox validatedEntity;
 	
-	private final boolean isAdmin;
+	private final boolean isBaseAdmin;
+
+	private final boolean isAdvancedAdmin;
 
 	private final String administationSectionTranslationKey;
 
@@ -96,8 +97,14 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 		this.entityBinder = new Binder<>(this.entityType);
 		this.authenticatedUser = authenticatedUser;
 
-		this.isAdmin = this.authenticatedUser != null && this.authenticatedUser.get().isPresent()
-				&& this.authenticatedUser.get().get().getRole() == UserRole.ADMIN;
+		if (this.authenticatedUser != null && this.authenticatedUser.get().isPresent()) {
+			final var role = this.authenticatedUser.get().get().getRole();
+			this.isBaseAdmin = role.hasBaseAdministrationRights();
+			this.isAdvancedAdmin = role.hasAdvancedAdministrationRights();
+		} else {
+			this.isBaseAdmin = false;
+			this.isAdvancedAdmin = false;
+		}
 	}
 
 	/** Replies if the data inside the editor is valid.
@@ -108,12 +115,20 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 		return getEntityDataBinder().validate().isOk();
 	}
 	
-	/** Replies if the editor is in admin mode.
+	/** Replies if the editor is launched by an user with base administration rights.
 	 * 
-	 * @return {@code true} if in admin mode.
+	 * @return {@code true} if the user has base administration rights.
 	 */
-	public boolean isAdmin() {
-		return this.isAdmin;
+	public boolean isBaseAdmin() {
+		return this.isBaseAdmin;
+	}
+
+	/** Replies if the editor is launched by an user with advanced administration rights.
+	 * 
+	 * @return {@code true} if the user has advanced administration rights.
+	 */
+	public boolean isAdvancedAdmin() {
+		return this.isAdvancedAdmin;
 	}
 
 	/** Replies the accessor to the localized strings.
@@ -167,7 +182,7 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 	protected final void createEditorContentAndLinkBeans() {
 		final var rootContainer = getContent();
 		rootContainer.setSpacing(false);
-		createEditorContent(rootContainer, isAdmin());
+		createEditorContent(rootContainer);
 		linkBeans();
 	}
 
@@ -181,10 +196,9 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 	 * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
 	 *
 	 * @param rootContainer the container.
-	 * @param isAdmin indicates if the user has the administrator role.
 	 * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
 	 */
-	protected abstract void createEditorContent(VerticalLayout rootContainer, boolean isAdmin);
+	protected abstract void createEditorContent(VerticalLayout rootContainer);
 
 	/** Create the components for adminitrator.
 	 *

@@ -19,10 +19,13 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -144,23 +147,26 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		createFundingDetails(rootContainer);
 		createInnovationDetails(rootContainer);
 		createPresentationDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
-		if (isAdmin) {
-			createAdministrationComponents(rootContainer,
-					content -> {
-						this.webpageConvention = new ComboBox<>();
-						this.webpageConvention.setItems(ProjectWebPageNaming.values());
-						this.webpageConvention.setItemLabelGenerator(this::getWebpageNamingLabel);
-						this.webpageConvention.setValue(ProjectWebPageNaming.UNSPECIFIED);
-						content.add(this.webpageConvention, 1);
+		if (isBaseAdmin()) {
+			Consumer<FormLayout> builderCallback = null;
+			if (isAdvancedAdmin()) {
+				builderCallback = content -> {
+					this.webpageConvention = new ComboBox<>();
+					this.webpageConvention.setItems(ProjectWebPageNaming.values());
+					this.webpageConvention.setItemLabelGenerator(this::getWebpageNamingLabel);
+					this.webpageConvention.setValue(ProjectWebPageNaming.UNSPECIFIED);
+					content.add(this.webpageConvention, 1);
 
-						getEntityDataBinder().forField(this.webpageConvention).bind(Project::getWebPageNaming, Project::setWebPageNaming);
-					},
+					getEntityDataBinder().forField(this.webpageConvention).bind(Project::getWebPageNaming, Project::setWebPageNaming);
+				};
+			}
+			createAdministrationComponents(rootContainer, builderCallback,
 					it -> it.bind(Project::isValidated, Project::setValidated));
 		}
 	}

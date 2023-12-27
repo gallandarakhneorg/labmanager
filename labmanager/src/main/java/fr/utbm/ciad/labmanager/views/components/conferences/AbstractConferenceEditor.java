@@ -105,11 +105,11 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		createRankingDetails(rootContainer);
 		createPublisherDetails(rootContainer);
-		if (isAdmin) {
+		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					null,
 					it -> it.bind(Conference::isValidated, Conference::setValidated));

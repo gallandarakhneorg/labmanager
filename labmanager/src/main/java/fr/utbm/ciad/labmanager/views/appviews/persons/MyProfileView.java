@@ -33,7 +33,7 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonEditor;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
@@ -92,8 +92,8 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
-		super.createEditorContent(rootContainer, isAdmin);
+	protected void createEditorContent(VerticalLayout rootContainer) {
+		super.createEditorContent(rootContainer);
 
 		rootContainer.setSpacing(true);
 		
@@ -101,7 +101,7 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 		rootContainer.add(bar);
 		
 		this.validateButton = null;
-		if (isAdmin) {
+		if (isBaseAdmin()) {
 			this.validateButton = new Button("", event -> { //$NON-NLS-1$
 				validateByOrganizationalStructureManager();
 				if (isValidData()) {

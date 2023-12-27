@@ -22,11 +22,12 @@ package fr.utbm.ciad.labmanager.views.appviews.teaching;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.teaching.StandardTeachingActivitiesListView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,12 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Route(value = "teaching", layout = MainLayout.class)
-@PermitAll
-public class TeachingActivitiesView extends StandardTeachingActivitiesListView implements HasDynamicTitle {
+@RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
+public class TeachingActivitiesListView extends StandardTeachingActivitiesListView implements HasDynamicTitle {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TeachingActivitiesView.class);
+	private static final long serialVersionUID = -3394037347708282892L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TeachingActivitiesListView.class);
 
 	/** Constructor.
 	 *
@@ -53,7 +56,7 @@ public class TeachingActivitiesView extends StandardTeachingActivitiesListView i
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
 	 */
-	public TeachingActivitiesView(
+	public TeachingActivitiesListView(
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
 			@Autowired TeachingService teachingService) {

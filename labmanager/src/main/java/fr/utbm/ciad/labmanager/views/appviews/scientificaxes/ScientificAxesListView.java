@@ -19,15 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.scientificaxes;
 
-import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.StandardScientificAxisListView;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -41,13 +40,12 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Route(value = "scientificaxes", layout = MainLayout.class)
-@PermitAll
-@Uses(Icon.class)
-public class ScientificAxesView extends StandardScientificAxisListView implements HasDynamicTitle {
+@RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
+public class ScientificAxesListView extends StandardScientificAxisListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = 4918450030888881030L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScientificAxesView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScientificAxesListView.class);
 
 	/** Constructor.
 	 * 
@@ -55,7 +53,7 @@ public class ScientificAxesView extends StandardScientificAxisListView implement
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param axisService the service for accessing the scientific axes.
 	 */
-	public ScientificAxesView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+	public ScientificAxesListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ScientificAxisService axisService) {
 		super(authenticatedUser, messages, axisService, LOGGER);
 	}

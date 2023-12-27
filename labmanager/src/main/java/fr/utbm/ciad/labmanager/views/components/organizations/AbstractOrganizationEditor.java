@@ -116,11 +116,11 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		createIdentificationDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
-		if (isAdmin) {
+		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					content -> {
 						this.majorOrganization = new Checkbox();

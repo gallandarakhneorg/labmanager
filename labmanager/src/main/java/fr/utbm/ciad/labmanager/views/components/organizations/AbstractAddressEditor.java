@@ -105,11 +105,11 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 	}
 
 	@Override
-	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+	protected void createEditorContent(VerticalLayout rootContainer) {
 		createPostalAddressInformationDetails(rootContainer);
 		createGeographicInformationDetails(rootContainer);
 		createPresentationDetails(rootContainer);
-		if (isAdmin) {
+		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					null,
 					it -> it.bind(OrganizationAddress::isValidated, OrganizationAddress::setValidated));

@@ -452,7 +452,7 @@ public final class ComponentFactory {
 	public static void openEditionModalDialog(String title, AbstractEntityEditor<?> content, boolean mapEnterKeyToSave,
 			SerializableConsumer<Dialog> saveDoneCallback) {
 		final SerializableConsumer<Dialog> validateCallback;
-		if (content.isAdmin()) {
+		if (content.isBaseAdmin()) {
 			validateCallback = dialog -> {
 				content.validateByOrganizationalStructureManager();
 				if (content.isValidData()) {
