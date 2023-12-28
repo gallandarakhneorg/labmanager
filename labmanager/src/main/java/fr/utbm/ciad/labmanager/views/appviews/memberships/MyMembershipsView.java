@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.appviews.persons;
+package fr.utbm.ciad.labmanager.views.appviews.memberships;
 
 import java.util.ArrayList;
 import java.util.List;

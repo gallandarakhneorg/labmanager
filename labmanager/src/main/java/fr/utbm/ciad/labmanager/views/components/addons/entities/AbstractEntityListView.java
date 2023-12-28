@@ -159,7 +159,7 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	 */
 	protected boolean isAdminRole() {
 		return this.authenticatedUser != null && this.authenticatedUser.get().isPresent()
-				&& this.authenticatedUser.get().get().getRole() == UserRole.ADMIN;
+				&& this.authenticatedUser.get().get().getRole().hasBaseAdministrationRights();
 	}
 
 	/** Create the filters for mobile device.

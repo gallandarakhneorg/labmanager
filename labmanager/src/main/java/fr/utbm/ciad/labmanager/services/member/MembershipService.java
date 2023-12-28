@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,6 +52,10 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for the memberships to research organizations.
@@ -89,6 +94,66 @@ public class MembershipService extends AbstractService {
 		this.organizationRepository = organizationRepository;
 		this.membershipRepository = membershipRepository;
 		this.personRepository = personRepository;
+	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @return the list of all the memberships.
+	 */
+	public List<Membership> getAllMemberships() {
+		return this.membershipRepository.findAll();
+	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @param filter the filter of the memberships.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	public List<Membership> getAllMemberships(Specification<Membership> filter) {
+		return this.membershipRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @param filter the filter of the memberships.
+	 * @param sortOrder the order specification to use for sorting the memberships.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	public List<Membership> getAllMemberships(Specification<Membership> filter, Sort sortOrder) {
+		return this.membershipRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @param sortOrder the order specification to use for sorting the memberships.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	public List<Membership> getAllMemberships(Sort sortOrder) {
+		return this.membershipRepository.findAll(sortOrder);
+	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	public Page<Membership> getAllMemberships(Pageable pageable) {
+		return this.membershipRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the memberships.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	public Page<Membership> getAllMemberships(Pageable pageable, Specification<Membership> filter) {
+		return this.membershipRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the members of the organization.
@@ -485,6 +550,63 @@ public class MembershipService extends AbstractService {
 	 */
 	public boolean isMember(long id) {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty();
+	}
+
+	/** Start the editing of the given membership.
+	 *
+	 * @param membership the membership to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the membership and its related resources.
+	 */
+	public EditingContext startEditing(Membership membership) {
+		assert membership != null;
+		return new EditingContext(membership);
+	}
+
+	/** Context for editing a {@link Membership}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = -4782495321040453426L;
+
+		private Membership membership;
+
+		/** Constructor.
+		 *
+		 * @param membership the edited membership.
+		 */
+		EditingContext(Membership membership) {
+			this.membership = membership;
+		}
+
+		/** Replies the membership.
+		 *
+		 * @return the membership.
+		 */
+		public Membership getMembership() {
+			return this.membership;
+		}
+
+		/** Save the membership in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the membership object that was provided before the saving.
+		 * Invoke {@link #getMembership()} for obtaining the new membership
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.membership = MembershipService.this.membershipRepository.save(this.membership);
+		}
+
 	}
 
 }
