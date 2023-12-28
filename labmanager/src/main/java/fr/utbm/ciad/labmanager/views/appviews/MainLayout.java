@@ -77,7 +77,7 @@ import fr.utbm.ciad.labmanager.views.appviews.publications.PublicationsView;
 import fr.utbm.ciad.labmanager.views.appviews.scientificaxes.ScientificAxesListView;
 import fr.utbm.ciad.labmanager.views.appviews.supervisions.MySupervisionsView;
 import fr.utbm.ciad.labmanager.views.appviews.supervisions.MySupervisorsView;
-import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsView;
+import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsListView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.MyTeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesListView;
 import fr.utbm.ciad.labmanager.views.appviews.welcome.WelcomeView;
@@ -170,6 +170,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private SideNavItem incomingInvitations;
 
+	private SideNavItem supervisions;
+
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the logged-in user.
@@ -253,7 +255,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 				|| this.accessChecker.hasAccess(MySupervisionsView.class)
 				|| this.accessChecker.hasAccess(MySupervisionsView.class)
 				|| this.accessChecker.hasAccess(PublicationsView.class)
-				|| this.accessChecker.hasAccess(SupervisionsView.class)
+				|| this.accessChecker.hasAccess(SupervisionsListView.class)
 				|| this.accessChecker.hasAccess(JournalsListView.class)
 				|| this.accessChecker.hasAccess(ConferencesListView.class)) {
 			this.scientificActivitySection = new SideNavItem(null);
@@ -269,8 +271,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			if (this.accessChecker.hasAccess(PublicationsView.class)) {
 				this.scientificActivitySection.addItem(new SideNavItem("Publications", PublicationsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			if (this.accessChecker.hasAccess(SupervisionsView.class)) {
-				this.scientificActivitySection.addItem(new SideNavItem("Supervisions", SupervisionsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+			if (this.accessChecker.hasAccess(SupervisionsListView.class)) {
+				this.supervisions = new SideNavItem("", SupervisionsListView.class, LineAwesomeIcon.GRADUATION_CAP_SOLID.create()); //$NON-NLS-1$
+				this.scientificActivitySection.addItem(this.supervisions);
 			}
 			if (this.accessChecker.hasAccess(JournalsListView.class)) {
 				this.journals = new SideNavItem("", JournalsListView.class, LineAwesomeIcon.NEWSPAPER_SOLID.create()); //$NON-NLS-1$
@@ -706,6 +709,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 		if (this.juryMemberships != null) {
 			this.juryMemberships.setLabel(getTranslation("views.navitem.jury_memberships")); //$NON-NLS-1$
+		}
+		if (this.supervisions != null) {
+			this.supervisions.setLabel(getTranslation("views.navitem.supervisions")); //$NON-NLS-1$
 		}
 	}
 

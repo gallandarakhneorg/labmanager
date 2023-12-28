@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.supervision;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,10 @@ import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for the person supervisions.
@@ -79,6 +84,66 @@ public class SupervisionService extends AbstractService {
 		this.supervisorRepository = supervisorRepository;
 		this.membershipRepository = membershipRepository;
 		this.personService = personService;
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @return the list of all the supervisions.
+	 */
+	public List<Supervision> getAllSupervisions() {
+		return this.supervisionRepository.findAll();
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @param filter the filter of the supervisions.
+	 * @return the list of all the supervisions.
+	 * @since 4.0
+	 */
+	public List<Supervision> getAllSupervisions(Specification<Supervision> filter) {
+		return this.supervisionRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @param filter the filter of the supervisions.
+	 * @param sortOrder the order specification to use for sorting the supervisions.
+	 * @return the list of all the supervisions.
+	 * @since 4.0
+	 */
+	public List<Supervision> getAllSupervisions(Specification<Supervision> filter, Sort sortOrder) {
+		return this.supervisionRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @param sortOrder the order specification to use for sorting the supervisions.
+	 * @return the list of all the supervisions.
+	 * @since 4.0
+	 */
+	public List<Supervision> getAllSupervisions(Sort sortOrder) {
+		return this.supervisionRepository.findAll(sortOrder);
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the supervisions.
+	 * @since 4.0
+	 */
+	public Page<Supervision> getAllSupervisions(Pageable pageable) {
+		return this.supervisionRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the supervisions.
+	 * @return the list of all the supervisions.
+	 * @since 4.0
+	 */
+	public Page<Supervision> getAllSupervisions(Pageable pageable, Specification<Supervision> filter) {
+		return this.supervisionRepository.findAll(filter, pageable);
 	}
 
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is one of the supervisors.
@@ -273,6 +338,63 @@ public class SupervisionService extends AbstractService {
 	public boolean isInvolved(long id) {
 		return !this.supervisionRepository.findAllBySupervisedPersonPersonId(Long.valueOf(id)).isEmpty()
 				|| !!this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(id)).isEmpty();
+	}
+
+	/** Start the editing of the given supervision.
+	 *
+	 * @param supervision the supervision to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the supervision and its related resources.
+	 */
+	public EditingContext startEditing(Supervision supervision) {
+		assert supervision != null;
+		return new EditingContext(supervision);
+	}
+
+	/** Context for editing a {@link Supervision}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = 34682604000233262L;
+
+		private Supervision supervision;
+
+		/** Constructor.
+		 *
+		 * @param supervision the edited supervision.
+		 */
+		EditingContext(Supervision supervision) {
+			this.supervision = supervision;
+		}
+
+		/** Replies the supervision.
+		 *
+		 * @return the supervision.
+		 */
+		public Supervision getSupervision() {
+			return this.supervision;
+		}
+
+		/** Save the supervision in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the supervision object that was provided before the saving.
+		 * Invoke {@link #getSupervision()} for obtaining the new supervision
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.supervision = SupervisionService.this.supervisionRepository.save(this.supervision);
+		}
+
 	}
 
 }
