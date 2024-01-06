@@ -30,7 +30,6 @@ import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
-import fr.utbm.ciad.labmanager.utils.RequiredFieldInForm;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -214,7 +213,6 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	}
 
 	@Override
-	@RequiredFieldInForm
 	public Conference getConference() {
 		return this.conference;
 	}
@@ -225,7 +223,6 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	}
 
 	@Override
-	@RequiredFieldInForm
 	public int getConferenceOccurrenceNumber() {
 		return this.conferenceOccurrenceNumber;
 	}

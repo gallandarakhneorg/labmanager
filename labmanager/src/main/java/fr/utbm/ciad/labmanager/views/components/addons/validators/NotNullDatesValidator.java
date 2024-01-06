@@ -36,6 +36,8 @@ import com.vaadin.flow.data.validator.AbstractValidator;
  */
 public class NotNullDatesValidator extends AbstractValidator<LocalDate> {
 
+	private static final long serialVersionUID = 2347050796824006602L;
+
 	private final Supplier<LocalDate> otherDateSupplier;
 
 	/**

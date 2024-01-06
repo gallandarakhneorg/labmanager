@@ -58,14 +58,6 @@ public class ExporterConfigurator {
 
 	private boolean enableTitleColor = true;
 
-	private boolean enableDownloadButtons = true;
-
-	private boolean enableExportButtons = true;
-
-	private boolean enableEditButtons = true;
-
-	private boolean enableDeleteButtons = true;
-
 	private boolean enableFormattedLinks = true;
 
 	private boolean enableFormattedAuthorList = true;
@@ -219,82 +211,6 @@ public class ExporterConfigurator {
 	 */
 	public ExporterConfigurator disableFormattedAuthorList() {
 		this.enableFormattedAuthorList = false;
-		return this;
-	}
-
-	/** Replies if the edit buttons are included to the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return {@code true} for including edit buttons.
-	 */
-	public boolean isEditButtons() {
-		return this.enableEditButtons;
-	}
-
-	/** Disable the inclusion of the edit buttons in the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return this.
-	 */
-	public ExporterConfigurator disableEditButtons() {
-		this.enableEditButtons = false;
-		return this;
-	}
-
-	/** Replies if the delete buttons are included to the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return {@code true} for including delete buttons.
-	 */
-	public boolean isDeleteButtons() {
-		return this.enableDeleteButtons;
-	}
-
-	/** Disable the inclusion of the delete buttons in the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return this.
-	 */
-	public ExporterConfigurator disableDeleteButtons() {
-		this.enableDeleteButtons = false;
-		return this;
-	}
-
-	/** Replies if the export buttons are included to the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return {@code true} for including export buttons.
-	 */
-	public boolean isExportButtons() {
-		return this.enableExportButtons;
-	}
-
-	/** Disable the inclusion of the export buttons in the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return this.
-	 */
-	public ExporterConfigurator disableExportButtons() {
-		this.enableExportButtons = false;
-		return this;
-	}
-
-	/** Replies if the download buttons are included to the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return {@code true} for including download buttons.
-	 */
-	public boolean isDownloadButtons() {
-		return this.enableDownloadButtons;
-	}
-
-	/** Disable the inclusion of the download buttons in the exported data.
-	 * <p>This feature may be ignored in the implementation of the exporter.
-	 *
-	 * @return this.
-	 */
-	public ExporterConfigurator disableDownloadButtons() {
-		this.enableDownloadButtons = false;
 		return this;
 	}
 
@@ -476,7 +392,7 @@ public class ExporterConfigurator {
 			var status = ExportedAuthorStatus.OTHER;
 			for (final var membership : person.getMemberships()) {
 				if (isValidPeriod(membership, year)
-						&& (this.organizationSelector == null || this.organizationSelector.test(membership.getResearchOrganization()))) {
+						&& (this.organizationSelector == null || this.organizationSelector.test(membership.getDirectResearchOrganization()))) {
 					if (isResearcher(membership)) {
 						status = max(status, ExportedAuthorStatus.RESEARCHER);
 					} else if (isPhDStudent(membership)) {

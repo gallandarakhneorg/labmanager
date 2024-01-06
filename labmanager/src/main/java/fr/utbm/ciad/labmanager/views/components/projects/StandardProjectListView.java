@@ -105,6 +105,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 		this.fileManager = fileManager;
 		this.projectService = projectService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllProjects(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

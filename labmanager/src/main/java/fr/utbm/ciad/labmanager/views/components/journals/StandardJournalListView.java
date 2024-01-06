@@ -90,6 +90,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		super(Journal.class, authenticatedUser, messages, logger);
 		this.journalService = journalService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJournals(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

@@ -126,7 +126,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 		this.membershipService = membershipService;
 		this.membershipComparator = membershipComparator;
 		this.dataProvider = dataProvider;
-
+		initializeDataInGrid(getGrid(), getFilters());
 		refreshUsers();
 	}
 
@@ -141,7 +141,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 			final var spans = new ArrayList<Span>();
 			while (memberships.hasNext()) {
 				final var mbr = memberships.next();
-				final var organization = mbr.getResearchOrganization();
+				final var organization = mbr.getDirectResearchOrganization();
 				final var name = organization.getAcronymOrName();
 				var span = new Span(name);
 				if (mbr.isFormer()) {

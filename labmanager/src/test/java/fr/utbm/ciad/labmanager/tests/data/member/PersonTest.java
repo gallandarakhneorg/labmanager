@@ -724,25 +724,25 @@ public class PersonTest {
 		ResearchOrganization o1 = mockOrg("o1");
 
 		Membership m0 = mock(Membership.class);
-		when(m0.getResearchOrganization()).thenReturn(o0);
+		when(m0.getDirectResearchOrganization()).thenReturn(o0);
 		when(m0.getPerson()).thenReturn(this.test);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
 		when(m0.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-07-22"));
 		when(m0.getMemberToWhen()).thenReturn(LocalDate.parse("2022-07-22"));
 
 		Membership m1 = mock(Membership.class);
-		when(m1.getResearchOrganization()).thenReturn(o1);
+		when(m1.getDirectResearchOrganization()).thenReturn(o1);
 		when(m1.getPerson()).thenReturn(this.test);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 
 		Membership m2 = mock(Membership.class);
-		when(m2.getResearchOrganization()).thenReturn(o0);
+		when(m2.getDirectResearchOrganization()).thenReturn(o0);
 		when(m2.getPerson()).thenReturn(this.test);
 		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m2.getMemberSinceWhen()).thenReturn(LocalDate.parse("2022-07-23"));
 
 		Membership m3 = mock(Membership.class);
-		when(m3.getResearchOrganization()).thenReturn(o0);
+		when(m3.getDirectResearchOrganization()).thenReturn(o0);
 		when(m3.getPerson()).thenReturn(this.test);
 		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
 		when(m3.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-01-01"));
@@ -765,7 +765,7 @@ public class PersonTest {
 		ResearchOrganization o1 = mockOrg("o1");
 
 		Membership m0 = mock(Membership.class);
-		when(m0.getResearchOrganization()).thenReturn(o0);
+		when(m0.getDirectResearchOrganization()).thenReturn(o0);
 		when(m0.getPerson()).thenReturn(this.test);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
 		when(m0.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-07-22"));
@@ -773,20 +773,20 @@ public class PersonTest {
 		when(m0.isActiveAt(any())).thenReturn(false);
 
 		Membership m1 = mock(Membership.class);
-		when(m1.getResearchOrganization()).thenReturn(o1);
+		when(m1.getDirectResearchOrganization()).thenReturn(o1);
 		when(m1.getPerson()).thenReturn(this.test);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m1.isActiveAt(any())).thenReturn(true);
 
 		Membership m2 = mock(Membership.class);
-		when(m2.getResearchOrganization()).thenReturn(o0);
+		when(m2.getDirectResearchOrganization()).thenReturn(o0);
 		when(m2.getPerson()).thenReturn(this.test);
 		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m2.getMemberSinceWhen()).thenReturn(LocalDate.parse("2022-07-23"));
 		when(m2.isActiveAt(any())).thenReturn(true);
 
 		Membership m3 = mock(Membership.class);
-		when(m3.getResearchOrganization()).thenReturn(o0);
+		when(m3.getDirectResearchOrganization()).thenReturn(o0);
 		when(m3.getPerson()).thenReturn(this.test);
 		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
 		when(m3.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-01-01"));
@@ -811,7 +811,7 @@ public class PersonTest {
 		ResearchOrganization o1 = mockOrg("o1");
 
 		Membership m0 = mock(Membership.class);
-		when(m0.getResearchOrganization()).thenReturn(o0);
+		when(m0.getDirectResearchOrganization()).thenReturn(o0);
 		when(m0.getPerson()).thenReturn(this.test);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
 		when(m0.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-07-22"));
@@ -819,20 +819,20 @@ public class PersonTest {
 		when(m0.isActiveAt(any())).thenReturn(true);
 
 		Membership m1 = mock(Membership.class);
-		when(m1.getResearchOrganization()).thenReturn(o1);
+		when(m1.getDirectResearchOrganization()).thenReturn(o1);
 		when(m1.getPerson()).thenReturn(this.test);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m1.isActiveAt(any())).thenReturn(true);
 
 		Membership m2 = mock(Membership.class);
-		when(m2.getResearchOrganization()).thenReturn(o0);
+		when(m2.getDirectResearchOrganization()).thenReturn(o0);
 		when(m2.getPerson()).thenReturn(this.test);
 		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m2.getMemberSinceWhen()).thenReturn(LocalDate.parse("2022-07-23"));
 		when(m2.isActiveAt(any())).thenReturn(true);
 
 		Membership m3 = mock(Membership.class);
-		when(m3.getResearchOrganization()).thenReturn(o0);
+		when(m3.getDirectResearchOrganization()).thenReturn(o0);
 		when(m3.getPerson()).thenReturn(this.test);
 		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
 		when(m3.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-01-01"));

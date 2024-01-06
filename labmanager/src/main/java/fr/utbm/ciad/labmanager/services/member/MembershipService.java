@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -48,8 +49,11 @@ import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -57,6 +61,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service for the memberships to research organizations.
  * 
@@ -156,6 +161,40 @@ public class MembershipService extends AbstractService {
 		return this.membershipRepository.findAll(filter, pageable);
 	}
 
+	/** Replies the list that is composed by a single memberships per person.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the memberships.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public Page<Person> getAllPersonsWithMemberships(Pageable pageable, Specification<Person> filter) {
+		final var criteria = new PersonWithMembershipSpecification();
+		final Specification<Person> filter0 = filter == null ? criteria : criteria.and(filter);
+		final Page<Person> persons = this.personRepository.findAll(filter0, pageable);
+		// Force the loading of the lazy collection of memberships
+		persons.forEach(it -> {
+			Hibernate.initialize(it.getMemberships());
+		});
+		return persons;
+	}
+
+	/** Replies the membership of the given person.
+	 *
+	 * @param personId the identifier of the person.
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the memberships.
+	 * @return the memberships of the person.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public Page<Membership> getMembershipsForPerson(long personId, Pageable pageable, Specification<Membership> filter) {
+		final var criteria = new PersonIdentifierSpecification(personId);
+		final Specification<Membership> filter0 = filter == null ? criteria : criteria.and(filter);
+		return this.membershipRepository.findAll(filter0, pageable);
+	}
+
 	/** Replies the members of the organization.
 	 * 
 	 * @param organization the organization to use.
@@ -219,7 +258,7 @@ public class MembershipService extends AbstractService {
 			String currentOrganizationName) {
 		if (currentOrganizationName != null) {
 			return getOtherOrganizationsForMembers(members,
-					it -> !Objects.equals(currentOrganizationName, it.getResearchOrganization().getName()));
+					it -> !Objects.equals(currentOrganizationName, it.getDirectResearchOrganization().getName()));
 		}
 		return Collections.emptyMap();
 	}
@@ -234,7 +273,7 @@ public class MembershipService extends AbstractService {
 	public Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
 			long currentOrganizationId) {
 		return getOtherOrganizationsForMembers(members,
-				it -> currentOrganizationId != it.getResearchOrganization().getId());
+				it -> currentOrganizationId != it.getDirectResearchOrganization().getId());
 	}
 
 	private static Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
@@ -246,7 +285,7 @@ public class MembershipService extends AbstractService {
 			final var map = stream.collect(Collectors.groupingBy(
 					it -> Long.valueOf(it.getPerson().getId()),
 					TreeMap::new,
-					Collectors.mapping(Membership::getResearchOrganization, Collectors.toList())));
+					Collectors.mapping(Membership::getDirectResearchOrganization, Collectors.toList())));
 			return map;
 		}
 		return Collections.emptyMap();
@@ -292,6 +331,7 @@ public class MembershipService extends AbstractService {
 	 * then the function does not create the membership and replies the existing membership.
 	 * 
 	 * @param organizationId the identifier of the organization.
+	 * @param superOrganizationId the identifier of the super organization.
 	 * @param organizationAddressId the identifier of the organization address, if known.
 	 * @param personId the identifier of the member.
 	 * @param startDate the beginning of the membership.
@@ -310,7 +350,7 @@ public class MembershipService extends AbstractService {
 	 *     if the replied membership is a new membership or not.
 	 * @throws Exception if the creation cannot be done.
 	 */
-	public Pair<Membership, Boolean> addMembership(long organizationId, Long organizationAddressId, long personId,
+	public Pair<Membership, Boolean> addMembership(long organizationId, Long superOrganizationId, Long organizationAddressId, long personId,
 			LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition,
 			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection,
@@ -324,7 +364,7 @@ public class MembershipService extends AbstractService {
 				if (!forceCreation) {
 					// We don't need to add the membership if the person is already involved in the organization
 					final var ro = person.getMemberships().stream().filter(
-							it -> it.isActiveIn(startDate, endDate) && it.getResearchOrganization().getId() == organizationId).findAny();
+							it -> it.isActiveIn(startDate, endDate) && it.getDirectResearchOrganization().getId() == organizationId).findAny();
 					if (ro.isPresent()) {
 						final var activeMembership = ro.get();
 						final var sd = activeMembership.getMemberSinceWhen();
@@ -341,10 +381,17 @@ public class MembershipService extends AbstractService {
 						address = optAdr.get();
 					}
 				}
+				Optional<ResearchOrganization> superOptOrg = Optional.empty();
+				if (superOrganizationId != null) {
+					superOptOrg = this.organizationRepository.findById(Long.valueOf(superOrganizationId.longValue()));
+				}
 				
 				final var mem = new Membership();
 				mem.setPerson(person);
-				mem.setResearchOrganization(organization);
+				mem.setDirectResearchOrganization(organization);
+				if (superOptOrg.isPresent()) {
+					mem.setSuperResearchOrganization(superOptOrg.get());
+				}
 				mem.setOrganizationAddress(address);
 				mem.setMemberSinceWhen(startDate);
 				mem.setMemberToWhen(endDate);
@@ -368,6 +415,7 @@ public class MembershipService extends AbstractService {
 	 * 
 	 * @param membershipId the identifier of the membership to update.
 	 * @param organizationId the identifier of the organization. If it is {@code null}, the organization should not change.
+	 * @param superOrganizationId the identifier of the super organization. If it is {@code null}, the organization should not change.
 	 * @param organizationAddressId the identifier of the organization address, if known.
 	 * @param startDate the new beginning of the membership.
 	 * @param endDate the new end of the membership.
@@ -382,20 +430,27 @@ public class MembershipService extends AbstractService {
 	 * @return the updated membership.
 	 * @throws Exception if the given identifiers cannot be resolved to JPA entities.
 	 */
-	public Membership updateMembershipById(long membershipId, Long organizationId, Long organizationAddressId,
-			LocalDate startDate, LocalDate endDate,
+	public Membership updateMembershipById(long membershipId, Long organizationId, Long superOrganizationId,
+			Long organizationAddressId, LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition, Responsibility responsibility,
 			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap,
 			boolean isMainPosition, List<ScientificAxis> axes) throws Exception {
 		final var res = this.membershipRepository.findById(Long.valueOf(membershipId));
 		if (res.isPresent()) {
 			final var membership = res.get();
+			if (superOrganizationId != null) {
+				final var res0 = this.organizationRepository.findById(superOrganizationId);
+				if (res0.isEmpty()) {
+					throw new IllegalArgumentException("Cannot find organization with id: " + superOrganizationId); //$NON-NLS-1$
+				}
+				membership.setSuperResearchOrganization(res0.get());
+			}
 			if (organizationId != null) {
 				final var res0 = this.organizationRepository.findById(organizationId);
 				if (res0.isEmpty()) {
 					throw new IllegalArgumentException("Cannot find organization with id: " + organizationId); //$NON-NLS-1$
 				}
-				membership.setResearchOrganization(res0.get());
+				membership.setDirectResearchOrganization(res0.get());
 				OrganizationAddress address = null;
 				if (organizationAddressId != null && organizationAddressId.intValue() != 0) {
 					final var optAdr = res0.get().getAddresses().stream().filter(it -> organizationAddressId.intValue() == it.getId()).findAny();
@@ -441,10 +496,10 @@ public class MembershipService extends AbstractService {
 			person.getMemberships().remove(mbr);
 			mbr.setPerson(null);
 		}
-		final var organization = mbr.getResearchOrganization();
+		final var organization = mbr.getDirectResearchOrganization();
 		if (organization != null) {
 			organization.getMemberships().remove(mbr);
-			mbr.setResearchOrganization(null);
+			mbr.setDirectResearchOrganization(null);
 		}
 		mbr.setScientificAxes(null);
 		this.membershipRepository.deleteById(mid);
@@ -605,6 +660,62 @@ public class MembershipService extends AbstractService {
 		@Transactional
 		public void save() {
 			this.membership = MembershipService.this.membershipRepository.save(this.membership);
+		}
+
+	}
+
+	/** Specification that is validating with a person identifier.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private static class PersonIdentifierSpecification implements Specification<Membership> {
+
+		private static final long serialVersionUID = -4832779518488220502L;
+
+		private final Long identifier;
+		
+		/** Constructor.
+		 *
+		 * @param identifier the person identifier to match.
+		 */
+		PersonIdentifierSpecification(long identifier) {
+			this.identifier = Long.valueOf(identifier);
+		}
+
+		@Override
+		public jakarta.persistence.criteria.Predicate toPredicate(Root<Membership> root,
+				CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			return criteriaBuilder.equal(root.get("person").get("id"), this.identifier); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+	}
+
+	/** Specification that is validating a person with membership.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private static class PersonWithMembershipSpecification implements Specification<Person> {
+		
+		private static final long serialVersionUID = -378151342567725916L;
+
+		/** Constructor.
+		 */
+		PersonWithMembershipSpecification() {
+			//
+		}
+
+		@Override
+		public jakarta.persistence.criteria.Predicate toPredicate(Root<Person> root,
+				CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			return criteriaBuilder.isNotEmpty(root.get("memberships")); //$NON-NLS-1$
 		}
 
 	}

@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 
@@ -52,6 +53,7 @@ import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
@@ -328,7 +330,7 @@ public final class ComponentFactory {
 		return item;
 	}
 
-	/** Change te text of the given menu item assuming it was build with an itcon.
+	/** Change te text of the given menu item assuming it was build with an icon.
 	 *
 	 * @param item the item to change..
 	 * @param text the new text.
@@ -594,6 +596,22 @@ public final class ComponentFactory {
 
 	private static String getLanguageLabelForCombo(CountryCode country, Locale locale) {
 		return StringUtils.capitalize(country.getDisplayLanguage(locale));
+	}
+
+	/** Convert the given comparator to a serializable comparator.
+	 *
+	 * @param <T> the type of data that is compared.
+	 * @param comparator the comparator to convert.
+	 * @return the serializable comparator.
+	 */
+	public static <T> SerializableComparator<T> toSerializableComparator(Comparator<T> comparator) {
+		if (comparator == null) {
+			return null;
+		}
+		if (comparator instanceof SerializableComparator<T> cmp) {
+			return cmp;
+		}
+		return (a, b) -> comparator.compare(a, b);
 	}
 
 }

@@ -28,10 +28,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -75,8 +77,6 @@ import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationComparator;
-import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
@@ -141,11 +141,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private ConferenceQualityAnnualIndicatorsRepository conferenceIndicatorsRepository;
 
-	private PublicationRepository publicationRepository;
-
 	private PublicationService publicationService;
-
-	private PublicationComparator publicationComparator;
 
 	private AuthorshipRepository authorshipRepository;
 
@@ -186,9 +182,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param journalIndicatorsRepository the accessor to the repository of the journal quality annual indicators.
 	 * @param conferenceRepository the accessor to the conference repository.
 	 * @param conferenceIndicatorsRepository the accessor to the repository of the conference quality annual indicators.
-	 * @param publicationRepository the accessor to the repository of the publications.
 	 * @param publicationService the service related to the publications.
-	 * @param publicationComparator the comparator of publications.
 	 * @param authorshipRepository the accessor to the authorships.
 	 * @param personNameParser the parser of person names.
 	 * @param juryMembershipRepository the repository of jury memberships.
@@ -213,9 +207,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository,
 			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired ConferenceQualityAnnualIndicatorsRepository conferenceIndicatorsRepository,
-			@Autowired PublicationRepository publicationRepository,
 			@Autowired PublicationService publicationService,
-			@Autowired PublicationComparator publicationComparator,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonNameParser personNameParser,
 			@Autowired JuryMembershipRepository juryMembershipRepository,
@@ -238,9 +230,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.journalIndicatorsRepository = journalIndicatorsRepository;
 		this.conferenceRepository = conferenceRepository;
 		this.conferenceIndicatorsRepository = conferenceIndicatorsRepository;
-		this.publicationRepository = publicationRepository;
 		this.publicationService = publicationService;
-		this.publicationComparator = publicationComparator;
 		this.authorshipRepository = authorshipRepository;
 		this.personNameParser = personNameParser;
 		this.juryMembershipRepository = juryMembershipRepository;
@@ -478,27 +468,23 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final var mapper = JsonUtils.createMapper();
 			content = mapper.readTree(isr);
 		}
-		return importJsonFileToDatabase(content, false, null);
+		return importJsonFileToDatabase(content, null);
 	}
 
 	/** Run the importer for JSON data source only.
 	 *
 	 * @param content the input node of the JSON file to read.
-	 * @param clearDatabase indicates if the database is clear before importing.
 	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
 	 * @return the import stats.
 	 * @throws Exception if there is problem for importing.
 	 * @see #importDataFileToDatabase(URL)
 	 */
-	public Stats importJsonFileToDatabase(JsonNode content, boolean clearDatabase, FileCallback fileCallback) throws Exception {
+	public Stats importJsonFileToDatabase(JsonNode content, FileCallback fileCallback) throws Exception {
 		if (content != null && !content.isEmpty()) {
 			final var objectRepository = new TreeMap<String, Long>();
 			final var aliasRepository = new TreeMap<String, Set<String>>();
 
 			try (final var session = this.sessionFactory.openSession()) {
-				if (clearDatabase) {
-					clearDatabase(session);
-				}
 				insertGlobalIndicators(session, content.get(GLOBALINDICATORS_SECTION), objectRepository, aliasRepository);
 				final var nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final var nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
@@ -525,22 +511,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 		}
 		return new Stats();
-	}
-
-	/** Clear the database content.
-	 *
-	 * @param session the database session.
-	 */
-	protected void clearDatabase(Session session) {
-		getLogger().info("Clearing database content..."); //$NON-NLS-1$
-		this.authorshipRepository.deleteAll();
-		this.publicationRepository.deleteAll();
-		this.organizationMembershipRepository.deleteAll();
-		this.journalRepository.deleteAll();
-		this.journalIndicatorsRepository.deleteAll();
-		this.personRepository.deleteAll();
-		this.organizationRepository.deleteAll();
-		this.addressRepository.deleteAll();
 	}
 
 	/** Create the global indicators in the database.
@@ -593,41 +563,28 @@ public class JsonToDatabaseImporter extends JsonTool {
 					var adr = createObject(OrganizationAddress.class, adrObject,
 							aliasRepository, null);
 					if (adr != null) {
-						final var existing = this.addressRepository.findDistinctByName(adr.getName());
-						if (existing.isEmpty()) {
-							if (!isFake()) {
-								adr = this.addressRepository.save(adr);
-							}
-							// Ensure that attached files are correct
-							if (fileCallback != null) {
-								var publicationChanged = false;
-								if (!Strings.isNullOrEmpty(adr.getPathToBackgroundImage())) {
-									final var ofn = adr.getPathToBackgroundImage();
-									final var fn = fileCallback.addressBackgroundImageFile(adr.getId(), ofn);
-									if (!Objects.equals(ofn, fn)) {
-										adr.setPathToBackgroundImage(fn);
-										publicationChanged = true;
-									}
-								}
-								if (publicationChanged && !isFake()) {
-									this.addressRepository.save(adr);
+						if (!isFake()) {
+							adr = this.addressRepository.save(adr);
+						}
+						// Ensure that attached files are correct
+						if (fileCallback != null) {
+							var publicationChanged = false;
+							if (!Strings.isNullOrEmpty(adr.getPathToBackgroundImage())) {
+								final var ofn = adr.getPathToBackgroundImage();
+								final var fn = fileCallback.addressBackgroundImageFile(adr.getId(), ofn);
+								if (!Objects.equals(ofn, fn)) {
+									adr.setPathToBackgroundImage(fn);
+									publicationChanged = true;
 								}
 							}
-							++nbNew;
-							getLogger().info("  + " + adr.getName() + " (id: " + adr.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(adr.getId()));
+							if (publicationChanged && !isFake()) {
+								this.addressRepository.save(adr);
 							}
-						} else {
-							getLogger().info("  X " + existing.get().getName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
-							if (fileCallback != null) {
-								if (!Strings.isNullOrEmpty(existing.get().getPathToBackgroundImage())) {
-									fileCallback.addressBackgroundImageFile(existing.get().getId(), existing.get().getPathToBackgroundImage());
-								}
-							}
+						}
+						++nbNew;
+						getLogger().info("  + " + adr.getName() + " (id: " + adr.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(adr.getId()));
 						}
 					}
 					session.getTransaction().commit();
@@ -657,7 +614,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final var objectInstanceRepository = new TreeMap<String, ResearchOrganization>();
 			getLogger().info("Inserting " + organizations.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
 			var i = 0;
-			final var superOrgas = new ArrayList<Pair<ResearchOrganization, String>>();
+			final var superOrgas = new ArrayList<Pair<ResearchOrganization, Set<String>>>();
 			for (final var orgaObject : organizations) {
 				getLogger().info("> Organization " + (i + 1) + "/" + organizations.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
@@ -666,64 +623,66 @@ public class JsonToDatabaseImporter extends JsonTool {
 					var orga = createObject(ResearchOrganization.class, orgaObject,
 							aliasRepository, null);
 					if (orga != null) {
-						final var existing = this.organizationRepository.findDistinctByName(orga.getName());
-						if (existing.isEmpty()) {
-							// Save addresses
-							final var addressesNode = orgaObject.get(ADDRESSES_KEY);
-							if (addressesNode != null) {
-								final var addrs = new TreeSet<>(EntityUtils.getPreferredOrganizationAddressComparator());
-								for (final var addressRefNode : addressesNode) {
-									final var addressRef = getRef(addressRefNode);
-									if (Strings.isNullOrEmpty(addressRef)) {
-										throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
-									}
-									final var addressDbId = objectIdRepository.get(addressRef);
-									if (addressDbId == null || addressDbId.intValue() == 0) {
-										throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
-									}
-									final var addressObj = this.addressRepository.findById(addressDbId);
-									if (addressObj.isEmpty()) {
-										throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
-									}
-									addrs.add(addressObj.get());
+						// Save addresses
+						final var addressesNode = orgaObject.get(ADDRESSES_KEY);
+						if (addressesNode != null) {
+							final var addrs = new TreeSet<>(EntityUtils.getPreferredOrganizationAddressComparator());
+							for (final var addressRefNode : addressesNode) {
+								final var addressRef = getRef(addressRefNode);
+								if (Strings.isNullOrEmpty(addressRef)) {
+									throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
 								}
-								orga.setAddresses(addrs);
-							}
-							if (!isFake()) {
-								orga = this.organizationRepository.save(orga);
-							}
-							// Ensure that attached files are correct
-							if (fileCallback != null) {
-								var organizationChanged = false;
-								if (!Strings.isNullOrEmpty(orga.getPathToLogo())) {
-									final var ofn = orga.getPathToLogo();
-									final var fn = fileCallback.organizationLogoFile(orga.getId(), ofn);
-									if (!Objects.equals(ofn, fn)) {
-										orga.setPathToLogo(fn);
-										organizationChanged = true;
-									}
+								final var addressDbId = objectIdRepository.get(addressRef);
+								if (addressDbId == null || addressDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
 								}
-								if (organizationChanged && !isFake()) {
-									this.organizationRepository.save(orga);
+								final var addressObj = this.addressRepository.findById(addressDbId);
+								if (addressObj.isEmpty()) {
+									throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
+								}
+								addrs.add(addressObj.get());
+							}
+							orga.setAddresses(addrs);
+						}
+						if (!isFake()) {
+							orga = this.organizationRepository.save(orga);
+						}
+						// Ensure that attached files are correct
+						if (fileCallback != null) {
+							var organizationChanged = false;
+							if (!Strings.isNullOrEmpty(orga.getPathToLogo())) {
+								final var ofn = orga.getPathToLogo();
+								final var fn = fileCallback.organizationLogoFile(orga.getId(), ofn);
+								if (!Objects.equals(ofn, fn)) {
+									orga.setPathToLogo(fn);
+									organizationChanged = true;
 								}
 							}
-							++nbNew;
-							getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectInstanceRepository.put(id, orga);
-								objectIdRepository.put(id, Long.valueOf(orga.getId()));
+							if (organizationChanged && !isFake()) {
+								this.organizationRepository.save(orga);
 							}
-							// Save hierarchical relation with other organization
-							final var superOrga = getRef(orgaObject.get(SUPER_ORGANIZATION_KEY));
-							if (!Strings.isNullOrEmpty(superOrga)) {
-								superOrgas.add(Pair.of(orga, superOrga));
+						}
+						++nbNew;
+						getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectInstanceRepository.put(id, orga);
+							objectIdRepository.put(id, Long.valueOf(orga.getId()));
+						}
+						// Save hierarchical relation with other organization
+						final var superOrgs = new HashSet<String>();
+						final var superOrga = getRef(orgaObject.get(SUPER_ORGANIZATION_KEY));
+						if (!Strings.isNullOrEmpty(superOrga)) {
+							superOrgs.add(superOrga);
+						}
+						final var superOrgasNode = orgaObject.get(SUPER_ORGANIZATIONS_KEY);
+						if (superOrgasNode != null) {
+							for (final var orgaRefNode : superOrgasNode) {
+								final var orgaRef = getRef(orgaRefNode);
+								superOrgs.add(orgaRef);
 							}
-						} else {
-							getLogger().info("  X " + existing.get().getAcronymOrName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectInstanceRepository.put(id, existing.get());
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
+						}
+						if (!superOrgs.isEmpty()) {
+							superOrgas.add(Pair.of(orga, superOrgs));
 						}
 					}
 					session.getTransaction().commit();
@@ -734,16 +693,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 			// Save hierarchical relations between organizations
 			for (final var entry : superOrgas) {
-				final var sup = objectInstanceRepository.get(entry.getRight());
-				if (sup == null) {
-					throw new IllegalArgumentException("Invalid reference to Json element with id: " + entry.getRight()); //$NON-NLS-1$
+				final var subOrgaInstance = entry.getLeft();
+				final var superOrgasInstances = new HashSet<ResearchOrganization>();
+				for (final var supId : entry.getRight()) {
+					final var sup = objectInstanceRepository.get(supId);
+					if (sup == null) {
+						throw new IllegalArgumentException("Invalid reference to Json element with id: " + supId); //$NON-NLS-1$
+					}
+					superOrgasInstances.add(sup);
 				}
 				session.beginTransaction();
-				entry.getLeft().setSuperOrganization(sup);
-				sup.getSubOrganizations().add(entry.getLeft());
+				subOrgaInstance.getSuperOrganizations().addAll(superOrgasInstances);
+				for (final var sup : superOrgasInstances) {
+					sup.getSubOrganizations().add(subOrgaInstance);
+					getLogger().info("> Linking organizations: " + subOrgaInstance.getAcronymOrName() + " in " + sup.getAcronymOrName()); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				if (!isFake()) {
-					this.organizationRepository.save(entry.getLeft());
-					this.organizationRepository.save(sup);
+					this.organizationRepository.save(subOrgaInstance);
+					// We don't need to save the super organizations because it is indirectly done by the previous saving action
+					/*for (final var sup : superOrgasInstances) {
+						this.organizationRepository.save(sup);
+					}*/
 				}
 				session.getTransaction().commit();
 			}
@@ -805,21 +775,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 						// Finalize import
 						session.beginTransaction();
-						final var existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
-						if (existing.isEmpty()) {
-							if (!isFake()) {
-								person = this.personRepository.save(person);
-							}
-							++nbNew;
-							getLogger().info("  + " + person.getFullName() + " (id: " + person.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(person.getId()));
-							}
-						} else {
-							getLogger().info("  X " + existing.get().getFullName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
+						if (!isFake()) {
+							person = this.personRepository.save(person);
+						}
+						++nbNew;
+						getLogger().info("  + " + person.getFullName() + " (id: " + person.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(person.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -867,6 +829,189 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return axes;
 	}
 
+	private Map<Person, PersonMemberships> prepareOrganizationMembershipInsertion(JsonNode memberships, JsonNode scientificAxes,
+			Map<String, Long> objectIdRepository, Map<String, Set<String>> aliasRepository,
+			List<Pair<Membership, Long>> addressPostProcessing) throws Exception {
+		// Extract the scientific axes for each membership
+		final var axesOfMemberships = extractScientificAxes(
+				scientificAxes, objectIdRepository, MEMBERSHIPS_KEY);
+		//
+		var i = 0;
+		final var allData = new HashMap<Person, PersonMemberships>();
+		for (final var membershipObject : memberships) {
+			getLogger().info("> Preparing organization membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
+			try {
+				final var id = getId(membershipObject);
+				var membership = createObject(Membership.class, membershipObject, aliasRepository, null);
+				if (membership != null) {
+					final var adrId = getRef(membershipObject.get(ADDRESS_KEY));
+					if (!Strings.isNullOrEmpty(adrId)) {
+						final var adrDbId = objectIdRepository.get(adrId);
+						if (adrDbId == null || adrDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid address reference for organization membership with id: " + id); //$NON-NLS-1$
+						}
+						addressPostProcessing.add(Pair.of(membership, adrDbId));
+					}
+					//
+					final var personId = getRef(membershipObject.get(PERSON_KEY));
+					if (Strings.isNullOrEmpty(personId)) {
+						throw new IllegalArgumentException("Invalid person reference for organization membership with id: " + id); //$NON-NLS-1$
+					}
+					final var personDbId = objectIdRepository.get(personId);
+					if (personDbId == null || personDbId.intValue() == 0) {
+						throw new IllegalArgumentException("Invalid person reference for organizationm embership with id: " + id); //$NON-NLS-1$
+					}
+					final var targetPerson = this.personRepository.findById(personDbId);
+					if (targetPerson.isEmpty()) {
+						throw new IllegalArgumentException("Invalid person reference for organization membership with id: " + id); //$NON-NLS-1$
+					}
+					//
+					final var orgaId = getRef(membershipObject.get(RESEARCHORGANIZATION_KEY));
+					if (Strings.isNullOrEmpty(orgaId)) {
+						throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
+					}
+					final var orgaDbId = objectIdRepository.get(orgaId);
+					if (orgaDbId == null || orgaDbId.intValue() == 0) {
+						throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
+					}
+					final var targetOrganization = this.organizationRepository.findById(orgaDbId);
+					if (targetOrganization.isEmpty()) {
+						throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
+					}
+					//
+					final var superOrgaId = getRef(membershipObject.get(SUPER_ORGANIZATION_KEY));
+					Optional<ResearchOrganization> targetSuperOrganization = Optional.empty();
+					if (!Strings.isNullOrEmpty(superOrgaId)) {
+						final var superOrgaDbId = objectIdRepository.get(superOrgaId);
+						if (superOrgaDbId == null || superOrgaDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
+						}
+						targetSuperOrganization = this.organizationRepository.findById(superOrgaDbId);
+						if (targetSuperOrganization.isEmpty()) {
+							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
+						}
+					}
+					//
+					membership.setPerson(targetPerson.get());
+					membership.setDirectResearchOrganization(targetOrganization.get());
+					if (targetSuperOrganization.isPresent()) {
+						membership.setSuperResearchOrganization(targetSuperOrganization.get());
+					}
+					// Attach scientific axes to the membership
+					final var membershipScientificAxes = axesOfMemberships.get(id);
+					if (membershipScientificAxes != null && !membershipScientificAxes.isEmpty()) {
+						final var axisInstances = this.scientificAxisRepository.findAllById(membershipScientificAxes);
+						membership.setScientificAxes(axisInstances);
+					}
+					//
+					final var data = allData.computeIfAbsent(targetPerson.get(), it -> new PersonMemberships());
+					if (targetOrganization.get().getType().isEmployer()) {
+						data.employers.add(new MembershipInfo(membership, id));
+					} else {
+						data.services.add(new MembershipInfo(membership, id));
+					}
+				}
+			} catch (Throwable ex) {
+				throw new UnableToImportJsonException(ORGANIZATION_MEMBERSHIPS_SECTION, i, membershipObject, ex);
+			}
+			++i;
+		}
+		return allData;
+	}
+
+	private void reassignSuperOrgnaizationsInMemberships(Map<Person, PersonMemberships> allData) {
+		final var size = allData.size();
+		var i = 0;
+		for (final var entry : allData.entrySet()) {
+			final var person = entry.getKey();
+			final var memberships = entry.getValue();
+			getLogger().info("> Relinking memberships " + (i + 1) + "/" + size //$NON-NLS-1$ //$NON-NLS-2$
+				+ " of " + person.getFullNameWithLastNameFirst()); //$NON-NLS-1$
+
+			memberships.services.stream().filter(it -> it.membership.getSuperResearchOrganization() == null).forEach(it -> {
+				final var superOrganization = findSuperOrganization(it.membership, memberships.employers);
+				if (superOrganization != null) {
+					it.membership.setSuperResearchOrganization(superOrganization);
+					person.getMemberships().removeIf(it0 -> superOrganization.equals(it0.getDirectResearchOrganization()));
+					memberships.employers.removeIf(it0 -> superOrganization.equals(it0.membership.getDirectResearchOrganization()));
+				}
+			});
+
+			++i;
+		}
+	}
+
+	private static ResearchOrganization findSuperOrganization(Membership serviceMembership, List<MembershipInfo> employers) {
+		final var service = serviceMembership.getDirectResearchOrganization();
+		for (final var employer : employers) {
+			if (service.getSuperOrganizations().contains(employer.membership.getDirectResearchOrganization())) {
+				return employer.membership.getDirectResearchOrganization();
+			}
+		}
+		return null;
+	}
+
+	private int saveOrganizationMemberships(Session session, Map<Person, PersonMemberships> allData, Map<String, Long> objectIdRepository) throws Exception {
+		final var size = allData.size();
+		var nbNew = 0;
+		var i = 0;
+		for (final var membershipPair : allData.entrySet()) {
+			getLogger().info("> Saving organization membership " + (i + 1) + "/" + size); //$NON-NLS-1$ //$NON-NLS-2$
+			try {
+				final var person = membershipPair.getKey();
+				final var memberships = membershipPair.getValue();
+				
+				session.beginTransaction();
+
+				if (!isFake()) {
+					for (final var mbr : memberships.services) {
+						final var newMbr = this.organizationMembershipRepository.save(mbr.membership);
+						++nbNew;
+						getLogger().info("  + " + mbr.membership.getDirectResearchOrganization().getAcronymOrName() //$NON-NLS-1$
+							+ " - " + person.getFullName() //$NON-NLS-1$
+							+ " (id: " + mbr.membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(mbr.jsonId)) {
+							objectIdRepository.put(mbr.jsonId, Long.valueOf(newMbr.getId()));
+						}
+					}
+					for (final var mbr : memberships.employers) {
+						final var newMbr = this.organizationMembershipRepository.save(mbr.membership);
+						++nbNew;
+						getLogger().info("  + " + mbr.membership.getDirectResearchOrganization().getAcronymOrName() //$NON-NLS-1$
+							+ " - " + person.getFullName() //$NON-NLS-1$
+							+ " (id: " + mbr.membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(mbr.jsonId)) {
+							objectIdRepository.put(mbr.jsonId, Long.valueOf(newMbr.getId()));
+						}
+					}
+					this.personRepository.save(person);
+				}
+
+				session.getTransaction().commit();
+			} catch (Throwable ex) {
+				throw new UnableToImportJsonException(ORGANIZATION_MEMBERSHIPS_SECTION, i, "", ex); //$NON-NLS-1$
+			}
+			++i;
+		}
+		return nbNew;
+	}
+
+	private void postFixingAddresses(Session session, List<Pair<Membership, Long>> addressPostProcessing) throws Exception {
+		if (!addressPostProcessing.isEmpty()) {
+			session.beginTransaction();
+			for (final var pair : addressPostProcessing) {
+				final var membership = pair.getLeft();
+				final var targetAddress = this.addressRepository.findById(pair.getRight());
+				if (targetAddress.isEmpty()) {
+					throw new IllegalArgumentException("Invalid address reference for organization membership with id: " + pair.getRight()); //$NON-NLS-1$
+				}
+				membership.setOrganizationAddress(targetAddress.get(), false);
+				this.organizationMembershipRepository.save(membership);
+			}
+			session.getTransaction().commit();
+		}
+	}
+
 	/** Create the organization memberships in the database.
 	 *
 	 * @param session the JPA session for managing transactions.
@@ -880,119 +1025,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 	protected int insertOrganizationMemberships(Session session, JsonNode memberships, JsonNode scientificAxes,
 			Map<String, Long> objectIdRepository, Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
-		if (memberships != null && !memberships.isEmpty()) {
-			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
-			// Extract the scientific axes for each membership
-			final var axesOfMemberships = extractScientificAxes(
-					scientificAxes, objectIdRepository, MEMBERSHIPS_KEY);
-			//
-			final var addressPostProcessing = new ArrayList<Pair<Membership, Long>>();
-			var i = 0;
-			for (final var membershipObject : memberships) {
-				getLogger().info("> Organization membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
-				try {
-					final var id = getId(membershipObject);
-					var membership = createObject(Membership.class, membershipObject, aliasRepository, null);
-					if (membership != null) {
-						session.beginTransaction();
-						final var adrId = getRef(membershipObject.get(ADDRESS_KEY));
-						if (!Strings.isNullOrEmpty(adrId)) {
-							final var adrDbId = objectIdRepository.get(adrId);
-							if (adrDbId == null || adrDbId.intValue() == 0) {
-								throw new IllegalArgumentException("Invalid address reference for organization membership with id: " + id); //$NON-NLS-1$
-							}
-							addressPostProcessing.add(Pair.of(membership, adrDbId));
-						}
-						//
-						final var personId = getRef(membershipObject.get(PERSON_KEY));
-						if (Strings.isNullOrEmpty(personId)) {
-							throw new IllegalArgumentException("Invalid person reference for organization membership with id: " + id); //$NON-NLS-1$
-						}
-						final var personDbId = objectIdRepository.get(personId);
-						if (personDbId == null || personDbId.intValue() == 0) {
-							throw new IllegalArgumentException("Invalid person reference for organizationm embership with id: " + id); //$NON-NLS-1$
-						}
-						final var targetPerson = this.personRepository.findById(personDbId);
-						if (targetPerson.isEmpty()) {
-							throw new IllegalArgumentException("Invalid person reference for organization membership with id: " + id); //$NON-NLS-1$
-						}
-						//
-						final var orgaId = getRef(membershipObject.get(RESEARCHORGANIZATION_KEY));
-						if (Strings.isNullOrEmpty(orgaId)) {
-							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
-						}
-						final var orgaDbId = objectIdRepository.get(orgaId);
-						if (orgaDbId == null || orgaDbId.intValue() == 0) {
-							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
-						}
-						final var targetOrganization = this.organizationRepository.findById(orgaDbId);
-						if (targetOrganization.isEmpty()) {
-							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
-						}
-						//
-						final var existings = this.organizationMembershipRepository.findByResearchOrganizationIdAndPersonId(
-								targetOrganization.get().getId(), targetPerson.get().getId());
-						final var finalmbr0 = membership;
-						final var existing0 = existings.stream().filter(it -> {
-							assert it.getPerson().getId() == targetPerson.get().getId();
-							assert it.getResearchOrganization().getId() == targetOrganization.get().getId();
-							return Objects.equals(it.getMemberStatus(), finalmbr0.getMemberStatus())
-									&& Objects.equals(it.getResponsibility(), finalmbr0.getResponsibility())
-									&& Objects.equals(it.getMemberSinceWhen(), finalmbr0.getMemberSinceWhen())
-									&& Objects.equals(it.getMemberToWhen(), finalmbr0.getMemberToWhen());
-						});
-						final var existing = existing0.findAny();
-						if (existing.isEmpty()) {
-							membership.setPerson(targetPerson.get());
-							membership.setResearchOrganization(targetOrganization.get());
-							// Attach scientific axes to the membership
-							final var membershipScientificAxes = axesOfMemberships.get(id);
-							if (membershipScientificAxes != null && !membershipScientificAxes.isEmpty()) {
-								final var axisInstances = this.scientificAxisRepository.findAllById(membershipScientificAxes);
-								membership.setScientificAxes(axisInstances);
-							}
-							if (!isFake()) {
-								membership = this.organizationMembershipRepository.save(membership);
-								this.personRepository.save(targetPerson.get());
-								this.organizationRepository.save(targetOrganization.get());
-							}
-							++nbNew;
-							getLogger().info("  + " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
-									+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
-									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(membership.getId()));
-							}
-						} else {
-							getLogger().info("  X " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
-									+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
-									+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
-						}
-						session.getTransaction().commit();
-					}
-				} catch (Throwable ex) {
-					throw new UnableToImportJsonException(ORGANIZATION_MEMBERSHIPS_SECTION, i, membershipObject, ex);
-				}
-				++i;
-			}
-			// Post processing of the addresses for avoiding lazy loading errors
-			if (!addressPostProcessing.isEmpty()) {
-				session.beginTransaction();
-				for (final var pair : addressPostProcessing) {
-					final var membership = pair.getLeft();
-					final var targetAddress = this.addressRepository.findById(pair.getRight());
-					if (targetAddress.isEmpty()) {
-						throw new IllegalArgumentException("Invalid address reference for organization membership with id: " + pair.getRight()); //$NON-NLS-1$
-					}
-					membership.setOrganizationAddress(targetAddress.get(), false);
-					this.organizationMembershipRepository.save(membership);
-				}
-				session.getTransaction().commit();
-			}
-		}
+		//FIXME
+//		if (memberships != null && !memberships.isEmpty()) {
+//			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
+//			//
+//			final var addressPostProcessing = new ArrayList<Pair<Membership, Long>>();
+//			//
+//			// Preparing the memberships
+//			final var allData = prepareOrganizationMembershipInsertion(memberships, scientificAxes, objectIdRepository, aliasRepository, addressPostProcessing);
+//			//
+//			// Relinking the super organizations of the memberships
+//			reassignSuperOrgnaizationsInMemberships(allData);
+//
+//			//
+//			// Saving the memberships in the JPA database
+//			final var n = saveOrganizationMemberships(session, allData, objectIdRepository);
+//			nbNew += n;
+//
+//			//
+//			// Post processing of the addresses for avoiding lazy loading errors
+//			postFixingAddresses(session, addressPostProcessing);
+//		}
 		return nbNew;
 	}
 
@@ -1018,82 +1071,74 @@ public class JsonToDatabaseImporter extends JsonTool {
 					var journal = createObject(Journal.class, journalObject, aliasRepository, null);
 					if (journal != null) {
 						session.beginTransaction();
-						final var existing = this.journalRepository.findByJournalName(journal.getJournalName());
-						if (existing.isEmpty()) {
-							if (!isFake()) {
-								journal = this.journalRepository.save(journal);
-							}
-							// Create the quality indicators
-							final var history = journalObject.get(QUALITYINDICATORSHISTORY_KEY);
-							if (history != null && !history.isEmpty()) {
-								final var iterator = history.fields();
-								while (iterator.hasNext()) {
-									final var historyEntry = iterator.next();
-									final var year = Integer.parseInt(historyEntry.getKey());
-									String str = null;
-									if (historyEntry.getValue() != null) {
-										final var n = historyEntry.getValue().get(SCIMAGOQINDEX_KEY);
-										if (n != null) {
-											str = n.asText();
-										}
-									}
-									JournalQualityAnnualIndicators indicators = null; 
-									if (!Strings.isNullOrEmpty(str) ) {
-										final var scimago = QuartileRanking.valueOfCaseInsensitive(str);
-										if (scimago != null) {
-											indicators = journal.setScimagoQIndexByYear(year, scimago);
-										}
-									}
-									str = null;
-									if (historyEntry.getValue() != null) {
-										final var n = historyEntry.getValue().get(WOSQINDEX_KEY);
-										if (n != null) {
-											str = n.asText();
-										}
-									}
-									if (!Strings.isNullOrEmpty(str)) {
-										final var wos = QuartileRanking.valueOfCaseInsensitive(str);
-										if (wos != null) {
-											final var oindicators = indicators;
-											indicators = journal.setWosQIndexByYear(year, wos);
-											assert oindicators == null || oindicators == indicators;
-										}
-									}
-									Number flt = null;
-									if (historyEntry.getValue() != null) {
-										final var n = historyEntry.getValue().get(IMPACTFACTOR_KEY);
-										if (n != null) {
-											flt = Double.valueOf(n.asDouble());
-										}
-									}
-									if (flt != null) {
-										final var impactFactor = flt.floatValue();
-										if (impactFactor > 0) {
-											final var oindicators = indicators;
-											indicators = journal.setImpactFactorByYear(year, impactFactor);
-											assert oindicators == null || oindicators == indicators;
-										}
-									}
-									if (indicators != null && !isFake()) {
-										this.journalIndicatorsRepository.save(indicators);
+						if (!isFake()) {
+							journal = this.journalRepository.save(journal);
+						}
+						// Create the quality indicators
+						final var history = journalObject.get(QUALITYINDICATORSHISTORY_KEY);
+						if (history != null && !history.isEmpty()) {
+							final var iterator = history.fields();
+							while (iterator.hasNext()) {
+								final var historyEntry = iterator.next();
+								final var year = Integer.parseInt(historyEntry.getKey());
+								String str = null;
+								if (historyEntry.getValue() != null) {
+									final var n = historyEntry.getValue().get(SCIMAGOQINDEX_KEY);
+									if (n != null) {
+										str = n.asText();
 									}
 								}
+								JournalQualityAnnualIndicators indicators = null; 
+								if (!Strings.isNullOrEmpty(str) ) {
+									final var scimago = QuartileRanking.valueOfCaseInsensitive(str);
+									if (scimago != null) {
+										indicators = journal.setScimagoQIndexByYear(year, scimago);
+									}
+								}
+								str = null;
+								if (historyEntry.getValue() != null) {
+									final var n = historyEntry.getValue().get(WOSQINDEX_KEY);
+									if (n != null) {
+										str = n.asText();
+									}
+								}
+								if (!Strings.isNullOrEmpty(str)) {
+									final var wos = QuartileRanking.valueOfCaseInsensitive(str);
+									if (wos != null) {
+										final var oindicators = indicators;
+										indicators = journal.setWosQIndexByYear(year, wos);
+										assert oindicators == null || oindicators == indicators;
+									}
+								}
+								Number flt = null;
+								if (historyEntry.getValue() != null) {
+									final var n = historyEntry.getValue().get(IMPACTFACTOR_KEY);
+									if (n != null) {
+										flt = Double.valueOf(n.asDouble());
+									}
+								}
+								if (flt != null) {
+									final var impactFactor = flt.floatValue();
+									if (impactFactor > 0) {
+										final var oindicators = indicators;
+										indicators = journal.setImpactFactorByYear(year, impactFactor);
+										assert oindicators == null || oindicators == indicators;
+									}
+								}
+								if (indicators != null && !isFake()) {
+									this.journalIndicatorsRepository.save(indicators);
+								}
 							}
-							// Save again the journal for saving the links to the quality indicators
-							if (!isFake()) {
-								journal = this.journalRepository.save(journal);
-							}
-							++nbNew;
-							//
-							getLogger().info("  + " + journal.getJournalName() + " (id: " + journal.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(journal.getId()));
-							}
-						} else {
-							getLogger().info("  X " + existing.get().getJournalName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
+						}
+						// Save again the journal for saving the links to the quality indicators
+						if (!isFake()) {
+							journal = this.journalRepository.save(journal);
+						}
+						++nbNew;
+						//
+						getLogger().info("  + " + journal.getJournalName() + " (id: " + journal.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(journal.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -1166,57 +1211,49 @@ public class JsonToDatabaseImporter extends JsonTool {
 					var conference = createObject(Conference.class, conferenceObject, aliasRepository, null);
 					if (conference != null) {
 						session.beginTransaction();
-						final var existing = this.conferenceRepository.findByAcronymOrName(conference.getName());
-						if (existing.isEmpty()) {
-							if (!isFake()) {
-								conference = this.conferenceRepository.save(conference);
-							}
-							// Create the quality indicators
-							final var history = conferenceObject.get(QUALITYINDICATORSHISTORY_KEY);
-							if (history != null && !history.isEmpty()) {
-								final var iterator = history.fields();
-								while (iterator.hasNext()) {
-									final var historyEntry = iterator.next();
-									final var year = Integer.parseInt(historyEntry.getKey());
-									String str = null;
-									if (historyEntry.getValue() != null) {
-										final var n = historyEntry.getValue().get(COREINDEX_KEY);
-										if (n != null) {
-											str = n.asText();
-										}
-									}
-									ConferenceQualityAnnualIndicators indicators = null; 
-									if (!Strings.isNullOrEmpty(str) ) {
-										final var core = CoreRanking.valueOfCaseInsensitive(str);
-										if (core != null) {
-											indicators = conference.setCoreIndexByYear(year, core);
-										}
-									}
-									if (indicators != null && !isFake()) {
-										this.conferenceIndicatorsRepository.save(indicators);
+						if (!isFake()) {
+							conference = this.conferenceRepository.save(conference);
+						}
+						// Create the quality indicators
+						final var history = conferenceObject.get(QUALITYINDICATORSHISTORY_KEY);
+						if (history != null && !history.isEmpty()) {
+							final var iterator = history.fields();
+							while (iterator.hasNext()) {
+								final var historyEntry = iterator.next();
+								final var year = Integer.parseInt(historyEntry.getKey());
+								String str = null;
+								if (historyEntry.getValue() != null) {
+									final var n = historyEntry.getValue().get(COREINDEX_KEY);
+									if (n != null) {
+										str = n.asText();
 									}
 								}
+								ConferenceQualityAnnualIndicators indicators = null; 
+								if (!Strings.isNullOrEmpty(str) ) {
+									final var core = CoreRanking.valueOfCaseInsensitive(str);
+									if (core != null) {
+										indicators = conference.setCoreIndexByYear(year, core);
+									}
+								}
+								if (indicators != null && !isFake()) {
+									this.conferenceIndicatorsRepository.save(indicators);
+								}
 							}
-							// Save the enclosing conferences to a differed creation of the links
-							final var enclConference = getRef(conferenceObject.get(ENCLOSING_CONFERENCE_KEY));
-							if (!Strings.isNullOrEmpty(enclConference)) {
-								enclosingConferences.add(Pair.of(conference, enclConference));
-							}
-							// Save again the conference for saving the links to the quality indicators
-							if (!isFake()) {
-								conference = this.conferenceRepository.save(conference);
-							}
-							++nbNew;
-							//
-							getLogger().info("  + " + conference.getNameOrAcronym() + " (id: " + conference.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(conference.getId()));
-							}
-						} else {
-							getLogger().info("  X " + existing.get().getNameOrAcronym() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
+						}
+						// Save the enclosing conferences to a differed creation of the links
+						final var enclConference = getRef(conferenceObject.get(ENCLOSING_CONFERENCE_KEY));
+						if (!Strings.isNullOrEmpty(enclConference)) {
+							enclosingConferences.add(Pair.of(conference, enclConference));
+						}
+						// Save again the conference for saving the links to the quality indicators
+						if (!isFake()) {
+							conference = this.conferenceRepository.save(conference);
+						}
+						++nbNew;
+						//
+						getLogger().info("  + " + conference.getNameOrAcronym() + " (id: " + conference.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(conference.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -1266,7 +1303,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final var axesOfPublications = extractScientificAxes(
 					scientificAxes, objectIdRepository, PUBLICATIONS_KEY);
 			//
-			final var allPublications = this.publicationRepository.findAll();
 			getLogger().info("Inserting " + publications.size() + " publications..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
 			for (final var publicationObject : publications) {
@@ -1276,93 +1312,74 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final var publication = createPublicationInstance(id,
 							publicationObject, objectIdRepository, aliasRepository);
 					// Test if the publication is already inside the database
-					final var readOnlyPublication = publication;
-					final var existing = allPublications.stream().filter(
-							it -> this.publicationComparator.isSimilar(it, readOnlyPublication)).findAny();
-					if (existing.isEmpty()) {
+					session.beginTransaction();
+					// Save the publication
+					if (!isFake()) {
+						this.publicationService.save(publication);
+					}
+					// Ensure that attached files are correct
+					if (fileCallback != null) {
+						var publicationChanged = false;
+						if (!Strings.isNullOrEmpty(publication.getPathToDownloadablePDF())) {
+							final var ofn = publication.getPathToDownloadablePDF();
+							final var fn = fileCallback.publicationPdfFile(publication.getId(), ofn);
+							if (!Objects.equals(ofn, fn)) {
+								publication.setPathToDownloadablePDF(fn);
+								publicationChanged = true;
+							}
+						}
+						if (!Strings.isNullOrEmpty(publication.getPathToDownloadableAwardCertificate())) {
+							final var ofn = publication.getPathToDownloadableAwardCertificate();
+							final var fn = fileCallback.publicationAwardFile(publication.getId(), ofn);
+							if (!Objects.equals(ofn, fn)) {
+								publication.setPathToDownloadableAwardCertificate(fn);
+								publicationChanged = true;
+							}
+						}
+						if (publicationChanged && !isFake()) {
+							this.publicationService.save(publication);
+						}
+					}
+					++nbNewPublications;
+					if (!Strings.isNullOrEmpty(id)) {
+						objectIdRepository.put(id, Long.valueOf(publication.getId()));
+					}
+					//
+					getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+					// Attach authors
+					final var authors = publicationObject.get(AUTHORS_KEY);
+					if (authors == null || authors.isEmpty()) {
+						throw new IllegalArgumentException("No author for publication with id: " + id); //$NON-NLS-1$
+					}
+					var authorRank = 0;
+					final var iterator = authors.elements();
+					while (iterator.hasNext()) {
+						final var authorObject = iterator.next();
+						final var targetAuthor = findOrCreateAuthor(authorObject, objectIdRepository, nbNewPersons);
+						if (targetAuthor == null) {
+							throw new IllegalArgumentException("Invalid author reference for publication with id: " + id); //$NON-NLS-1$
+						}
+						//
+						var authorship = new Authorship();
+						authorship.setPerson(targetAuthor);
+						authorship.setPublication(publication);
+						authorship.setAuthorRank(authorRank);
+						if (!isFake()) {
+							authorship = this.authorshipRepository.save(authorship);
+						}
+						++authorRank;
+					}
+					session.getTransaction().commit();
+					final var publicationScientificAxes = axesOfPublications.get(id);
+					if (publicationScientificAxes != null && !publicationScientificAxes.isEmpty()) {
 						session.beginTransaction();
-						// Save the publication
+						final var axisInstances = this.scientificAxisRepository.findAllById(publicationScientificAxes);
+						publication.setScientificAxes(axisInstances);
 						if (!isFake()) {
 							this.publicationService.save(publication);
 						}
-						// Ensure that attached files are correct
-						if (fileCallback != null) {
-							var publicationChanged = false;
-							if (!Strings.isNullOrEmpty(publication.getPathToDownloadablePDF())) {
-								final var ofn = publication.getPathToDownloadablePDF();
-								final var fn = fileCallback.publicationPdfFile(publication.getId(), ofn);
-								if (!Objects.equals(ofn, fn)) {
-									publication.setPathToDownloadablePDF(fn);
-									publicationChanged = true;
-								}
-							}
-							if (!Strings.isNullOrEmpty(publication.getPathToDownloadableAwardCertificate())) {
-								final var ofn = publication.getPathToDownloadableAwardCertificate();
-								final var fn = fileCallback.publicationAwardFile(publication.getId(), ofn);
-								if (!Objects.equals(ofn, fn)) {
-									publication.setPathToDownloadableAwardCertificate(fn);
-									publicationChanged = true;
-								}
-							}
-							if (publicationChanged && !isFake()) {
-								this.publicationService.save(publication);
-							}
-						}
-						++nbNewPublications;
-						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Long.valueOf(publication.getId()));
-						}
-						//
-						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-						// Attach authors
-						final var authors = publicationObject.get(AUTHORS_KEY);
-						if (authors == null || authors.isEmpty()) {
-							throw new IllegalArgumentException("No author for publication with id: " + id); //$NON-NLS-1$
-						}
-						var authorRank = 0;
-						final var iterator = authors.elements();
-						while (iterator.hasNext()) {
-							final var authorObject = iterator.next();
-							final var targetAuthor = findOrCreateAuthor(authorObject, objectIdRepository, nbNewPersons);
-							if (targetAuthor == null) {
-								throw new IllegalArgumentException("Invalid author reference for publication with id: " + id); //$NON-NLS-1$
-							}
-							//
-							var authorship = new Authorship();
-							authorship.setPerson(targetAuthor);
-							authorship.setPublication(publication);
-							authorship.setAuthorRank(authorRank);
-							if (!isFake()) {
-								authorship = this.authorshipRepository.save(authorship);
-							}
-							++authorRank;
-						}
 						session.getTransaction().commit();
-						final var publicationScientificAxes = axesOfPublications.get(id);
-						if (publicationScientificAxes != null && !publicationScientificAxes.isEmpty()) {
-							session.beginTransaction();
-							final var axisInstances = this.scientificAxisRepository.findAllById(publicationScientificAxes);
-							publication.setScientificAxes(axisInstances);
-							if (!isFake()) {
-								this.publicationService.save(publication);
-							}
-							session.getTransaction().commit();
-						}
-					} else {
-						// Publication is already in the database
-						getLogger().info("  X " + existing.get().getTitle() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-						}
-						if (fileCallback != null) {
-							if (!Strings.isNullOrEmpty(existing.get().getPathToDownloadablePDF())) {
-								fileCallback.publicationPdfFile(existing.get().getId(), existing.get().getPathToDownloadablePDF());
-							}
-							if (!Strings.isNullOrEmpty(existing.get().getPathToDownloadableAwardCertificate())) {
-								fileCallback.publicationAwardFile(existing.get().getId(), existing.get().getPathToDownloadableAwardCertificate());
-							}
-						}
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(PUBLICATIONS_SECTION, i, publicationObject, ex);
@@ -1570,29 +1587,19 @@ public class JsonToDatabaseImporter extends JsonTool {
 							}
 							membership.setPromoters(promoters);
 						}
-						final var existing = this.juryMembershipRepository.findByPersonIdAndCandidateIdAndType(
-								targetPerson.get().getId(), targetCandidate.get().getId(), membership.getType());
-						if (existing.isEmpty()) {
-							if (!isFake()) {
-								membership = this.juryMembershipRepository.save(membership);
-							}
-							++nbNew;
-							getLogger().info("  + " + targetPerson.get().getFullName() //$NON-NLS-1$
-									+ " - " + targetCandidate.get().getFullName() //$NON-NLS-1$
-									+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
-									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(membership.getId()));
-							}
-						} else {
-							getLogger().info("  X " + targetPerson.get().getFullName() //$NON-NLS-1$
-									+ " - " + targetCandidate.get().getFullName() //$NON-NLS-1$
-									+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
-									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
-							}
+
+						if (!isFake()) {
+							membership = this.juryMembershipRepository.save(membership);
 						}
+						++nbNew;
+						getLogger().info("  + " + targetPerson.get().getFullName() //$NON-NLS-1$
+								+ " - " + targetCandidate.get().getFullName() //$NON-NLS-1$
+								+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
+								+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(membership.getId()));
+						}
+
 						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {
@@ -1617,74 +1624,75 @@ public class JsonToDatabaseImporter extends JsonTool {
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (supervisions != null && !supervisions.isEmpty()) {
-			getLogger().info("Inserting " + supervisions.size() + " supervisions..."); //$NON-NLS-1$ //$NON-NLS-2$
-			var i = 0;
-			for (var supervisionObject : supervisions) {
-				getLogger().info("> Supervision " + (i + 1) + "/" + supervisions.size()); //$NON-NLS-1$ //$NON-NLS-2$
-				try {
-					final var id = getId(supervisionObject);
-					var supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
-					if (supervision != null) {
-						session.beginTransaction();
-						// Supervised Person
-						final var mbrId = getRef(supervisionObject.get(PERSON_KEY));
-						if (Strings.isNullOrEmpty(mbrId)) {
-							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
-						}
-						final var mbrDbId = objectIdRepository.get(mbrId);
-						if (mbrDbId == null || mbrDbId.intValue() == 0) {
-							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
-						}
-						final var targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
-						if (targetMembership.isEmpty()) {
-							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
-						}
-						supervision.setSupervisedPerson(targetMembership.get());
-						if (!isFake()) {
-							this.supervisionRepository.save(supervision);
-						}
-						// Directors
-						final var supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
-						if (supervisorsNode != null && supervisorsNode.isArray()) {
-							final var supervisors = new ArrayList<Supervisor>();
-							for (final var supervisorNode : supervisorsNode) {
-								final var supervisorObj = new Supervisor();
-								final var supervisorId = getRef(supervisorNode.get(PERSON_KEY));
-								if (Strings.isNullOrEmpty(supervisorId)) {
-									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
-								}
-								final var supervisorDbId = objectIdRepository.get(supervisorId);
-								if (supervisorDbId == null || supervisorDbId.intValue() == 0) {
-									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
-								}
-								final var targetSupervisor = this.personRepository.findById(supervisorDbId);
-								if (targetSupervisor.isEmpty()) {
-									throw new IllegalArgumentException("Invalid supervisor reference for jury membership with id: " + id); //$NON-NLS-1$
-								}
-								supervisorObj.setSupervisor(targetSupervisor.get());
-								supervisorObj.setType(getEnum(supervisorNode, TYPE_KEY, SupervisorType.class));
-								supervisorObj.setPercentage(getInt(supervisorNode, PERCENT_KEY, 0));
-								supervisors.add(supervisorObj);
-							}
-							supervision.setSupervisors(supervisors);
-							if (!isFake()) {
-								this.supervisionRepository.save(supervision);
-							}
-						}
-						++nbNew;
-						getLogger().info("  + " + supervision.getSupervisedPerson().getPerson().getFullName() //$NON-NLS-1$
-								+ " - " + supervision.getSupervisedPerson().getShortDescription(getMessageSourceAccessor(), Locale.US) //$NON-NLS-1$
-								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Long.valueOf(supervision.getId()));
-						}
-						session.getTransaction().commit();
-					}
-				} catch (Throwable ex) {
-					throw new UnableToImportJsonException(SUPERVISIONS_SECTION, i, supervisionObject, ex);
-				}
-				++i;
-			}
+			// FIXME
+//			getLogger().info("Inserting " + supervisions.size() + " supervisions..."); //$NON-NLS-1$ //$NON-NLS-2$
+//			var i = 0;
+//			for (var supervisionObject : supervisions) {
+//				getLogger().info("> Supervision " + (i + 1) + "/" + supervisions.size()); //$NON-NLS-1$ //$NON-NLS-2$
+//				try {
+//					final var id = getId(supervisionObject);
+//					var supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
+//					if (supervision != null) {
+//						session.beginTransaction();
+//						// Supervised Person
+//						final var mbrId = getRef(supervisionObject.get(PERSON_KEY));
+//						if (Strings.isNullOrEmpty(mbrId)) {
+//							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+//						}
+//						final var mbrDbId = objectIdRepository.get(mbrId);
+//						if (mbrDbId == null || mbrDbId.intValue() == 0) {
+//							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+//						}
+//						final var targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
+//						if (targetMembership.isEmpty()) {
+//							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+//						}
+//						supervision.setSupervisedPerson(targetMembership.get());
+//						if (!isFake()) {
+//							this.supervisionRepository.save(supervision);
+//						}
+//						// Directors
+//						final var supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
+//						if (supervisorsNode != null && supervisorsNode.isArray()) {
+//							final var supervisors = new ArrayList<Supervisor>();
+//							for (final var supervisorNode : supervisorsNode) {
+//								final var supervisorObj = new Supervisor();
+//								final var supervisorId = getRef(supervisorNode.get(PERSON_KEY));
+//								if (Strings.isNullOrEmpty(supervisorId)) {
+//									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
+//								}
+//								final var supervisorDbId = objectIdRepository.get(supervisorId);
+//								if (supervisorDbId == null || supervisorDbId.intValue() == 0) {
+//									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
+//								}
+//								final var targetSupervisor = this.personRepository.findById(supervisorDbId);
+//								if (targetSupervisor.isEmpty()) {
+//									throw new IllegalArgumentException("Invalid supervisor reference for jury membership with id: " + id); //$NON-NLS-1$
+//								}
+//								supervisorObj.setSupervisor(targetSupervisor.get());
+//								supervisorObj.setType(getEnum(supervisorNode, TYPE_KEY, SupervisorType.class));
+//								supervisorObj.setPercentage(getInt(supervisorNode, PERCENT_KEY, 0));
+//								supervisors.add(supervisorObj);
+//							}
+//							supervision.setSupervisors(supervisors);
+//							if (!isFake()) {
+//								this.supervisionRepository.save(supervision);
+//							}
+//						}
+//						++nbNew;
+//						getLogger().info("  + " + supervision.getSupervisedPerson().getPerson().getFullName() //$NON-NLS-1$
+//								+ " - " + supervision.getSupervisedPerson().getShortDescription(getMessageSourceAccessor(), Locale.US) //$NON-NLS-1$
+//								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+//						if (!Strings.isNullOrEmpty(id)) {
+//							objectIdRepository.put(id, Long.valueOf(supervision.getId()));
+//						}
+//						session.getTransaction().commit();
+//					}
+//				} catch (Throwable ex) {
+//					throw new UnableToImportJsonException(SUPERVISIONS_SECTION, i, supervisionObject, ex);
+//				}
+//				++i;
+//			}
 		}
 		return nbNew;
 	}
@@ -1702,61 +1710,62 @@ public class JsonToDatabaseImporter extends JsonTool {
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (invitations != null && !invitations.isEmpty()) {
-			getLogger().info("Inserting " + invitations.size() + " invitations..."); //$NON-NLS-1$ //$NON-NLS-2$
-			var i = 0;
-			for (var invitationObject : invitations) {
-				getLogger().info("> Invitation " + (i + 1) + "/" + invitations.size()); //$NON-NLS-1$ //$NON-NLS-2$
-				try {
-					final var id = getId(invitationObject);
-					var invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
-					if (invitation != null) {
-						session.beginTransaction();
-						// Guest
-						final var guestId = getRef(invitationObject.get(GUEST_KEY));
-						if (Strings.isNullOrEmpty(guestId)) {
-							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
-						}
-						final var guestDbId = objectIdRepository.get(guestId);
-						if (guestDbId == null || guestDbId.intValue() == 0) {
-							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
-						}
-						final var targetGuest = this.personRepository.findById(guestDbId);
-						if (targetGuest.isEmpty()) {
-							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
-						}
-						invitation.setGuest(targetGuest.get());
-						// Inviter
-						final var inviterId = getRef(invitationObject.get(INVITER_KEY));
-						if (Strings.isNullOrEmpty(inviterId)) {
-							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
-						}
-						final var inviterDbId = objectIdRepository.get(inviterId);
-						if (inviterDbId == null || inviterDbId.intValue() == 0) {
-							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
-						}
-						final var targetInviter = this.personRepository.findById(inviterDbId);
-						if (targetInviter.isEmpty()) {
-							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
-						}
-						invitation.setInviter(targetInviter.get());
-						//
-						if (!isFake()) {
-							this.invitationRepository.save(invitation);
-						}
-						++nbNew;
-						getLogger().info("  + " + invitation.getGuest().getFullName() //$NON-NLS-1$
-								+ " - " + invitation.getInviter().getFullName() //$NON-NLS-1$
-								+ " (id: " + invitation.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Long.valueOf(invitation.getId()));
-						}
-						session.getTransaction().commit();
-					}
-				} catch (Throwable ex) {
-					throw new UnableToImportJsonException(INVITATIONS_SECTION, i, invitationObject, ex);
-				}
-				++i;
-			}
+			// FIXME
+//			getLogger().info("Inserting " + invitations.size() + " invitations..."); //$NON-NLS-1$ //$NON-NLS-2$
+//			var i = 0;
+//			for (var invitationObject : invitations) {
+//				getLogger().info("> Invitation " + (i + 1) + "/" + invitations.size()); //$NON-NLS-1$ //$NON-NLS-2$
+//				try {
+//					final var id = getId(invitationObject);
+//					var invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
+//					if (invitation != null) {
+//						session.beginTransaction();
+//						// Guest
+//						final var guestId = getRef(invitationObject.get(GUEST_KEY));
+//						if (Strings.isNullOrEmpty(guestId)) {
+//							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+//						}
+//						final var guestDbId = objectIdRepository.get(guestId);
+//						if (guestDbId == null || guestDbId.intValue() == 0) {
+//							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+//						}
+//						final var targetGuest = this.personRepository.findById(guestDbId);
+//						if (targetGuest.isEmpty()) {
+//							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+//						}
+//						invitation.setGuest(targetGuest.get());
+//						// Inviter
+//						final var inviterId = getRef(invitationObject.get(INVITER_KEY));
+//						if (Strings.isNullOrEmpty(inviterId)) {
+//							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+//						}
+//						final var inviterDbId = objectIdRepository.get(inviterId);
+//						if (inviterDbId == null || inviterDbId.intValue() == 0) {
+//							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+//						}
+//						final var targetInviter = this.personRepository.findById(inviterDbId);
+//						if (targetInviter.isEmpty()) {
+//							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+//						}
+//						invitation.setInviter(targetInviter.get());
+//						//
+//						if (!isFake()) {
+//							this.invitationRepository.save(invitation);
+//						}
+//						++nbNew;
+//						getLogger().info("  + " + invitation.getGuest().getFullName() //$NON-NLS-1$
+//								+ " - " + invitation.getInviter().getFullName() //$NON-NLS-1$
+//								+ " (id: " + invitation.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+//						if (!Strings.isNullOrEmpty(id)) {
+//							objectIdRepository.put(id, Long.valueOf(invitation.getId()));
+//						}
+//						session.getTransaction().commit();
+//					}
+//				} catch (Throwable ex) {
+//					throw new UnableToImportJsonException(INVITATIONS_SECTION, i, invitationObject, ex);
+//				}
+//				++i;
+//			}
 		}
 		return nbNew;
 	}
@@ -2422,6 +2431,44 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 		}
 		return nbNew;
+	}
+
+	/** Internal data structure for importing organization memberships.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private static record MembershipInfo(Membership membership, String jsonId) {
+		//
+	}
+
+	/** Internal data structure for importing organization memberships.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private static final class PersonMemberships {
+
+		/** List of organization services.
+		 */
+		final List<MembershipInfo> services = new LinkedList<>();
+
+		/** List of organization employers.
+		 */
+		final List<MembershipInfo> employers = new LinkedList<>();
+
+		/** Constructor.
+		 */
+		PersonMemberships() {
+			//
+		}
+		
 	}
 
 	/** Callback for files that are associated to elements from the JSON.

@@ -93,6 +93,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		this.fileManager = fileManager;
 		this.teachingService = teachingService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

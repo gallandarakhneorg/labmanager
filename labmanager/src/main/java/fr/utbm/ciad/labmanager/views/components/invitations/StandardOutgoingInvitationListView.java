@@ -84,6 +84,7 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 		super(PersonInvitation.class, authenticatedUser, messages, logger);
 		this.invitationService = invitationService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllOutgoingInvitations(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

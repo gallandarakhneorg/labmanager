@@ -91,13 +91,13 @@ public class ExporterConfiguratorTest {
 		Membership m0 = mock(Membership.class);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m0.getPerson()).thenReturn(person);
-		when(m0.getResearchOrganization()).thenReturn(orga0);
+		when(m0.getDirectResearchOrganization()).thenReturn(orga0);
 		when(m0.isActiveIn(any(), any())).thenReturn(true);
 
 		Membership m1 = mock(Membership.class);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.POSTDOC);
 		when(m1.getPerson()).thenReturn(person);
-		when(m1.getResearchOrganization()).thenReturn(orga1);
+		when(m1.getDirectResearchOrganization()).thenReturn(orga1);
 		when(m1.isActiveIn(any(), any())).thenReturn(true);
 
 		when(person.getMemberships()).thenReturn(new HashSet<>(Arrays.asList(m0, m1)));
@@ -115,13 +115,13 @@ public class ExporterConfiguratorTest {
 		Membership m0 = mock(Membership.class);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m0.getPerson()).thenReturn(person);
-		when(m0.getResearchOrganization()).thenReturn(orga0);
+		when(m0.getDirectResearchOrganization()).thenReturn(orga0);
 		when(m0.isActiveIn(any(), any())).thenReturn(false);
 
 		Membership m1 = mock(Membership.class);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.POSTDOC);
 		when(m1.getPerson()).thenReturn(person);
-		when(m1.getResearchOrganization()).thenReturn(orga1);
+		when(m1.getDirectResearchOrganization()).thenReturn(orga1);
 		when(m1.isActiveIn(any(), any())).thenReturn(true);
 
 		when(person.getMemberships()).thenReturn(new HashSet<>(Arrays.asList(m0, m1)));
@@ -162,34 +162,6 @@ public class ExporterConfiguratorTest {
 		assertTrue(this.test.isColoredTitle());
 		this.test.disableTitleColor();
 		assertFalse(this.test.isColoredTitle());
-	}
-
-	@Test
-	public void disableDownloadButtons() {
-		assertTrue(this.test.isDownloadButtons());
-		this.test.disableDownloadButtons();
-		assertFalse(this.test.isDownloadButtons());
-	}
-
-	@Test
-	public void disableExportButtons() {
-		assertTrue(this.test.isExportButtons());
-		this.test.disableExportButtons();
-		assertFalse(this.test.isExportButtons());
-	}
-
-	@Test
-	public void disableEditButtons() {
-		assertTrue(this.test.isEditButtons());
-		this.test.disableEditButtons();
-		assertFalse(this.test.isEditButtons());
-	}
-
-	@Test
-	public void disableDeleteButtons() {
-		assertTrue(this.test.isDeleteButtons());
-		this.test.disableDeleteButtons();
-		assertFalse(this.test.isDeleteButtons());
 	}
 
 	@Test

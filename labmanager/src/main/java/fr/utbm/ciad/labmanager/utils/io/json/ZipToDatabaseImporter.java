@@ -150,7 +150,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			// Inject the JSON content into the database; Change the uploaded files on the fly.
 			if (content != null) {
 				final var callback = new UploadedFileManager();
-				final var stats = this.jsonImporter.importJsonFileToDatabase(content, true, callback);
+				final var stats = this.jsonImporter.importJsonFileToDatabase(content, callback);
 				if (stats != null) {
 					stats.setPublicationAssociatedFileCount(callback.getFileCount());
 					stats.logSummaryOn(getLogger());

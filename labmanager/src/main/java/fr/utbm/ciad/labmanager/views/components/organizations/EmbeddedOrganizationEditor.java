@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService.EditingContext;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
@@ -48,11 +49,13 @@ public final class EmbeddedOrganizationEditor extends AbstractOrganizationEditor
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
+	 * @param addressService the service for accessing the organization addresses.
 	 */
 	public EmbeddedOrganizationEditor(EditingContext context,
 			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, fileManager, authenticatedUser, messages, LOGGER);
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			OrganizationAddressService addressService) {
+		super(context, fileManager, authenticatedUser, messages, LOGGER, addressService);
 		createEditorContentAndLinkBeans();
 	}
 

@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.organization;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +38,8 @@ import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -62,6 +65,8 @@ public class ResearchOrganizationService extends AbstractService {
 
 	private final ResearchOrganizationRepository organizationRepository;
 
+	private final SessionFactory sessionFactory;
+	
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -70,17 +75,20 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param addressRepository the address repository.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param organizationRepository the organization repository.
 	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
 	public ResearchOrganizationService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired DownloadableFileManager fileManager) {
 		super(messages, constants);
 		this.addressRepository = addressRepository;
+		this.sessionFactory = sessionFactory;
 		this.organizationRepository = organizationRepository;
 		this.fileManager = fileManager;
 	}
@@ -194,7 +202,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param organizationURL the web-site URL of the research organization.
 	 * @param country the country of the research organization.
 	 * @param addresses the identifiers of the addresses of the organization.
-	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
+	 * @param superOrganizations the identifiers of the super organizations.
 	 * @param pathToLogo the uploaded logo of the organization, if any.
 	 * @return the created organization in the database.
 	 * @throws IOException if the logo cannot be uploaded or removed.
@@ -202,16 +210,18 @@ public class ResearchOrganizationService extends AbstractService {
 	public Optional<ResearchOrganization> createResearchOrganization(boolean validated, String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Long> addresses, Long superOrganization,
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Long> addresses,
+			Set<Long> superOrganizations,
 			MultipartFile pathToLogo) throws IOException {
-		final Optional<ResearchOrganization> sres;
-		if (superOrganization != null && superOrganization.intValue() != 0) {
-			sres = this.organizationRepository.findById(superOrganization);
-			if (sres.isEmpty()) {
-				throw new IllegalArgumentException("Research organization not found with id: " + superOrganization); //$NON-NLS-1$
+		final var sres = new HashSet<ResearchOrganization>();
+		if (superOrganizations != null && !superOrganizations.isEmpty()) {
+			for (final var sorgId : superOrganizations) {
+				final var sorg = this.organizationRepository.findById(sorgId);
+				if (sres.isEmpty()) {
+					throw new IllegalArgumentException("Research organization not found with id: " + sorgId); //$NON-NLS-1$
+				}
+				sres.add(sorg.get());
 			}
-		} else {
-			sres = Optional.empty();
 		}
 		//
 		final Set<OrganizationAddress> adrs;
@@ -235,8 +245,8 @@ public class ResearchOrganizationService extends AbstractService {
 		if (adrs != null && !adrs.isEmpty()) {
 			res.setAddresses(adrs);
 		}
-		if (sres.isPresent()) {
-			res.setSuperOrganization(sres.get());
+		if (!sres.isEmpty()) {
+			res.setSuperOrganizations(sres);
 		}
 		this.organizationRepository.save(res);
 		//
@@ -259,9 +269,6 @@ public class ResearchOrganizationService extends AbstractService {
 		final var res = this.organizationRepository.findById(id);
 		if (res.isPresent()) {
 			final var organization = res.get();
-			if (!organization.getSubOrganizations().isEmpty()) {
-				throw new AttachedSubOrganizationException();
-			}
 			if (!organization.getMemberships().isEmpty()) {
 				throw new AttachedMemberException();
 			}
@@ -284,7 +291,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param organizationURL the web-site URL of the research organization.
 	 * @param country the country of the research organization.
 	 * @param addresses the identifiers of the addresses of the organization.
-	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
+	 * @param superOrganizations the identifiers of the super organizations.
 	 * @param pathToLogo the uploaded logo of the organization, if any.
 	 * @param removePathToLogo indicates if the path to the logo in the database should be removed, possibly before saving a new logo.
 	 * @return the organization object that was updated.
@@ -293,17 +300,16 @@ public class ResearchOrganizationService extends AbstractService {
 	public Optional<ResearchOrganization> updateResearchOrganization(long identifier, boolean validated, String acronym,
 			String name, boolean isMajor, String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Long> addresses,
-			Long superOrganization, MultipartFile pathToLogo, boolean removePathToLogo) throws IOException  {
+			Set<Long> superOrganizations, MultipartFile pathToLogo, boolean removePathToLogo) throws IOException  {
 		final var res = this.organizationRepository.findById(Long.valueOf(identifier));
 		if (res.isPresent()) {
-			final Optional<ResearchOrganization> sres;
-			if (superOrganization != null && superOrganization.intValue() != 0) {
-				sres = this.organizationRepository.findById(superOrganization);
-				if (sres.isEmpty()) {
-					throw new IllegalArgumentException("Research organization not found with id: " + superOrganization); //$NON-NLS-1$
+			final var sres = new HashSet<ResearchOrganization>();
+			for (final var orgaId : superOrganizations) {
+				final var sorg = this.organizationRepository.findById(orgaId);
+				if (sorg.isEmpty()) {
+					throw new IllegalArgumentException("Research organization not found with id: " + orgaId); //$NON-NLS-1$
 				}
-			} else {
-				sres = Optional.empty();
+				sres.add(sorg.get());
 			}
 			//
 			final Set<OrganizationAddress> adrs;
@@ -329,8 +335,8 @@ public class ResearchOrganizationService extends AbstractService {
 			organization.setCountry(country);
 			organization.setAddresses(adrs);
 			organization.setValidated(validated);
-			if (sres.isPresent()) {
-				organization.setSuperOrganization(sres.get());
+			if (!sres.isEmpty()) {
+				organization.setSuperOrganizations(sres);
 			}
 			//
 			this.organizationRepository.save(organization);
@@ -376,8 +382,8 @@ public class ResearchOrganizationService extends AbstractService {
 				if (subOrg.isPresent()) {
 					final var superOrganization = superOrg.get();
 					final var subOrganization = subOrg.get();
-					if (superOrganization.getSubOrganizations().add(subOrganization)) {
-						subOrganization.setSuperOrganization(superOrganization);
+					if (subOrganization.getSuperOrganizations().add(superOrganization)
+						&& superOrganization.getSubOrganizations().add(subOrganization)) {
 						this.organizationRepository.save(subOrganization);
 						this.organizationRepository.save(superOrganization);
 						return true;
@@ -402,7 +408,7 @@ public class ResearchOrganizationService extends AbstractService {
 				final var superOrganization = superOrg.get();
 				final var subOrganization = subOrg.get();
 				if (superOrganization.getSubOrganizations().remove(subOrganization)) {
-					subOrganization.setSuperOrganization(null);
+					subOrganization.getSuperOrganizations().remove(superOrganization);
 					this.organizationRepository.save(superOrganization);
 					this.organizationRepository.save(subOrganization);
 					return true;
@@ -420,6 +426,13 @@ public class ResearchOrganizationService extends AbstractService {
 	 */
 	public EditingContext startEditing(ResearchOrganization organization) {
 		assert organization != null;
+		// Force initialization of the internal properties that are needed for editing
+		if (organization.getId() != 0l) {
+			try (final var session = this.sessionFactory.openSession()) {
+				session.load(organization, Long.valueOf(organization.getId()));
+				Hibernate.initialize(organization.getAddresses());
+			}
+		}
 		return new EditingContext(organization);
 	}
 

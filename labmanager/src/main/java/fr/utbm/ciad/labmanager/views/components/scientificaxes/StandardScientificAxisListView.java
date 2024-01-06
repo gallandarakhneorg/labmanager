@@ -87,6 +87,7 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 		super(ScientificAxis.class, authenticatedUser, messages, logger);
 		this.axisService = axisService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllScientificAxes(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

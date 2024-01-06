@@ -20,17 +20,9 @@
 package fr.utbm.ciad.labmanager.data;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import com.ibm.icu.text.Normalizer2;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureComparator;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderComparator;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceComparator;
@@ -41,14 +33,10 @@ import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.NameBasedMembershipComparator;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import fr.utbm.ciad.labmanager.data.member.PersonListComparator;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressComparator;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
-import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectBudgetComparator;
 import fr.utbm.ciad.labmanager.data.project.ProjectComparator;
 import fr.utbm.ciad.labmanager.data.project.ProjectMemberComparator;
@@ -57,15 +45,11 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationComparator;
 import fr.utbm.ciad.labmanager.data.publication.SorensenDicePublicationComparator;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisComparator;
-import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionComparator;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisorComparator;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityComparator;
 import fr.utbm.ciad.labmanager.data.user.UserComparator;
-import info.debatty.java.stringsimilarity.SorensenDice;
-import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Tools and configuration for the JPA entities.
  * 
@@ -89,8 +73,6 @@ public final class EntityUtils {
 	 * <p>This value is defined in order to be database independent for most of the {@code VARCHAR} specifications.
 	 */
 	public static final int VERY_SMALL_TEXT_SIZE = 32;
-
-	private static final double SIMILARITY = 0.95;
 
 	private static PersonComparator PERSON_COMPARATOR; 
 
@@ -133,8 +115,6 @@ public final class EntityUtils {
 	private static AssociatedStructureHolderComparator ASSOCIATED_STRUCTURE_HOLDER_COMPARATOR; 
 
 	private static AssociatedStructureComparator ASSOCIATED_STRUCTURE_COMPARATOR; 
-
-	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
 	private static Comparator<? super Publication> DEFAULT_PUBLICATION_COMPARATOR = (a, b) -> {
 		if (a == b) {
@@ -486,70 +466,6 @@ public final class EntityUtils {
 		}
 	}
 
-	/** Check if the information from two publications correspond to similar publications, WITHOUT
-	 * normalization of the strings. It is assumed that the given strings are already normalized.
-	 * 
-	 * @param year0 the publication year of the first publication.
-	 * @param title0 the title of the first publication.
-	 * @param doi0 the DOI of the first publication.
-	 * @param issn0 the ISSN of the first publication.
-	 * @param target0 the target of the first publication.
-	 * @param year1 the publication year of the second publication.
-	 * @param title1 the title of the second publication.
-	 * @param doi1 the DOI of the second publication.
-	 * @param issn1 the ISSN of the second publication.
-	 * @param target1 the target of the second publication.
-	 * @return {@code true} if the two publications are similar.
-	 * @see #normalizeForSimularityTest(String)
-	 */
-	public static boolean isSimilarWithoutNormalization(
-			int year0, String title0, String doi0, String issn0, String target0,
-			int year1, String title1, String doi1, String issn1, String target1) {
-		return isSimilar(year0, year1)
-				&& isSimilarWithoutNormalization(title0, title1)
-				&& isSimilarWithoutNormalization(doi0, doi1)
-				&& isSimilarWithoutNormalization(issn0, issn1)
-				&& isSimilarWithoutNormalization(target0, target1);
-	}
-
-	/** Normalize a string for enabling its similarity computation.
-	 *
-	 * @param a the string to normalize.
-	 * @return the normalized string.
-	 * @see #isSimilarWithoutNormalization(int, String, String, String, String, int, String, String, String, String)
-	 * @see #isSimilarWithoutNormalization(String, String)
-	 */
-	public static String normalizeForSimularityTest(String a) {
-		if (a == null) {
-			return null;
-		}
-		var str = a.toLowerCase().trim();
-		final var normalizer = Normalizer2.getNFDInstance();
-		if (!normalizer.isNormalized(str)) {
-			str = normalizer.normalize(str);
-		}
-		return str.replaceAll("\\P{InBasic_Latin}", ""); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	private static boolean isSimilar(int a, int b) {
-		return Math.abs(a - b) <= 1;
-	}
-
-	/** Replies if the two given strings are considered as similar.
-	 * The two given strings are supposed to be normalized with {@link #normalizeForSimularityTest(String)}.
-	 *
-	 * @param a the first string to test.
-	 * @param b the second string to test.
-	 * @return {@code true} if the two strings are similar.
-	 * @see #normalizeForSimularityTest(String)
-	 */
-	public static boolean isSimilarWithoutNormalization(String a, String b) {
-		if (a == null || b == null) {
-			return true;
-		}
-		return SIMILARITY_COMPUTER.similarity(a, b) >= SIMILARITY;
-	}
-
 	/** Replies the preferred comparator of jury memberships.
 	 *
 	 * @return the comparator.
@@ -742,270 +658,6 @@ public final class EntityUtils {
 		synchronized (EntityUtils.class) {
 			ASSOCIATED_STRUCTURE_COMPARATOR = comparator;
 		}
-	}
-
-	/** Replies the name of the research organization, and possibly of the enclosing organizations up to the university.
-	 *
-	 * @param supervision the source supervision.
-	 * @param separator the text to put between the names of the organizations.
-	 * @return the name.
-	 * @since 2.2
-	 */
-	public static String getNameInUniversity(Supervision supervision, String separator) {
-		final var membership = supervision.getSupervisedPerson();
-		final var organization = membership.getResearchOrganization();
-		final var outcome = new StringBuilder();
-		outcome.append(organization.getNameOrAcronym());
-
-		final var univBuffer = new StringBuilder();
-		final var univType = ResearchOrganizationType.UNIVERSITY.ordinal();
-		var univFound = false;
-		if (organization.getType().ordinal() <= univType) {
-			var org = organization.getSuperOrganization();
-			while (org != null && org.getType().ordinal() <= univType) {
-				univFound = org.getType().ordinal() == univType;
-				univBuffer.append(separator);
-				univBuffer.append(org.getNameOrAcronym());
-				org = org.getSuperOrganization();
-			}
-		}
-
-		if (!univFound) {
-			final var timeStart = membership.getMemberSinceWhen() == null
-					? LocalDate.of(supervision.getYear(), 1, 1) : membership.getMemberSinceWhen();
-			final var timeEnd = membership.getMemberToWhen() == null
-					? LocalDate.of(supervision.getYear(), 12, 31) : membership.getMemberToWhen();
-			final var iterator = supervision.getSupervisedPerson().getPerson().getMemberships().stream()
-					.filter(it -> it.getId() != membership.getId() && it.isActiveIn(timeStart, timeEnd)).iterator();
-			while (iterator.hasNext()) {
-				final var mbr = iterator.next();
-				if (mbr.getResearchOrganization().getType() == ResearchOrganizationType.UNIVERSITY) {
-					outcome.append(separator);
-					outcome.append(mbr.getResearchOrganization().getNameOrAcronym());
-					break;
-				}
-			}
-		} else {
-			outcome.append(univBuffer);
-		}
-
-		return outcome.toString();
-	}
-
-	/** Replies the university/school/company that corresponds to the given organization.
-	 *
-	 * @param organization the organization.
-	 * @return the parent organization or the given organization if it is not an university/school/company.
-	 * @since 2.2
-	 */
-	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization organization) {
-		var current = organization;
-		while (current != null && !current.getType().isEmployer()) {
-			current = current.getSuperOrganization();
-		}
-		if (current != null && current.getType().isEmployer()) {
-			return current;
-		}
-		return organization;
-	}
-
-	/** Replies the university/school/company that corresponds to the given organizations.
-	 *
-	 * @param organizations the organizations.
-	 * @return the parent organization or the given organization if it is not an university/school/company.
-	 * @since 3.6
-	 */
-	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization... organizations) {
-		for (final var organization : organizations) {
-			if (organization.getType().isEmployer()) {
-				return organization;
-			}
-		}
-		return null;
-	}
-
-	/** Replies the acronym of university/school/company that corresponds to the given organizations.
-	 *
-	 * @param organizations the organizations.
-	 * @return the name of the parent organization or the given organization if it is not an university/school/company.
-	 * @since 3.6
-	 */
-	public static String getUniversityOrSchoolOrCompanyName(ResearchOrganization... organizations) {
-		final var organization = getUniversityOrSchoolOrCompany(organizations);
-		if (organization != null) {
-			return organization.getAcronymOrName();
-		}
-		return null;
-	}
-
-	/** Replies the employing research organization for the person.
-	 *
-	 * @param person the person.
-	 * @param selector the selector of memberships. If it is {@code null}, not filtering is done.
-	 * @return the employer or {@code null}.
-	 */
-	public static ResearchOrganization getUniversityOrSchoolOrCompany(Person person, Predicate<? super Membership> selector) {
-		var stream = person.getMemberships().stream();
-		if (selector != null) {
-			stream = stream.filter(selector);
-		}
-		final var employer = stream
-				.map(it0 -> it0.getResearchOrganization())
-				.filter(it0 -> it0.getType().isEmployer())
-				.findAny();
-		if (employer.isPresent()) {
-			return employer.get();
-		}
-		return null;
-	}
-
-	/** Replies the name of the university or company for the given person regarding the time windows of the given supervision.
-	 *
-	 * @param supervision the source supervision.
-	 * @param person the person.
-	 * @param prefix the text to put before the name of the university.
-	 * @param postfix the text to put after the name of the university.
-	 * @param acronym indicates if the acronyms of the organizations are preferred to the full names.
-	 * @return the university name, or empty string
-	 * @since 2.2
-	 */
-	public static String getUniversityOrSchoolOrCompany(Supervision supervision, Person person, String prefix, String postfix, boolean acronym) {
-		final var membership = supervision.getSupervisedPerson();
-		final var timeStart = membership.getMemberSinceWhen() == null
-				? LocalDate.of(supervision.getYear(), 1, 1) : membership.getMemberSinceWhen();
-		final var timeEnd = membership.getMemberToWhen() == null
-				? LocalDate.of(supervision.getYear(), 12, 31) : membership.getMemberToWhen();
-		final var iterator = person.getMemberships().stream()
-				.filter(it -> it.isActiveIn(timeStart, timeEnd)).iterator();
-		while (iterator.hasNext()) {
-			final var mbr = iterator.next();
-			final var org = mbr.getResearchOrganization();
-			final var otype = org.getType();
-			if (otype == ResearchOrganizationType.UNIVERSITY || otype == ResearchOrganizationType.HIGH_SCHOOL
-					|| otype == ResearchOrganizationType.OTHER) {
-				final var b = new StringBuilder();
-				if (prefix != null) {
-					b.append(prefix);
-				}
-				if (acronym) {
-					b.append(org.getAcronymOrName());
-				} else {
-					b.append(org.getNameOrAcronym());
-				}
-				b.append(", "); //$NON-NLS-1$
-				b.append(org.getCountry().getDisplayCountry());
-				if (postfix != null) {
-					b.append(postfix);
-				}
-				return b.toString();
-			}
-		}
-		return ""; //$NON-NLS-1$
-	}
-
-	/** Fixing the carriage-return characters in the address complements.
-	 * Replace the CR characters by the equivalent protected string.
-	 *
-	 * @param complement the complement to fix.
-	 * @return the fixed complement.
-	 * @see #fixAddressComplementForBackend(String)
-	 * @see #getAddressComplementComponents(String)
-	 * @since 2.2
-	 */
-	public static String fixAddressComplementForEditor(String complement) {
-		if (complement == null) {
-			return null;
-		}
-		return complement.replace("\n", "\\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/** Fixing the carriage-return characters in the address complements.
-	 * Replace the protected CR characters by the equivalent unicode characters.
-	 *
-	 * @param complement the complement to fix.
-	 * @return the fixed complement.
-	 * @see #fixAddressComplementForEditor(String)
-	 * @see #getAddressComplementComponents(String)
-	 * @since 2.2
-	 */
-	public static String fixAddressComplementForBackend(String complement) {
-		if (complement == null) {
-			return null;
-		}
-		return complement.replace("\\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/** Extract the components of an address complement. The components are separated by carriage return characters.
-	 *
-	 * @param complement the complement to analyze.
-	 * @return the components of the complement.
-	 * @see #fixAddressComplementForEditor(String)
-	 * @see #fixAddressComplementForBackend(String)
-	 * @since 2.2
-	 */
-	public static List<String> getAddressComplementComponents(String complement) {
-		if (Strings.isNullOrEmpty(complement)) {
-			return Collections.emptyList();
-		}
-		final var components = complement.split("[\n]+");  //$NON-NLS-1$
-		return Arrays.asList(components);
-	}
-
-	/** Replies the list of local heads of the project.
-	 *
-	 * @param project the project to analyze.
-	 * @return the local heads.
-	 * @since 3.6
-	 */
-	public static List<Person> getProjectLocalHeads(Project project) {
-		if (project != null) {
-			return project.getParticipants().stream().filter(it -> it.getRole().isHead())
-					.map(it -> it.getPerson()).collect(Collectors.toList());
-		}
-		return Collections.emptyList();
-	}
-
-	/** Replies the list of local heads of the associated structure.
-	 *
-	 * @param structure the associated structure to analyze.
-	 * @return the local heads.
-	 * @since 3.6
-	 */
-	public static List<Person> getAssociatedStructureLocalHeads(AssociatedStructure structure) {
-		if (structure != null) {
-			return structure.getHoldersRaw().stream().filter(it -> it.getRole().isHead())
-					.map(it -> it.getPerson()).collect(Collectors.toList());
-		}
-		return Collections.emptyList();
-	}
-
-	/** Replies the research organizations that are partners in the given projects.
-	 *
-	 * @param projects the projects to analyze
-	 * @return the partners.
-	 * @since 3.6
-	 */
-	public static Set<ResearchOrganization> getPartnersForProjects(Iterable<Project> projects) {
-		final var partners = new HashSet<ResearchOrganization>();
-		for (final var project : projects) {
-			partners.addAll(project.getOtherPartners());
-		}
-		return partners;
-	}
-
-	/** Replies if one of the organizations in the given collection is located outside europe.
-	 * 
-	 * @param organizations the organizations.
-	 * @return {@code true} if one organization is outside EU.
-	 * @since 3.6
-	 */
-	public static boolean hasOrganizationOutsideEurope(Set<ResearchOrganization> organizations) {
-		for (final var organization : organizations) {
-			if (organization.isInternational()) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/** Replies if the given production has an author who is a PhD student.

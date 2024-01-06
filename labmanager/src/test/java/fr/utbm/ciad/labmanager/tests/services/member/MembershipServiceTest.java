@@ -136,22 +136,22 @@ public class MembershipServiceTest {
 		this.ms0 = mock(Membership.class);
 		lenient().when(this.ms0.getId()).thenReturn(123l);
 		lenient().when(this.ms0.getPerson()).thenReturn(this.p1);
-		lenient().when(this.ms0.getResearchOrganization()).thenReturn(this.o1);
+		lenient().when(this.ms0.getDirectResearchOrganization()).thenReturn(this.o1);
 		lenient().when(this.ms0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		this.ms1 = mock(Membership.class);
 		lenient().when(this.ms1.getId()).thenReturn(234l);
 		lenient().when(this.ms1.getPerson()).thenReturn(this.p2);
-		lenient().when(this.ms1.getResearchOrganization()).thenReturn(this.o1);
+		lenient().when(this.ms1.getDirectResearchOrganization()).thenReturn(this.o1);
 		lenient().when(this.ms1.getMemberStatus()).thenReturn(MemberStatus.FULL_PROFESSOR);
 		this.ms2 = mock(Membership.class);
 		lenient().when(this.ms2.getId()).thenReturn(345l);
 		lenient().when(this.ms2.getPerson()).thenReturn(this.p1);
-		lenient().when(this.ms2.getResearchOrganization()).thenReturn(this.o2);
+		lenient().when(this.ms2.getDirectResearchOrganization()).thenReturn(this.o2);
 		lenient().when(this.ms2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		this.ms3 = mock(Membership.class);
 		lenient().when(this.ms3.getId()).thenReturn(456l);
 		lenient().when(this.ms3.getPerson()).thenReturn(this.p3);
-		lenient().when(this.ms3.getResearchOrganization()).thenReturn(this.o2);
+		lenient().when(this.ms3.getDirectResearchOrganization()).thenReturn(this.o2);
 		lenient().when(this.ms3.getMemberStatus()).thenReturn(MemberStatus.FULL_PROFESSOR);
 
 		lenient().when(this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(anyLong(), anyLong())).then(it -> {
@@ -549,7 +549,7 @@ public class MembershipServiceTest {
 
 	@Test
 	public void addMembership() throws Exception {
-		final Pair<Membership, Boolean> m = this.test.addMembership(2345, null, 34567, LocalDate.parse("2022-07-12"),
+		final Pair<Membership, Boolean> m = this.test.addMembership(2345, null, null, 34567, LocalDate.parse("2022-07-12"),
 				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, true, Responsibility.DEAN,
 				CnuSection.CNU_07, ConrsSection.CONRS_08, FrenchBap.BAP_E, false, new ArrayList<>(), false);
 		assertNotNull(m);
@@ -570,7 +570,7 @@ public class MembershipServiceTest {
 		assertSame(FrenchBap.BAP_E, actual.getFrenchBap());
 		assertFalse(actual.isMainPosition());
 		assertSame(this.p3, actual.getPerson());
-		assertSame(this.o2, actual.getResearchOrganization());
+		assertSame(this.o2, actual.getDirectResearchOrganization());
 	}
 
 	@Test
@@ -585,7 +585,7 @@ public class MembershipServiceTest {
 		
 		List<ScientificAxis> axes = mock(List.class);
 
-		final Membership m = this.test.updateMembershipById(234l, 1234l, null, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
+		final Membership m = this.test.updateMembershipById(234l, 1234l, null, null, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
 				MemberStatus.MASTER_STUDENT, true, Responsibility.IT_RESPONSIBLE, CnuSection.CNU_05,
 				ConrsSection.CONRS_06, FrenchBap.BAP_E, false, axes);
 		assertSame(this.ms1, m);
@@ -594,7 +594,7 @@ public class MembershipServiceTest {
 		verify(this.membershipRepository, atLeastOnce()).save(same(this.ms1));
 		verifyNoMoreInteractions(this.membershipRepository);
 
-		verify(this.ms1).setResearchOrganization(same(this.o1));
+		verify(this.ms1).setDirectResearchOrganization(same(this.o1));
 		verify(this.ms1).setOrganizationAddress(isNull());
 		verify(this.ms1).setMemberSinceWhen(eq(LocalDate.parse("2019-07-12")));
 		verify(this.ms1).setMemberToWhen(eq(LocalDate.parse("2019-07-28")));

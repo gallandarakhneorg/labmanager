@@ -401,6 +401,12 @@ public abstract class JsonTool {
 	 */
 	protected static final String SUPER_ORGANIZATION_KEY = "superOrganization"; //$NON-NLS-1$
 
+	/** Name of the field for the reference to the super organizations.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String SUPER_ORGANIZATIONS_KEY = "superOrganizations"; //$NON-NLS-1$
+
 	/** Name of the field for the reference to an enclosing conference.
 	 *
 	 * @since 3.6

@@ -42,7 +42,6 @@ import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
-import fr.utbm.ciad.labmanager.utils.RequiredFieldInForm;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -538,7 +537,6 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 *
 	 * @return the type, never {@code null}.
 	 */
-	@RequiredFieldInForm
 	public PublicationType getType() {
 		return this.type;
 	}
@@ -597,7 +595,6 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	public abstract boolean isRanked();
 
 	@Override
-	@RequiredFieldInForm
 	public String getTitle() {
 		return this.title;
 	}
@@ -648,7 +645,6 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 *
 	 * @return the date, or {@code null}.
 	 */
-	@RequiredFieldInForm
 	public LocalDate getPublicationDate() {
 		return this.publicationDate;
 	}
@@ -959,7 +955,6 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 *
 	 * @return the language, never {@code null}.
 	 */
-	@RequiredFieldInForm
 	public PublicationLanguage getMajorLanguage() {
 		return this.majorLanguage;
 	}

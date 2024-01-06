@@ -177,7 +177,7 @@ public class MembershipStatService extends AbstractService {
 		final var membersPerAddress = new HashMap<Integer, Map<OrganizationAddress, Integer>>();
 		final var noAddress = new HashMap<Integer, Integer>();
 		memberships.stream()
-				.filter(it -> it.isMainPosition() && it.getResearchOrganization().getId() == referenceOrganization.getId())
+				.filter(it -> it.isMainPosition() && it.getDirectResearchOrganization().getId() == referenceOrganization.getId())
 				.forEach(it -> {
 					for (var y = minYear; y <= maxYear; ++y) {
 						final var startDate = LocalDate.of(y, 1, 1);
@@ -245,7 +245,7 @@ public class MembershipStatService extends AbstractService {
 		memberships.stream()
 				.filter(it -> it.isMainPosition() && it.getMemberStatus().isResearcher()
 						&& !it.getMemberStatus().isExternalPosition()
-						&& it.getResearchOrganization().getId() == referenceOrganization.getId())
+						&& it.getDirectResearchOrganization().getId() == referenceOrganization.getId())
 				.forEach(it -> {
 					for (var y = minYear; y <= maxYear; ++y) {
 						final var startDate = LocalDate.of(y, 1, 1);

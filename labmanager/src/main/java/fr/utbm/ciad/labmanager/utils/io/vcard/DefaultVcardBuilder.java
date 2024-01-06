@@ -189,18 +189,11 @@ public class DefaultVcardBuilder implements VcardBuilder {
 		if (membership != null) {
 			append(vcard, TITLE, membership.getMemberStatus().getLabel(messages, null, false, Locale.US));
 			final var org = new StringBuilder();
-			var ro = membership.getResearchOrganization();
-			if (university == null) {
-				do {
-					if (org.length() > 0) {
-						org.insert(0, ";"); //$NON-NLS-1$
-					}
-					org.insert(0, ro.getName());
-					ro = ro.getSuperOrganization();
-				} while (ro != null);
-			} else {
-				org.append(university.getResearchOrganization().getName()).append(";").append(ro.getName()); //$NON-NLS-1$
+			if (membership.getSuperResearchOrganization() != null) {
+				org.append(membership.getSuperResearchOrganization().getName()).append(";"); //$NON-NLS-1$
 			}
+			var ro = membership.getDirectResearchOrganization();
+			org.append(ro.getName());
 			append(vcard, ORGANIZATION, org.toString());
 			if (membership.getResponsibility() != null) {
 				append(vcard, ROLE, membership.getResponsibility().getLabel(messages, membership.getPerson().getGender(), Locale.US));
@@ -240,15 +233,15 @@ public class DefaultVcardBuilder implements VcardBuilder {
 		Membership detailMembership = null;
 		for (final var membership : person.getActiveMemberships().values()) {
 			if (universityMembership == null
-					|| membership.getResearchOrganization().getType().compareTo(ResearchOrganizationType.UNIVERSITY) >= 0) {
+					|| membership.getDirectResearchOrganization().getType().compareTo(ResearchOrganizationType.UNIVERSITY) >= 0) {
 				universityMembership = membership;
 			}
 			if (organization != null) {
-				if (detailMembership == null || organization.getId() == membership.getResearchOrganization().getId()) {
+				if (detailMembership == null || organization.getId() == membership.getDirectResearchOrganization().getId()) {
 					detailMembership = membership;
 				}
 			} else if (detailMembership == null
-					|| detailMembership.getResearchOrganization().getType().compareTo(membership.getResearchOrganization().getType()) > 0){
+					|| detailMembership.getDirectResearchOrganization().getType().compareTo(membership.getDirectResearchOrganization().getType()) > 0){
 				detailMembership = membership;
 			}
 		}

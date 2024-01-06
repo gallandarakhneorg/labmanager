@@ -84,6 +84,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 		super(AssociatedStructure.class, authenticatedUser, messages, logger);
 		this.structureService = structureService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAssociatedStructures(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

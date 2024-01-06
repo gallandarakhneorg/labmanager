@@ -49,6 +49,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,6 +82,8 @@ public class ResearchOrganizationServiceTest {
 
 	private ResearchOrganizationRepository organizationRepository;
 
+	private SessionFactory sessionFactory;
+
 	private ResearchOrganizationService test;
 
 	private DownloadableFileManager fileManager;
@@ -90,9 +93,10 @@ public class ResearchOrganizationServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.addressRepository = mock(OrganizationAddressRepository.class);
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
+		this.sessionFactory = mock(SessionFactory.class);
 		this.fileManager = mock(DownloadableFileManager.class);
-		this.test = new ResearchOrganizationService(this.messages, new Constants(), this.addressRepository,
-				this.organizationRepository, this.fileManager);
+		this.test = new ResearchOrganizationService(this.messages, new Constants(), this.sessionFactory,
+				this.addressRepository, this.organizationRepository, this.fileManager);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -210,7 +214,7 @@ public class ResearchOrganizationServiceTest {
 		List<Long> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
 		final Optional<ResearchOrganization> res = this.test.createResearchOrganization(true, "NA", "NN", true, "NRNSR", "NNI", "ND",
-				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0l, null);
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, Collections.emptySet(), null);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -252,7 +256,7 @@ public class ResearchOrganizationServiceTest {
 		List<Long> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
 		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234l, true, "NA", "NN", true, "NRNSR", "NNI", "ND",
-				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0l, null, false);
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, Collections.emptySet(), null, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -311,9 +315,7 @@ public class ResearchOrganizationServiceTest {
 		final boolean r = this.test.linkSubOrganization(234, 456);
 		assertTrue(r);
 
-		final ArgumentCaptor<ResearchOrganization> arg0 = ArgumentCaptor.forClass(ResearchOrganization.class);
-		verify(this.orga3).setSuperOrganization(arg0.capture());
-		assertSame(this.orga1, arg0.getValue());
+		verify(this.orga3).getSuperOrganizations();
 
 		assertEquals(1, suborgas.size());
 		assertTrue(suborgas.contains(this.orga3));
@@ -360,9 +362,7 @@ public class ResearchOrganizationServiceTest {
 
 		assertTrue(r);
 
-		final ArgumentCaptor<ResearchOrganization> arg0 = ArgumentCaptor.forClass(ResearchOrganization.class);
-		verify(this.orga3).setSuperOrganization(arg0.capture());
-		assertNull(arg0.getValue());
+		verify(this.orga3).getSuperOrganizations();
 
 		assertTrue(suborgas.isEmpty());
 

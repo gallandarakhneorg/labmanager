@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
-import fr.utbm.ciad.labmanager.utils.RequiredFieldInForm;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -270,7 +269,6 @@ public class MiscDocument extends Publication {
 	 *
 	 * @return the description of the publication means.
 	 */
-	@RequiredFieldInForm
 	public String getHowPublished() {
 		return this.howPublished;
 	}

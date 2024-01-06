@@ -401,16 +401,22 @@ public class DatabaseToJsonExporter extends JsonTool {
 			// Export the super organization for enabling the building of the organization hierarchy
 			// This loop is externalized to be sure all the organizations are in the repository.
 			for (final var organization : organizations) {
-				if (organization.getSuperOrganization() != null) {
-					final var id = repository.get(organization.getSuperOrganization());
-					if (Strings.isNullOrEmpty(id)) {
-						throw new IllegalStateException("Organization not found: " + organization.getAcronymOrName()); //$NON-NLS-1$
-					}
+				if (!organization.getSuperOrganizations().isEmpty()) {
 					final var objNode = nodes.get(Long.valueOf(organization.getId()));
 					if (objNode == null) {
 						throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
 					}
-					addReference(objNode, SUPER_ORGANIZATION_KEY, id);
+					final var superOrgasNode = objNode.arrayNode();
+					for (final var superOrga : organization.getSuperOrganizations()) {
+						final var id = repository.get(superOrga);
+						if (Strings.isNullOrEmpty(id)) {
+							throw new IllegalStateException("Organization not found: " + superOrga.getAcronymOrName()); //$NON-NLS-1$
+						}
+						addReference(superOrgasNode, id);
+					}
+					if (superOrgasNode.size() > 0) {
+						objNode.set(SUPER_ORGANIZATIONS_KEY, superOrgasNode);
+					}
 				}
 			}
 			if (array.size() > 0) {
@@ -490,7 +496,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					adrId = null;
 				}
 				final var personId = repository.get(membership.getPerson());
-				final var organizationId = repository.get(membership.getResearchOrganization());
+				final var organizationId = repository.get(membership.getDirectResearchOrganization());
 				if (!Strings.isNullOrEmpty(personId) && !Strings.isNullOrEmpty(organizationId)) {
 					final var jsonMembership = array.objectNode();
 
@@ -504,6 +510,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 					}
 					addReference(jsonMembership, PERSON_KEY, personId);
 					addReference(jsonMembership, RESEARCHORGANIZATION_KEY, organizationId);
+
+					final var superOrganizationId = repository.get(membership.getSuperResearchOrganization());
+					if (!Strings.isNullOrEmpty(superOrganizationId)) {
+						addReference(jsonMembership, SUPER_ORGANIZATION_KEY, superOrganizationId);
+					}
 
 					if (jsonMembership.size() > 0) {
 						repository.put(membership, id);

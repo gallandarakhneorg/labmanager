@@ -37,6 +37,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -69,7 +70,9 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 
 	private final OrganizationDataProvider dataProvider;
 
-	private ResearchOrganizationService organizationService;
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
 
 	private Column<ResearchOrganization> nameColumn;
 
@@ -87,16 +90,21 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param organizationService the service for accessing the organizations.
+	 * @param addressService the service for accessing the organization addresses.
 	 * @param logger the logger to use.
 	 */
 	public StandardOrganizationListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ResearchOrganizationService organizationService, Logger logger) {
+			ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService,
+			Logger logger) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger);
 		this.fileManager = fileManager;
 		this.organizationService = organizationService;
+		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllResearchOrganizations(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override
@@ -278,7 +286,8 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		final var editor = new EmbeddedOrganizationEditor(
 				this.organizationService.startEditing(organization),
 				this.fileManager,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+				getAuthenticatedUser(), getMessageSourceAccessor(),
+				this.addressService);
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				dialog -> refreshItem(organization));

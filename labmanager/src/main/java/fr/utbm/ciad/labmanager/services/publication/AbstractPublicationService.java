@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.publication;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -72,12 +74,24 @@ public abstract class AbstractPublicationService extends AbstractService {
 	}
 
 	private static boolean isOrganizationOf(Membership membership, long organizationId) {
-		var ro = membership.getResearchOrganization();
-		while (ro != null) {
-			if (ro.getId() == organizationId) {
+		final var candidates = new LinkedList<ResearchOrganization>();
+		candidates.add(membership.getDirectResearchOrganization());
+		while (!candidates.isEmpty()) {
+			final var candidate = candidates.removeFirst();
+			if (candidate.getId() == organizationId) {
 				return true;
 			}
-			ro = ro.getSuperOrganization();
+			candidates.addAll(candidate.getSuperOrganizations());
+		}
+		if (membership.getSuperResearchOrganization() != null) {
+			candidates.add(membership.getSuperResearchOrganization());
+			while (!candidates.isEmpty()) {
+				final var candidate = candidates.removeFirst();
+				if (candidate.getId() == organizationId) {
+					return true;
+				}
+				candidates.addAll(candidate.getSuperOrganizations());
+			}
 		}
 		return false;
 	}

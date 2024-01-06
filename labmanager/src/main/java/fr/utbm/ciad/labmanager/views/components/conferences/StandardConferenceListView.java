@@ -86,6 +86,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		super(Conference.class, authenticatedUser, messages, logger);
 		this.conferenceService = conferenceService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllConferences(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

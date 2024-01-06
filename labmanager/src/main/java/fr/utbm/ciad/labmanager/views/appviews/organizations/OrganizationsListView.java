@@ -23,6 +23,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
@@ -55,12 +56,14 @@ public class OrganizationsListView extends StandardOrganizationListView implemen
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param organizationService the service for accessing the organizations.
+	 * @param addressService the service for accessing the organization addresses.
 	 */
 	public OrganizationsListView(
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
-			@Autowired ResearchOrganizationService organizationService) {
-		super(fileManager, authenticatedUser, messages, organizationService, LOGGER);
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService) {
+		super(fileManager, authenticatedUser, messages, organizationService, addressService, LOGGER);
 	}
 
 	@Override

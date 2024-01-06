@@ -553,8 +553,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			membership.forEachAttribute((attrName, attrValue) -> {
 				JsonUtils.writeField(generator, attrName, attrValue);
 			});
-			organizations.writeReferenceOrObjectField("researchOrganization", membership.getResearchOrganization(), () -> { //$NON-NLS-1$
-				JsonUtils.writeObjectAndAttributes(generator, membership.getResearchOrganization());
+			organizations.writeReferenceOrObjectField("researchOrganization", membership.getDirectResearchOrganization(), () -> { //$NON-NLS-1$
+				JsonUtils.writeObjectAndAttributes(generator, membership.getDirectResearchOrganization());
+			});
+			organizations.writeReferenceOrObjectField("superResearchOrganization", membership.getSuperResearchOrganization(), () -> { //$NON-NLS-1$
+				JsonUtils.writeObjectAndAttributes(generator, membership.getSuperResearchOrganization());
 			});
 			final var axes = membership.getScientificAxes();
 			if (axes != null && !axes.isEmpty()) {
@@ -860,7 +863,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			stream = stream.filter(filteringCondition);
 		}
 		return stream.collect(Collectors.toMap(
-				it -> it.getResearchOrganization(),
+				it -> it.getDirectResearchOrganization(),
 				it -> it,
 				// Sort the memberships from the highest date to the lowest date
 				BinaryOperator.minBy(EntityUtils.getPreferredMembershipComparator()),

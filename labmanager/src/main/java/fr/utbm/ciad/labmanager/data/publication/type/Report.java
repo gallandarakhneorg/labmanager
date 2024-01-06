@@ -26,7 +26,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
-import fr.utbm.ciad.labmanager.utils.RequiredFieldInForm;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -184,7 +183,6 @@ public class Report extends Publication {
 	 *
 	 * @return the name of the institution.
 	 */
-	@RequiredFieldInForm
 	public String getInstitution() {
 		return this.institution;
 	}

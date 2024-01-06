@@ -68,7 +68,7 @@ public class ChronoMembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
-		n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
+		n = this.organizationComparator.compare(o1.getDirectResearchOrganization(), o2.getDirectResearchOrganization());
 		if (n != 0) {
 			return n;
 		}

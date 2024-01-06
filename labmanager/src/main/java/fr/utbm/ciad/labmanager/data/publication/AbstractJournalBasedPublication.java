@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
-import fr.utbm.ciad.labmanager.utils.RequiredFieldInForm;
 import fr.utbm.ciad.labmanager.utils.ranking.JournalRankingSystem;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import jakarta.persistence.Entity;
@@ -121,7 +120,6 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 	}
 
 	@Override
-	@RequiredFieldInForm
 	public Journal getJournal() {
 		return this.journal;
 	}

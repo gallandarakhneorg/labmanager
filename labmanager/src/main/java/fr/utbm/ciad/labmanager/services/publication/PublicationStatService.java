@@ -623,7 +623,7 @@ public class PublicationStatService extends AbstractPublicationService {
 				}
 			});
 		// Ignore the authors who are in the reference organization
-		if (lastMemberships.stream().anyMatch(it -> refOrgId == it.getResearchOrganization().getId())) {
+		if (lastMemberships.stream().anyMatch(it -> refOrgId == it.getDirectResearchOrganization().getId())) {
 			return null;
 		}
 		return lastMemberships;
@@ -667,7 +667,7 @@ public class PublicationStatService extends AbstractPublicationService {
 						if (!lastMemberships.isEmpty()) {
 							// The member is not member of the organization
 							for (final var membership : lastMemberships) {
-								final var country = membership.getResearchOrganization().getCountry();
+								final var country = membership.getDirectResearchOrganization().getCountry();
 								if (country != null) {
 									countriesForPaper.add(country.normalize());
 								}
@@ -750,7 +750,7 @@ public class PublicationStatService extends AbstractPublicationService {
 				final var category = getCategory(it, rankingSystem);
 				for (final var author : it.getAuthors()) {
 					if (author.getMemberships().stream()
-							.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId()
+							.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getDirectResearchOrganization().getId() == referenceOrganization.getId()
 							&& it0.isMainPosition() && !it0.getMemberStatus().isExternalPosition())
 							.findAny().isPresent()) {
 						final var stats0 = stats.computeIfAbsent(author, it0 -> new HashMap<>());

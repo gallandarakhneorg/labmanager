@@ -83,8 +83,6 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	private static final String PDF_FILE_PREFIX = "PDF"; //$NON-NLS-1$
 
-	private static final String PDF_FILE_EXTENSION = ".pdf"; //$NON-NLS-1$
-
 	private static final String AWARD_FOLDER_NAME = "Awards"; //$NON-NLS-1$
 
 	private static final String AWARD_FILE_PREFIX = "Award"; //$NON-NLS-1$

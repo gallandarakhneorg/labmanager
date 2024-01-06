@@ -217,7 +217,7 @@ public class OrganizationMergingService extends AbstractService {
 	protected boolean reassignOrganizationMemberships(ResearchOrganization source, ResearchOrganization target) throws Exception {
 		var changed = false;
 		for (final var membership : this.membershipRepository.findDistinctByResearchOrganizationId(source.getId())) {
-			membership.setResearchOrganization(target);
+			membership.setDirectResearchOrganization(target);
 			this.membershipRepository.save(membership);
 			changed = true;
 		}

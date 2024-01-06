@@ -83,6 +83,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 		super(Supervision.class, authenticatedUser, messages, logger);
 		this.supervisionService = supervisionService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllSupervisions(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

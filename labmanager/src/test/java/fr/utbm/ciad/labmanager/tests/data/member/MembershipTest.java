@@ -125,18 +125,33 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void getResearchOrganization() {
-		assertNull(this.test.getResearchOrganization());
+	public void getDirectResearchOrganization() {
+		assertNull(this.test.getDirectResearchOrganization());
 	}
 
 	@Test
-	public void setResearchOrganization() {
-		assertNull(this.test.getResearchOrganization());
+	public void setDirectResearchOrganization() {
+		assertNull(this.test.getDirectResearchOrganization());
 		final ResearchOrganization r0 = mock(ResearchOrganization.class);
-		this.test.setResearchOrganization(r0);
-		assertSame(r0, this.test.getResearchOrganization());
-		this.test.setResearchOrganization(null);
-		assertNull(this.test.getResearchOrganization());
+		this.test.setDirectResearchOrganization(r0);
+		assertSame(r0, this.test.getDirectResearchOrganization());
+		this.test.setDirectResearchOrganization(null);
+		assertNull(this.test.getDirectResearchOrganization());
+	}
+
+	@Test
+	public void getSuperResearchOrganization() {
+		assertNull(this.test.getSuperResearchOrganization());
+	}
+
+	@Test
+	public void setSuperResearchOrganization() {
+		assertNull(this.test.getSuperResearchOrganization());
+		final ResearchOrganization r0 = mock(ResearchOrganization.class);
+		this.test.setSuperResearchOrganization(r0);
+		assertSame(r0, this.test.getSuperResearchOrganization());
+		this.test.setSuperResearchOrganization(null);
+		assertNull(this.test.getSuperResearchOrganization());
 	}
 
 	@Test
@@ -149,7 +164,7 @@ public class MembershipTest {
 		OrganizationAddress adr = mock(OrganizationAddress.class);
 		ResearchOrganization orga = mock(ResearchOrganization.class);
 		when(orga.getAddresses()).thenReturn(Collections.singleton(adr));
-		this.test.setResearchOrganization(orga);
+		this.test.setDirectResearchOrganization(orga);
 
 		this.test.setOrganizationAddress(adr);
 
@@ -161,7 +176,7 @@ public class MembershipTest {
 		OrganizationAddress adr = mock(OrganizationAddress.class);
 		ResearchOrganization orga = mock(ResearchOrganization.class);
 		when(orga.getAddresses()).thenReturn(Collections.emptySet());
-		this.test.setResearchOrganization(orga);
+		this.test.setDirectResearchOrganization(orga);
 
 		this.test.setOrganizationAddress(adr);
 
@@ -174,7 +189,7 @@ public class MembershipTest {
 		OrganizationAddress adr1 = mock(OrganizationAddress.class);
 		ResearchOrganization orga = mock(ResearchOrganization.class);
 		when(orga.getAddresses()).thenReturn(Collections.singleton(adr1));
-		this.test.setResearchOrganization(orga);
+		this.test.setDirectResearchOrganization(orga);
 
 		this.test.setOrganizationAddress(adr);
 
@@ -1066,7 +1081,7 @@ public class MembershipTest {
 	private Membership createTransient1() {
 		var e = new Membership();
 		e.setPerson(this.p1);
-		e.setResearchOrganization(this.o1);
+		e.setDirectResearchOrganization(this.o1);
 		e.setMemberSinceWhen(this.s1);
 		e.setMemberToWhen(this.e1);
 		return e;
@@ -1075,7 +1090,7 @@ public class MembershipTest {
 	private Membership createTransient2() {
 		var e = new Membership();
 		e.setPerson(this.p2);
-		e.setResearchOrganization(this.o2);
+		e.setDirectResearchOrganization(this.o2);
 		e.setMemberSinceWhen(this.s2);
 		e.setMemberToWhen(this.e2);
 		return e;

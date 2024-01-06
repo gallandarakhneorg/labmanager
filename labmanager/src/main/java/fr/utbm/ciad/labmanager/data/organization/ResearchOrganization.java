@@ -50,8 +50,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -143,15 +145,20 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Membership> memberships = new HashSet<>();
 
-	/** Reference to the super organization.
+	/** Reference to the sub organizations.
 	 */
-	@ManyToOne(fetch = FetchType.EAGER)
-	private ResearchOrganization superOrganization;
-
-	/** References to the sub organizations.
-	 */
-	@OneToMany(mappedBy = "superOrganization", fetch = FetchType.LAZY)
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "SuperOrganization_SubOrganization", 
+        joinColumns = { @JoinColumn(name = "superorganization_id") }, 
+        inverseJoinColumns = { @JoinColumn(name = "suborganization_id") }
+    )
 	private Set<ResearchOrganization> subOrganizations = new HashSet<>();
+
+	/** Reference to the super organizations.
+	 */
+	@ManyToMany(mappedBy = "subOrganizations", fetch = FetchType.EAGER)
+	private Set<ResearchOrganization> superOrganizations = new HashSet<>();
 
 	/** References to the postal addresses of the organization.
 	 */
@@ -174,26 +181,25 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 * 
 	 * @param id the identifier of the organization.
 	 * @param members the members of the organization.
-	 * @param subOrgas the references to the suborganizations.
-	 * @param superOrga the reference to the super organization.
+	 * @param subOrgas the references to the sub organizations.
+	 * @param superOrgas the references to the super organizations.
 	 * @param acronym the acronym of the organization.
 	 * @param name the name of the organization.
 	 * @param description the textual description of the organization.
 	 */
 	public ResearchOrganization(int id, Set<Membership> members, Set<ResearchOrganization> subOrgas,
-			ResearchOrganization superOrga, String acronym, String name, String description) {
+			Set<ResearchOrganization> superOrgas, String acronym, String name, String description) {
 		this.id = id;
 		if (members == null) {
 			this.memberships = new HashSet<>();
 		} else {
 			this.memberships = members;
 		}
-		if (subOrgas == null) {
-			this.subOrganizations = new HashSet<>();
+		if (superOrgas == null) {
+			this.superOrganizations = new HashSet<>();
 		} else {
-			this.subOrganizations = subOrgas;
+			this.superOrganizations = superOrgas;
 		}
-		this.superOrganization = superOrga;
 		this.acronym = acronym;
 		this.name = name;
 		this.description = description;
@@ -303,9 +309,13 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		generator.writeEndArray();
 		//
-		organizations.writeReferenceOrObjectField("superOrganization", getSuperOrganization(), () -> { //$NON-NLS-1$
-			JsonUtils.writeObjectAndAttributes(generator, getSuperOrganization());
-		});
+		generator.writeArrayFieldStart("superOrganizations"); //$NON-NLS-1$
+		for (final var superorga : getSuperOrganizations()) {
+			organizations.writeReferenceOrObject(superorga, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, superorga);
+			});
+		}
+		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("subOrganizations"); //$NON-NLS-1$
 		for (final var suborga : getSubOrganizations()) {
@@ -370,17 +380,37 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 	}
 
-	/** Replies the suborganizations.
+	/** Replies the super organizations.
 	 *
-	 * @return the set of suborganizations.
+	 * @return the set of super organizations.
+	 */
+	public Set<ResearchOrganization> getSuperOrganizations() {
+		return this.superOrganizations;
+	}
+
+	/** Change the super organizations.
+	 *
+	 * @param set the set of super organizations.
+	 */
+	public void setSuperOrganizations(Set<ResearchOrganization> set) {
+		if (set == null) {
+			this.superOrganizations = new HashSet<>();
+		} else {
+			this.superOrganizations = set;
+		}
+	}
+
+	/** Replies the sub organizations.
+	 *
+	 * @return the set of ub organizations.
 	 */
 	public Set<ResearchOrganization> getSubOrganizations() {
 		return this.subOrganizations;
 	}
 
-	/** Change the suborganizations.
+	/** Change the sub organizations.
 	 *
-	 * @param set the set of suborganizations.
+	 * @param set the set of sub organizations.
 	 */
 	public void setSubOrganizations(Set<ResearchOrganization> set) {
 		if (set == null) {
@@ -388,24 +418,6 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		} else {
 			this.subOrganizations = set;
 		}
-	}
-
-	/** Replies the reference to the super organization.
-	 *
-	 * @return the super organization or {@code null}.
-	 */
-	public ResearchOrganization getSuperOrganization() {
-		return this.superOrganization;
-	}
-
-	/** Change the reference to the super organization.
-	 *
-	 * @param orga the super organization or {@code null}.
-	 */
-	public void setSuperOrganization(ResearchOrganization orga) {
-		// TODO: An organization may have multiple super organizations.
-		// For examples, CIAD laboratory has UTBM, UB, UBFC as super-organizations.
-		this.superOrganization = orga;
 	}
 
 	/** Replies the acronym or the name of the research organization, that order.

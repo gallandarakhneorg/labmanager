@@ -95,12 +95,31 @@ public class ResearchOrganizationTest {
 	}
 
 	@Test
-	public void getSubOrganizations() {
+	public void getSuperOrganization() {
+		assertTrue(this.test.getSuperOrganizations().isEmpty());
+	}
+
+	@Test
+	public void setSuperOrganization() {
+		Set<ResearchOrganization> orgas = new HashSet<>();
+		orgas.add(mock(ResearchOrganization.class));
+		orgas.add(mock(ResearchOrganization.class));
+		orgas.add(mock(ResearchOrganization.class));
+		//
+		this.test.setSuperOrganizations(orgas);
+		assertSame(orgas, this.test.getSuperOrganizations());
+		//
+		this.test.setSuperOrganizations(null);
+		assertTrue(this.test.getSuperOrganizations().isEmpty());
+	}
+
+	@Test
+	public void getSubOrganization() {
 		assertTrue(this.test.getSubOrganizations().isEmpty());
 	}
 
 	@Test
-	public void setSubOrganizations() {
+	public void setSubOrganization() {
 		Set<ResearchOrganization> orgas = new HashSet<>();
 		orgas.add(mock(ResearchOrganization.class));
 		orgas.add(mock(ResearchOrganization.class));
@@ -111,22 +130,6 @@ public class ResearchOrganizationTest {
 		//
 		this.test.setSubOrganizations(null);
 		assertTrue(this.test.getSubOrganizations().isEmpty());
-	}
-
-	@Test
-	public void getSuperOrganization() {
-		assertNull(this.test.getSuperOrganization());
-	}
-
-	@Test
-	public void setSuperOrganization() {
-		ResearchOrganization org = mock(ResearchOrganization.class);
-		//
-		this.test.setSuperOrganization(org);
-		assertSame(org, this.test.getSuperOrganization());
-		//
-		this.test.setSuperOrganization(null);
-		assertNull(this.test.getSuperOrganization());
 	}
 
 	@Test

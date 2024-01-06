@@ -87,6 +87,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		super(JuryMembership.class, authenticatedUser, messages, logger);
 		this.membershipService = membershipService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override

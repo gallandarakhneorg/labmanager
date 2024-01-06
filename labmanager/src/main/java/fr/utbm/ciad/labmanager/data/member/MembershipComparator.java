@@ -71,7 +71,7 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		var n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
+		var n = this.organizationComparator.compare(o1.getDirectResearchOrganization(), o2.getDirectResearchOrganization());
 		if (n != 0) {
 			return n;
 		}

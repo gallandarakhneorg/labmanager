@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.organizations;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
 
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
@@ -33,8 +35,11 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService.EditingContext;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -43,6 +48,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
@@ -70,6 +76,10 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private ComboBox<ResearchOrganizationType> type;
 
+	private Details geographyDetails;
+
+	private EntityLeftRightListsEditor<OrganizationAddress> addresses;
+
 	private ComboBox<CountryCode> country;
 
 	private Details identificationDetails;
@@ -92,6 +102,8 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private final EditingContext editingContext;
 
+	private final OrganizationAddressService addressService;
+
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
@@ -99,15 +111,18 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param addressService the service for accessing the organization addresses.
 	 */
 	public AbstractOrganizationEditor(EditingContext context, 
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
+			MessageSourceAccessor messages, Logger logger,
+			OrganizationAddressService addressService) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger,
 				"views.organizations.administration_details", //$NON-NLS-1$
 				"views.organizations.administration.validated_organization"); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.editingContext = context;
+		this.addressService = addressService;
 	}
 	
 	@Override
@@ -118,6 +133,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	@Override
 	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
+		createGeographicalDetails(rootContainer);
 		createIdentificationDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
 		if (isBaseAdmin()) {
@@ -159,10 +175,6 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.type.setValue(ResearchOrganizationType.DEFAULT);
 		content.add(this.type, 2);
 
-		this.country = ComponentFactory.newCountryComboBox(getLocale());
-		this.country.setPrefixComponent(VaadinIcon.GLOBE_WIRE.create());
-		content.add(this.country, 1);
-
 		this.descriptionDetails = new DetailsWithErrorMark(content);
 		this.descriptionDetails.setOpened(false);
 		rootContainer.add(this.descriptionDetails);
@@ -178,7 +190,46 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.name, this.descriptionDetails))
 			.bind(ResearchOrganization::getName, ResearchOrganization::setName);
 		getEntityDataBinder().forField(this.type).bind(ResearchOrganization::getType, ResearchOrganization::setType);
+	}
+
+	/** Create the section for editing the geograpihcal information of the organization.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createGeographicalDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
+		
+		this.addresses = new EntityLeftRightListsEditor<>(EntityUtils.getPreferredOrganizationAddressComparator(), this::openAddressEditor);
+		this.addresses.setAvailableEntities(this.addressService.getAllAddresses());
+		this.addresses.setEntityLabelGenerator(it -> it.getName());
+		content.add(this.addresses, 2);
+
+		this.country = ComponentFactory.newCountryComboBox(getLocale());
+		this.country.setPrefixComponent(VaadinIcon.GLOBE_WIRE.create());
+		content.add(this.country, 1);
+
+		this.geographyDetails = new DetailsWithErrorMark(content);
+		this.geographyDetails.setOpened(false);
+		rootContainer.add(this.geographyDetails);
+		
+		getEntityDataBinder().forField(this.addresses).bind(ResearchOrganization::getAddresses, ResearchOrganization::setAddresses);
 		getEntityDataBinder().forField(this.country).bind(ResearchOrganization::getCountry, ResearchOrganization::setCountry);
+	}
+
+	/** Invoked for creating a new organization address.
+	 *
+	 * @param saver the callback that is invoked when the address is saved as JPA entity.
+	 */
+	protected void openAddressEditor(Consumer<OrganizationAddress> saver) {
+		final var newAddress = new OrganizationAddress();
+		final var editor = new EmbeddedAddressEditor(
+				this.addressService.startEditing(newAddress),
+				this.fileManager,
+				getAuthenticatedUser(), getMessageSourceAccessor());
+		ComponentFactory.openEditionModalDialog(
+				getTranslation("views.organizations.create_address"), //$NON-NLS-1$
+				editor, false,
+				dialog -> saver.accept(newAddress));
 	}
 
 	/** Create the section for editing the identification of the organization.
@@ -296,6 +347,14 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.type.setLabel(getTranslation("views.organizations.type")); //$NON-NLS-1$
 		this.type.setHelperText(getTranslation("views.organizations.type.helper")); //$NON-NLS-1$);
 		this.type.setItemLabelGenerator(this::getTypeLabel);
+
+		this.geographyDetails.setSummaryText(getTranslation("views.organizations.geography_informations")); //$NON-NLS-1$
+		this.addresses.setLabel(getTranslation("views.organizations.addresses")); //$NON-NLS-1$
+		this.addresses.setAdditionTooltip(getTranslation("views.organizations.addresses.insert")); //$NON-NLS-1$
+		this.addresses.setDeletionTooltip(getTranslation("views.organizations.addresses.delete")); //$NON-NLS-1$
+		this.addresses.setCreationTooltip(getTranslation("views.organizations.addresses.create")); //$NON-NLS-1$
+		this.addresses.setAvailableEntityLabel(getTranslation("views.organizations.addresses.available_addresses")); //$NON-NLS-1$
+		this.addresses.setSelectedEntityLabel(getTranslation("views.organizations.addresses.selected_addresses")); //$NON-NLS-1$
 		this.country.setLabel(getTranslation("views.organizations.country")); //$NON-NLS-1$
 		ComponentFactory.updateCountryComboBoxItems(this.country, getLocale());
 

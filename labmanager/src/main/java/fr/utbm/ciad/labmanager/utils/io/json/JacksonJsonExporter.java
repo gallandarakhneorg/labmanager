@@ -32,8 +32,6 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
-import fr.utbm.ciad.labmanager.utils.io.html.HtmlPageExporter;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -52,17 +50,13 @@ import org.springframework.stereotype.Component;
 @Primary
 public class JacksonJsonExporter extends AbstractJsonExporter {
 
-	private HtmlPageExporter htmlPageExporter;
-
 	/** Constructor.
 	 * 
 	 * @param messages the accessors to the localized messages.
-	 * @param htmlPageExporter the exporter for HTML pages.
 	 * @param doiTools the tools for managing the DOI.
 	 */
-	public JacksonJsonExporter(@Autowired MessageSourceAccessor messages, @Autowired HtmlPageExporter htmlPageExporter) {
+	public JacksonJsonExporter(@Autowired MessageSourceAccessor messages) {
 		super(messages);
-		this.htmlPageExporter = htmlPageExporter;
 	}
 
 	@Override
@@ -107,9 +101,6 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			return mapper.nullNode();
 		}
 		final var array = mapper.createArrayNode();
-		final var extraButtons = configurator.isDownloadButtons() || configurator.isExportButtons() || configurator.isEditButtons()
-				|| configurator.isDeleteButtons() || configurator.isFormattedAuthorList() || configurator.isFormattedPublicationDetails()
-				|| configurator.isFormattedLinks() || configurator.isTypeAndCategoryLabels();
 		for (final var publication : publications) {
 			final var entryNode = exportPublication(publication, configurator, mapper);
 			// Add additional fields by the callback function
@@ -137,63 +128,6 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 				}
 			}
 			//
-			if (extraButtons) {
-				if (configurator.isDownloadButtons()) {
-					final var button0 = this.htmlPageExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
-					final var button1 = this.htmlPageExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
-					final var array0 = mapper.createArrayNode();
-					if (!Strings.isNullOrEmpty(button0)) {
-						array0.add(mapper.valueToTree(button0));
-					}
-					if (!Strings.isNullOrEmpty(button1)) {
-						array0.add(mapper.valueToTree(button1));
-					}
-					entryNode.set("htmlDownloads", array0); //$NON-NLS-1$
-				}
-				if (configurator.isExportButtons()) {
-					final var button0 = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId(), configurator);
-					final var button3 = this.htmlPageExporter.getButtonToExportPublicationToRIS(publication.getId(), configurator);
-					final var button1 = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId(), configurator);
-					final var button2 = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId(), configurator);
-					final var array0 = mapper.createArrayNode();
-					if (!Strings.isNullOrEmpty(button0)) {
-						array0.add(mapper.valueToTree(button0));
-					}
-					if (!Strings.isNullOrEmpty(button3)) {
-						array0.add(mapper.valueToTree(button3));
-					}
-					if (!Strings.isNullOrEmpty(button1)) {
-						array0.add(mapper.valueToTree(button1));
-					}
-					if (!Strings.isNullOrEmpty(button2)) {
-						array0.add(mapper.valueToTree(button2));
-					}
-					entryNode.set("htmlExports", array0); //$NON-NLS-1$
-				}
-				if (configurator.isEditButtons()) {
-					final var editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId(), locale);
-					if (!Strings.isNullOrEmpty(editButton)) {
-						final var editNode = mapper.valueToTree(editButton);
-						entryNode.set("htmlEdit", editNode); //$NON-NLS-1$
-					}
-				}
-				if (configurator.isDeleteButtons()) {
-					final var deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId(), locale);
-					if (!Strings.isNullOrEmpty(deleteButton)) {
-						final var deleteNode = mapper.valueToTree(deleteButton);
-						entryNode.set("htmlDelete", deleteNode); //$NON-NLS-1$
-					}
-				}
-				if (configurator.isFormattedAuthorList()) {
-					entryNode.set("htmlAuthors", mapper.valueToTree(this.htmlPageExporter.generateHtmlAuthors(publication, configurator))); //$NON-NLS-1$
-				}
-				if (configurator.isFormattedPublicationDetails()) {
-					entryNode.set("htmlPublicationDetails", mapper.valueToTree(this.htmlPageExporter.generateHtmlPublicationDetails(publication, configurator))); //$NON-NLS-1$
-				}
-				if (configurator.isFormattedLinks()) {
-					entryNode.set("htmlLinks", mapper.valueToTree(this.htmlPageExporter.generateHtmlLinks(publication, configurator))); //$NON-NLS-1$
-				}
-			}
 			array.add(entryNode);
 		}
 		return array;

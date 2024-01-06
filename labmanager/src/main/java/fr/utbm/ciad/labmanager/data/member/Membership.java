@@ -130,10 +130,15 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Person person;
 
-	/** Reference to the research organization.
+	/** Reference to the direct research organization.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ResearchOrganization researchOrganization;
+
+	/** Reference to the employer research organization.
+	 */
+	@ManyToOne(fetch = FetchType.EAGER)
+	private ResearchOrganization superResearchOrganization;
 
 	/** Reference to the address of the research organization.
 	 */
@@ -281,20 +286,36 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		this.person = person;
 	}
 
-	/** Replies the research organization related to this membership.
+	/** Replies the direct research organization related to this membership.
 	 *
 	 * @return the organization.
 	 */
-	public ResearchOrganization getResearchOrganization() {
+	public ResearchOrganization getDirectResearchOrganization() {
 		return this.researchOrganization;
 	}
 
-	/** Change the research organization related to this membership.
+	/** Change the direct research organization related to this membership.
 	 *
 	 * @param orga the organization.
 	 */
-	public void setResearchOrganization(ResearchOrganization orga) {
+	public void setDirectResearchOrganization(ResearchOrganization orga) {
 		this.researchOrganization = orga;
+	}
+
+	/** Replies the employer research organization related to this membership.
+	 *
+	 * @return the organization.
+	 */
+	public ResearchOrganization getSuperResearchOrganization() {
+		return this.superResearchOrganization;
+	}
+
+	/** Change the employer research organization related to this membership.
+	 *
+	 * @param orga the organization.
+	 */
+	public void setSuperResearchOrganization(ResearchOrganization orga) {
+		this.superResearchOrganization = orga;
 	}
 
 	/** Replies the organization address related to this membership.
@@ -320,7 +341,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	public void setOrganizationAddress(OrganizationAddress address, boolean validate) {
 		if (validate) {
-			this.organizationAddress = validateAddress(address, getResearchOrganization());
+			this.organizationAddress = validateAddress(address, getDirectResearchOrganization());
 		} else {
 			this.organizationAddress = address;
 		}
@@ -775,7 +796,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	public String getShortDescription(MessageSourceAccessor messages, Locale locale) {
 		final var b = new StringBuilder();
 		b.append(getMemberStatus().getLabel(messages, getPerson().getGender(), false, locale));
-		b.append(" - ").append(getResearchOrganization().getAcronymOrName()); //$NON-NLS-1$
+		b.append(" - ").append(getDirectResearchOrganization().getAcronymOrName()); //$NON-NLS-1$
 		b.append(" ["); //$NON-NLS-1$
 		if (getMemberSinceWhen() != null && getMemberToWhen() != null) {
 			final var y0 = getMemberSinceWhen().getYear();

@@ -87,6 +87,7 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 		this.fileManager = fileManager;
 		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAddresses(query, filters);
+		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override
