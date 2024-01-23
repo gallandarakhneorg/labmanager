@@ -19,17 +19,20 @@
 
 package fr.utbm.ciad.labmanager.services.invitation;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationRepository;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationType;
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -54,7 +57,7 @@ import org.springframework.stereotype.Service;
  * @since 2.2
  */
 @Service
-public class PersonInvitationService extends AbstractService {
+public class PersonInvitationService extends AbstractEntityService<PersonInvitation> {
 
 	private PersonInvitationRepository invitationRepository;
 
@@ -346,15 +349,16 @@ public class PersonInvitationService extends AbstractService {
 		return !this.invitationRepository.findAllByGuestIdOrInviterId(id, id).isEmpty();
 	}
 
-	/** Start the editing of the given person invitation.
-	 *
-	 * @param invitation the person invitation to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the person invitation and its related resources.
-	 */
-	public EditingContext startEditing(PersonInvitation invitation) {
+	@Override
+	public EntityEditingContext<PersonInvitation> startEditing(PersonInvitation invitation) {
 		assert invitation != null;
 		return new EditingContext(invitation);
+	}
+
+	@Override
+	public EntityDeletingContext<PersonInvitation> startDeletion(Set<PersonInvitation> invitations) {
+		assert invitations != null && !invitations.isEmpty();
+		return new DeletingContext(invitations);
 	}
 
 	/** Context for editing a {@link PersonInvitation}.
@@ -367,38 +371,53 @@ public class PersonInvitationService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<PersonInvitation> {
 
 		private static final long serialVersionUID = 44656900669005156L;
-
-		private PersonInvitation invitation;
 
 		/** Constructor.
 		 *
 		 * @param invitation the edited invitation.
 		 */
-		EditingContext(PersonInvitation invitation) {
-			this.invitation = invitation;
+		protected EditingContext(PersonInvitation invitation) {
+			super(invitation);
 		}
 
-		/** Replies the person invitation.
-		 *
-		 * @return the person invitation.
-		 */
-		public PersonInvitation getPersonInvitation() {
-			return this.invitation;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = PersonInvitationService.this.invitationRepository.save(this.entity);
 		}
 
-		/** Save the person invitation in the JPA database.
+		@Override
+		public EntityDeletingContext<PersonInvitation> createDeletionContext() {
+			return PersonInvitationService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link PersonInvitation}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<PersonInvitation> {
+
+		private static final long serialVersionUID = 3488749520286411999L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the invitation object that was provided before the saving.
-		 * Invoke {@link #getPersonInvitation()} for obtaining the new invitation
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param invitations the person invitations to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.invitation = PersonInvitationService.this.invitationRepository.save(this.invitation);
+		protected DeletingContext(Set<PersonInvitation> invitations) {
+			super(invitations);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			PersonInvitationService.this.invitationRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

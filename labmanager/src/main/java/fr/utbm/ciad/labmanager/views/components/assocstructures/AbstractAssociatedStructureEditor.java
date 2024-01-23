@@ -36,7 +36,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
-import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -84,8 +84,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private TextArea description;
 
-	private final EditingContext editingContext;
-
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
@@ -93,17 +91,12 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractAssociatedStructureEditor(EditingContext context, 
+	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context, 
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structure.administration_details", //$NON-NLS-1$
-				"views.associated_structure.administration.validated_structure"); //$NON-NLS-1$
-		this.editingContext = context;
-	}
-	
-	@Override
-	public AssociatedStructure getEditedEntity() {
-		return this.editingContext.getAssociatedStructure();
+				"views.associated_structure.administration.validated_structure", //$NON-NLS-1$
+				context);
 	}
 
 	@Override
@@ -238,32 +231,39 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.editingContext.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.associated_structure.save_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.associated_structure.save_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.associated_structure.validation_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.associated_structure.validation_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.associated_structure.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.associated_structure.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.associated_structure.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.associated_structure.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.associated_structure.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.associated_structure.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override

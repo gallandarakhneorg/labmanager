@@ -29,7 +29,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -80,8 +80,6 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 
 	private final DownloadableFileManager fileManager;
 
-	private final EditingContext context;
-
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
@@ -90,18 +88,13 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractAddressEditor(EditingContext context, DownloadableFileManager fileManager,
+	public AbstractAddressEditor(EntityEditingContext<OrganizationAddress> context, DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(OrganizationAddress.class, authenticatedUser, messages, logger,
 				"views.addresses.administration_details", //$NON-NLS-1$
-				"views.addresses.administration.validated_address"); //$NON-NLS-1$
+				"views.addresses.administration.validated_address", //$NON-NLS-1$
+				context);
 		this.fileManager = fileManager;
-		this.context = context;
-	}
-
-	@Override
-	public OrganizationAddress getEditedEntity() {
-		return this.context.getAddress();
 	}
 
 	@Override
@@ -153,7 +146,7 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 		content.add(this.city, 1);
 
 		this.postalInformationDetails = new DetailsWithErrorMark(content);
-		this.postalInformationDetails.setOpened(false);
+		this.postalInformationDetails.setOpened(true);
 		rootContainer.add(this.postalInformationDetails);
 		
 		getEntityDataBinder().forField(this.name)
@@ -237,32 +230,44 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 
 	@Override
 	protected void doSave() throws Exception {
-		this.context.save(this.uploadImage);
+		getEditingContext().save(this.uploadImage);
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.addresses.save_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.addresses.save_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.addresses.validation_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.addresses.validation_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.addresses.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.addresses.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.addresses.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.addresses.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
+	
+	@Override
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.addresses.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getName());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.addresses.delete_error2", //$NON-NLS-1$
+				getEditedEntity().getName(), error.getLocalizedMessage());
+	}	
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {

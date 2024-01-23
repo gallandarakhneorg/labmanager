@@ -20,13 +20,12 @@
 package fr.utbm.ciad.labmanager.data.journal;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
-import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.QualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import jakarta.persistence.Column;
@@ -50,7 +49,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 @Entity
 @Table(name = "JournalAnnualIndicators")
-public class JournalQualityAnnualIndicators implements Serializable, AttributeProvider, IdentifiableEntity {
+public class JournalQualityAnnualIndicators implements QualityAnnualIndicators, AttributeProvider {
 
 	private static final long serialVersionUID = -3671513001937890573L;
 
@@ -172,32 +171,14 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 		}
 	}
 
-	/** Replies the year for this history entry.
-	 *
-	 * @return the year.
-	 */
+	@Override
 	public int getReferenceYear() {
 		return this.referenceYear;
 	}
 
-	/** Change the year for this history entry.
-	 *
-	 * @param year the year.
-	 */
+	@Override
 	public void setReferenceYear(int year) {
 		this.referenceYear = year;
-	}
-
-	/** Change the year for this history entry.
-	 *
-	 * @param year the year.
-	 */
-	public final void setReferenceYear(Number year) {
-		if (year == null) {
-			setReferenceYear(0);
-		} else {
-			setReferenceYear(year.intValue());
-		}
 	}
 
 	/** Replies the Q-Index of the journal from Scimago source.
@@ -291,6 +272,11 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean isSignificant() {
+		return this.scimagoQIndex != null || this.wosQIndex != null || this.impactFactor > 0f;
 	}
 
 }

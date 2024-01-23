@@ -42,7 +42,7 @@ import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
 import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
-import fr.utbm.ciad.labmanager.services.project.ProjectService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -120,8 +120,6 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	
 	private ServerSideUploadablePdfField pressDocument;
 
-	private final EditingContext context;
-
 	private final DownloadableFileManager fileManager;
 
 	/** Constructor.
@@ -132,18 +130,13 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractProjectEditor(EditingContext context, DownloadableFileManager fileManager,
+	public AbstractProjectEditor(EntityEditingContext<Project> context, DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
 				"views.projects.administration_details", //$NON-NLS-1$
-				"views.projects.administration.validated_project"); //$NON-NLS-1$
-		this.context = context;
+				"views.projects.administration.validated_project", //$NON-NLS-1$
+				context);
 		this.fileManager = fileManager;
-	}
-
-	@Override
-	public Project getEditedEntity() {
-		return this.context.getProject();
 	}
 
 	@Override
@@ -423,31 +416,43 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 
 	@Override
 	protected void doSave() throws Exception {
-		this.context.save(this.logo, this.pressDocument, this.requirements, this.powerpoint);
+		getEditingContext().save(this.logo, this.pressDocument, this.requirements, this.powerpoint);
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.projects.save_success", //$NON-NLS-1$
-				getEditedEntity().getAcronymOrScientificTitle()));
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.projects.save_success", //$NON-NLS-1$
+				getEditedEntity().getAcronymOrScientificTitle());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.projects.validation_success", //$NON-NLS-1$
-				getEditedEntity().getAcronymOrScientificTitle()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.projects.validation_success", //$NON-NLS-1$
+				getEditedEntity().getAcronymOrScientificTitle());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.projects.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getAcronymOrScientificTitle(), error.getLocalizedMessage()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.projects.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getAcronymOrScientificTitle());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.projects.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getAcronymOrScientificTitle(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.projects.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getAcronymOrScientificTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.projects.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getAcronymOrScientificTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.projects.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getAcronymOrScientificTitle(), error.getLocalizedMessage());
 	}
 
 	@Override

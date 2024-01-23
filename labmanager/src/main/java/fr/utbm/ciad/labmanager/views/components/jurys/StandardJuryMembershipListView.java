@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.jurys;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +34,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
@@ -84,7 +84,11 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	public StandardJuryMembershipListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			JuryMembershipService membershipService, Logger logger) {
-		super(JuryMembership.class, authenticatedUser, messages, logger);
+		super(JuryMembership.class, authenticatedUser, messages, logger,
+				"views.jury_membership.delete.title", //$NON-NLS-1$
+				"views.jury_membership.delete.message", //$NON-NLS-1$
+				"views.jury_memberships.delete_success", //$NON-NLS-1$
+				"views.jury_memberships.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters);
 		initializeDataInGrid(getGrid(), getFilters());
@@ -157,61 +161,6 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	}
 
 	@Override
-	protected void deleteWithQuery(Set<JuryMembership> axes) {
-		if (!axes.isEmpty()) {
-			final var size = axes.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.jury_membership.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.jury_membership.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var mbr : new ArrayList<>(grd.getSelectedItems())) {
-				this.membershipService.removeJuryMembership(mbr.getId());
-				final var msg = new StringBuilder("Jury membership: "); //$NON-NLS-1$
-				msg.append(mbr.getTitle());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(mbr.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the address
-				grd.getSelectionModel().deselect(mbr);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the jury memberships were deleted.
-	 *
-	 * @param size the number of deleted jury memberships
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.jury_memberships.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the jury memberships cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.jury_memberships.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openMembershipEditor(new JuryMembership(), getTranslation("views.jury_membership.add_membership")); //$NON-NLS-1$
 	}
@@ -234,6 +183,11 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				dialog -> refreshItem(membership),
 				null);
+	}
+
+	@Override
+	protected EntityDeletingContext<JuryMembership> createDeletionContextFor(Set<JuryMembership> entities) {
+		return this.membershipService.startDeletion(entities);
 	}
 
 	@Override

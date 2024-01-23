@@ -55,6 +55,7 @@ import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -94,6 +95,14 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 	private final Class<T> entityType;
 
+	private final String deletionTitleMessageKey;
+
+	private final String deletionMessageKey;
+
+	private final String deletionSuccessMessageKey;
+
+	private final String deletionErrorMessageKey;
+
 	private G grid;
 
 	private Filters<F> filters;
@@ -110,13 +119,23 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
+	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
+	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
+	 * @param deletionErrorMessageKey the key in the localized messages for the messages related to an error of deletion.
 	 */
 	public AbstractGridBaseEntityListView(Class<T> entityType,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			String deletionTitleMessageKey, String deletionMessageKey,
+			String deletionSuccessMessageKey, String deletionErrorMessageKey) {
 		this.entityType = entityType;
 		this.logger = logger;
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
+		this.deletionTitleMessageKey = deletionTitleMessageKey;
+		this.deletionMessageKey = deletionMessageKey;
+		this.deletionSuccessMessageKey = deletionSuccessMessageKey;
+		this.deletionErrorMessageKey = deletionErrorMessageKey;
 
 		final var rootContainer = getContent();
 
@@ -216,7 +235,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			this.editButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.EDIT_SOLID, null, null, it -> editSelection());
 			this.editButton.setEnabled(false);
 
-			this.deleteButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.TRASH_SOLID, null, null, it -> deleteSelectionWithQuery());
+			this.deleteButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.TRASH_SOLID, null, null, it -> deleteWithQuery(this.grid.getSelectedItems()));
 			this.deleteButton.addThemeNames("error"); //$NON-NLS-1$
 			this.deleteButton.setEnabled(false);
 
@@ -253,43 +272,80 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 */
 	protected abstract void addEntity();
 
-	/** Delete the current selection without querying the user.
-	 * 
-	 * @see #deleteSelectionWithQuery()
-	 */
-	protected abstract void deleteCurrentSelection();
-
-	/** Query for the deletion the current selection and do the deletion if it is accepted.
-	 *
-	 * @see #deleteSelection()
-	 */
-	protected void deleteSelectionWithQuery() {
-		deleteWithQuery(this.grid.getSelectedItems());
-	}
-
 	/** Query for the deletion the current selection and do the deletion if it is accepted.
 	 *
 	 * @param entities the entities to be deleted.
-	 * @see #deleteSelection()
 	 */
-	protected abstract void deleteWithQuery(Set<T> entities);
+	protected final void deleteWithQuery(Set<T> entities) {
+		final var context = createDeletionContextFor(entities);
+		try {
+			if (context.isDeletionPossible()) {
+				final int size = entities.size();
+				ComponentFactory.createDeletionDialog(this,
+						getTranslation(this.deletionTitleMessageKey, Integer.valueOf(size)),
+						getTranslation(this.deletionMessageKey, Integer.valueOf(size)),
+						it ->  {
+							try {
+								context.delete();
+								refreshGrid();
+								notifyDeleted(size);
+							} catch (Exception ex) {
+								refreshGrid();
+								notifyDeletionError(ex);
+							}
+						})
+				.open();
+			} else {
+				notifyDeletionError(context.getDeletionStatus().getException(getMessageSourceAccessor(), getLocale()));
+			}
+		} catch (Throwable ex) {
+			notifyDeletionError(ex);
+		}
+	}
+
+	/** Create a context that is used for deleting entities and the associated files and entities.
+	 *
+	 * @param entities the entities to be deleted.
+	 * @return the deletion context, never {@code null}.
+	 */
+	protected abstract EntityDeletingContext<T> createDeletionContextFor(Set<T> entities);
 
 	/** Notify the user that the no entity was found for the requested operation.
 	 */
 	protected void notifyNotEntity() {
-		final var notification = Notification.show(getTranslation("views.no_entity")); //$NON-NLS-1$
+		final var notification = new Notification(getTranslation("views.no_entity")); //$NON-NLS-1$
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		notification.open();
+	}
+
+	/** Notify the user that the entities were deleted.
+	 *
+	 * @param size the number of deleted entities
+	 * @see #notifyDeleted(int, String)
+	 */
+	protected final void notifyDeleted(int size) {
+		notifyDeleted(size, this.deletionSuccessMessageKey);
 	}
 
 	/** Notify the user that the entities were deleted.
 	 *
 	 * @param size the number of deleted entities
 	 * @param messageKey the key of the message to be displayed. Argument <code>{0}</code> is replaced by the {@code size}.
+	 * @see #notifyDeleted(int)
 	 */
 	protected void notifyDeleted(int size, String messageKey) {
-		final var notification = Notification.show(getTranslation(messageKey,
-				Integer.valueOf(size)));
+		final var notification = new Notification(getTranslation(messageKey, Integer.valueOf(size)));
 		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		notification.open();
+	}
+	
+	/** Notify the user that the entities cannot be deleted.
+	 *
+	 * @param error the error to be shown.
+	 * @see #notifyDeletionError(Throwable, String)
+	 */
+	protected final void notifyDeletionError(Throwable error) {
+		notifyDeletionError(error, this.deletionErrorMessageKey);
 	}
 
 	/** Notify the user that the entities cannot be deleted.
@@ -297,6 +353,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @param error the error to be shown.
 	 * @param messageKey the key of the message to be displayed. Argument <code>{0}</code> is replaced by
 	 *    the string associated to the {@code error}.
+	 * @see #notifyDeletionError(Throwable)
 	 */
 	protected void notifyDeletionError(Throwable error, String messageKey) {
 		final var msg = new StringBuilder("Error when deleting data for the entity by "); //$NON-NLS-1$
@@ -304,9 +361,9 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		msg.append(": "); //$NON-NLS-1$
 		msg.append(error.getLocalizedMessage());
 		this.logger.info(msg.toString(), error);
-		final var notification = Notification.show(getTranslation(messageKey,
-				error.getLocalizedMessage()));
+		final var notification = new Notification(getTranslation(messageKey, error.getLocalizedMessage()));
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		notification.open();
 	}
 
 	private void editSelection() {

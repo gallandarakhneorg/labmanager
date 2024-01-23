@@ -20,13 +20,13 @@
 package fr.utbm.ciad.labmanager.views.components.projects;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Div;
@@ -34,11 +34,13 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -101,7 +103,11 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ProjectService projectService, Logger logger) {
-		super(Project.class, authenticatedUser, messages, logger);
+		super(Project.class, authenticatedUser, messages, logger,
+				"views.projects.delete.title", //$NON-NLS-1$
+				"views.project.delete.message", //$NON-NLS-1$
+				"views.projects.delete_success", //$NON-NLS-1$
+				"views.projects.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.projectService = projectService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllProjects(query, filters);
@@ -258,61 +264,6 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	}
 
 	@Override
-	protected void deleteWithQuery(Set<Project> projects) {
-		if (!projects.isEmpty()) {
-			final var size = projects.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.projects.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.project.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var prj : new ArrayList<>(grd.getSelectedItems())) {
-				this.projectService.removeProject(prj.getId(), true);
-				final var msg = new StringBuilder("Project: "); //$NON-NLS-1$
-				msg.append(prj.getAcronymOrScientificTitle());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(prj.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the address
-				grd.getSelectionModel().deselect(prj);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the projects were deleted.
-	 *
-	 * @param size the number of deleted projects
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.projects.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the projects cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.projects.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openProjectEditor(new Project(), getTranslation("views.projects.add_project")); //$NON-NLS-1$
 	}
@@ -332,9 +283,18 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 				this.projectService.startEditing(project),
 				this.fileManager,
 				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var newEntity = editor.isNewEntity();
+		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
+		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(project);
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				dialog -> refreshItem(project));
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
+	}
+
+	@Override
+	protected EntityDeletingContext<Project> createDeletionContextFor(Set<Project> entities) {
+		return this.projectService.startDeletion(entities);
 	}
 
 	@Override

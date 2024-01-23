@@ -36,7 +36,7 @@ import fr.utbm.ciad.labmanager.data.teaching.StudentType;
 import fr.utbm.ciad.labmanager.data.teaching.TeacherRole;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
-import fr.utbm.ciad.labmanager.services.teaching.TeachingService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -103,8 +103,6 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private TextField activityUrl;
 
-	private final EditingContext context;
-
 	private final DownloadableFileManager fileManager;
 
 	/** Constructor.
@@ -115,18 +113,13 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractTeachingActivityEditor(EditingContext context, DownloadableFileManager fileManager,
+	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
 				"views.teaching_activity.administration_details", //$NON-NLS-1$
-				"views.teaching_activity.administration.validated_address"); //$NON-NLS-1$
-		this.context = context;
+				"views.teaching_activity.administration.validated_address", //$NON-NLS-1$
+				context);
 		this.fileManager = fileManager;
-	}
-
-	@Override
-	public TeachingActivity getEditedEntity() {
-		return this.context.getTeachingActivity();
 	}
 
 	@Override
@@ -342,31 +335,43 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	@Override
 	protected void doSave() throws Exception {
-		this.context.save(this.slides);
+		getEditingContext().save(this.slides);
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.teaching_activities.save_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.teaching_activities.save_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.teaching_activities.validation_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.teaching_activities.validation_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.teaching_activities.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.teaching_activities.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.teaching_activities.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.teaching_activities.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.teaching_activities.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.teaching_activities.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override

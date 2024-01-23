@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.teaching;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +33,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -89,7 +89,11 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			TeachingService teachingService, Logger logger) {
-		super(TeachingActivity.class, authenticatedUser, messages, logger);
+		super(TeachingActivity.class, authenticatedUser, messages, logger,
+				"views.teaching_activities.delete.title", //$NON-NLS-1$
+				"views.teaching_activities.delete.message", //$NON-NLS-1$
+				"views.teaching_activities.delete_success", //$NON-NLS-1$
+				"views.teaching_activities.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.teachingService = teachingService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters);
@@ -226,61 +230,6 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	}
 
 	@Override
-	protected void deleteWithQuery(Set<TeachingActivity> activities) {
-		if (!activities.isEmpty()) {
-			final int size = activities.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.teaching_activities.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.teaching_activities.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			int realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var activity : new ArrayList<>(grd.getSelectedItems())) {
-				this.teachingService.removeTeachingActivity(activity.getId(), true);
-				final StringBuilder msg = new StringBuilder("Teaching activity: "); //$NON-NLS-1$
-				msg.append(activity.getCodeOrTitle());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(activity.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the conference
-				grd.getSelectionModel().deselect(activity);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the conferences were deleted.
-	 *
-	 * @param size the number of deleted conferences
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.teaching_activities.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the conferences cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.teaching_activities.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openActivityEditor(new TeachingActivity(), getTranslation("views.teaching_activities.add_activity")); //$NON-NLS-1$
 	}
@@ -303,6 +252,11 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				dialog -> refreshItem(activity),
 				null);
+	}
+
+	@Override
+	protected EntityDeletingContext<TeachingActivity> createDeletionContextFor(Set<TeachingActivity> entities) {
+		return this.teachingService.startDeletion(entities);
 	}
 
 	@Override

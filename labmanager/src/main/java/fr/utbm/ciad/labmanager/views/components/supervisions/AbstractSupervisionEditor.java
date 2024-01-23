@@ -32,7 +32,7 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
-import fr.utbm.ciad.labmanager.services.supervision.SupervisionService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -85,8 +85,6 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 
 	private IntegerField numberOfAterPositions;
 
-	private final EditingContext context;
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the supervisison.
@@ -94,15 +92,9 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractSupervisionEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractSupervisionEditor(EntityEditingContext<Supervision> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
-		super(Supervision.class, authenticatedUser, messages, logger, null, null);
-		this.context = context;
-	}
-
-	@Override
-	public Supervision getEditedEntity() {
-		return this.context.getSupervision();
+		super(Supervision.class, authenticatedUser, messages, logger, null, null, context);
 	}
 
 	@Override
@@ -258,32 +250,39 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.context.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.supervision.save_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.supervision.save_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.supervision.validation_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.supervision.validation_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.supervision.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.supervision.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.supervision.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.supervision.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.supervision.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.supervision.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override

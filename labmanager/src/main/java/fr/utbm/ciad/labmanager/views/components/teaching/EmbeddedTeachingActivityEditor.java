@@ -20,7 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.teaching;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.teaching.TeachingService.EditingContext;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public final class EmbeddedTeachingActivityEditor extends AbstractTeachingActivi
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedTeachingActivityEditor(EditingContext context,
+	public EmbeddedTeachingActivityEditor(EntityEditingContext<TeachingActivity> context,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, fileManager, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();

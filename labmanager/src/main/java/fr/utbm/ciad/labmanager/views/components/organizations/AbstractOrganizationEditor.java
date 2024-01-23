@@ -24,6 +24,7 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
 
 import java.util.function.Consumer;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
@@ -33,27 +34,40 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationNameComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService.EditingContext;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.jpa.domain.Specification;
 
 /** Abstract implementation for the editor of the information related to an organization.
  * 
@@ -88,6 +102,10 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private TextField rnsr;
 
+	private Details superStructureDetails;
+
+	private EntityComboListEditor<ResearchOrganization> superStructures;
+
 	private DetailsWithErrorMark communicationDetails;
 
 	private TextField organizationUrl;
@@ -100,9 +118,9 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private final DownloadableFileManager fileManager;
 
-	private final EditingContext editingContext;
-
 	private final OrganizationAddressService addressService;
+
+	private final ResearchOrganizationService organizationService;
 
 	/** Constructor.
 	 *
@@ -111,23 +129,20 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param organizationService the service for accessing the organizations.
 	 * @param addressService the service for accessing the organization addresses.
 	 */
-	public AbstractOrganizationEditor(EditingContext context, 
+	public AbstractOrganizationEditor(EntityEditingContext<ResearchOrganization> context, 
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger,
-			OrganizationAddressService addressService) {
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger,
 				"views.organizations.administration_details", //$NON-NLS-1$
-				"views.organizations.administration.validated_organization"); //$NON-NLS-1$
+				"views.organizations.administration.validated_organization", //$NON-NLS-1$
+				context);
 		this.fileManager = fileManager;
-		this.editingContext = context;
+		this.organizationService = organizationService;
 		this.addressService = addressService;
-	}
-	
-	@Override
-	public ResearchOrganization getEditedEntity() {
-		return this.editingContext.getOrganization();
 	}
 
 	@Override
@@ -135,6 +150,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		createDescriptionDetails(rootContainer);
 		createGeographicalDetails(rootContainer);
 		createIdentificationDetails(rootContainer);
+		createSuperStructureDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
 		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
@@ -143,7 +159,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 						content.add(this.majorOrganization, 1);
 
 						getEntityDataBinder().forField(this.majorOrganization)
-							.bind(ResearchOrganization::isMajorOrganization, ResearchOrganization::setMajorOrganization);
+						.bind(ResearchOrganization::isMajorOrganization, ResearchOrganization::setMajorOrganization);
 					},
 					it -> it.bind(ResearchOrganization::isValidated, ResearchOrganization::setValidated));
 		}
@@ -176,19 +192,19 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		content.add(this.type, 2);
 
 		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
+		this.descriptionDetails.setOpened(true);
 		rootContainer.add(this.descriptionDetails);
-		
+
 		getEntityDataBinder().forField(this.acronym)
-			.withConverter(new StringTrimer())
-			.withValidator(new NotEmptyStringValidator(getTranslation("views.organizations.acronym.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.acronym, this.descriptionDetails))
-			.bind(ResearchOrganization::getAcronym, ResearchOrganization::setAcronym);
+		.withConverter(new StringTrimer())
+		.withValidator(new NotEmptyStringValidator(getTranslation("views.organizations.acronym.error"))) //$NON-NLS-1$
+		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.acronym, this.descriptionDetails))
+		.bind(ResearchOrganization::getAcronym, ResearchOrganization::setAcronym);
 		getEntityDataBinder().forField(this.name)
-			.withConverter(new StringTrimer())
-			.withValidator(new NotEmptyStringValidator(getTranslation("views.organizations.name.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.name, this.descriptionDetails))
-			.bind(ResearchOrganization::getName, ResearchOrganization::setName);
+		.withConverter(new StringTrimer())
+		.withValidator(new NotEmptyStringValidator(getTranslation("views.organizations.name.error"))) //$NON-NLS-1$
+		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.name, this.descriptionDetails))
+		.bind(ResearchOrganization::getName, ResearchOrganization::setName);
 		getEntityDataBinder().forField(this.type).bind(ResearchOrganization::getType, ResearchOrganization::setType);
 	}
 
@@ -198,10 +214,10 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 */
 	protected void createGeographicalDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
-		
-		this.addresses = new EntityLeftRightListsEditor<>(EntityUtils.getPreferredOrganizationAddressComparator(), this::openAddressEditor);
-		this.addresses.setAvailableEntities(this.addressService.getAllAddresses());
+
+		this.addresses = new EntityLeftRightListsEditor<>(ComponentFactory.toSerializableComparator(EntityUtils.getPreferredOrganizationAddressComparator()), this::openAddressEditor);
 		this.addresses.setEntityLabelGenerator(it -> it.getName());
+		this.addresses.setAvailableEntities(this.addressService.getAllAddresses());
 		content.add(this.addresses, 2);
 
 		this.country = ComponentFactory.newCountryComboBox(getLocale());
@@ -211,7 +227,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.geographyDetails = new DetailsWithErrorMark(content);
 		this.geographyDetails.setOpened(false);
 		rootContainer.add(this.geographyDetails);
-		
+
 		getEntityDataBinder().forField(this.addresses).bind(ResearchOrganization::getAddresses, ResearchOrganization::setAddresses);
 		getEntityDataBinder().forField(this.country).bind(ResearchOrganization::getCountry, ResearchOrganization::setCountry);
 	}
@@ -229,7 +245,8 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_address"), //$NON-NLS-1$
 				editor, false,
-				dialog -> saver.accept(newAddress));
+				dialog -> saver.accept(newAddress),
+				null);
 	}
 
 	/** Create the section for editing the identification of the organization.
@@ -252,13 +269,117 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.identificationDetails = new DetailsWithErrorMark(content);
 		this.identificationDetails.setOpened(false);
 		rootContainer.add(this.identificationDetails);
-		
+
 		getEntityDataBinder().forField(this.nationalIdentifier)
-			.withConverter(new StringTrimer())
-			.bind(ResearchOrganization::getNationalIdentifier, ResearchOrganization::setNationalIdentifier);
+		.withConverter(new StringTrimer())
+		.bind(ResearchOrganization::getNationalIdentifier, ResearchOrganization::setNationalIdentifier);
 		getEntityDataBinder().forField(this.rnsr)
-			.withConverter(new StringTrimer())
-			.bind(ResearchOrganization::getRnsr, ResearchOrganization::setRnsr);
+		.withConverter(new StringTrimer())
+		.bind(ResearchOrganization::getRnsr, ResearchOrganization::setRnsr);
+	}
+
+	/** Create the section for editing the super structure of the organization.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createSuperStructureDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
+
+		final var currentId = getEditedEntity().getId();
+		this.superStructures = new EntityComboListEditor<>(ComponentFactory.toSerializableComparator(new ResearchOrganizationNameComparator()), this::openOrganizationEditor);
+		this.superStructures.setEntityRenderers(
+				this::createNameString,
+				new ComponentRenderer<>(this::createNameComponent),
+				new ComponentRenderer<>(this::createNameComponent));
+		this.superStructures.setAvailableEntities(query -> {
+			return this.organizationService.getAllResearchOrganizations(
+					VaadinSpringDataHelpers.toSpringPageRequest(query),
+					new OtherOrganizationSpecification(currentId), false).stream();
+		});
+		content.add(this.superStructures, 2);
+
+		this.superStructureDetails = new DetailsWithErrorMark(content);
+		this.superStructureDetails.setOpened(false);
+		rootContainer.add(this.superStructureDetails);
+
+		getEntityDataBinder().forField(this.superStructures).bind(ResearchOrganization::getSuperOrganizations, ResearchOrganization::setSuperOrganizations);
+	}
+
+	/** Invoked for creating a new organization.
+	 *
+	 * @param saver the callback that is invoked when the organization is saved as JPA entity.
+	 */
+	protected void openOrganizationEditor(Consumer<ResearchOrganization> saver) {
+		final var newOrganization = new ResearchOrganization();
+		final var editor = new EmbeddedOrganizationEditor(
+				this.organizationService.startEditing(newOrganization),
+				this.fileManager,
+				getAuthenticatedUser(), getMessageSourceAccessor(),
+				this.organizationService,
+				this.addressService);
+		ComponentFactory.openEditionModalDialog(
+				getTranslation("views.organizations.create_organization"), //$NON-NLS-1$
+				editor, false,
+				dialog -> saver.accept(newOrganization),
+				null);
+	}
+
+	private String createNameString(ResearchOrganization organization) {
+		final var buffer = new StringBuilder();
+		final var acronym = organization.getAcronym();
+		if (!Strings.isNullOrEmpty(acronym)) {
+			buffer.append(acronym);
+		}
+		final var name = organization.getName();
+		if (!Strings.isNullOrEmpty(name)) {
+			if (buffer.length() > 0) {
+				buffer.append(" - "); //$NON-NLS-1$
+			}
+			buffer.append(name);
+		}
+		return buffer.toString();
+	}
+
+	private Component createNameComponent(ResearchOrganization organization) {
+		final var acronym = organization.getAcronym();
+		final var name = organization.getName();
+		final var logo = organization.getPathToLogo();
+		final var identifier = organization.getNationalIdentifier();
+		final var rnsr = organization.getRnsr();
+
+		final var details = new StringBuilder();
+		if (!Strings.isNullOrEmpty(acronym)) {
+			details.append(acronym);
+		}
+		if (!Strings.isNullOrEmpty(identifier)) {
+			if (details.length() > 0) {
+				details.append(' ');
+			}
+			details.append(identifier);
+		}
+		if (!Strings.isNullOrEmpty(rnsr)) {
+			if (details.length() > 0) {
+				details.append(" - "); //$NON-NLS-1$
+			}
+			details.append("RNSR ").append(rnsr); //$NON-NLS-1$
+		}
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(name);
+		if (details.length() > 0) {
+			avatar.setDescription(details.toString());
+		}
+		if (organization.isMajorOrganization()) {
+			avatar.setAvatarBorderColor(Integer.valueOf(3));
+		}
+		var logoFile = FileSystem.convertStringToFile(logo);
+		if (logoFile != null) {
+			logoFile = this.fileManager.normalizeForServerSide(logoFile);
+			if (logoFile != null) {
+				avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
+			}
+		}
+		return avatar;
 	}
 
 	/** Create the section for editing the communication of the organization.
@@ -287,20 +408,20 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.communicationDetails = new DetailsWithErrorMark(content);
 		this.communicationDetails.setOpened(false);
 		rootContainer.add(this.communicationDetails);
-		
+
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.organizationUrl)
-			.withConverter(new StringTrimer())
-			.withValidator(new UrlValidator(invalidUrl, true))
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.organizationUrl, this.communicationDetails))
-			.bind(ResearchOrganization::getOrganizationURL, ResearchOrganization::setOrganizationURL);
+		.withConverter(new StringTrimer())
+		.withValidator(new UrlValidator(invalidUrl, true))
+		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.organizationUrl, this.communicationDetails))
+		.bind(ResearchOrganization::getOrganizationURL, ResearchOrganization::setOrganizationURL);
 		getEntityDataBinder().forField(this.description)
-			.withConverter(new StringTrimer())
-			.bind(ResearchOrganization::getDescription, ResearchOrganization::setDescription);
+		.withConverter(new StringTrimer())
+		.bind(ResearchOrganization::getDescription, ResearchOrganization::setDescription);
 		getEntityDataBinder().forField(this.logo)
-			.withConverter(new StringTrimer())
-			.bind(ResearchOrganization::getPathToLogo, ResearchOrganization::setPathToLogo);
+		.withConverter(new StringTrimer())
+		.bind(ResearchOrganization::getPathToLogo, ResearchOrganization::setPathToLogo);
 	}
 
 	private String getTypeLabel(ResearchOrganizationType type) {
@@ -309,32 +430,44 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	@Override
 	protected void doSave() throws Exception {
-		this.editingContext.save(this.logo);
+		getEditingContext().save(this.logo);
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.organizations.save_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.organizations.save_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.organizations.validation_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.organizations.validation_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.organizations.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.organizations.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.organizations.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.organizations.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
+
+	@Override
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.organizations.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
+	}
+	
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.organizations.delete_error2", //$NON-NLS-1$
+				getEditedEntity().getName(), error.getLocalizedMessage());
+	}	
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
@@ -364,12 +497,47 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.rnsr.setLabel(getTranslation("views.organizations.rnsr")); //$NON-NLS-1$
 		this.rnsr.setHelperText(getTranslation("views.organizations.rnsr.helper")); //$NON-NLS-1$
 
+		this.superStructureDetails.setSummaryText(getTranslation("views.organizations.super_structure_informations")); //$NON-NLS-1$
+		this.superStructures.setLabel(getTranslation("views.organizations.super_structures")); //$NON-NLS-1$
+		this.superStructures.setAdditionTooltip(getTranslation("views.organizations.super_structures.insert")); //$NON-NLS-1$
+		this.superStructures.setDeletionTooltip(getTranslation("views.organizations.super_structures.delete")); //$NON-NLS-1$
+		this.superStructures.setCreationTooltip(getTranslation("views.organizations.super_structures.create")); //$NON-NLS-1$
+
 		this.communicationDetails.setSummaryText(getTranslation("views.organizations.communication_informations")); //$NON-NLS-1$
 		this.organizationUrl.setLabel(getTranslation("views.organizations.url")); //$NON-NLS-1$
 		this.description.setLabel(getTranslation("views.organizations.description")); //$NON-NLS-1$
 		this.logo.setLabel(getTranslation("views.organizations.logo")); //$NON-NLS-1$
 
 		this.majorOrganization.setLabel(getTranslation("views.organizations.major_organization")); //$NON-NLS-1$
+	}
+
+	/** Specification that is validating any organization that has not the given identifier.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public static class OtherOrganizationSpecification implements Specification<ResearchOrganization> {
+
+		private static final long serialVersionUID = 2689698051166694233L;
+
+		private final Long forbiddenId;
+
+		/** Constructor.
+		 *
+		 * @param id the identifier of the research organization that is forbidden.
+		 */
+		public OtherOrganizationSpecification(long id) {
+			this.forbiddenId = Long.valueOf(id);
+		}
+
+		@Override
+		public Predicate toPredicate(Root<ResearchOrganization> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			return criteriaBuilder.notEqual(root.get("id"), this.forbiddenId); //$NON-NLS-1$
+		}
+
 	}
 
 }

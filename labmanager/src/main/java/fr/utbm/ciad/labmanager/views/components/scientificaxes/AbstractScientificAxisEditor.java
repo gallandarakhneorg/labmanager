@@ -28,7 +28,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
@@ -61,8 +61,6 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 
 	private DatePicker endDate;
 
-	private final EditingContext context;
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the scientific axis.
@@ -70,17 +68,12 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractScientificAxisEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractScientificAxisEditor(EntityEditingContext<ScientificAxis> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
 		super(ScientificAxis.class, authenticatedUser, messages, logger,
 				"views.scientific_axes.administration_details", //$NON-NLS-1$
-				"views.scientific_axes.administration.validated_address"); //$NON-NLS-1$
-		this.context = context;
-	}
-
-	@Override
-	public ScientificAxis getEditedEntity() {
-		return this.context.getScientificAxis();
+				"views.scientific_axes.administration.validated_address", //$NON-NLS-1$
+				context);
 	}
 
 	@Override
@@ -123,7 +116,7 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 		content.add(this.endDate, 1);
 
 		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
+		this.descriptionDetails.setOpened(true);
 		rootContainer.add(this.descriptionDetails);
 
 		getEntityDataBinder().forField(this.acronym)
@@ -143,32 +136,39 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.context.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.scientific_axes.save_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.scientific_axes.save_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.scientific_axes.validation_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.scientific_axes.validation_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.scientific_axes.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.scientific_axes.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.scientific_axes.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.scientific_axes.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.scientific_axes.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.scientific_axes.delete_error2", //$NON-NLS-1$
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override

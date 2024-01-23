@@ -33,6 +33,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
@@ -70,7 +71,11 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	public StandardMembershipListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			MembershipService membershipService, Logger logger) {
-		super(Person.class, Membership.class, authenticatedUser, messages, logger);
+		super(Person.class, Membership.class, authenticatedUser, messages, logger,
+				"views.memberships.delete.title", //$NON-NLS-1$
+				"views.memberships.delete.message", //$NON-NLS-1$
+				"views.membership.delete_success", //$NON-NLS-1$
+				"views.membership.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
 		setHoverMenu(isAdminRole());
 		setRootEntityFetcher(
@@ -168,78 +173,11 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	}
 
 	@Override
-	protected void deleteCurrentSelection() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected void deleteWithQuery(Set<TreeListEntity<Person, Membership>> entities) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	protected void edit(TreeListEntity<Person, Membership> entity) {
 		// TODO Auto-generated method stub
 
 	}
 
-	//	@Override
-	//	protected void deleteWithQuery(Set<Membership> memberships) {
-	//		if (!memberships.isEmpty()) {
-	//			final var size = memberships.size();
-	//			ComponentFactory.createDeletionDialog(this,
-	//					getTranslation("views.memberships.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-	//					getTranslation("views.memberships.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-	//					it ->  deleteCurrentSelection())
-	//			.open();
-	//		}
-	//	}
-	//
-	//	@Override
-	//	protected void deleteCurrentSelection() {
-	//		try {
-	//			// Get the selection again because this handler is run in another session than the one of the function
-	//			var realSize = 0;
-	//			final var grd = getGrid();
-	//			final var log = getLogger();
-	//			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-	//			for (final var membership : new ArrayList<>(grd.getSelectedItems())) {
-	//				this.membershipService.removeMembership(membership.getId());
-	//				final var msg = new StringBuilder("Membership: "); //$NON-NLS-1$
-	//				msg.append(membership.getMemberStatus().name());
-	//				msg.append(" (id: "); //$NON-NLS-1$
-	//				msg.append(membership.getId());
-	//				msg.append(") has been deleted by "); //$NON-NLS-1$
-	//				msg.append(userName);
-	//				log.info(msg.toString());
-	//				// Deselected the supervision
-	//				grd.getSelectionModel().deselect(membership);
-	//				++realSize;
-	//			}
-	//			refreshGrid();
-	//			notifyDeleted(realSize);
-	//		} catch (Throwable ex) {
-	//			refreshGrid();
-	//			notifyDeletionError(ex);
-	//		}
-	//	}
-	//
-	//	/** Notify the user that the memberships were deleted.
-	//	 *
-	//	 * @param size the number of deleted memberships
-	//	 */
-	//	protected void notifyDeleted(int size) {
-	//		notifyDeleted(size, "views.membership.delete_success"); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Notify the user that the memberships cannot be deleted.
-	//	 */
-	//	protected void notifyDeletionError(Throwable error) {
-	//		notifyDeletionError(error, "views.membership.delete_error"); //$NON-NLS-1$
-	//	}
-	//
 	//	@Override
 	//	protected void addEntity() {
 	//		openMembershipEditor(new Membership(), getTranslation("views.membership.add_membership")); //$NON-NLS-1$
@@ -265,6 +203,13 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	//				dialog -> refreshItem(membership),
 	//				null);
 	//	}
+
+	@Override
+	protected EntityDeletingContext<TreeListEntity<Person, Membership>> createDeletionContextFor(
+			Set<TreeListEntity<Person, Membership>> entities) {
+		//TODO return this.membershipService.startDeletion(entities);
+		return null;
+	}
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {

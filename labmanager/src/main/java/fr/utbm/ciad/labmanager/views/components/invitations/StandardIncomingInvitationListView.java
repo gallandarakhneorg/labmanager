@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.views.components.invitations;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +35,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
@@ -81,7 +81,11 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	public StandardIncomingInvitationListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			PersonInvitationService invitationService, Logger logger) {
-		super(PersonInvitation.class, authenticatedUser, messages, logger);
+		super(PersonInvitation.class, authenticatedUser, messages, logger,
+				"views.incoming_invitation.delete.title", //$NON-NLS-1$
+				"views.incoming_invitation.delete.message", //$NON-NLS-1$
+				"views.incoming_invitation.delete_success", //$NON-NLS-1$
+				"views.incoming_invitation.delete_error"); //$NON-NLS-1$
 		this.invitationService = invitationService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllIncomingInvitations(query, filters);
 		initializeDataInGrid(getGrid(), getFilters());
@@ -158,61 +162,6 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	}
 
 	@Override
-	protected void deleteWithQuery(Set<PersonInvitation> axes) {
-		if (!axes.isEmpty()) {
-			final var size = axes.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.incoming_invitation.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.incoming_invitation.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var inv : new ArrayList<>(grd.getSelectedItems())) {
-				this.invitationService.removePersonInvitation(inv.getId());
-				final var msg = new StringBuilder("Incoming invitation: "); //$NON-NLS-1$
-				msg.append(inv.getTitle());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(inv.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the address
-				grd.getSelectionModel().deselect(inv);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the incoming invitations were deleted.
-	 *
-	 * @param size the number of deleted incoming invitations
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.incoming_invitation.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the incoming invitations cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.incoming_invitation.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openInvitationEditor(new PersonInvitation(), getTranslation("views.incoming_invitation.add_invitation")); //$NON-NLS-1$
 	}
@@ -235,6 +184,11 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				dialog -> refreshItem(invitation),
 				null);
+	}
+
+	@Override
+	protected EntityDeletingContext<PersonInvitation> createDeletionContextFor(Set<PersonInvitation> entities) {
+		return this.invitationService.startDeletion(entities);
 	}
 
 	@Override

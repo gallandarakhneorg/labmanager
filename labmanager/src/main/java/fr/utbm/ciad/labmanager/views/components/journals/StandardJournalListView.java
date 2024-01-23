@@ -19,8 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views.components.journals;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,14 +29,18 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -44,6 +48,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityLi
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -63,6 +68,8 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 
 	private final JournalDataProvider dataProvider;
 
+	private final int referenceYear;
+
 	private JournalService journalService;
 
 	private Column<Journal> nameColumn;
@@ -72,6 +79,8 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	private Column<Journal> scimagoRankingColumn;
 
 	private Column<Journal> wosRankingColumn;
+
+	private Column<Journal> impactFactorColumn;
 
 	private Column<Journal> paperCountColumn;
 
@@ -87,9 +96,21 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	public StandardJournalListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			JournalService journalService, Logger logger) {
-		super(Journal.class, authenticatedUser, messages, logger);
+		super(Journal.class, authenticatedUser, messages, logger,
+				"views.journals.delete.title", //$NON-NLS-1$
+				"views.journals.delete.message", //$NON-NLS-1$
+				"views.journals.delete_success", //$NON-NLS-1$
+				"views.journals.delete_error"); //$NON-NLS-1$
 		this.journalService = journalService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllJournals(query, filters);
+		// The reference year cannot be the current year because ranking of journals is not done
+		this.referenceYear = LocalDate.now().getYear() - 1;
+		this.dataProvider = (ps, query, filters) -> ps.getAllJournals(query, filters,
+				it -> {
+					// Force the loaded of the lazy data that is needed for rendering the table
+					it.getPublishedPapers().size();
+					it.getScimagoQIndexByYear(this.referenceYear);
+					it.getWosQIndexByYear(this.referenceYear);
+				});
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -100,7 +121,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 
 	@Override
 	protected boolean createGridColumns(Grid<Journal> grid) {
-		final var currentYear = LocalDate.now().getYear();
 		this.nameColumn = grid.addColumn(journal -> journal.getJournalName())
 				.setAutoWidth(true)
 				.setFrozen(true)
@@ -108,15 +128,14 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		this.publisherColumn = grid.addColumn(journal -> journal.getPublisher())
 				.setAutoWidth(true)
 				.setSortProperty("publisher"); //$NON-NLS-1$
-		this.scimagoRankingColumn = grid.addColumn(journal -> getScimagoQuartile(journal, currentYear))
-				.setAutoWidth(true)
-				.setSortProperty("scimagoRanking"); //$NON-NLS-1$
-		this.wosRankingColumn = grid.addColumn(journal -> getWosQuartile(journal, currentYear))
-				.setAutoWidth(true)
-				.setSortProperty("wosRanking"); //$NON-NLS-1$
-		this.paperCountColumn = grid.addColumn(journal -> getPaperCount(journal, currentYear))
-				.setAutoWidth(true)
-				.setSortProperty("paperCount"); //$NON-NLS-1$
+		this.scimagoRankingColumn = grid.addColumn(new ComponentRenderer<>(this::getScimagoQuartile))
+				.setAutoWidth(true);
+		this.wosRankingColumn = grid.addColumn(new ComponentRenderer<>(this::getWosQuartile))
+				.setAutoWidth(true);
+		this.impactFactorColumn = grid.addColumn(new ComponentRenderer<>(this::getImpactFactor))
+				.setAutoWidth(true);
+		this.paperCountColumn = grid.addColumn(journal -> getPaperCount(journal))
+				.setAutoWidth(true);
 		this.validationColumn = grid.addColumn(new BadgeRenderer<>((data, callback) -> {
 			if (data.isValidated()) {
 				callback.create(BadgeState.SUCCESS, null, getTranslation("views.validated")); //$NON-NLS-1$
@@ -132,26 +151,72 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		return isAdminRole();
 	}
 
-	private static String getScimagoQuartile(Journal journal, int year) {
-//		final QuartileRanking rank = QuartileRanking.normalize(journal.getScimagoQIndexByYear(year));
-//		if (rank == QuartileRanking.NR) {
-//			return ""; //$NON-NLS-1$
-//		}
-//		return rank.name();
-		return "";
+	private Component getScimagoQuartile(Journal journal) {
+		final var rank = QuartileRanking.normalize(journal.getScimagoQIndexByYear(this.referenceYear));
+		final var span = new Span();
+		if (rank != QuartileRanking.NR) {
+			span.setText(rank.name());
+			final var id = journal.getScimagoId();
+			final var category = journal.getScimagoCategory();
+			if (Strings.isNullOrEmpty(id)) {
+				if (Strings.isNullOrEmpty(category)) {
+					span.setTitle(getTranslation("views.journals.ranking_details0", Integer.toString(this.referenceYear))); //$NON-NLS-1$
+				} else {
+					span.setTitle(getTranslation("views.journals.ranking_details1", Integer.toString(this.referenceYear), category)); //$NON-NLS-1$
+				}
+			} else {
+				if (Strings.isNullOrEmpty(category)) {
+					span.setTitle(getTranslation("views.journals.ranking_details2", Integer.toString(this.referenceYear), id)); //$NON-NLS-1$
+				} else {
+					span.setTitle(getTranslation("views.journals.ranking_details3", Integer.toString(this.referenceYear), id, category)); //$NON-NLS-1$
+				}
+			}
+			if (Strings.isNullOrEmpty(journal.getScimagoId())) {
+				span.getStyle().setColor("var(--lumo-error-color-50pct)"); //$NON-NLS-1$
+			}
+		}
+		return span;
 	}
 
-	private static String getWosQuartile(Journal journal, int year) {
-//		final QuartileRanking rank = QuartileRanking.normalize(journal.getWosQIndexByYear(year));
-//		if (rank == QuartileRanking.NR) {
-//			return ""; //$NON-NLS-1$
-//		}
-//		return rank.name();
-		return "";
+	private Component getWosQuartile(Journal journal) {
+		final var rank = QuartileRanking.normalize(journal.getWosQIndexByYear(this.referenceYear));
+		final var span = new Span();
+		if (rank != QuartileRanking.NR) {
+			span.setText(rank.name());
+			final var id = journal.getWosId();
+			final var category = journal.getWosCategory();
+			if (Strings.isNullOrEmpty(id)) {
+				if (Strings.isNullOrEmpty(category)) {
+					span.setTitle(getTranslation("views.journals.ranking_details0", Integer.toString(this.referenceYear))); //$NON-NLS-1$
+				} else {
+					span.setTitle(getTranslation("views.journals.ranking_details1", Integer.toString(this.referenceYear), category)); //$NON-NLS-1$
+				}
+			} else {
+				if (Strings.isNullOrEmpty(category)) {
+					span.setTitle(getTranslation("views.journals.ranking_details2", Integer.toString(this.referenceYear), id)); //$NON-NLS-1$
+				} else {
+					span.setTitle(getTranslation("views.journals.ranking_details3", Integer.toString(this.referenceYear), id, category)); //$NON-NLS-1$
+				}
+			}
+			if (Strings.isNullOrEmpty(journal.getWosId())) {
+				span.getStyle().setColor("var(--lumo-error-color-50pct)"); //$NON-NLS-1$
+			}
+		}
+		return span;
 	}
 
-	private static Integer getPaperCount(Journal journal, int year) {
-		return Integer.valueOf(0);
+	private Component getImpactFactor(Journal journal) {
+		final var impactFactor = journal.getImpactFactorByYear(this.referenceYear);
+		final var span = new Span();
+		if (impactFactor > 0f) {
+			final var fmt = new DecimalFormat("#0.00"); //$NON-NLS-1$
+			span.setText(fmt.format(impactFactor));
+		}
+		return span;
+	}
+
+	private static Integer getPaperCount(Journal journal) {
+		return Integer.valueOf(journal.getPublishedPapers().size());
 	}
 
 	@Override
@@ -167,61 +232,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 					VaadinSpringDataHelpers.toSpringPageRequest(query),
 					filters).stream();
 		};
-	}
-
-	@Override
-	protected void deleteWithQuery(Set<Journal> journals) {
-		if (!journals.isEmpty()) {
-			final var size = journals.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.journals.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.journals.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var journal : new ArrayList<>(grd.getSelectedItems())) {
-				this.journalService.removeJournal(journal.getId());
-				final var msg = new StringBuilder("Journal: "); //$NON-NLS-1$
-				msg.append(journal.getJournalName());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(journal.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the address
-				grd.getSelectionModel().deselect(journal);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the journals were deleted.
-	 *
-	 * @param size the number of deleted journals
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.journals.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the journals cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.journals.delete_error"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -243,9 +253,18 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		final var editor = new EmbeddedJournalEditor(
 				this.journalService.startEditing(journal),
 				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var newEntity = editor.isNewEntity();
+		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
+		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(journal);
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				dialog -> refreshItem(journal));
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
+	}
+
+	@Override
+	protected EntityDeletingContext<Journal> createDeletionContextFor(Set<Journal> entities) {
+		return this.journalService.startDeletion(entities);
 	}
 
 	@Override
@@ -255,6 +274,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		this.publisherColumn.setHeader(getTranslation("views.publisher")); //$NON-NLS-1$
 		this.scimagoRankingColumn.setHeader(getTranslation("views.journals.scimagoRanking")); //$NON-NLS-1$
 		this.wosRankingColumn.setHeader(getTranslation("views.journals.wosRanking")); //$NON-NLS-1$
+		this.impactFactorColumn.setHeader(getTranslation("views.journals.impactFactor")); //$NON-NLS-1$
 		this.paperCountColumn.setHeader(getTranslation("views.journals.paperCount")); //$NON-NLS-1$
 		this.validationColumn.setHeader(getTranslation("views.validated")); //$NON-NLS-1$
 	}
@@ -275,8 +295,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 
 		private Checkbox includePublishers;
 
-		private Checkbox includeRankings;
-
 		/** Constructor.
 		 *
 		 * @param onSearch
@@ -289,11 +307,10 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		protected Component getOptionsComponent() {
 			this.includeNames = new Checkbox(true);
 			this.includePublishers = new Checkbox(true);
-			this.includeRankings = new Checkbox(true);
 
 			final var options = new HorizontalLayout();
 			options.setSpacing(false);
-			options.add(this.includeNames, this.includePublishers, this.includeRankings);
+			options.add(this.includeNames, this.includePublishers);
 
 			return options;
 		}
@@ -302,7 +319,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		protected void resetFilters() {
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includePublishers.setValue(Boolean.TRUE);
-			this.includeRankings.setValue(Boolean.TRUE);
 		}
 
 		@Override
@@ -314,10 +330,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 			if (this.includePublishers.getValue() == Boolean.TRUE) {
 				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("publisher")), keywords)); //$NON-NLS-1$
 			}
-			if (this.includeRankings.getValue() == Boolean.TRUE) {
-//				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("scimagoRank")), keywords)); //$NON-NLS-1$
-//				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("wosRank")), keywords)); //$NON-NLS-1$
-			}
 		}
 
 		@Override
@@ -325,7 +337,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 			super.localeChange(event);
 			this.includeNames.setLabel(getTranslation("views.filters.include_names")); //$NON-NLS-1$
 			this.includePublishers.setLabel(getTranslation("views.filters.include_publishers")); //$NON-NLS-1$
-			this.includeRankings.setLabel(getTranslation("views.filters.include_rankings")); //$NON-NLS-1$
 		}
 
 	}

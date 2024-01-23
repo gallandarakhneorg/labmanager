@@ -29,7 +29,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
-import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -70,8 +70,6 @@ public abstract class AbstractOutgoingInvitationEditor extends AbstractEntityEdi
 	private DatePicker endDate;
 
 	private TextField title;
-	
-	private final EditingContext context;
 
 	/** Constructor.
 	 *
@@ -80,15 +78,9 @@ public abstract class AbstractOutgoingInvitationEditor extends AbstractEntityEdi
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractOutgoingInvitationEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractOutgoingInvitationEditor(EntityEditingContext<PersonInvitation> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
-		super(PersonInvitation.class, authenticatedUser, messages, logger, null, null);
-		this.context = context;
-	}
-
-	@Override
-	public PersonInvitation getEditedEntity() {
-		return this.context.getPersonInvitation();
+		super(PersonInvitation.class, authenticatedUser, messages, logger, null, null, context);
 	}
 
 	@Override
@@ -185,32 +177,39 @@ public abstract class AbstractOutgoingInvitationEditor extends AbstractEntityEdi
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.context.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.outgoing_invitation.save_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.outgoing_invitation.save_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.outgoing_invitation.validation_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.outgoing_invitation.validation_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.outgoing_invitation.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.outgoing_invitation.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.outgoing_invitation.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.outgoing_invitation.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.outgoing_invitation.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.outgoing_invitation.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override

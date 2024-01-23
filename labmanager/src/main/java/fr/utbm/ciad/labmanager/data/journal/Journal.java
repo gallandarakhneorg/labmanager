@@ -517,6 +517,22 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		return this.qualityIndicators;
 	}
 
+	/** Change the quality indicators of the journal.
+	 *
+	 * @param indicators the indicators.
+	 * @since 4.0
+	 */
+	public void setQualityIndicators(Map<Integer, JournalQualityAnnualIndicators> indicators) {
+		if (this.qualityIndicators == null) {
+			this.qualityIndicators = new TreeMap<>();
+		} else {
+			this.qualityIndicators.clear();
+		}
+		if (indicators != null && !indicators.isEmpty()) {
+			this.qualityIndicators.putAll(indicators);
+		}
+	}
+
 	/** Replies the quality indicators of the journal for the given year.
 	 * This function does not reply the indicators for the years before the given one.
 	 *

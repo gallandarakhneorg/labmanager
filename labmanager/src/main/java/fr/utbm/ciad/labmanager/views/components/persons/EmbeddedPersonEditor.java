@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components.persons;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
+import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -47,7 +47,7 @@ public final class EmbeddedPersonEditor extends AbstractPersonEditor {
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedPersonEditor(EditingContext userContext, AuthenticatedUser authenticatedUser,
+	public EmbeddedPersonEditor(UserEditingContext userContext, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages) {
 		super(userContext, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();

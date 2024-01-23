@@ -64,6 +64,7 @@ import fr.utbm.ciad.labmanager.utils.io.scimago.OnlineScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -83,6 +84,8 @@ import org.springframework.context.support.MessageSourceAccessor;
 @ExtendWith(MockitoExtension.class)
 public class JournalServiceTest {
 
+	private SessionFactory sessionFactory;
+	
 	private Journal jour0;
 
 	private Journal jour1;
@@ -109,6 +112,7 @@ public class JournalServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.sessionFactory = mock(SessionFactory.class);
 		this.messages = mock(MessageSourceAccessor.class);
 		this.journalRepository = mock(JournalRepository.class);
 		this.publicationRepository = mock(JournalPaperRepository.class);
@@ -116,7 +120,7 @@ public class JournalServiceTest {
 		this.scimago = mock(ScimagoPlatform.class);
 		this.wos = mock(WebOfSciencePlatform.class);
 		this.netConnection = mock(NetConnection.class);
-		this.test = new JournalService(this.messages, new Constants(), this.journalRepository,
+		this.test = new JournalService(this.messages, new Constants(), this.sessionFactory, this.journalRepository,
 				this.indicatorRepository, this.publicationRepository, this.scimago, this.wos, this.netConnection);
 
 		// Prepare some journals to be inside the repository
@@ -656,7 +660,7 @@ public class JournalServiceTest {
 		// Force the connection to Internet
 		this.scimago = new OnlineScimagoPlatform();
 		this.netConnection = new DirectNetConnection();
-		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository,
+		this.test = new JournalService(this.messages, new Constants(), this.sessionFactory, this.journalRepository, this.indicatorRepository,
 				this.publicationRepository, this.scimago, this.wos, this.netConnection);
 
 		// The following id is for the Int. Journal of Artificial Intelligence

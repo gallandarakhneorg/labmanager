@@ -31,7 +31,7 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Responsibility;
-import fr.utbm.ciad.labmanager.services.member.MembershipService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
@@ -92,8 +92,6 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private Checkbox publicPosition; 
 
-	private final EditingContext context;
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the membership.
@@ -101,17 +99,12 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractMembershipEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractMembershipEditor(EntityEditingContext<Membership> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
 		super(Membership.class, authenticatedUser, messages, logger,
 				"views.membership.administration_details", //$NON-NLS-1$
-				null);
-		this.context = context;
-	}
-
-	@Override
-	public Membership getEditedEntity() {
-		return this.context.getMembership();
+				null,
+				context);
 	}
 
 	@Override
@@ -312,32 +305,39 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.context.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.membership.save_success", //$NON-NLS-1$
+				"?");
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.membership.save_success", //$NON-NLS-1$
-				"?"));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.membership.validation_success", //$NON-NLS-1$
+				"?");
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.membership.validation_success", //$NON-NLS-1$
-				"?"));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.membership.delete_success2", //$NON-NLS-1$
+				"?");
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.membership.save_error", //$NON-NLS-1$ 
-				"?", error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.membership.save_error", //$NON-NLS-1$ 
+				"?", error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.membership.validation_error", //$NON-NLS-1$ 
-				"?", error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.membership.validation_error", //$NON-NLS-1$ 
+				"?", error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.membership.deletion_error2", //$NON-NLS-1$ 
+				"?", error.getLocalizedMessage());
 	}
 
 	@Override

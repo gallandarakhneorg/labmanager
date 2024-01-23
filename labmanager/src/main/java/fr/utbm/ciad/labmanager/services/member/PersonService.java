@@ -19,12 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
@@ -39,7 +41,9 @@ import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.gscholar.GoogleScholarPlatform;
 import fr.utbm.ciad.labmanager.utils.io.gscholar.GoogleScholarPlatform.GoogleScholarPerson;
 import fr.utbm.ciad.labmanager.utils.io.scopus.ScopusPlatform;
@@ -52,6 +56,8 @@ import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -70,8 +76,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @mavenartifactid $ArtifactId$
  */
 @Service
-public class PersonService extends AbstractService {
+public class PersonService extends AbstractEntityService<Person> {
 
+	private final SessionFactory sessionFactory;
+	
 	private PublicationRepository publicationRepository;
 
 	private AuthorshipRepository authorshipRepository;
@@ -93,6 +101,7 @@ public class PersonService extends AbstractService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param publicationRepository the publication repository.
 	 * @param authorshipRepository the authorship repository.
 	 * @param personRepository the person repository.
@@ -112,6 +121,7 @@ public class PersonService extends AbstractService {
 	public PersonService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonRepository personRepository,
@@ -121,6 +131,7 @@ public class PersonService extends AbstractService {
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonNameComparator nameComparator) {
 		super(messages, constants);
+		this.sessionFactory = sessionFactory;
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
@@ -788,15 +799,26 @@ public class PersonService extends AbstractService {
 		}
 	}
 
-	/** Start the editing of the given person.
-	 *
-	 * @param person the person to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the person and its related resources.
-	 */
+	@Override
 	public EditingContext startEditing(Person person) {
 		assert person != null;
 		return new EditingContext(person);
+	}
+
+	@Override
+	public EntityDeletingContext<Person> startDeletion(Set<Person> persons) {
+		assert persons != null && !persons.isEmpty();
+		// Force loading of the memberships and authorships
+		try (final var session = this.sessionFactory.openSession()) {
+			for (final var person : persons) {
+				if (person.getId() != 0l) {
+					session.load(person, Long.valueOf(person.getId()));
+					Hibernate.initialize(person.getMemberships());
+					Hibernate.initialize(person.getAuthorships());
+				}
+			}
+		}
+		return new DeletingContext(persons);
 	}
 
 	/** Context for editing a {@link Person}.
@@ -809,38 +831,66 @@ public class PersonService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<Person> {
 		
 		private static final long serialVersionUID = 4177864495115107627L;
-
-		private Person person;
 
 		/** Constructor.
 		 *
 		 * @param person the edited person.
 		 */
-		EditingContext(Person person) {
-			this.person = person;
+		protected EditingContext(Person person) {
+			super(person);
 		}
 
-		/** Replies the person.
-		 *
-		 * @return the person.
-		 */
-		public Person getPerson() {
-			return this.person;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = PersonService.this.personRepository.save(this.entity);
 		}
 
-		/** Save the person in the JPA database.
+		@Override
+		public EntityDeletingContext<Person> createDeletionContext() {
+			return PersonService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Person}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Person> {
+
+		private static final long serialVersionUID = -4321042497958597399L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the person object that was provided before the saving.
-		 * Invoke {@link #getPerson()} for obtaining the new person
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param persons the persons to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.person = PersonService.this.personRepository.save(this.person);
+		protected DeletingContext(Set<Person> persons) {
+			super(persons);
+		}
+
+		@Override
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getMemberships().isEmpty()) {
+					return PersonDeletionStatus.MEMBERSHIP;
+				}
+				if (!entity.getAuthorships().isEmpty()) {
+					return PersonDeletionStatus.AUTHORSHIP;
+				}
+			}
+			return DeletionStatus.OK;
+		}
+		
+		@Override
+		protected void deleteEntities() throws Exception {
+			PersonService.this.personRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

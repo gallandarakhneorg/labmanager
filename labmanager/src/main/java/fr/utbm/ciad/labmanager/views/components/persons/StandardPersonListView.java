@@ -25,11 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
@@ -37,6 +37,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
@@ -46,6 +47,7 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
@@ -120,7 +122,11 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 			PersonService personService, UserService userService, MembershipService membershipService,
 			ChronoMembershipComparator membershipComparator, PersonDataProvider dataProvider,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
-		super(Person.class, authenticatedUser, messages, logger);
+		super(Person.class, authenticatedUser, messages, logger,
+				"views.persons.delete.title", //$NON-NLS-1$
+				"views.persons.delete.message", //$NON-NLS-1$
+				"views.persons.delete_success", //$NON-NLS-1$
+				"views.persons.delete_error"); //$NON-NLS-1$
 		this.personService = personService;
 		this.userService = userService;
 		this.membershipService = membershipService;
@@ -194,63 +200,6 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	}
 
 	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var personId : grd.getSelectedItems().stream().map(it0 -> Long.valueOf(it0.getId())).collect(Collectors.toList())) {
-				final var deletedPerson = this.personService.removePerson(personId.intValue());
-				if (deletedPerson != null) {
-					final var msg = new StringBuilder("Data for "); //$NON-NLS-1$
-					msg.append(deletedPerson.getFullName());
-					msg.append(" (id: "); //$NON-NLS-1$
-					msg.append(personId);
-					msg.append(") has been deleted by "); //$NON-NLS-1$
-					msg.append(userName);
-					log.info(msg.toString());
-					// Deselected the person
-					grd.getSelectionModel().deselect(deletedPerson);
-				}
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	@Override
-	protected void deleteWithQuery(Set<Person> persons) {
-		if (!persons.isEmpty()) {
-			final var size = persons.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.persons.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.persons.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	/** Notify the user that the persons were deleted.
-	 *
-	 * @param size the number of deleted persons
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.persons.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the persons cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.persons.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openPersonEditor(new Person(), getTranslation("views.persons.add_person")); //$NON-NLS-1$
 	}
@@ -271,7 +220,19 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 		final var userContext = this.userService.startEditing(user, personContext);
 		final var editor = new EmbeddedPersonEditor(
 				userContext, getAuthenticatedUser(), getMessageSourceAccessor());
-		ComponentFactory.openEditionModalDialog(title, editor, true, dialog -> refreshGrid());
+		final var newEntity = editor.isNewEntity();
+		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
+		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(person);
+		ComponentFactory.openEditionModalDialog(title, editor, true,
+				// Refresh the "old" item, even if its has been changed in the JPA database
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
+	}
+
+	@Override
+	protected EntityDeletingContext<Person> createDeletionContextFor(Set<Person> entities) {
+		final var personContext = this.personService.startDeletion(entities);
+		return this.userService.startDeletion(personContext);
 	}
 	
 	@Override

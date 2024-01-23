@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +45,8 @@ import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
@@ -72,7 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @mavenartifactid $ArtifactId$
  */
 @Service
-public class MembershipService extends AbstractService {
+public class MembershipService extends AbstractEntityService<Membership> {
 
 	private ResearchOrganizationRepository organizationRepository;
 
@@ -607,15 +608,16 @@ public class MembershipService extends AbstractService {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty();
 	}
 
-	/** Start the editing of the given membership.
-	 *
-	 * @param membership the membership to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the membership and its related resources.
-	 */
+	@Override
 	public EditingContext startEditing(Membership membership) {
 		assert membership != null;
 		return new EditingContext(membership);
+	}
+
+	@Override
+	public EntityDeletingContext<Membership> startDeletion(Set<Membership> memberships) {
+		assert memberships != null && !memberships.isEmpty();
+		return new DeletingContext(memberships);
 	}
 
 	/** Context for editing a {@link Membership}.
@@ -628,38 +630,53 @@ public class MembershipService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<Membership> {
 
 		private static final long serialVersionUID = -4782495321040453426L;
-
-		private Membership membership;
 
 		/** Constructor.
 		 *
 		 * @param membership the edited membership.
 		 */
-		EditingContext(Membership membership) {
-			this.membership = membership;
+		protected EditingContext(Membership membership) {
+			super(membership);
 		}
 
-		/** Replies the membership.
-		 *
-		 * @return the membership.
-		 */
-		public Membership getMembership() {
-			return this.membership;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = MembershipService.this.membershipRepository.save(this.entity);
 		}
 
-		/** Save the membership in the JPA database.
+		@Override
+		public EntityDeletingContext<Membership> createDeletionContext() {
+			return MembershipService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Membership}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Membership> {
+
+		private static final long serialVersionUID = 6636206768055796017L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the membership object that was provided before the saving.
-		 * Invoke {@link #getMembership()} for obtaining the new membership
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param memberships the memberships to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.membership = MembershipService.this.membershipRepository.save(this.membership);
+		protected DeletingContext(Set<Membership> memberships) {
+			super(memberships);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			MembershipService.this.membershipRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

@@ -20,7 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService.EditingContext;
+import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public final class EmbeddedAddressEditor extends AbstractAddressEditor {
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedAddressEditor(EditingContext context,
+	public EmbeddedAddressEditor(EntityEditingContext<OrganizationAddress> context,
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, fileManager, authenticatedUser, messages, LOGGER);

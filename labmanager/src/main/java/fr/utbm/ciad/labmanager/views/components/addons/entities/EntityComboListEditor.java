@@ -29,21 +29,23 @@ import java.util.stream.Collectors;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableComparator;
-import com.vaadin.flow.function.SerializablePredicate;
+import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
-/** Component that enables to select a list of entities from a given list of available entities.
+/** Component that enables to select a list of entities from a given combo of available entities.
  * 
  * @param <T> the type of the edited entity.
  * @author $Author: sgalland$
@@ -51,37 +53,29 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
- * @see EntityComboListEditor
+ * @see EntityLeftRightListsEditor
  */
-public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
+public class EntityComboListEditor<T> extends CustomField<Set<T>> {
 
-	private static final long serialVersionUID = 7855575001699179094L;
+	private static final long serialVersionUID = -4788430817317673879L;
 
 	private static final float LIST_HEIGHT = 250f;
 
-	private static final float CONTROL_WIDTH = 40f;
-
-	private Collection<T> originalAvailableEntities = new ArrayList<>();
-
-	private final EmptySetMultiSelectListBox<T> availableEntities;
+	private final ComboBox<T> availableEntities;
 
 	private final EmptySetMultiSelectListBox<T> selectedEntities;
 
-	private final Span availableEntityLabel;
+	private final MenuItem insertButton;
 
-	private final Span selectedEntityLabel;
+	private final MenuItem deleteButton;
 
-	private final Button insertButton;
-
-	private final Button deleteButton;
-
-	private final Button additionButton;
+	private final MenuItem additionButton;
 
 	/** Constructor without the button for adding a new entity.
 	 *
 	 * @param comparator the comparator to be used for sorting the entities in the list.
 	 */
-	public EntityLeftRightListsEditor(SerializableComparator<T> comparator) {
+	public EntityComboListEditor(SerializableComparator<T> comparator) {
 		this(comparator, null);
 	}
 
@@ -92,112 +86,53 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 *     the list of selected entities. Argument is a lambda function that must be invoked for
 	 *     saving the new entity. The argument of this lambda function is the new entity itself.
 	 */
-	public EntityLeftRightListsEditor(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
-		this.availableEntityLabel = new Span(""); //$NON-NLS-1$
-		this.availableEntityLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)"); //$NON-NLS-1$ //$NON-NLS-2$
-		
-		this.availableEntities = new EmptySetMultiSelectListBox<>(comparator);
-
-		final var availablePanel = new VerticalLayout(this.availableEntityLabel, this.availableEntities.withScroller());
-		availablePanel.setAlignItems(Alignment.START);
-		availablePanel.setDefaultHorizontalComponentAlignment(Alignment.START);
-		availablePanel.setSpacing(false);
-		availablePanel.setPadding(false);
-		availablePanel.getStyle().setBackground("var(--lumo-shade-5pct)"); //$NON-NLS-1$
-
-		this.selectedEntityLabel = new Span(""); //$NON-NLS-1$
-		this.selectedEntityLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)"); //$NON-NLS-1$ //$NON-NLS-2$
-
+	public EntityComboListEditor(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
 		this.selectedEntities = new EmptySetMultiSelectListBox<>(comparator);
 
-		final var selectedPanel = new VerticalLayout(this.selectedEntityLabel, this.selectedEntities.withScroller());
-		selectedPanel.setAlignItems(Alignment.START);
-		selectedPanel.setDefaultHorizontalComponentAlignment(Alignment.START);
-		selectedPanel.setSpacing(false);
-		selectedPanel.setPadding(false);
-		selectedPanel.getStyle().setBackground("var(--lumo-shade-5pct)"); //$NON-NLS-1$
+		this.availableEntities = new ComboBox<>();
+		this.availableEntities.setWidthFull();
+		
+		final var tools = new MenuBar();
+		tools.addThemeVariants(MenuBarVariant.LUMO_ICON);
 
-		final var controlPanel = new VerticalLayout();
-		controlPanel.setAlignItems(Alignment.CENTER);
-		controlPanel.setMaxWidth(CONTROL_WIDTH, Unit.PIXELS);
-		controlPanel.setSpacing(false);
-		controlPanel.setPadding(false);
-
-		this.insertButton = new Button();
-		this.insertButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_SMALL);
-		this.insertButton.setIcon(LineAwesomeIcon.ARROW_ALT_CIRCLE_RIGHT_SOLID.create());
+		this.insertButton = ComponentFactory.addIconItem(tools, LineAwesomeIcon.PLUS_SOLID, null, null, it -> doAddition(true));
 		this.insertButton.setEnabled(false);
-		controlPanel.add(this.insertButton);
 
-		this.deleteButton = new Button();
-		this.deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_SMALL);
-		this.deleteButton.setIcon(LineAwesomeIcon.ARROW_ALT_CIRCLE_LEFT_SOLID.create());
+		this.deleteButton = ComponentFactory.addIconItem(tools, LineAwesomeIcon.MINUS_SOLID, null, null, it -> doDeletion(true));
 		this.deleteButton.setEnabled(false);
-		controlPanel.add(this.deleteButton);
 
 		if (entityCreationCallback != null) {
-			this.additionButton = new Button();
-			this.additionButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_SMALL);
-			final var icon = LineAwesomeIcon.PLUS_CIRCLE_SOLID.create();
-			icon.setColor("var(--lumo-error-color)"); //$NON-NLS-1$
-			this.additionButton.setIcon(icon);
-			controlPanel.add(this.additionButton);
+			final var userCallback = entityCreationCallback;
+			final Consumer<T> finalCallback = it -> {
+				if (it != null) {
+					addNewEntity(it, true);
+				}
+			};
+			this.additionButton = ComponentFactory.addIconItem(tools, LineAwesomeIcon.PLUS_SQUARE_SOLID, null, null, it -> userCallback.accept(finalCallback));
 		} else {
 			this.additionButton = null;
 		}
+
+		final var additionPanel = new HorizontalLayout();
+		additionPanel.add(this.availableEntities, tools);
+		additionPanel.setAlignItems(Alignment.CENTER);
+		additionPanel.setSpacing(false);
+		additionPanel.setPadding(false);
 		
-		final var horizontalLayout = new HorizontalLayout();
-		horizontalLayout.add(availablePanel, controlPanel, selectedPanel);
-		horizontalLayout.setAlignItems(Alignment.CENTER);
-		horizontalLayout.setSpacing(false);
-		horizontalLayout.setPadding(false);
-		horizontalLayout.setFlexGrow(0f, controlPanel);
-		add(horizontalLayout);
+		final var mainPanel = new VerticalLayout();
+		mainPanel.add(this.selectedEntities.withScroller(), additionPanel);
+		mainPanel.setAlignItems(Alignment.STRETCH);
+		mainPanel.setSpacing(false);
+		mainPanel.setPadding(false);
+		add(mainPanel);
 
-		this.availableEntities.addSelectionListener(it -> {
-			final var hasValue = !it.getAllSelectedItems().isEmpty();
-			this.insertButton.setEnabled(hasValue);
-		});
-		this.selectedEntities.addSelectionListener(it -> {
-			final var hasValue = !it.getAllSelectedItems().isEmpty();
-			this.deleteButton.setEnabled(hasValue);
-		});
-		this.insertButton.addClickListener(it -> doInsertion(true));
-		this.deleteButton.addClickListener(it -> doDeletion(true));
-		if (this.additionButton != null) {
-			final var userCallback = entityCreationCallback;
-			if (userCallback != null) {
-				final Consumer<T> finalCallback = it -> {
-					if (it != null) {
-						addNewEntity(it, true);
-					}
-				};
-				this.additionButton.addClickListener(it -> userCallback.accept(finalCallback));
-			}
-		}
-	}
+		this.availableEntities.addValueChangeListener(it -> this.insertButton.setEnabled(it.getValue() != null));
 
-	/** Do the insertion of the selected items in the list of available
-	 * entities into the list of selected entities.
-	 *
-	 * @param updateFieldValue indicates if the field component is notified
-	 *     about a value change. In other words, the function
-	 *     {@link #updateValue()} is invoked if this argument is evaluated
-	 *     to {@code true} and it is not invoked otherwise.
-	 */
-	protected void doInsertion(boolean updateFieldValue) {
-		final var currentSelection = this.availableEntities.getSelectedItems();
-		if (currentSelection != null && !currentSelection.isEmpty()) {
-			addSelectedEntities(currentSelection);
-			this.selectedEntities.select(currentSelection);
-			if (updateFieldValue) {
-				updateValue();
-			}
-		}
+		this.selectedEntities.addSelectionListener(it -> this.deleteButton.setEnabled(!it.getAllSelectedItems().isEmpty()));
 	}
 
 	/** Do the insertion of the given item. This function add the given item
-	 * in the list of available entities and in the list of selected entities.
+	 * in the combo box of available entities and in the list of selected entities.
 	 *
 	 * @param item the new item.
 	 * @param updateFieldValue indicates if the field component is notified
@@ -207,7 +142,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	protected void addNewEntity(T newEntity, boolean updateFieldValue) {
-		this.originalAvailableEntities.add(newEntity);
+		this.availableEntities.getDataProvider().refreshAll();
 		this.selectedEntities.addEntity(newEntity);
 		this.selectedEntities.select(newEntity);
 		if (updateFieldValue) {
@@ -215,8 +150,26 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 		}
 	}
 
-	/** Do the deletion of the selected items in the list of selected
-	 * entities and put them back in the list of available entities.
+	/** Add the selected item in the list of available items into the list of selected entities.
+	 *
+	 * @param updateFieldValue indicates if the field component is notified
+	 *     about a value change. In other words, the function
+	 *     {@link #updateValue()} is invoked if this argument is evaluated
+	 *     to {@code true} and it is not invoked otherwise.
+	 */
+	protected void doAddition(boolean updateFieldValue) {
+		final var selection = this.availableEntities.getValue();
+		if (selection != null) {
+			this.selectedEntities.addEntity(selection);
+			// Clear the combo box selection
+			this.availableEntities.setValue(null);
+			if (updateFieldValue) {
+				updateValue();
+			}
+		}
+	}
+	
+	/** Remove the selected items in the list of selected entities.
 	 *
 	 * @param updateFieldValue indicates if the field component is notified
 	 *     about a value change. In other words, the function
@@ -224,30 +177,16 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 *     to {@code true} and it is not invoked otherwise.
 	 */
 	protected void doDeletion(boolean updateFieldValue) {
-		final var currentSelection = this.selectedEntities.getSelectedItems();
-		if (currentSelection != null && !currentSelection.isEmpty()) {
-			removeSelectedEntities(currentSelection);
-			this.availableEntities.select(currentSelection);
+		final var selection = this.selectedEntities.getSelectedItems();
+		if (selection != null) {
+			// Copy the selection for avoiding ConcurrentModificationException
+			for (final var entity : new ArrayList<>(selection)) {
+				this.selectedEntities.removeEntity(entity);
+			}
 			if (updateFieldValue) {
 				updateValue();
 			}
 		}
-	}
-
-	/** Change the label for the list of available entities.
-	 *
-	 * @param text the text.
-	 */
-	public void setAvailableEntityLabel(String text) {
-		this.availableEntityLabel.setText(text);
-	}
-
-	/** Change the label for the list of selected entities.
-	 *
-	 * @param text the text.
-	 */
-	public void setSelectedEntityLabel(String text) {
-		this.selectedEntityLabel.setText(text);
 	}
 
 	/** Change the tooltip of the insertion button.
@@ -255,7 +194,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 * @param text the text.
 	 */
 	public void setAdditionTooltip(String text) {
-		this.insertButton.setTooltipText(text);
+		this.insertButton.setAriaLabel(text);
 	}
 
 	/** Change the tooltip of the deletion button.
@@ -263,7 +202,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 * @param text the text.
 	 */
 	public void setDeletionTooltip(String text) {
-		this.deleteButton.setTooltipText(text);
+		this.deleteButton.setAriaLabel(text);
 	}
 
 	/** Change the tooltip of the creation button.
@@ -272,7 +211,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 */
 	public void setCreationTooltip(String text) {
 		if (this.additionButton != null) {
-			this.additionButton.setTooltipText(text);
+			this.additionButton.setAriaLabel(text);
 		}
 	}
 
@@ -291,12 +230,14 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 * It is recommended to have separate instances of renderer because a renderer may
 	 * be linked to the container component.
 	 *
-	 * @param leftRenderer the renderer for the list of available entities.
-	 * @param rightRenderer the renderer for the list of selected entities.
+	 * @param availableSelectedRenderer the renderer for the selected available entity in the combo box.
+	 * @param availableDropDownRenderer the renderer for the list of available entities in the drop-down box.
+	 * @param selectedListRenderer the renderer for the list of selected entities.
 	 */
-	public void setEntityRenderers(ComponentRenderer<? extends Component, T> leftRenderer, ComponentRenderer<? extends Component, T> rightRenderer) {
-		this.availableEntities.setRenderer(leftRenderer);
-		this.selectedEntities.setRenderer(rightRenderer);
+	public void setEntityRenderers(ItemLabelGenerator<T> availableSelectedRenderer, ComponentRenderer<? extends Component, T> availableDropDownRenderer, ComponentRenderer<? extends Component, T> selectedListRenderer) {
+		this.availableEntities.setItemLabelGenerator(availableSelectedRenderer);
+		this.availableEntities.setRenderer(availableDropDownRenderer);
+		this.selectedEntities.setRenderer(selectedListRenderer);
 	}
 
 	/** Change the list of items that are proposed as available.
@@ -304,23 +245,16 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 *
 	 * @param items the list of items.
 	 */
-	public void setAvailableEntities(Collection<T> items) {
-		if (items == null) {
-			this.originalAvailableEntities = new ArrayList<>();
-		} else {
-			this.originalAvailableEntities = new ArrayList<>(items);
-		}
-		this.availableEntities.setEntities(this.originalAvailableEntities);
+	public void setAvailableEntities(FetchCallback<T, String> items) {
+		this.availableEntities.setItems(items);
 	}
 
 	/** Clear the selected entities and put them back in the available entities.
 	 */
 	protected void clearSelectedEntities() {
-		this.availableEntities.deselectAll();
 		this.selectedEntities.deselectAll();
 		//
 		this.selectedEntities.clear();
-		this.availableEntities.setEntities(this.originalAvailableEntities);
 	}
 
 	/** Add the given items in the list of selected items.
@@ -331,21 +265,17 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 */
 	protected void addSelectedEntities(Set<T> entities) {
 		for (var entity : entities) {
-			if (this.availableEntities.removeEntity(entity)) {
-				this.selectedEntities.addEntity(entity);
-			}
+			this.selectedEntities.addEntity(entity);
 		}
 	}
 
-	/** rmeove the given items from the list of selected items.
+	/** Remove the given items from the list of selected items.
 	 *
 	 * @param entities the list of items to remove from the list of selected items.
 	 */
 	protected void removeSelectedEntities(Set<T> entities) {
 		for (var item : entities) {
-			if (this.selectedEntities.removeEntity(item)) {
-				this.availableEntities.addEntity(item);
-			}
+			this.selectedEntities.removeEntity(item);
 		}
 	}
 
@@ -379,23 +309,6 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 		addSelectedEntities(currentModelValue);
 	}
 
-	/** Change the filter on the available entities.
-	 * This filter is applied on the available entities when they are displayed in the 'left' list.
-	 *
-	 * @param filter the filter to apply or {@code null} to remove the filter.
-	 */
-	public void setFilter(SerializablePredicate<T> filter) {
-		this.availableEntities.setFilter(filter);
-	}
-
-	/** Refresh the list of available entities.
-	 *
-	 * @param filter the filter to add.
-	 */
-	public void refreshAvailableEntities() {
-		this.availableEntities.refreshAll();
-	}
-
 	/** Multi-selection list with empty set as empty value.
 	 * 
 	 * @param <T> the type of the edited entity.
@@ -407,7 +320,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 */
 	private static class EmptySetMultiSelectListBox<T> extends MultiSelectListBox<T> {
 
-		private static final long serialVersionUID = -5030533782286666677L;
+		private static final long serialVersionUID = 6939626675803601510L;
 
 		private final SerializableComparator<T> comparator;
 
@@ -457,21 +370,6 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 				return true;
 			}
 			return false;
-		}
-
-		/** Refresh the items in the list.
-		 */
-		public void refreshAll() {
-			getListDataView().refreshAll();
-		}
-
-		/** Change the filter on the available entities.
-		 * This filter is applied on the available entities when they are displayed in the 'left' list.
-		 *
-		 * @param filter the filter to apply or {@code null} to remove the filter.
-		 */
-		public void setFilter(SerializablePredicate<T> filter) {
-			getListDataView().setFilter(filter);
 		}
 
 		/** Change the entities that are inside the list.

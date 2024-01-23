@@ -20,16 +20,16 @@
 package fr.utbm.ciad.labmanager.services.organization;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
-import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @mavenartifactid $ArtifactId$
  */
 @Service
-public class OrganizationAddressService extends AbstractService {
+public class OrganizationAddressService extends AbstractEntityService<OrganizationAddress> {
 
 	private final OrganizationAddressRepository addressRepository;
 
@@ -271,17 +271,17 @@ public class OrganizationAddressService extends AbstractService {
 		final var id = Long.valueOf(identifier);
 		this.addressRepository.deleteById(id);
 	}
-	
 
-	/** Start the editing of the given address.
-	 *
-	 * @param address the address to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the address and its related resources.
-	 */
-	public EditingContext startEditing(OrganizationAddress address) {
+	@Override
+	public EntityEditingContext<OrganizationAddress> startEditing(OrganizationAddress address) {
 		assert address != null;
 		return new EditingContext(address);
+	}
+
+	@Override
+	public EntityDeletingContext<OrganizationAddress> startDeletion(Set<OrganizationAddress> addresses) {
+		assert addresses != null && !addresses.isEmpty();
+		return new DeletingContext(addresses);
 	}
 
 	/** Context for editing a {@link OrganizationAddress}.
@@ -294,65 +294,24 @@ public class OrganizationAddressService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityWithServerFilesEditingContext<OrganizationAddress> {
 
 		private static final long serialVersionUID = -9212082677199758148L;
 
 		private String pathToBackgroundImage;
-		
-		private long id;
-
-		private OrganizationAddress address;
 
 		/** Constructor.
 		 *
 		 * @param address the edited address.
 		 */
 		EditingContext(OrganizationAddress address) {
-			this.id = address.getId();
+			super(address);
 			this.pathToBackgroundImage = address.getPathToBackgroundImage();
-			this.address = address;
 		}
 
-		/** Replies the address.
-		 *
-		 * @return the address.
-		 */
-		public OrganizationAddress getAddress() {
-			return this.address;
-		}
-
-		/** Save the address in the JPA database.
-		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the address object that was provided before the saving.
-		 * Invoke {@link #getAddress()} for obtaining the new address
-		 * instance, since the content of the saved object may have totally changed.
-		 *
-		 * @param components list of components to update if the service detects an inconsistent value.
-		 * @throws IOException if files cannot be saved on the server.
-		 */
-		@Transactional
-		public void save(HasAsynchronousUploadService... components) throws IOException {
-			this.address = OrganizationAddressService.this.addressRepository.save(this.address);
-			// Save the uploaded file if needed.
-			if (this.id != this.address.getId()) {
-				// Special case where the field value does not corresponds to the correct path
-				deleteBackgroundImage(this.id);
-				for (final var component : components) {
-					component.updateValue();
-				}
-				this.address = OrganizationAddressService.this.addressRepository.save(this.address);
-			}
-			if (Strings.isNullOrEmpty(this.address.getPathToBackgroundImage())) {
-				deleteBackgroundImage(this.address.getId());
-			} else {
-				for (final var component : components) {
-					component.saveUploadedFileOnServer();
-				}
-			}
-			this.id = this.address.getId();
-			this.pathToBackgroundImage = this.address.getPathToBackgroundImage();
+		@Override
+		protected OrganizationAddress writeInJPA(OrganizationAddress entity, boolean initialSaving) {
+			return OrganizationAddressService.this.addressRepository.save(this.entity);
 		}
 
 		private void deleteBackgroundImage(long id) {
@@ -362,6 +321,57 @@ public class OrganizationAddressService extends AbstractService {
 					OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id, ext);
 				}
 			}
+		}
+
+		@Override
+		protected void deleteAssociatedFiles(long id) {
+			deleteBackgroundImage(id);
+		}
+
+		@Override
+		protected boolean prepareAssociatedFileUpload() {
+			if (Strings.isNullOrEmpty(this.entity.getPathToBackgroundImage())) {
+				deleteBackgroundImage(this.entity.getId());
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		protected void postProcessAssociatedFiles() {
+			this.pathToBackgroundImage = this.entity.getPathToBackgroundImage();
+		}
+
+		@Override
+		public EntityDeletingContext<OrganizationAddress> createDeletionContext() {
+			return OrganizationAddressService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link OrganizationAddress}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<OrganizationAddress> {
+
+		private static final long serialVersionUID = 8315627618389635135L;
+
+		/** Constructor.
+		 *
+		 * @param addresses the organization addresses to delete.
+		 */
+		protected DeletingContext(Set<OrganizationAddress> addresses) {
+			super(addresses);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			OrganizationAddressService.this.addressRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

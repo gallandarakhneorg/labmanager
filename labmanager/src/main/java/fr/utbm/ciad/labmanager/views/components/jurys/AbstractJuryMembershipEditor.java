@@ -31,7 +31,7 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipType;
 import fr.utbm.ciad.labmanager.data.jury.JuryType;
-import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -73,8 +73,6 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 
 	private ComboBox<JuryMembershipType> type;
 
-	private final EditingContext context;
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the jury membership.
@@ -82,15 +80,9 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractJuryMembershipEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractJuryMembershipEditor(EntityEditingContext<JuryMembership> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
-		super(JuryMembership.class, authenticatedUser, messages, logger, null, null);
-		this.context = context;
-	}
-
-	@Override
-	public JuryMembership getEditedEntity() {
-		return this.context.getJuryMembership();
+		super(JuryMembership.class, authenticatedUser, messages, logger, null, null, context);
 	}
 
 	@Override
@@ -136,7 +128,7 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 		content.add(this.country, 1);
 
 		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
+		this.descriptionDetails.setOpened(true);
 		rootContainer.add(this.descriptionDetails);
 
 		getEntityDataBinder().forField(this.title)
@@ -196,32 +188,39 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.context.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.jury_membership.save_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.jury_membership.save_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.jury_membership.validation_success", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.jury_membership.validation_success", //$NON-NLS-1$
-				getEditedEntity().getTitle()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.jury_membership.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getTitle());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.jury_membership.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.jury_membership.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.jury_membership.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getTitle(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.jury_membership.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.jury_membership.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
 	@Override

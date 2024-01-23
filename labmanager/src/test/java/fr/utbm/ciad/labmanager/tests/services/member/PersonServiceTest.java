@@ -56,6 +56,7 @@ import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.SorensenDicePersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,6 +83,8 @@ public class PersonServiceTest {
 
 	private Person pers3;
 
+	private SessionFactory sessionFactory;
+
 	private MessageSourceAccessor messages;
 
 	private PublicationRepository publicationRepository;
@@ -104,6 +107,7 @@ public class PersonServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.sessionFactory = mock(SessionFactory.class);
 		this.messages = mock(MessageSourceAccessor.class);
 		this.publicationRepository = mock(PublicationRepository.class);
 		this.authorshipRepository = mock(AuthorshipRepository.class);
@@ -115,7 +119,7 @@ public class PersonServiceTest {
 		this.nameParser = new DefaultPersonNameParser();
 		// Create a real comparator instance to be used in the test
 		this.nameComparator = new SorensenDicePersonNameComparator(this.nameParser);
-		this.test = new PersonService(this.messages, new Constants(), this.publicationRepository, this.authorshipRepository, this.personRepository,
+		this.test = new PersonService(this.messages, new Constants(), this.sessionFactory, this.publicationRepository, this.authorshipRepository, this.personRepository,
 				this.googlePlatfom, this.scopusPlatfom, this.wosPlatfom, this.nameParser, this.nameComparator);
 
 		// Prepare some persons to be inside the repository

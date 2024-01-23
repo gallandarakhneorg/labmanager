@@ -20,7 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.memberships;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.MembershipService.EditingContext;
+import fr.utbm.ciad.labmanager.data.member.Membership;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -47,7 +48,7 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedMembershipEditor(EditingContext context,
+	public EmbeddedMembershipEditor(EntityEditingContext<Membership> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();

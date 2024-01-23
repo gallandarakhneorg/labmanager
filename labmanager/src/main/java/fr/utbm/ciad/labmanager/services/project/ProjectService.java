@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.services.project;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,9 +58,8 @@ import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
 import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
 import fr.utbm.ciad.labmanager.data.project.Role;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
-import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -82,7 +80,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Service for the research projects.
@@ -97,7 +94,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @since 3.0
  */
 @Service
-public class ProjectService extends AbstractService {
+public class ProjectService extends AbstractEntityService<Project> {
 
 	private ProjectRepository projectRepository;
 
@@ -1264,15 +1261,16 @@ public class ProjectService extends AbstractService {
 		return Optional.empty();
 	}
 
-	/** Start the editing of the given project.
-	 *
-	 * @param project the project to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the project and its related resources.
-	 */
-	public EditingContext startEditing(Project project) {
+	@Override
+	public EntityEditingContext<Project> startEditing(Project project) {
 		assert project != null;
 		return new EditingContext(project);
+	}
+
+	@Override
+	public EntityDeletingContext<Project> startDeletion(Set<Project> projects) {
+		assert projects != null && !projects.isEmpty();
+		return new DeletingContext(projects);
 	}
 
 	/** Specification that i validating public project.
@@ -1310,7 +1308,7 @@ public class ProjectService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityWithServerFilesEditingContext<Project> {
 		
 		private static final long serialVersionUID = 9099829302259658470L;
 
@@ -1323,96 +1321,23 @@ public class ProjectService extends AbstractService {
 		private String pathToRequirements;
 
 		private List<String> pathsToImages;
-		
-		private long id;
-
-		private Project project;
 
 		/** Constructor.
 		 *
 		 * @param project the edited project.
 		 */
-		EditingContext(Project project) {
-			this.id = project.getId();
+		protected EditingContext(Project project) {
+			super(project);
 			this.pathToLogo = project.getPathToLogo();
 			this.pathToPpt = project.getPathToPowerpoint();
 			this.pathToPressDoc = project.getPathToPressDocument();
 			this.pathToRequirements = project.getPathToScientificRequirements();
 			this.pathsToImages = new ArrayList<>(project.getPathsToImages());
-			this.project = project;
 		}
 
-		/** Replies the project.
-		 *
-		 * @return the project.
-		 */
-		public Project getProject() {
-			return this.project;
-		}
-
-		/** Save the project in the JPA database.
-		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the project object that was provided before the saving.
-		 * Invoke {@link #getProject()} for obtaining the new project
-		 * instance, since the content of the saved object may have totally changed.
-		 *
-		 * @param components list of components to update if the service detects an inconsistent value.
-		 * @throws IOException if files cannot be saved on the server.
-		 */
-		@Transactional
-		public void save(HasAsynchronousUploadService... components) throws IOException {
-			this.project = ProjectService.this.projectRepository.save(this.project);
-			// Save the uploaded file if needed.
-			if (this.id != this.project.getId()) {
-				// Special case where the field value does not corresponds to the correct path
-				deleteLogo(this.id);
-				deletePpt(this.id);
-				deletePressDocument(this.id);
-				deleteRequirements(this.id);
-				deleteImages(this.id);
-				for (final var component : components) {
-					component.updateValue();
-				}
-				this.project = ProjectService.this.projectRepository.save(this.project);
-			}
-			var uploaded = false;
-			if (Strings.isNullOrEmpty(this.project.getPathToLogo())) {
-				deleteLogo(this.project.getId());
-			} else {
-				uploaded = true;
-			}
-			if (Strings.isNullOrEmpty(this.project.getPathToPowerpoint())) {
-				deletePpt(this.project.getId());
-			} else {
-				uploaded = true;
-			}
-			if (Strings.isNullOrEmpty(this.project.getPathToPressDocument())) {
-				deletePressDocument(this.project.getId());
-			} else {
-				uploaded = true;
-			}
-			if (Strings.isNullOrEmpty(this.project.getPathToScientificRequirements())) {
-				deleteRequirements(this.project.getId());
-			} else {
-				uploaded = true;
-			}
-			if (this.project.getPathsToImages().isEmpty()) {
-				deleteImages(this.project.getId());
-			} else {
-				uploaded = true;
-			}
-			if (uploaded) {
-				for (final var component : components) {
-					component.saveUploadedFileOnServer();
-				}
-			}
-			this.id = this.project.getId();
-			this.pathToLogo = this.project.getPathToLogo();
-			this.pathToPpt = this.project.getPathToPowerpoint();
-			this.pathToPressDoc = this.project.getPathToPressDocument();
-			this.pathToRequirements = this.project.getPathToScientificRequirements();
-			this.pathsToImages = new ArrayList<>(this.project.getPathsToImages());
+		@Override
+		protected Project writeInJPA(Project entity, boolean initialSaving) {
+			return ProjectService.this.projectRepository.save(entity);
 		}
 
 		private void deleteLogo(long id) {
@@ -1449,6 +1374,87 @@ public class ProjectService extends AbstractService {
 					ProjectService.this.fileManager.deleteProjectImage(id, i, ext);
 				}
 			}
+		}
+
+		@Override
+		protected void deleteAssociatedFiles(long id) {
+			deleteLogo(id);
+			deletePpt(id);
+			deletePressDocument(id);
+			deleteRequirements(id);
+			deleteImages(id);
+		}
+
+		@Override
+		protected boolean prepareAssociatedFileUpload() {
+			boolean uploaded = false;
+			if (Strings.isNullOrEmpty(this.entity.getPathToLogo())) {
+				deleteLogo(this.entity.getId());
+			} else {
+				uploaded = true;
+			}
+			if (Strings.isNullOrEmpty(this.entity.getPathToPowerpoint())) {
+				deletePpt(this.entity.getId());
+			} else {
+				uploaded = true;
+			}
+			if (Strings.isNullOrEmpty(this.entity.getPathToPressDocument())) {
+				deletePressDocument(this.entity.getId());
+			} else {
+				uploaded = true;
+			}
+			if (Strings.isNullOrEmpty(this.entity.getPathToScientificRequirements())) {
+				deleteRequirements(this.entity.getId());
+			} else {
+				uploaded = true;
+			}
+			if (this.entity.getPathsToImages().isEmpty()) {
+				deleteImages(this.entity.getId());
+			} else {
+				uploaded = true;
+			}
+			return uploaded;
+		}
+
+		@Override
+		protected void postProcessAssociatedFiles() {
+			this.pathToLogo = this.entity.getPathToLogo();
+			this.pathToPpt = this.entity.getPathToPowerpoint();
+			this.pathToPressDoc = this.entity.getPathToPressDocument();
+			this.pathToRequirements = this.entity.getPathToScientificRequirements();
+			this.pathsToImages = new ArrayList<>(this.entity.getPathsToImages());
+		}
+
+		@Override
+		public EntityDeletingContext<Project> createDeletionContext() {
+			return ProjectService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Project}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Project> {
+
+		private static final long serialVersionUID = 6324590159133960145L;
+
+		/** Constructor.
+		 *
+		 * @param projects the projects to delete.
+		 */
+		protected DeletingContext(Set<Project> projects) {
+			super(projects);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			ProjectService.this.projectRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

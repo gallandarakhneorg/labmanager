@@ -20,9 +20,9 @@
 package fr.utbm.ciad.labmanager.services.teaching;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,8 +38,7 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
-import fr.utbm.ciad.labmanager.services.AbstractService;
-import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -62,7 +61,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @since 3.4
  */
 @Service
-public class TeachingService extends AbstractService {
+public class TeachingService extends AbstractEntityService<TeachingActivity> {
 
 	private TeachingActivityRepository teachingActivityRepository;
 
@@ -385,15 +384,16 @@ public class TeachingService extends AbstractService {
 		return !this.teachingActivityRepository.findDistinctByPersonId(Long.valueOf(id)).isEmpty();
 	}
 
-	/** Start the editing of the given teaching activity.
-	 *
-	 * @param activity the teaching activity to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the teaching activity and its related resources.
-	 */
-	public EditingContext startEditing(TeachingActivity activity) {
+	@Override
+	public EntityEditingContext<TeachingActivity> startEditing(TeachingActivity activity) {
 		assert activity != null;
 		return new EditingContext(activity);
+	}
+
+	@Override
+	public EntityDeletingContext<TeachingActivity> startDeletion(Set<TeachingActivity> entities) {
+		assert entities != null && !entities.isEmpty();
+		return new DeletingContext(entities);
 	}
 
 	/** Context for editing a {@link TeachingActivity}.
@@ -406,71 +406,81 @@ public class TeachingService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityWithServerFilesEditingContext<TeachingActivity> {
 
 		private static final long serialVersionUID = -7122364187938515699L;
 		
 		private String pathToSlides;
-		
-		private long id;
-
-		private TeachingActivity teachingActivity;
 
 		/** Constructor.
 		 *
 		 * @param activity the edited teaching activity.
 		 */
-		EditingContext(TeachingActivity activity) {
-			this.id = activity.getId();
+		protected EditingContext(TeachingActivity activity) {
+			super(activity);
 			this.pathToSlides = activity.getPathToSlides();
-			this.teachingActivity = activity;
 		}
 
-		/** Replies the teaching activity.
-		 *
-		 * @return the teaching activity.
-		 */
-		public TeachingActivity getTeachingActivity() {
-			return this.teachingActivity;
-		}
-
-		/** Save the teaching activity in the JPA database.
-		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the teaching activity object that was provided before the saving.
-		 * Invoke {@link #getTeachingActivity()} for obtaining the new activity
-		 * instance, since the content of the saved object may have totally changed.
-		 *
-		 * @param components list of components to update if the service detects an inconsistent value.
-		 * @throws IOException if files cannot be saved on the server.
-		 */
-		@Transactional
-		public void save(HasAsynchronousUploadService... components) throws IOException {
-			this.teachingActivity = TeachingService.this.teachingActivityRepository.save(this.teachingActivity);
-			// Save the uploaded file if needed.
-			if (this.id != this.teachingActivity.getId()) {
-				// Special case where the field value does not corresponds to the correct path
-				deleteSlides(this.id);
-				for (final var component : components) {
-					component.updateValue();
-				}
-				this.teachingActivity = TeachingService.this.teachingActivityRepository.save(this.teachingActivity);
-			}
-			if (Strings.isNullOrEmpty(this.teachingActivity.getPathToSlides())) {
-				deleteSlides(this.teachingActivity.getId());
-			} else {
-				for (final var component : components) {
-					component.saveUploadedFileOnServer();
-				}
-			}
-			this.id = this.teachingActivity.getId();
-			this.pathToSlides = this.teachingActivity.getPathToSlides();
+		@Override
+		protected TeachingActivity writeInJPA(TeachingActivity entity, boolean initialSaving) {
+			return TeachingService.this.teachingActivityRepository.save(this.entity);
 		}
 
 		private void deleteSlides(long id) {
 			if (!Strings.isNullOrEmpty(this.pathToSlides)) {
 				TeachingService.this.fileManager.deleteTeachingActivitySlides(id);
 			}
+		}
+
+		@Override
+		protected void deleteAssociatedFiles(long id) {
+			deleteSlides(id);
+		}
+
+		@Override
+		protected boolean prepareAssociatedFileUpload() {
+			if (Strings.isNullOrEmpty(this.entity.getPathToSlides())) {
+				deleteSlides(this.entity.getId());
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		protected void postProcessAssociatedFiles() {
+			this.pathToSlides = this.entity.getPathToSlides();
+		}
+
+		@Override
+		public EntityDeletingContext<TeachingActivity> createDeletionContext() {
+			return TeachingService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link TeachingActivity}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<TeachingActivity> {
+
+		private static final long serialVersionUID = 7902434669050350824L;
+
+		/** Constructor.
+		 *
+		 * @param activities the teaching activities to delete.
+		 */
+		protected DeletingContext(Set<TeachingActivity> activities) {
+			super(activities);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			TeachingService.this.teachingActivityRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

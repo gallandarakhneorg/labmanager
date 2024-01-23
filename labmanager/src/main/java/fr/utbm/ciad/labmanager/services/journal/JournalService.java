@@ -19,14 +19,17 @@
 
 package fr.utbm.ciad.labmanager.services.journal;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,7 +40,9 @@ import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaperRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.io.network.NetConnection;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
@@ -45,6 +50,8 @@ import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -63,9 +70,11 @@ import org.springframework.transaction.annotation.Transactional;
  * @mavenartifactid $ArtifactId$
  */
 @Service
-public class JournalService extends AbstractService {
+public class JournalService extends AbstractEntityService<Journal> {
 
 	private static final String NOT_RANKED_STR = "--"; //$NON-NLS-1$
+
+	private final SessionFactory sessionFactory;
 	
 	private final JournalRepository journalRepository;
 
@@ -84,6 +93,7 @@ public class JournalService extends AbstractService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param journalRepository the journal repository.
 	 * @param indicatorRepository the repository for journal indicators.
 	 * @param publicationRepository the publication repository.
@@ -94,6 +104,7 @@ public class JournalService extends AbstractService {
 	public JournalService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository indicatorRepository,
 			@Autowired JournalPaperRepository publicationRepository,
@@ -101,6 +112,7 @@ public class JournalService extends AbstractService {
 			@Autowired WebOfSciencePlatform wos,
 			@Autowired NetConnection netConnection) {
 		super(messages, constants);
+		this.sessionFactory = sessionFactory;
 		this.journalRepository = journalRepository;
 		this.indicatorRepository = indicatorRepository;
 		this.publicationRepository = publicationRepository;
@@ -166,6 +178,24 @@ public class JournalService extends AbstractService {
 	 * @since 4.0
 	 */
 	public Page<Journal> getAllJournals(Pageable pageable, Specification<Journal> filter) {
+		return getAllJournals(pageable, filter, null);
+	}
+
+	/** Replies all the journals for the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of journals.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of journals.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<Journal> getAllJournals(Pageable pageable, Specification<Journal> filter, Consumer<Journal> callback) {
+		if (callback != null) {
+			final var page = this.journalRepository.findAll(filter, pageable);
+			page.forEach(callback);
+			return page;
+		}
 		return this.journalRepository.findAll(filter, pageable);
 	}
 
@@ -688,15 +718,33 @@ public class JournalService extends AbstractService {
 		}
 	}
 
-	/** Start the editing of the given journal.
-	 *
-	 * @param journal the journal to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the journal and its related resources.
-	 */
-	public EditingContext startEditing(Journal journal) {
+	@Override
+	public EntityEditingContext<Journal> startEditing(Journal journal) {
 		assert journal != null;
+		// Force loading of the quality indicators that may be edited at the same time as the rest of the journal properties
+		try (final var session = this.sessionFactory.openSession()) {
+			if (journal.getId() != 0l) {
+				session.load(journal, Long.valueOf(journal.getId()));
+				Hibernate.initialize(journal.getQualityIndicators());
+			}
+		}
 		return new EditingContext(journal);
+	}
+
+	@Override
+	public EntityDeletingContext<Journal> startDeletion(Set<Journal> journals) {
+		assert journals != null && !journals.isEmpty();
+		// Force loading of the memberships and authorships
+		try (final var session = this.sessionFactory.openSession()) {
+			for (final var journal : journals) {
+				if (journal.getId() != 0l) {
+					session.load(journal, Long.valueOf(journal.getId()));
+					Hibernate.initialize(journal.getPublishedPapers());
+					Hibernate.initialize(journal.getQualityIndicators());
+				}
+			}
+		}
+		return new DeletingContext(journals);
 	}
 
 	/** Context for editing a {@link Journal}.
@@ -709,38 +757,75 @@ public class JournalService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<Journal> {
 		
 		private static final long serialVersionUID = 2080175605368803970L;
-
-		private Journal journal;
 
 		/** Constructor.
 		 *
 		 * @param journal the edited journal.
 		 */
-		EditingContext(Journal journal) {
-			this.journal = journal;
+		protected EditingContext(Journal journal) {
+			super(journal);
 		}
 
-		/** Replies the journal.
-		 *
-		 * @return the journal.
-		 */
-		public Journal getJournal() {
-			return this.journal;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = JournalService.this.journalRepository.save(this.entity);
 		}
 
-		/** Save the journal in the JPA database.
+		@Override
+		public EntityDeletingContext<Journal> createDeletionContext() {
+			return JournalService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Journal}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Journal> {
+
+		private static final long serialVersionUID = 5770454626785229791L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the journal object that was provided before the saving.
-		 * Invoke {@link #getJournal()} for obtaining the new journal
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param journals the journals to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.journal = JournalService.this.journalRepository.save(this.journal);
+		protected DeletingContext(Set<Journal> journals) {
+			super(journals);
+		}
+
+		@Override
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getPublishedPapers().isEmpty()) {
+					return JournalDeletionStatus.ARTICLE;
+				}
+			}
+			return DeletionStatus.OK;
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			// Remove the quality indicators
+			final List<Journal> updatedJournals = new ArrayList<>();
+			for (final var journal : getEntities())  {
+				if (!journal.getQualityIndicators().isEmpty()) {
+					journal.getQualityIndicators().clear();
+					updatedJournals.add(journal);
+				}
+			}
+			if (!updatedJournals.isEmpty()) {
+				JournalService.this.journalRepository.saveAllAndFlush(updatedJournals);
+			}
+			//
+			JournalService.this.journalRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

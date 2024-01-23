@@ -36,12 +36,13 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.services.journal.JournalService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.ranking.JournalAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -90,7 +91,7 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 
 	private TextField scimagoCategory;
 
-	private final EditingContext context;
+	private JournalAnnualRankingField rankings;
 
 	/** Constructor.
 	 *
@@ -99,17 +100,12 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractJournalEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractJournalEditor(EntityEditingContext<Journal> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
 		super(Journal.class, authenticatedUser, messages, logger,
 				"views.journals.administration_details", //$NON-NLS-1$
-				"views.journals.administration.validated_organization"); //$NON-NLS-1$
-		this.context = context;
-	}
-
-	@Override
-	public Journal getEditedEntity() {
-		return this.context.getJournal();
+				"views.journals.administration.validated_organization", //$NON-NLS-1$
+				context);
 	}
 
 	@Override
@@ -149,7 +145,7 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		content.add(this.journalUrl, 2);
 
 		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
+		this.descriptionDetails.setOpened(true);
 		rootContainer.add(this.descriptionDetails);
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
@@ -261,6 +257,9 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		this.scimagoCategory.setPrefixComponent(VaadinIcon.FILE_TREE_SMALL.create());
 		this.scimagoCategory.setClearButtonVisible(true);
 		content.add(this.scimagoCategory, 2);
+		
+		this.rankings = new JournalAnnualRankingField();
+		content.add(this.rankings, 2);
 
 		this.rankingDetails = new Details("", content); //$NON-NLS-1$
 		this.rankingDetails.setOpened(false);
@@ -278,35 +277,44 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		getEntityDataBinder().forField(this.scimagoCategory)
 			.withConverter(new StringTrimer())
 			.bind(Journal::getScimagoCategory, Journal::setScimagoCategory);
+		getEntityDataBinder().forField(this.rankings)
+			.bind(Journal::getQualityIndicators, Journal::setQualityIndicators);
 	}
 
 	@Override
-	protected void doSave() throws Exception {
-		this.context.save();
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.journals.save_success", //$NON-NLS-1$
+				getEditedEntity().getJournalName());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.journals.save_success", //$NON-NLS-1$
-				getEditedEntity().getJournalName()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.journals.validation_success", //$NON-NLS-1$
+				getEditedEntity().getJournalName());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.journals.validation_success", //$NON-NLS-1$
-				getEditedEntity().getJournalName()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.journals.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getJournalName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.journals.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getJournalName(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.journals.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getJournalName(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.journals.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getJournalName(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.journals.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getJournalName(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.journals.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getJournalName(), error.getLocalizedMessage());
 	}
 
 	@Override
@@ -329,6 +337,8 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		this.scimagoId.setHelperText(getTranslation("views.journals.scimago.id.help")); //$NON-NLS-1$
 		this.scimagoCategory.setLabel(getTranslation("views.journals.scimago.category")); //$NON-NLS-1$
 		this.scimagoCategory.setHelperText(getTranslation("views.journals.scimago.category.help")); //$NON-NLS-1$
+		this.rankings.setLabel(getTranslation("views.journals.rankings")); //$NON-NLS-1$
+		this.rankings.setHelperText(getTranslation("views.journals.rankings.help")); //$NON-NLS-1$
 
 		this.publisherDetails.setSummaryText(getTranslation("views.journals.publisher_informations")); //$NON-NLS-1$
 		this.publisherName.setLabel(getTranslation("views.journals.publisher_name")); //$NON-NLS-1$

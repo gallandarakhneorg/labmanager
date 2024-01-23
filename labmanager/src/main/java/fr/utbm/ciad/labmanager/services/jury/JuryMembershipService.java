@@ -19,10 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.jury;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
@@ -30,8 +32,9 @@ import fr.utbm.ciad.labmanager.data.jury.JuryMembershipRepository;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipType;
 import fr.utbm.ciad.labmanager.data.jury.JuryType;
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
@@ -52,7 +55,7 @@ import org.springframework.stereotype.Service;
  * @since 2.0
  */
 @Service
-public class JuryMembershipService extends AbstractService {
+public class JuryMembershipService extends AbstractEntityService<JuryMembership> {
 
 	private JuryMembershipRepository membershipRepository;
 
@@ -299,15 +302,16 @@ public class JuryMembershipService extends AbstractService {
 				|| !this.membershipRepository.findAllByPromotersId(id).isEmpty();
 	}
 
-	/** Start the editing of the given jury membership.
-	 *
-	 * @param jury the jury membership to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the jury membership and its related resources.
-	 */
-	public EditingContext startEditing(JuryMembership jury) {
+	@Override
+	public EntityEditingContext<JuryMembership> startEditing(JuryMembership jury) {
 		assert jury != null;
 		return new EditingContext(jury);
+	}
+
+	@Override
+	public EntityDeletingContext<JuryMembership> startDeletion(Set<JuryMembership> memberships) {
+		assert memberships != null && !memberships.isEmpty();
+		return new DeletingContext(memberships);
 	}
 
 	/** Context for editing a {@link JuryMembership}.
@@ -320,38 +324,53 @@ public class JuryMembershipService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<JuryMembership> {
 
 		private static final long serialVersionUID = 4365799320652677325L;
-
-		private JuryMembership jury;
 
 		/** Constructor.
 		 *
 		 * @param jury the edited jury membership.
 		 */
-		EditingContext(JuryMembership jury) {
-			this.jury = jury;
+		protected EditingContext(JuryMembership jury) {
+			super(jury);
 		}
 
-		/** Replies the jury membership.
-		 *
-		 * @return the jury membership.
-		 */
-		public JuryMembership getJuryMembership() {
-			return this.jury;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = JuryMembershipService.this.membershipRepository.save(this.entity);
 		}
 
-		/** Save the jury membership in the JPA database.
+		@Override
+		public EntityDeletingContext<JuryMembership> createDeletionContext() {
+			return JuryMembershipService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link JuryMembership}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<JuryMembership> {
+
+		private static final long serialVersionUID = -638689738898684619L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the jury membership object that was provided before the saving.
-		 * Invoke {@link #getJuryMembership()} for obtaining the new jury membership
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param memberships the jury memberships to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.jury = JuryMembershipService.this.membershipRepository.save(this.jury);
+		protected DeletingContext(Set<JuryMembership> memberships) {
+			super(memberships);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			JuryMembershipService.this.membershipRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

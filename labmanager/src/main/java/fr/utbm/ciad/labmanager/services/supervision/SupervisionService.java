@@ -19,11 +19,13 @@
 
 package fr.utbm.ciad.labmanager.services.supervision;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
@@ -31,8 +33,9 @@ import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionRepository;
 import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisorRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +55,7 @@ import org.springframework.stereotype.Service;
  * @since 2.0.0
  */
 @Service
-public class SupervisionService extends AbstractService {
+public class SupervisionService extends AbstractEntityService<Supervision> {
 
 	private SupervisionRepository supervisionRepository;
 
@@ -340,15 +343,16 @@ public class SupervisionService extends AbstractService {
 				|| !!this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(id)).isEmpty();
 	}
 
-	/** Start the editing of the given supervision.
-	 *
-	 * @param supervision the supervision to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the supervision and its related resources.
-	 */
-	public EditingContext startEditing(Supervision supervision) {
+	@Override
+	public EntityEditingContext<Supervision> startEditing(Supervision supervision) {
 		assert supervision != null;
 		return new EditingContext(supervision);
+	}
+
+	@Override
+	public EntityDeletingContext<Supervision> startDeletion(Set<Supervision> entities) {
+		assert entities != null && !entities.isEmpty();
+		return new DeletingContext(entities);
 	}
 
 	/** Context for editing a {@link Supervision}.
@@ -361,38 +365,53 @@ public class SupervisionService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<Supervision> {
 
 		private static final long serialVersionUID = 34682604000233262L;
-
-		private Supervision supervision;
 
 		/** Constructor.
 		 *
 		 * @param supervision the edited supervision.
 		 */
-		EditingContext(Supervision supervision) {
-			this.supervision = supervision;
+		protected EditingContext(Supervision supervision) {
+			super(supervision);
 		}
 
-		/** Replies the supervision.
-		 *
-		 * @return the supervision.
-		 */
-		public Supervision getSupervision() {
-			return this.supervision;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = SupervisionService.this.supervisionRepository.save(this.entity);
 		}
 
-		/** Save the supervision in the JPA database.
+		@Override
+		public EntityDeletingContext<Supervision> createDeletionContext() {
+			return SupervisionService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Supervision}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Supervision> {
+
+		private static final long serialVersionUID = -7704741024661753059L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the supervision object that was provided before the saving.
-		 * Invoke {@link #getSupervision()} for obtaining the new supervision
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param supervisions the supervisions to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.supervision = SupervisionService.this.supervisionRepository.save(this.supervision);
+		protected DeletingContext(Set<Supervision> supervisions) {
+			super(supervisions);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			SupervisionService.this.supervisionRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

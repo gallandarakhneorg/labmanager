@@ -64,7 +64,8 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
-import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -163,7 +164,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 	private final Binder<User> userBinder = new Binder<>(User.class);
 
-	private final EditingContext userContext;
+	private final UserEditingContext userContext;
 
 	/** Constructor.
 	 *
@@ -172,11 +173,13 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractPersonEditor(EditingContext userContext,
+	public AbstractPersonEditor(
+			UserEditingContext userContext,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(Person.class, authenticatedUser, messages, logger,
 				"views.persons.administration_details", //$NON-NLS-1$
-				"views.persons.administration.validated_person"); //$NON-NLS-1$
+				"views.persons.administration.validated_person", //$NON-NLS-1$
+				userContext.getPersonContext());
 		this.userContext = userContext;
 	}
 
@@ -230,11 +233,6 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		getUserDataBinder().setBean(getEditedUser());
 	}
 
-	@Override
-	public Person getEditedEntity() {
-		return this.userContext.getPersonContext().getPerson();
-	}
-
 	/** Replies the user associated to the {@link #getEditedEntity() edited person} which is shown and edited by this view.
 	 * The provided user may be not a valid JPA entity since it was not yet saved in the database.
 	 *
@@ -265,29 +263,54 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 			}
 		}
 	}
-
+	
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.persons.save_success", //$NON-NLS-1$
-				getEditedEntity().getFullName()));
+	protected void doDelete(EntityDeletingContext<Person> deletionContext) throws Exception {
+		if (this.userContext.deletePersonAndUser(deletionContext)) {
+			final var auser = getAuthenticatedUser();
+			if (auser != null && auser.get() != null && auser.get().isPresent()) {
+				final var loggedUser = auser.get().get();
+				if (loggedUser.getPerson().getId() == getEditedEntity().getId()) {
+					notifyAuthenticatedUserChange();
+				}
+			}
+		}
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.persons.validation_success", //$NON-NLS-1$
-				getEditedEntity().getFullName()));
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.persons.save_success", //$NON-NLS-1$
+				getEditedEntity().getFullName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.persons.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getFullName(), error.getLocalizedMessage()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.persons.validation_success", //$NON-NLS-1$
+				getEditedEntity().getFullName());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.persons.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getFullName(), error.getLocalizedMessage()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.persons.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getFullName());
+	}
+
+	@Override
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.persons.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getFullName(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.persons.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getFullName(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.persons.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getFullName(), error.getLocalizedMessage());
 	}
 
 	private void updatePhoto() {
@@ -356,7 +379,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		updatePhoto();
 		
 		this.personalInformationDetails = new DetailsWithErrorMark(content);
-		this.personalInformationDetails.setOpened(false);
+		this.personalInformationDetails.setOpened(true);
 		receiver.add(this.personalInformationDetails);
 		
 		getEntityDataBinder().forField(this.lastname)

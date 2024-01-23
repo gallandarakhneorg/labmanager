@@ -35,7 +35,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.names.OrganizationNameComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -50,7 +50,7 @@ import org.springframework.stereotype.Service;
  * @since 3.2
  */
 @Service
-public class OrganizationMergingService extends AbstractService {
+public class OrganizationMergingService extends AbstractEntityService<ResearchOrganization> {
 
 	private final ResearchOrganizationService organizationService;
 
@@ -198,8 +198,9 @@ public class OrganizationMergingService extends AbstractService {
 				var lchange = reassignOrganizationMemberships(source, target);
 				lchange = reassignProjects(source, target) || lchange;
 				lchange = reassignAssociatedStructures(source, target) || lchange;
-				this.organizationService.removeResearchOrganization(source.getId());
-				changed = changed || lchange;
+				throw new IllegalStateException();
+				//TODO this.organizationService.removeResearchOrganization(source.getId());
+				//TODO changed = changed || lchange;
 			}
 		}
 		if (changed) {
@@ -321,6 +322,16 @@ public class OrganizationMergingService extends AbstractService {
 		}
 		//
 		return structureChanged || holderChanged;
+	}
+
+	@Override
+	public EntityEditingContext<ResearchOrganization> startEditing(ResearchOrganization entity) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> entities) {
+		throw new UnsupportedOperationException();
 	}
 
 	/** Callback that is invoked when building the list of duplicate organizations.

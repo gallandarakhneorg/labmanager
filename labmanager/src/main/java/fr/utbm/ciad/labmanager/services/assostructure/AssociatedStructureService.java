@@ -19,12 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.assostructure;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
@@ -36,7 +38,8 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -44,7 +47,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /** Service for the associated structures.
  * 
@@ -55,7 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.2
  */
 @Service
-public class AssociatedStructureService extends AbstractService {
+public class AssociatedStructureService extends AbstractEntityService<AssociatedStructure> {
 
 	private AssociatedStructureRepository structureRepository;
 
@@ -92,23 +94,6 @@ public class AssociatedStructureService extends AbstractService {
 		return null;
 	}
 
-	/** Remove the associated structure with the given identifier.
-	 *
-	 * @param identifier the identifier of the structure to remove.
-	 */
-	public void removeAssociatedStructure(long identifier) {
-		final var id = Long.valueOf(identifier);
-		final var structureOpt = this.structureRepository.findById(Long.valueOf(identifier));
-		if (structureOpt.isPresent()) {
-			final var structure = structureOpt.get();
-			//
-			structure.setFundingOrganization(null);
-			structure.setHolders(null);
-			structure.setType((AssociatedStructureType) null);
-			this.structureRepository.deleteById(id);
-		}
-	}
-
 	/** Create an associated structure.
 	 *
 	 * @param validated indicates if the structure is validated by a local authority.
@@ -135,13 +120,6 @@ public class AssociatedStructureService extends AbstractService {
 					fundingOrganization, holders, description, budget, projects, confidential);
 		} catch (Throwable ex) {
 			// Delete created structure
-			if (structure.getId() != 0) {
-				try {
-					removeAssociatedStructure(structure.getId());
-				} catch (Throwable ex0) {
-					// Silent
-				}
-			}
 			getLogger().error(ex.getLocalizedMessage(), ex);
 			throw ex;
 		}
@@ -379,15 +357,16 @@ public class AssociatedStructureService extends AbstractService {
 		return !getAssociatedStructuresByPersonId(id).isEmpty();
 	}
 
-	/** Start the editing of the given associated structure.
-	 *
-	 * @param structure the associated structure to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the associated structure and its related resources.
-	 */
-	public EditingContext startEditing(AssociatedStructure structure) {
+	@Override
+	public EntityEditingContext<AssociatedStructure> startEditing(AssociatedStructure structure) {
 		assert structure != null;
 		return new EditingContext(structure);
+	}
+
+	@Override
+	public EntityDeletingContext<AssociatedStructure> startDeletion(Set<AssociatedStructure> structures) {
+		assert structures != null && !structures.isEmpty();
+		return new DeletingContext(structures);
 	}
 
 	/** Context for editing a {@link AssociatedStructure}.
@@ -400,38 +379,53 @@ public class AssociatedStructureService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<AssociatedStructure> {
 
 		private static final long serialVersionUID = -7800294119864189541L;
-
-		private AssociatedStructure structure;
 
 		/** Constructor.
 		 *
 		 * @param structure the edited associated structure.
 		 */
-		EditingContext(AssociatedStructure structure) {
-			this.structure = structure;
+		protected EditingContext(AssociatedStructure structure) {
+			super(structure);
 		}
 
-		/** Replies the associated structure.
-		 *
-		 * @return the associated structure.
-		 */
-		public AssociatedStructure getAssociatedStructure() {
-			return this.structure;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = AssociatedStructureService.this.structureRepository.save(this.entity);
 		}
 
-		/** Save the associated structure in the JPA database.
+		@Override
+		public EntityDeletingContext<AssociatedStructure> createDeletionContext() {
+			return AssociatedStructureService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link AssociatedStructure}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<AssociatedStructure> {
+
+		private static final long serialVersionUID = -6135693755795081567L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the associated structure object that was provided before the saving.
-		 * Invoke {@link #getAssociatedStructure()} for obtaining the new structure
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param structures the associated structures to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.structure = AssociatedStructureService.this.structureRepository.save(this.structure);
+		protected DeletingContext(Set<AssociatedStructure> structures) {
+			super(structures);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			AssociatedStructureService.this.structureRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

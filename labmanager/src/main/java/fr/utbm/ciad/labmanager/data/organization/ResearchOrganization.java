@@ -153,12 +153,12 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
         joinColumns = { @JoinColumn(name = "superorganization_id") }, 
         inverseJoinColumns = { @JoinColumn(name = "suborganization_id") }
     )
-	private Set<ResearchOrganization> subOrganizations = new HashSet<>();
+	private Set<ResearchOrganization> subOrganizations;
 
 	/** Reference to the super organizations.
 	 */
 	@ManyToMany(mappedBy = "subOrganizations", fetch = FetchType.EAGER)
-	private Set<ResearchOrganization> superOrganizations = new HashSet<>();
+	private Set<ResearchOrganization> superOrganizations;
 
 	/** References to the postal addresses of the organization.
 	 */
@@ -385,38 +385,55 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 * @return the set of super organizations.
 	 */
 	public Set<ResearchOrganization> getSuperOrganizations() {
+		if (this.superOrganizations == null) {
+			this.superOrganizations = new HashSet<>();
+		}
 		return this.superOrganizations;
 	}
 
-	/** Change the super organizations.
+	/** Change the super organizations. This function does not change the set
+	 * of suborganizations of the provided super organizations.
 	 *
-	 * @param set the set of super organizations.
+	 * @param newSuperOrganizations the set of super organizations that will replace the current super organizations.
+	 * @see #setSubOrganizations(Set)
 	 */
-	public void setSuperOrganizations(Set<ResearchOrganization> set) {
-		if (set == null) {
+	public void setSuperOrganizations(Set<ResearchOrganization> newSuperOrganizations) {
+		if (this.superOrganizations == null) {
 			this.superOrganizations = new HashSet<>();
 		} else {
-			this.superOrganizations = set;
+			this.superOrganizations.clear();
+		}
+		if (newSuperOrganizations != null) {
+			this.superOrganizations.addAll(newSuperOrganizations);
 		}
 	}
 
 	/** Replies the sub organizations.
 	 *
-	 * @return the set of ub organizations.
+	 * @return the set of sub organizations.
+	 * @see #setSuperOrganizations(Set)
 	 */
 	public Set<ResearchOrganization> getSubOrganizations() {
+		if (this.subOrganizations == null) {
+			this.subOrganizations = new HashSet<>();
+		}
 		return this.subOrganizations;
 	}
 
-	/** Change the sub organizations.
+	/** Change the sub organizations. This function does not change the set
+	 * of super organizations of the provided sub organizations.
 	 *
-	 * @param set the set of sub organizations.
+	 * @param newSubOrganizations the set of sub organizations that will replace the current suborganizations.
+	 * @see #setSuperOrganizations(Set)
 	 */
-	public void setSubOrganizations(Set<ResearchOrganization> set) {
-		if (set == null) {
+	public void setSubOrganizations(Set<ResearchOrganization> newSubOrganizations) {
+		if (this.subOrganizations == null) {
 			this.subOrganizations = new HashSet<>();
 		} else {
-			this.subOrganizations = set;
+			this.subOrganizations.clear();
+		}
+		if (newSubOrganizations != null) {
+			this.subOrganizations.addAll(newSubOrganizations);
 		}
 	}
 

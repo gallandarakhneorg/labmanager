@@ -35,6 +35,9 @@ import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.slf4j.Logger;
@@ -49,7 +52,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> implements LocaleChangeObserver {
+public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends Composite<VerticalLayout> implements LocaleChangeObserver {
 
 	private static final long serialVersionUID = -9123030449423137764L;
 
@@ -74,6 +77,8 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 	private final String administationSectionTranslationKey;
 
 	private final String validationTranslationKey;
+	
+	private final EntityEditingContext<T> editingContext;
 
 	/** Constructor.
 	 *
@@ -85,10 +90,12 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 	 *     the label of the administration section.
 	 * @param validationTranslationKey the key in the translation file that corresponds to the
 	 *     label of the validation checkbox.
+	 * @param editingContext the context that is used for representing the edited entity and all the associated files and entities.
 	 */
 	public AbstractEntityEditor(Class<T> entityType, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger, String administationSectionTranslationKey,
-			String validationTranslationKey) {
+			String validationTranslationKey,
+			EntityEditingContext<T> editingContext) {
 		this.administationSectionTranslationKey = administationSectionTranslationKey;
 		this.validationTranslationKey = validationTranslationKey;
 		this.entityType = entityType;
@@ -96,6 +103,7 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 		this.logger = logger;
 		this.entityBinder = new Binder<>(this.entityType);
 		this.authenticatedUser = authenticatedUser;
+		this.editingContext = editingContext;
 
 		if (this.authenticatedUser != null && this.authenticatedUser.get().isPresent()) {
 			final var role = this.authenticatedUser.get().get().getRole();
@@ -105,6 +113,14 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 			this.isBaseAdmin = false;
 			this.isAdvancedAdmin = false;
 		}
+	}
+
+	/** Replies the context that represents the editied entity and the associated files and entities.
+	 *
+	 * @return the editing context.
+	 */
+	public EntityEditingContext<T> getEditingContext() {
+		return this.editingContext;
 	}
 
 	/** Replies if the data inside the editor is valid.
@@ -159,7 +175,18 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 	 *
 	 * @return the edited entity, never {@code null}.
 	 */
-	public abstract T getEditedEntity();
+	public T getEditedEntity() {
+		return this.editingContext.getEntity();
+	}
+
+	/** Replies if the edited entity is new for the JPA infrastructure.
+	 *
+	 * @return {@code true} if the entity has no JPA identifier.
+	 */
+	public boolean isNewEntity() {
+		final var entity = getEditedEntity();
+		return entity == null || entity.getId() == 0l;
+	}
 
 	/** Replies the logger.
 	 *
@@ -190,6 +217,12 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 	 */
 	protected void linkBeans() {
 		getEntityDataBinder().setBean(getEditedEntity());
+	}
+
+	/** Unink the beans to the editor.
+	 */
+	protected void unlinkBeans() {
+		getEntityDataBinder().setBean(null);
 	}
 
 	/** Create the content of the editor.
@@ -239,14 +272,105 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 		doValidate(getEditedEntity());
 	}
 
-	/** Invoked for saving the conference. This function must be overridden by the child class that need to do a specific
+	/** Invoked for validating the entity. This function does not save.
+	 * This function must be overridden by the child class that need to do a specific
+	 * saving process. 
+	 *
+	 * @param entity the entity to validate.
+	 */
+	protected void doValidate(T entity) {
+		try {
+			this.validatedEntity.setValue(Boolean.TRUE);
+			notifyValidated();
+		} catch (Throwable ex) {
+			notifyValidationError(ex);
+		}
+	}
+
+	/** Notify the user that the entity was validated.
+	 */
+	public final void notifyValidated() {
+		notifyValidated(computeValidationSuccessMessage());
+	}
+
+	/** Compute the message for validation successs.
+	 *
+	 * @return the message.
+	 */
+	protected abstract String computeValidationSuccessMessage();
+
+	/** Notify the user that the entity was validated.
+	 *
+	 * @param message the validation message to show to the user.
+	 */
+	@SuppressWarnings("static-method")
+	protected void notifyValidated(String message) {
+		final var notification = new Notification(message);
+		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		notification.open();
+	}
+
+	/** Notify the user that its personal information has changed.
+	 */
+	protected void notifyAuthenticatedUserChange() {
+		UserIdentityChangedObserver app = null;
+		final var view = UI.getCurrent().getCurrentView();
+		if (view != null) {
+			app = view.findAncestor(UserIdentityChangedObserver.class);
+		}
+		if (app != null) {
+			app.authenticatedUserIdentityChange();
+		}
+		final var notification = new Notification(getTranslation("views.authenticated_user_change")); //$NON-NLS-1$
+		notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+		notification.open();
+	}
+
+	/** Notify the user that the form contains invalid information.
+	 */
+	public void notifyInvalidity() {
+		final var notification = new Notification(getTranslation("views.save_invalid_data")); //$NON-NLS-1$
+		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+		notification.open();
+	}
+
+	/** Notify the user that the entity cannot be validated.
+	 *
+	 * @param error the error.
+	 */
+	public final void notifyValidationError(Throwable error) {
+		notifyValidationError(error, computeValidationErrorMessage(error));
+	}
+
+	/** Compute the message for validation error.
+	 *
+	 * @param error the error.
+	 * @return the message.
+	 */
+	protected abstract String computeValidationErrorMessage(Throwable error);
+
+	/** Notify the user that the entity cannot be validated.
+	 *
+	 * @param message the message to show up to the user.
+	 */
+	protected void notifyValidationError(Throwable error, String message) {
+		this.logger.warn("Error when validating the entity by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
+		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
+		final var notification = new Notification(message);
+		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		notification.open();
+	}
+
+	/** Invoked for saving the entity. This function must be overridden by the child class that need to do a specific
 	 * saving process. 
 	 *
 	 * @throws Exception if saving cannot be done.
 	 */
-	protected abstract void doSave() throws Exception;
+	protected void doSave() throws Exception {
+		getEditingContext().save();
+	}
 	
-	/** Invoked for saving the conference.
+	/** Invoked for saving the entity.
 	 *
 	 * @return {@code true} if the saving was a success.
 	 * @see #doSave()
@@ -266,104 +390,152 @@ public abstract class AbstractEntityEditor<T> extends Composite<VerticalLayout> 
 		return false;
 	}
 
-	/** Invoked for validating the entity. This function does not save.
-	 * This function must be overridden by the child class that need to do a specific
-	 * saving process. 
+	/** Notify the user that the entity was saved.
+	 */
+	public final void notifySaved() {
+		notifySaved(computeSavingSuccessMessage());
+	}
+
+	/** Compute the message for saving success.
 	 *
-	 * @param entity the entity to validate.
+	 * @return the message.
 	 */
-	protected void doValidate(T entity) {
-		try {
-			this.validatedEntity.setValue(Boolean.TRUE);
-			notifyValidated();
-		} catch (Throwable ex) {
-			notifyValidationError(ex);
-		}
-	}
+	protected abstract String computeSavingSuccessMessage();
 
-	/** Notify the user that the person was validated.
-	 */
-	public abstract void notifyValidated();
-
-	/** Notify the user that the person was validated.
-	 *
-	 * @param message the validation message to show to the user.
-	 */
-	@SuppressWarnings("static-method")
-	protected void notifyValidated(String message) {
-		final var notification = Notification.show(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-	}
-
-	/** Notify the user that its personal information has changed.
-	 */
-	protected void notifyAuthenticatedUserChange() {
-		UserIdentityChangedObserver app = null;
-		final var view = UI.getCurrent().getCurrentView();
-		if (view != null) {
-			app = view.findAncestor(UserIdentityChangedObserver.class);
-		}
-		if (app != null) {
-			app.authenticatedUserIdentityChange();
-		}
-		final var notification = Notification.show(getTranslation("views.authenticated_user_change")); //$NON-NLS-1$
-		notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-	}
-
-	/** Notify the user that the form contains invalid information.
-	 */
-	public void notifyInvalidity() {
-		final var notification = Notification.show(getTranslation("views.save_invalid_data")); //$NON-NLS-1$
-		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
-	}
-
-	/** Notify the user that the person was saved.
-	 */
-	public abstract void notifySaved();
-
-	/** Notify the user that the person was saved.
+	/** Notify the user that the entity was saved.
 	 *
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifySaved(String message) {
 		this.logger.info("Data successfully saved by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 		+ ": " + message); //$NON-NLS-1$
-		final Notification notification = Notification.show(message);
+		final Notification notification = new Notification(message);
 		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		notification.open();
 	}
 
-	/** Notify the user that the person cannot be saved.
+	/** Notify the user that the entity cannot be saved.
 	 *
 	 * @param error the error.
 	 */
-	public abstract void notifySavingError(Throwable error);
+	public final void notifySavingError(Throwable error) {
+		notifySavingError(error, computeSavingErrorMessage(error));
+	}
 
-	/** Notify the user that the person cannot be saved.
+	/** Compute the message for saving error.
+	 *
+	 * @param error the error.
+	 * @return the message.
+	 */
+	protected abstract String computeSavingErrorMessage(Throwable error);
+
+	/** Notify the user that the entity cannot be saved.
 	 *
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifySavingError(Throwable error, String message) {
 		this.logger.warn("Error when saving entity data by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
-		final var notification = Notification.show(message);
+		final var notification = new Notification(message);
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		notification.open();
 	}
 
-	/** Notify the user that the person cannot be validated.
+	/** Invoked for preparing the deletion of the entity. This function must be overridden by the child class that need to do a specific
+	 * deletion process. 
 	 *
-	 * @param error the error.
+	 * @return the context for deleting the entity.
 	 */
-	public abstract void notifyValidationError(Throwable error);
+	protected EntityDeletingContext<T> prepareDeletion() {
+		return getEditingContext().startDeletion();
+	}
 
-	/** Notify the user that the person cannot be validated.
+	/** Invoked for deleting the entity without querying the user.
+	 *
+	 * @return {@code true} if the deletion was a success.
+	 * @see #doDeletion()
+	 */
+	public final boolean delete() {
+		try {
+			final var context = prepareDeletion();
+			assert context != null;
+			if (context.isDeletionPossible()) {
+				doDelete(context);
+				notifyDeleted();
+				// Unlink after notifying for having the capability to get the name of the deleted entity
+				unlinkBeans();
+				return true;
+			}
+			var ex = context.getDeletionStatus().getException(getMessageSourceAccessor(), getLocale());
+			if (ex == null) {
+				ex = new IllegalStateException();
+			}
+			notifyDeletionError(ex);
+		} catch (Throwable ex) {
+			notifyDeletionError(ex);
+		}
+		return false;
+	}
+
+	/** Invoked for deleting the entity thourhg the provided context. This function must be overridden by the child class that need to do a specific
+	 * deletion process. 
+	 *
+	 * @param deletionContext the context of deletion.
+	 * @throws Exception if saving cannot be done.
+	 */
+	protected void doDelete(EntityDeletingContext<T> deletionContext) throws Exception {
+		deletionContext.delete();
+	}
+
+	/** Notify the user that the entity was deleted.
+	 */
+	public final void notifyDeleted() {
+		notifyDeleted(computeDeletionSuccessMessage());
+	}
+
+	/** Compute the message for deletion success.
+	 *
+	 * @return the message.
+	 */
+	protected abstract String computeDeletionSuccessMessage();
+
+	/** Notify the user that the entity was deleted.
 	 *
 	 * @param message the message to show up to the user.
 	 */
-	protected void notifyValidationError(Throwable error, String message) {
-		this.logger.warn("Error when validating the entity by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
-		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
-		final var notification = Notification.show(message);
+	protected void notifyDeleted(String message) {
+		this.logger.info("Data successfully deleted by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
+		+ ": " + message); //$NON-NLS-1$
+		final Notification notification = new Notification(message);
+		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		notification.open();
+	}
+
+	/** Notify the user that the entity cannot be deleted.
+	 *
+	 * @param error the error.
+	 */
+	public final void notifyDeletionError(Throwable error) {
+		notifyDeletionError(error, computeDeletionErrorMessage(error));
+	}
+
+	/** Compute the error message for deletion.
+	 *
+	 * @param error the error.
+	 * @return the message.
+	 */
+	protected abstract String computeDeletionErrorMessage(Throwable error);
+
+	/** Notify the user that the entity cannot be deleted.
+	 *
+	 * @param message the message to show up to the user.
+	 */
+	protected void notifyDeletionError(Throwable error, String message) {
+		this.logger.warn("Error when deleting entity data by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
+			+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
+		final var notification = new Notification(message);
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		notification.open();
 	}
 
 	@Override

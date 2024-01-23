@@ -440,9 +440,10 @@ public final class ComponentFactory {
 	}
 
 	/** Open a standard dialog box for editing an information.
-	 * This function provides two callbacks. One is the standard saving callback that is verifying the validity of
+	 * This function provides three callbacks. One is the standard saving callback that is verifying the validity of
 	 * the input data. Second, it is the standard validation callback that is saving the data after
-	 * turning on the validation flag by the local authority.
+	 * turning on the validation flag by the local authority. Third is the standard deletion callback that invoked
+	 * after querying the user for accepting the deletion. 
 	 *
 	 * @param title the title of the dialog.
 	 * @param content the content of the dialog, where the editing fields are located.
@@ -450,9 +451,10 @@ public final class ComponentFactory {
 	 *     is pushed. If {@code false}, the {@code Enter} is not mapped to a component.
 	 * @param enableValidationButton indicates if the 'Validate' button is enabled or not.
 	 * @param saveDoneCallback the callback that is invoked after saving
+	 * @param deleteDoneCallback the callback that is invoked after deleting
 	 */
 	public static void openEditionModalDialog(String title, AbstractEntityEditor<?> content, boolean mapEnterKeyToSave,
-			SerializableConsumer<Dialog> saveDoneCallback) {
+			SerializableConsumer<Dialog> saveDoneCallback, SerializableConsumer<Dialog> deleteDoneCallback) {
 		final SerializableConsumer<Dialog> validateCallback;
 		if (content.isBaseAdmin()) {
 			validateCallback = dialog -> {
@@ -468,7 +470,8 @@ public final class ComponentFactory {
 		}
 		openEditionModalDialog(title, content, mapEnterKeyToSave,
 				saveDoneCallback,
-				validateCallback);
+				validateCallback,
+				deleteDoneCallback);
 	}
 
 	/** Open a standard dialog box for editing an information.
@@ -482,10 +485,32 @@ public final class ComponentFactory {
 	 * @param enableValidationButton indicates if the 'Validate' button is enabled or not.
 	 * @param saveDoneCallback the callback that is invoked after saving
 	 * @param validateCallback the callback for validating the information.
+	 * @param deleteDoneCallback the callback that is invoked after deleting
 	 */
 	public static void openEditionModalDialog(String title, AbstractEntityEditor<?> content, boolean mapEnterKeyToSave,
 			SerializableConsumer<Dialog> saveDoneCallback,
-			SerializableConsumer<Dialog> validateCallback) {
+			SerializableConsumer<Dialog> validateCallback,
+			SerializableConsumer<Dialog> deleteDoneCallback) {
+		final SerializableConsumer<Dialog> deleteCallback;
+		if (deleteDoneCallback != null) {
+			deleteCallback = dialog -> {
+				final var confirmDialog = new ConfirmDialog();
+				confirmDialog.setHeader(content.getTranslation("views.delete.entity")); //$NON-NLS-1$
+				confirmDialog.setText(content.getTranslation("views.delete.entity.text")); //$NON-NLS-1$
+				confirmDialog.setCancelable(true);
+				confirmDialog.setConfirmText(content.getTranslation("views.delete")); //$NON-NLS-1$
+				confirmDialog.setConfirmButtonTheme("error primary"); //$NON-NLS-1$
+				confirmDialog.addConfirmListener(event -> {
+					if (content.delete()) {
+						dialog.close();
+						deleteDoneCallback.accept(dialog);
+					}
+				});
+				confirmDialog.open();
+			};
+		} else {
+			deleteCallback = null;
+		}
 		doOpenEditionModalDialog(title, content, mapEnterKeyToSave,
 				dialog -> {
 					if (content.isValidData()) {
@@ -499,7 +524,8 @@ public final class ComponentFactory {
 						content.notifyInvalidity();
 					}
 				},
-				validateCallback);
+				validateCallback,
+				deleteCallback);
 	}
 
 	/** Open a standard dialog box for editing an information.
@@ -510,10 +536,12 @@ public final class ComponentFactory {
 	 *     is pushed. If {@code false}, the {@code Enter} is not mapped to a component.
 	 * @param saveCallback the callback for saving the information.
 	 * @param validateCallback the callback for validating the information.
+	 * @param deleteCallback the callback for deleting the information.
 	 */
 	public static void doOpenEditionModalDialog(String title, Component content, boolean mapEnterKeyToSave,
 			SerializableConsumer<Dialog> saveCallback,
-			SerializableConsumer<Dialog> validateCallback) {
+			SerializableConsumer<Dialog> validateCallback,
+			SerializableConsumer<Dialog> deleteCallback) {
 		final var dialog = new Dialog();
 		dialog.setModal(true);
 		dialog.setCloseOnEsc(true);
@@ -533,16 +561,38 @@ public final class ComponentFactory {
 
 		final var cancelButton = new Button(content.getTranslation("views.cancel"), e -> dialog.close()); //$NON-NLS-1$
 
+		final Button deletionButton;
+		if (deleteCallback != null) {
+			deletionButton = new Button(content.getTranslation("views.delete"), //$NON-NLS-1$
+					event -> deleteCallback.accept(dialog));
+			deletionButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+			deletionButton.setIcon(LineAwesomeIcon.TRASH_SOLID.create());
+		} else {
+			deletionButton = null;
+		}
+
+		final Button validateButton;
 		if (validateCallback != null) {
-			final var validateButton = new Button(content.getTranslation("views.validate"), //$NON-NLS-1$
+			validateButton = new Button(content.getTranslation("views.validate"), //$NON-NLS-1$
 					event -> validateCallback.accept(dialog));
 			validateButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 			validateButton.setIcon(LineAwesomeIcon.CHECK_DOUBLE_SOLID.create());
+		} else {
+			validateButton = null;
+		}
+
+		if (deletionButton != null) {
+			if (validateButton != null) {
+				dialog.getFooter().add(validateButton, cancelButton, deletionButton, saveButton);
+			} else {
+				dialog.getFooter().add(cancelButton, deletionButton, saveButton);
+			}
+		} else if (validateButton != null) {
 			dialog.getFooter().add(validateButton, cancelButton, saveButton);
 		} else {
 			dialog.getFooter().add(cancelButton, saveButton);
 		}
-
+		
 		dialog.open();
 	}
 

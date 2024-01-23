@@ -235,23 +235,6 @@ public class ResearchOrganizationServiceTest {
 	}
 
 	@Test
-	public void removeResearchOrganization() throws Exception {
-		this.test.removeResearchOrganization(234);
-
-		final ArgumentCaptor<Long> arg = ArgumentCaptor.forClass(Long.class);
-
-		verify(this.organizationRepository, atLeastOnce()).findById(arg.capture());
-		Long actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(234, actual);
-
-		verify(this.organizationRepository, atLeastOnce()).deleteById(arg.capture());
-		actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(234, actual);
-	}
-
-	@Test
 	public void updateResearchOrganization() throws Exception {
 		List<Long> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();

@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.supervisions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +34,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
@@ -80,7 +80,11 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	public StandardSupervisionListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			SupervisionService supervisionService, Logger logger) {
-		super(Supervision.class, authenticatedUser, messages, logger);
+		super(Supervision.class, authenticatedUser, messages, logger,
+				"views.supervisions.delete.title", //$NON-NLS-1$
+				"views.supervisions.delete.message", //$NON-NLS-1$
+				"views.supervision.delete_success", //$NON-NLS-1$
+				"views.supervision.delete_error"); //$NON-NLS-1$
 		this.supervisionService = supervisionService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllSupervisions(query, filters);
 		initializeDataInGrid(getGrid(), getFilters());
@@ -144,61 +148,6 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	}
 
 	@Override
-	protected void deleteWithQuery(Set<Supervision> supervisions) {
-		if (!supervisions.isEmpty()) {
-			final var size = supervisions.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.supervisions.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.supervisions.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var supervision : new ArrayList<>(grd.getSelectedItems())) {
-				this.supervisionService.removeSupervision(supervision.getId());
-				final var msg = new StringBuilder("Supervision: "); //$NON-NLS-1$
-				msg.append(supervision.getTitle());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(supervision.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the supervision
-				grd.getSelectionModel().deselect(supervision);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the supervisions were deleted.
-	 *
-	 * @param size the number of deleted supervisions
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.supervision.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the outgoing invitations cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.supervision.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openSupervisionEditor(new Supervision(), getTranslation("views.supervision.add_supervision")); //$NON-NLS-1$
 	}
@@ -221,6 +170,11 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				dialog -> refreshItem(supervision),
 				null);
+	}
+
+	@Override
+	protected EntityDeletingContext<Supervision> createDeletionContextFor(Set<Supervision> entities) {
+		return this.supervisionService.startDeletion(entities);
 	}
 
 	@Override

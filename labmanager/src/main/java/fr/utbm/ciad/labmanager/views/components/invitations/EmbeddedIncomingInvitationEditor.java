@@ -20,7 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.invitations;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService.EditingContext;
+import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -47,7 +48,7 @@ public final class EmbeddedIncomingInvitationEditor extends AbstractIncomingInvi
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedIncomingInvitationEditor(EditingContext context,
+	public EmbeddedIncomingInvitationEditor(EntityEditingContext<PersonInvitation> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();

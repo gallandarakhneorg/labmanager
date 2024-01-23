@@ -19,10 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.scientificaxis;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -33,7 +35,8 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -52,7 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.5
  */
 @Service
-public class ScientificAxisService extends AbstractService {
+public class ScientificAxisService extends AbstractEntityService<ScientificAxis> {
 
 	private final ScientificAxisRepository scientificAxisRepository;
 
@@ -299,15 +302,16 @@ public class ScientificAxisService extends AbstractService {
 		return axes;
 	}
 
-	/** Start the editing of the given scientific axis.
-	 *
-	 * @param axis the scientific axis to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the scientific axis and its related resources.
-	 */
-	public EditingContext startEditing(ScientificAxis axis) {
+	@Override
+	public EntityEditingContext<ScientificAxis> startEditing(ScientificAxis axis) {
 		assert axis != null;
 		return new EditingContext(axis);
+	}
+
+	@Override
+	public EntityDeletingContext<ScientificAxis> startDeletion(Set<ScientificAxis> axes) {
+		assert axes != null && !axes.isEmpty();
+		return new DeletingContext(axes);
 	}
 
 	/** Context for editing a {@link ScientificAxis}.
@@ -320,38 +324,53 @@ public class ScientificAxisService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<ScientificAxis> {
 		
 		private static final long serialVersionUID = 3560524631927901367L;
-
-		private ScientificAxis axis;
 
 		/** Constructor.
 		 *
 		 * @param axis the edited scientific axis.
 		 */
 		EditingContext(ScientificAxis axis) {
-			this.axis = axis;
+			super(axis);
 		}
 
-		/** Replies the scientific axis.
-		 *
-		 * @return the scientific axis.
-		 */
-		public ScientificAxis getScientificAxis() {
-			return this.axis;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = ScientificAxisService.this.scientificAxisRepository.save(this.entity);
 		}
 
-		/** Save the scientific axis in the JPA database.
+		@Override
+		public EntityDeletingContext<ScientificAxis> createDeletionContext() {
+			return ScientificAxisService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link ScientificAxis}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<ScientificAxis> {
+
+		private static final long serialVersionUID = 5797259507045624690L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the scientific axis object that was provided before the saving.
-		 * Invoke {@link #getScientificAxis()} for obtaining the new scientific axis
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param axes the scientific axes to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.axis = ScientificAxisService.this.scientificAxisRepository.save(this.axis);
+		protected DeletingContext(Set<ScientificAxis> axes) {
+			super(axes);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			ScientificAxisService.this.scientificAxisRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

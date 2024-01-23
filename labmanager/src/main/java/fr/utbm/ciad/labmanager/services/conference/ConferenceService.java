@@ -19,8 +19,9 @@
 
 package fr.utbm.ciad.labmanager.services.conference;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
@@ -37,7 +39,8 @@ import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal.CorePortalConference;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -67,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 3.6
  */
 @Service
-public class ConferenceService extends AbstractService {
+public class ConferenceService extends AbstractEntityService<Conference> {
 
 	private final ConferenceRepository conferenceRepository;
 
@@ -158,6 +161,23 @@ public class ConferenceService extends AbstractService {
 	 * @since 4.0
 	 */
 	public Page<Conference> getAllConferences(Pageable pageable, Specification<Conference> filter) {
+		return getAllConferences(pageable, filter, null);
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of conferences.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public Page<Conference> getAllConferences(Pageable pageable, Specification<Conference> filter, Consumer<Conference> callback) {
+		if (callback != null) {
+			final var page = this.conferenceRepository.findAll(filter, pageable);
+			page.forEach(callback);
+			return page;
+		}
 		return this.conferenceRepository.findAll(filter, pageable);
 	}
 
@@ -438,15 +458,16 @@ public class ConferenceService extends AbstractService {
 		}
 	}
 
-	/** Start the editing of the given conference.
-	 *
-	 * @param conference the conference to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the conference and its related resources.
-	 */
+	@Override
 	public EditingContext startEditing(Conference conference) {
 		assert conference != null;
 		return new EditingContext(conference);
+	}
+
+	@Override
+	public EntityDeletingContext<Conference> startDeletion(Set<Conference> conferences) {
+		assert conferences != null && !conferences.isEmpty();
+		return new DeletingContext(conferences);
 	}
 
 	/** Context for editing a {@link Conference}.
@@ -459,38 +480,53 @@ public class ConferenceService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	protected class EditingContext extends AbstractEntityEditingContext<Conference> {
 
 		private static final long serialVersionUID = -7122364187938515699L;
-		
-		private Conference conference;
 
 		/** Constructor.
 		 *
 		 * @param conference the edited conference.
 		 */
-		EditingContext(Conference conference) {
-			this.conference = conference;
+		protected EditingContext(Conference conference) {
+			super(conference);
 		}
 
-		/** Replies the conference.
-		 *
-		 * @return the conference.
-		 */
-		public Conference getConference() {
-			return this.conference;
+		@Override
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.entity = ConferenceService.this.conferenceRepository.save(this.entity);
 		}
 
-		/** Save the conference in the JPA database.
+		@Override
+		public EntityDeletingContext<Conference> createDeletionContext() {
+			return ConferenceService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Conference}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Conference> {
+
+		private static final long serialVersionUID = -8677274787631928182L;
+
+		/** Constructor.
 		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the conference object that was provided before the saving.
-		 * Invoke {@link #getConference()} for obtaining the new conference
-		 * instance, since the content of the saved object may have totally changed.
+		 * @param conferences the conferences to delete.
 		 */
-		@Transactional
-		public void save() {
-			this.conference = ConferenceService.this.conferenceRepository.save(this.conference);
+		protected DeletingContext(Set<Conference> conferences) {
+			super(conferences);
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			ConferenceService.this.conferenceRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

@@ -107,7 +107,8 @@ public class ResearchOrganizationTest {
 		orgas.add(mock(ResearchOrganization.class));
 		//
 		this.test.setSuperOrganizations(orgas);
-		assertSame(orgas, this.test.getSuperOrganizations());
+		final var actual = this.test.getSuperOrganizations();
+		assertEquals(3, actual.size());
 		//
 		this.test.setSuperOrganizations(null);
 		assertTrue(this.test.getSuperOrganizations().isEmpty());
@@ -126,7 +127,8 @@ public class ResearchOrganizationTest {
 		orgas.add(mock(ResearchOrganization.class));
 		//
 		this.test.setSubOrganizations(orgas);
-		assertSame(orgas, this.test.getSubOrganizations());
+		final var actual = this.test.getSubOrganizations();
+		assertEquals(3, actual.size());
 		//
 		this.test.setSubOrganizations(null);
 		assertTrue(this.test.getSubOrganizations().isEmpty());

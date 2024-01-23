@@ -34,7 +34,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.services.conference.ConferenceService.EditingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
@@ -82,8 +82,6 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 
 	private TextField isbn;
 
-	private final EditingContext context;
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the conference.
@@ -91,17 +89,12 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractConferenceEditor(EditingContext context, AuthenticatedUser authenticatedUser,
+	public AbstractConferenceEditor(EntityEditingContext<Conference> context, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
 		super(Conference.class, authenticatedUser, messages, logger,
 				"views.conferences.administration_details", //$NON-NLS-1$
-				"views.conferences.administration.validated_conference"); //$NON-NLS-1$
-		this.context = context;
-	}
-
-	@Override
-	public Conference getEditedEntity() {
-		return this.context.getConference();
+				"views.conferences.administration.validated_conference", //$NON-NLS-1$
+				context);
 	}
 
 	@Override
@@ -248,35 +241,40 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 			.bind(Conference::getISBN, Conference::setISBN);
 	}
 
-	/** Invoked for saving the conference. This function must be overridden by the child class that need to do a specific
-	 * saving process. 
-	 */
-	protected void doSave() throws Exception {
-		this.context.save();
+	@Override
+	protected String computeSavingSuccessMessage() {
+		return getTranslation("views.conferences.save_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySaved() {
-		notifySaved(getTranslation("views.conferences.save_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeValidationSuccessMessage() {
+		return getTranslation("views.conferences.validation_success", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifyValidated() {
-		notifyValidated(getTranslation("views.conferences.validation_success", //$NON-NLS-1$
-				getEditedEntity().getName()));
+	protected String computeDeletionSuccessMessage() {
+		return getTranslation("views.conferences.delete_success2", //$NON-NLS-1$
+				getEditedEntity().getName());
 	}
 
 	@Override
-	public void notifySavingError(Throwable error) {
-		notifySavingError(error, getTranslation("views.conferences.save_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeSavingErrorMessage(Throwable error) {
+		return getTranslation("views.conferences.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override
-	public void notifyValidationError(Throwable error) {
-		notifyValidationError(error, getTranslation("views.conferences.validation_error", //$NON-NLS-1$ 
-				getEditedEntity().getName(), error.getLocalizedMessage()));
+	protected String computeValidationErrorMessage(Throwable error) {
+		return getTranslation("views.conferences.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
+	}
+
+	@Override
+	protected String computeDeletionErrorMessage(Throwable error) {
+		return getTranslation("views.conferences.delete_error2", //$NON-NLS-1$ 
+				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override

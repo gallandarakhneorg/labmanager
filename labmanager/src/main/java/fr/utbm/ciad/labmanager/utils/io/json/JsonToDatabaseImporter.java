@@ -26,6 +26,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -39,6 +40,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
@@ -709,11 +711,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					getLogger().info("> Linking organizations: " + subOrgaInstance.getAcronymOrName() + " in " + sup.getAcronymOrName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				if (!isFake()) {
-					this.organizationRepository.save(subOrgaInstance);
-					// We don't need to save the super organizations because it is indirectly done by the previous saving action
-					/*for (final var sup : superOrgasInstances) {
-						this.organizationRepository.save(sup);
-					}*/
+					this.organizationRepository.saveAllAndFlush(Iterables.concat(Collections.singletonList(subOrgaInstance), superOrgasInstances));
 				}
 				session.getTransaction().commit();
 			}

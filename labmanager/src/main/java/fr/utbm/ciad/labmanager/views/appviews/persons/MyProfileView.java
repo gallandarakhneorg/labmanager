@@ -32,7 +32,7 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
+import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonEditor;
 import jakarta.annotation.security.PermitAll;
@@ -78,7 +78,7 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 		createEditorContentAndLinkBeans();
 	}
 
-	private static EditingContext createEditingContext(
+	private static UserEditingContext createEditingContext(
 			PersonService personService, UserService userService,
 			AuthenticatedUser authenticatedUser) {
 		final var user = authenticatedUser.get().get();

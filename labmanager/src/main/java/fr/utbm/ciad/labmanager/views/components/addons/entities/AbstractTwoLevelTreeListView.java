@@ -73,11 +73,19 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
+	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
+	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
+	 * @param deletionErrorMessageKey the key in the localized messages for the messages related to an error of deletion.
 	 */
 	public AbstractTwoLevelTreeListView(
 			Class<R> rootEntityType, Class<C> childEntityType,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
-		super(null, authenticatedUser, messages, logger);
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			String deletionTitleMessageKey, String deletionMessageKey,
+			String deletionSuccessMessageKey, String deletionErrorMessageKey) {
+		super(null, authenticatedUser, messages, logger,
+				deletionTitleMessageKey, deletionMessageKey,
+				deletionSuccessMessageKey, deletionErrorMessageKey);
 		this.rootEntityType = rootEntityType;
 		this.childEntityType = childEntityType;
 	}

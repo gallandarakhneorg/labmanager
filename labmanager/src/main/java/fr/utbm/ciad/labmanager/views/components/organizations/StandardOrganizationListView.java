@@ -19,13 +19,13 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
@@ -33,10 +33,12 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -80,6 +82,10 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 
 	private Column<ResearchOrganization> countryColumn;
 
+	private Column<ResearchOrganization> superStructureColumn;
+
+	private Column<ResearchOrganization> subStructureColumn;
+
 	private Column<ResearchOrganization> validationColumn;
 
 	private final DownloadableFileManager fileManager;
@@ -99,11 +105,16 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 			ResearchOrganizationService organizationService,
 			OrganizationAddressService addressService,
 			Logger logger) {
-		super(ResearchOrganization.class, authenticatedUser, messages, logger);
+		super(ResearchOrganization.class, authenticatedUser, messages, logger,
+				"views.organizations.delete.title", //$NON-NLS-1$
+				"views.organizations.delete.message", //$NON-NLS-1$
+				"views.organizations.delete_success", //$NON-NLS-1$
+				"views.organizations.delete_error"); //$NON-NLS-1$
+
 		this.fileManager = fileManager;
 		this.organizationService = organizationService;
 		this.addressService = addressService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllResearchOrganizations(query, filters);
+		this.dataProvider = (ps, query, filters) -> ps.getAllResearchOrganizations(query, filters, true);
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -123,6 +134,12 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		this.countryColumn = grid.addColumn(new ComponentRenderer<>(this::createCountryComponent))
 				.setAutoWidth(true)
 				.setSortProperty("country"); //$NON-NLS-1$
+		this.superStructureColumn = grid.addColumn(this::createSuperStructureNames)
+				.setAutoWidth(true)
+				.setSortProperty("superOrganizations"); //$NON-NLS-1$
+		this.subStructureColumn = grid.addColumn(this::createSubStructureNames)
+				.setAutoWidth(true)
+				.setSortProperty("subOrganizations"); //$NON-NLS-1$
 
 		this.validationColumn = grid.addColumn(new BadgeRenderer<>((data, callback) -> {
 			if (data.isValidated()) {
@@ -138,7 +155,29 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		// Create the hover tool bar only if administrator role
 		return isAdminRole();
 	}
+
+	private String createSuperStructureNames(ResearchOrganization organization) {
+		final var buffer = new StringBuilder();
+		for (final var structure : organization.getSuperOrganizations()) {
+			if (buffer.length() > 0) {
+				buffer.append("; "); //$NON-NLS-1$
+			}
+			buffer.append(structure.getAcronymOrName());
+		}
+		return buffer.toString();
+	}
 	
+	private String createSubStructureNames(ResearchOrganization organization) {
+		final var buffer = new StringBuilder();
+		for (final var structure : organization.getSubOrganizations()) {
+			if (buffer.length() > 0) {
+				buffer.append("; "); //$NON-NLS-1$
+			}
+			buffer.append(structure.getAcronymOrName());
+		}
+		return buffer.toString();
+	}
+
 	private Component createCountryComponent(ResearchOrganization organization) {
 		final var country = organization.getCountry();
 
@@ -213,61 +252,6 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	}
 
 	@Override
-	protected void deleteWithQuery(Set<ResearchOrganization> addresses) {
-		if (!addresses.isEmpty()) {
-			final var size = addresses.size();
-			ComponentFactory.createDeletionDialog(this,
-					getTranslation("views.organization.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
-					getTranslation("views.organization.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
-					it ->  deleteCurrentSelection())
-			.open();
-		}
-	}
-
-	@Override
-	protected void deleteCurrentSelection() {
-		try {
-			// Get the selection again because this handler is run in another session than the one of the function
-			var realSize = 0;
-			final var grd = getGrid();
-			final var log = getLogger();
-			final var userName = AuthenticatedUser.getUserName(getAuthenticatedUser());
-			for (final var adr : new ArrayList<>(grd.getSelectedItems())) {
-				this.organizationService.removeResearchOrganization(adr.getId());
-				final var msg = new StringBuilder("Organization: "); //$NON-NLS-1$
-				msg.append(adr.getAcronymOrName());
-				msg.append(" (id: "); //$NON-NLS-1$
-				msg.append(adr.getId());
-				msg.append(") has been deleted by "); //$NON-NLS-1$
-				msg.append(userName);
-				log.info(msg.toString());
-				// Deselected the address
-				grd.getSelectionModel().deselect(adr);
-				++realSize;
-			}
-			refreshGrid();
-			notifyDeleted(realSize);
-		} catch (Throwable ex) {
-			refreshGrid();
-			notifyDeletionError(ex);
-		}
-	}
-
-	/** Notify the user that the addresses were deleted.
-	 *
-	 * @param size the number of deleted addresses
-	 */
-	protected void notifyDeleted(int size) {
-		notifyDeleted(size, "views.organizations.delete_success"); //$NON-NLS-1$
-	}
-
-	/** Notify the user that the addresses cannot be deleted.
-	 */
-	protected void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, "views.organizations.delete_error"); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void addEntity() {
 		openOrganizationEditor(new ResearchOrganization(), getTranslation("views.organizations.add_organization")); //$NON-NLS-1$
 	}
@@ -287,10 +271,20 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 				this.organizationService.startEditing(organization),
 				this.fileManager,
 				getAuthenticatedUser(), getMessageSourceAccessor(),
+				this.organizationService,
 				this.addressService);
+		final var newEntity = editor.isNewEntity();
+		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
+		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(organization);
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				dialog -> refreshItem(organization));
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
+	}
+
+	@Override
+	protected EntityDeletingContext<ResearchOrganization> createDeletionContextFor(Set<ResearchOrganization> entities) {
+		return this.organizationService.startDeletion(entities);
 	}
 
 	@Override
@@ -299,6 +293,8 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		this.nameColumn.setHeader(getTranslation("views.name")); //$NON-NLS-1$
 		this.typeColumn.setHeader(getTranslation("views.type")); //$NON-NLS-1$
 		this.countryColumn.setHeader(getTranslation("views.country")); //$NON-NLS-1$
+		this.superStructureColumn.setHeader(getTranslation("views.super_structures")); //$NON-NLS-1$
+		this.subStructureColumn.setHeader(getTranslation("views.sub_structures")); //$NON-NLS-1$
 		this.validationColumn.setHeader(getTranslation("views.validated")); //$NON-NLS-1$
 		refreshGrid();
 	}

@@ -20,7 +20,8 @@
 package fr.utbm.ciad.labmanager.services.organization;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +34,11 @@ import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
-import fr.utbm.ciad.labmanager.services.AbstractService;
-import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import jakarta.transaction.Transactional;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
@@ -47,7 +49,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Service for research organizations.
@@ -59,14 +60,14 @@ import org.springframework.web.multipart.MultipartFile;
  * @mavenartifactid $ArtifactId$
  */
 @Service
-public class ResearchOrganizationService extends AbstractService {
+public class ResearchOrganizationService extends AbstractEntityService<ResearchOrganization> {
 
 	private final OrganizationAddressRepository addressRepository;
 
 	private final ResearchOrganizationRepository organizationRepository;
 
 	private final SessionFactory sessionFactory;
-	
+
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -74,8 +75,8 @@ public class ResearchOrganizationService extends AbstractService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
-	 * @param addressRepository the address repository.
 	 * @param sessionFactory the Hibernate session factory.
+	 * @param addressRepository the address repository.
 	 * @param organizationRepository the organization repository.
 	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
@@ -146,11 +147,19 @@ public class ResearchOrganizationService extends AbstractService {
 	 *
 	 * @param pageable the manager of the pages.
 	 * @param filter the filter of organizations.
+	 * @param initializeLinkedentities indicates if the linked entities should be initialized before returning from the call.
 	 * @return the research organizations.
 	 * @since 4.0
 	 */
-	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter) {
-		return this.organizationRepository.findAll(filter, pageable);
+	@Transactional
+	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter, boolean initializeLinkedentities) {
+		final var page = this.organizationRepository.findAll(filter, pageable);
+		if (initializeLinkedentities) {
+			page.forEach(it -> {
+				Hibernate.initialize(it.getSubOrganizations());
+			});
+		}
+		return page;
 	}
 
 	/** Replies the research organization with the given identifier.
@@ -254,27 +263,6 @@ public class ResearchOrganizationService extends AbstractService {
 			this.organizationRepository.save(res);
 		}
 		return Optional.of(res);
-	}
-
-	/** Remove a research organization from the database.
-	 * An research organization cannot be removed if it contains a suborganization.
-	 *
-	 * @param identifier the identifier of the organization to remove.
-	 * @throws AttachedSubOrganizationException when the organization contains suborganizations.
-	 * @throws AttachedMemberException when the organization contains members.
-	 */
-	@Transactional
-	public void removeResearchOrganization(long identifier) throws AttachedSubOrganizationException, AttachedMemberException {
-		final var id = Long.valueOf(identifier);
-		final var res = this.organizationRepository.findById(id);
-		if (res.isPresent()) {
-			final var organization = res.get();
-			if (!organization.getMemberships().isEmpty()) {
-				throw new AttachedMemberException();
-			}
-			//
-			this.organizationRepository.deleteById(id);
-		}
 	}
 
 	/** Change the information associated to a research organization.
@@ -383,7 +371,7 @@ public class ResearchOrganizationService extends AbstractService {
 					final var superOrganization = superOrg.get();
 					final var subOrganization = subOrg.get();
 					if (subOrganization.getSuperOrganizations().add(superOrganization)
-						&& superOrganization.getSubOrganizations().add(subOrganization)) {
+							&& superOrganization.getSubOrganizations().add(subOrganization)) {
 						this.organizationRepository.save(subOrganization);
 						this.organizationRepository.save(superOrganization);
 						return true;
@@ -418,22 +406,37 @@ public class ResearchOrganizationService extends AbstractService {
 		return false;
 	}
 
-	/** Start the editing of the given organization.
-	 *
-	 * @param organization the organization to save.
-	 * @return the editing context that enables to keep track of any information needed
-	 *      for saving the organization and its related resources.
-	 */
-	public EditingContext startEditing(ResearchOrganization organization) {
+	@Override
+	public EntityEditingContext<ResearchOrganization> startEditing(ResearchOrganization organization) {
 		assert organization != null;
 		// Force initialization of the internal properties that are needed for editing
 		if (organization.getId() != 0l) {
 			try (final var session = this.sessionFactory.openSession()) {
 				session.load(organization, Long.valueOf(organization.getId()));
 				Hibernate.initialize(organization.getAddresses());
+				Hibernate.initialize(organization.getSuperOrganizations());
+				Hibernate.initialize(organization.getSubOrganizations());
 			}
 		}
 		return new EditingContext(organization);
+	}
+
+	@Override
+	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> organizations) {
+		assert organizations != null && !organizations.isEmpty();
+		// Force loading of the super and suborganizations
+		try (final var session = this.sessionFactory.openSession()) {
+			for (final var organization : organizations) {
+				if (organization.getId() != 0l) {
+					session.load(organization, Long.valueOf(organization.getId()));
+					Hibernate.initialize(organization.getAddresses());
+					Hibernate.initialize(organization.getSuperOrganizations());
+					Hibernate.initialize(organization.getSubOrganizations());
+					Hibernate.initialize(organization.getMemberships());
+				}
+			}
+		}
+		return new DeletingContext(organizations);
 	}
 
 	/** Context for editing a {@link ResearchOrganization}.
@@ -446,65 +449,62 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
-		
+	protected class EditingContext extends AbstractEntityWithServerFilesEditingContext<ResearchOrganization> {
+
 		private static final long serialVersionUID = 23311671802716077L;
 
 		private String pathToLogo;
-		
-		private long id;
 
-		private ResearchOrganization organization;
+		private Set<ResearchOrganization> originalSuperOrganizations;
 
 		/** Constructor.
 		 *
 		 * @param organization the edited organization.
 		 */
 		EditingContext(ResearchOrganization organization) {
-			this.id = organization.getId();
+			super(organization);
 			this.pathToLogo = organization.getPathToLogo();
-			this.organization = organization;
+			this.originalSuperOrganizations = new HashSet<>(organization.getSuperOrganizations());
 		}
 
-		/** Replies the organization.
-		 *
-		 * @return the organization.
-		 */
-		public ResearchOrganization getOrganization() {
-			return this.organization;
-		}
-
-		/** Save the organization in the JPA database.
-		 *
-		 * <p>After calling this function, it is preferable to not use
-		 * the organization object that was provided before the saving.
-		 * Invoke {@link #getOrganization()} for obtaining the new organization
-		 * instance, since the content of the saved object may have totally changed.
-		 *
-		 * @param components list of components to update if the service detects an inconsistent value.
-		 * @throws IOException if files cannot be saved on the server.
-		 */
-		@Transactional
-		public void save(HasAsynchronousUploadService... components) throws IOException {
-			this.organization = ResearchOrganizationService.this.organizationRepository.save(this.organization);
-			// Save the uploaded file if needed.
-			if (this.id != this.organization.getId()) {
-				// Special case where the field value does not corresponds to the correct path
-				deleteLogo(this.id);
-				for (final var component : components) {
-					component.updateValue();
+		@Override
+		protected ResearchOrganization writeInJPA(ResearchOrganization entity, boolean initialSaving) {
+			if (initialSaving) {
+				// Compute the set of organizations that are removed or added in the list of super organizations
+				final var addedOrganizations = new HashSet<ResearchOrganization>();
+				final var removedOrganizations = new HashSet<>(this.originalSuperOrganizations);
+				for (final var superOrganization : this.entity.getSuperOrganizations()) {
+					if (!removedOrganizations.remove(superOrganization)) {
+						addedOrganizations.add(superOrganization);
+					}
 				}
-				this.organization = ResearchOrganizationService.this.organizationRepository.save(this.organization);
-			}
-			if (Strings.isNullOrEmpty(this.organization.getPathToLogo())) {
-				deleteLogo(this.organization.getId());
-			} else {
-				for (final var component : components) {
-					component.saveUploadedFileOnServer();
+	
+				// Update the links between the organizations
+				final var orgas = new ArrayList<ResearchOrganization>();
+				orgas.add(this.entity);
+				if (!addedOrganizations.isEmpty() || !removedOrganizations.isEmpty()) {
+					try (final var session = ResearchOrganizationService.this.sessionFactory.openSession()) {
+						for (final var addedOrganization : addedOrganizations) {
+							// The following line is here for ensuring that proxys are initialized
+							final var addedOrganization0 = session.getReference(ResearchOrganization.class, Long.valueOf(addedOrganization.getId()));
+							Hibernate.initialize(addedOrganization0);
+							addedOrganization0.getSubOrganizations().add(this.entity);
+							orgas.add(addedOrganization0);
+						}
+						for (final var removedOrganization : removedOrganizations) {
+							// The following line is here for ensuring that proxys are initialized
+							final var removedOrganization0 = session.getReference(ResearchOrganization.class, Long.valueOf(removedOrganization.getId()));
+							Hibernate.initialize(removedOrganization0);
+							removedOrganization0.getSubOrganizations().remove(this.entity);
+							orgas.add(removedOrganization0);
+						}
+					}
 				}
+	
+				final var changedOrganizations = ResearchOrganizationService.this.organizationRepository.saveAll(orgas);
+				return changedOrganizations.stream().filter(it -> it.equals(this.entity)).findAny().orElse(entity);
 			}
-			this.id = this.organization.getId();
-			this.pathToLogo = this.organization.getPathToLogo();
+			return ResearchOrganizationService.this.organizationRepository.save(this.entity);
 		}
 
 		private void deleteLogo(long id) {
@@ -514,6 +514,86 @@ public class ResearchOrganizationService extends AbstractService {
 					ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id, ext);
 				}
 			}
+		}
+
+		@Override
+		protected void deleteAssociatedFiles(long id) {
+			deleteLogo(id);
+		}
+
+		@Override
+		protected boolean prepareAssociatedFileUpload() {
+			if (Strings.isNullOrEmpty(this.entity.getPathToLogo())) {
+				deleteLogo(this.entity.getId());
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		protected void postProcessAssociatedFiles() {
+			this.pathToLogo = this.entity.getPathToLogo();
+			this.originalSuperOrganizations = new HashSet<>(this.entity.getSuperOrganizations());
+		}
+
+		@Override
+		public EntityDeletingContext<ResearchOrganization> createDeletionContext() {
+			return ResearchOrganizationService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link ResearchOrganization}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<ResearchOrganization> {
+
+		private static final long serialVersionUID = -5859881441705651933L;
+
+		/** Constructor.
+		 *
+		 * @param organizations the organizations to delete.
+		 */
+		protected DeletingContext(Set<ResearchOrganization> organizations) {
+			super(organizations);
+		}
+		
+		@Override
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getMemberships().isEmpty()) {
+					return OrganizationDeletionStatus.MEMBERSHIP;
+				}
+			}
+			return DeletionStatus.OK;
+		}
+
+		@Override
+		protected void deleteEntities() throws Exception {
+			// Unlink super and suborganizations
+			final var updatedEntities = new ArrayList<ResearchOrganization>();
+			for (final var orga : getEntities()) {
+				for (final var superOrganization : orga.getSuperOrganizations()) {
+					updatedEntities.add(superOrganization);
+					superOrganization.getSubOrganizations().remove(orga);
+				}
+				orga.getSuperOrganizations().clear();
+				for (final var subOrganization : orga.getSubOrganizations()) {
+					updatedEntities.add(subOrganization);
+					subOrganization.getSuperOrganizations().remove(orga);
+				}
+				orga.getSubOrganizations().clear();
+				updatedEntities.add(orga);
+			}
+			ResearchOrganizationService.this.organizationRepository.saveAllAndFlush(updatedEntities);
+
+			// Do the deletion
+			ResearchOrganizationService.this.organizationRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 
 	}

@@ -22,12 +22,16 @@ package fr.utbm.ciad.labmanager.services.user;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -158,16 +162,57 @@ public class UserService extends AbstractService {
 	 * @return the editing context that enables to keep track of any information needed
 	 *      for saving the user and its related resources.
 	 */
-	public EditingContext startEditing(User user,
-			fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext personContext) {
+	public UserEditingContext startEditing(User user, EntityEditingContext<Person> personContext) {
 		final User userInstance;
 		if (user == null) {
 			userInstance = new User();
-			userInstance.setPerson(personContext.getPerson());
+			userInstance.setPerson(personContext.getEntity());
 		} else {
 			userInstance = user;
 		}
-		return new EditingContext(userInstance, personContext);
+		return new UserEditingContext(userInstance, personContext);
+	}
+
+	/** Start the deletion process of a person and its associated user.
+	 *
+	 * @param personContext the context used for deleting the associated person in parallel.
+	 * @return the deletion context.
+	 */
+	public EntityDeletingContext<Person> startDeletion(EntityDeletingContext<Person> personContext) {
+		return new EntityDeletingContext<>() {
+
+			private static final long serialVersionUID = -1988963345676292208L;
+
+			@Override
+			public Set<Person> getEntities() {
+				return personContext.getEntities();
+			}
+
+			@Override
+			public boolean isDeletionPossible() {
+				return personContext.isDeletionPossible();
+			}
+
+			@Override
+			public DeletionStatus getDeletionStatus() {
+				return personContext.getDeletionStatus();
+			}
+
+			@Override
+			@Transactional
+			public void delete() throws Exception {
+				// Delete associated users
+				for (final var person : getEntities()) {
+					final var user = getUserFor(person);
+					if (user != null) {
+						UserService.this.userRepository.delete(user);
+					}
+				}
+				// Delete persons
+				personContext.delete();
+			}
+			
+		};
 	}
 
 	/** Context for editing a {@link User}.
@@ -180,11 +225,11 @@ public class UserService extends AbstractService {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public class EditingContext implements Serializable {
+	public class UserEditingContext implements Serializable {
 
 		private static final long serialVersionUID = 2325698605037680657L;
 
-		private final fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext personContext;
+		private final EntityEditingContext<Person> personContext;
 
 		private User user;
 
@@ -195,11 +240,10 @@ public class UserService extends AbstractService {
 		 *     This context is used for obtaining the edited person in the case
 		 *     a fresh user instance is needed (after deletion).
 		 */
-		EditingContext(User user,
-				fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext personContext) {
+		UserEditingContext(User user, EntityEditingContext<Person> personContext) {
 			this.personContext = personContext;
 			this.user = user;
-			this.user.setPerson(personContext.getPerson());
+			this.user.setPerson(personContext.getEntity());
 		}
 
 		/** Replies the user.
@@ -214,7 +258,7 @@ public class UserService extends AbstractService {
 		 *
 		 * @return the editing context for the person associated to this user.
 		 */
-		public fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext getPersonContext() {
+		public EntityEditingContext<Person> getPersonContext() {
 			return this.personContext;
 		}
 
@@ -230,7 +274,11 @@ public class UserService extends AbstractService {
 		 */
 		@Transactional
 		public boolean savePersonAndSaveOrDeleteUser() {
-			this.personContext.save();
+			try {
+				this.personContext.save();
+			} catch (Throwable ex) {
+				return false;
+			}
 			//
 			if (Strings.isNullOrEmpty(this.user.getLogin())) {
 				try {
@@ -239,11 +287,40 @@ public class UserService extends AbstractService {
 					//
 				}
 				this.user = new User();
-				this.user.setPerson(this.personContext.getPerson());
+				this.user.setPerson(this.personContext.getEntity());
 				return false;
 			}
-			this.user.setPerson(this.personContext.getPerson());
+			this.user.setPerson(this.personContext.getEntity());
 			this.user = UserService.this.userRepository.save(this.user);
+			return true;
+		}
+
+		/** Delete the user and the person from the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the user object that was provided before the saving.
+		 * Invoke {@link #getUser()} for obtaining the new user
+		 * instance, since the content of the saved object may have totally changed.
+		 *
+		 * @param deletionContext the context for the deletion.
+		 * @return {@code true} if the user was saved, and {@code false} if the user
+		 *     was deleted.
+		 */
+		@Transactional
+		public boolean deletePersonAndUser(EntityDeletingContext<Person> deletionContext) {
+			try {
+				UserService.this.userRepository.delete(this.user);
+			} catch (Throwable ex) {
+				return false;
+			}
+			this.user = new User();
+			this.user.setPerson(this.personContext.getEntity());
+			//
+			try {
+				deletionContext.delete();
+			} catch (Throwable ex) {
+				return false;
+			}
 			return true;
 		}
 
