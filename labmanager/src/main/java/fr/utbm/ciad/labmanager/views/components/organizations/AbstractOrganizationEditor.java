@@ -245,7 +245,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_address"), //$NON-NLS-1$
 				editor, false,
-				dialog -> saver.accept(newAddress),
+				(dialog, entity) -> saver.accept(entity),
 				null);
 	}
 
@@ -320,7 +320,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_organization"), //$NON-NLS-1$
 				editor, false,
-				dialog -> saver.accept(newOrganization),
+				(dialog, entity) -> saver.accept(entity),
 				null);
 	}
 

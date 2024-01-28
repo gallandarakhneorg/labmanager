@@ -32,6 +32,7 @@ import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -61,15 +62,17 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param fileManager the manager of files.
 	 * @param addressRepository the address repository.
 	 */
 	public OrganizationAddressService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired OrganizationAddressRepository addressRepository) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.fileManager = fileManager;
 		this.addressRepository = addressRepository;
 	}

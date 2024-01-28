@@ -29,7 +29,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
-import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
@@ -161,8 +161,8 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 				this.fileManager,
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
-		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
-		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(address);
+		final SerializableBiConsumer<Dialog, OrganizationAddress> refreshAll = (dialog, entity) -> refreshGrid();
+		final SerializableBiConsumer<Dialog, OrganizationAddress> refreshOne = (dialog, entity) -> refreshItem(entity);
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				newEntity ? refreshAll : refreshOne,

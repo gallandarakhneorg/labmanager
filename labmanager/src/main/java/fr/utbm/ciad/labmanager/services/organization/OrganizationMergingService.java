@@ -37,6 +37,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.names.OrganizationNameComparator;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param organizationService the organization service.
 	 * @param organizationRepository the organization repository.
 	 * @param membershipRepository the repository of the organization memberships.
@@ -82,6 +84,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	public OrganizationMergingService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MembershipRepository membershipRepository,
@@ -89,7 +92,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 			@Autowired AssociatedStructureRepository structureRepository,
 			@Autowired AssociatedStructureHolderRepository structureHolderRepository,
 			@Autowired OrganizationNameComparator nameComparator) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.organizationService = organizationService;
 		this.organizationRepository = organizationRepository;
 		this.membershipRepository = membershipRepository;

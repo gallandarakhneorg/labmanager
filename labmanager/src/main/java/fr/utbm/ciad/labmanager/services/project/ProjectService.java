@@ -73,6 +73,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -113,6 +114,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param projectRepository the repository for the research projects.
 	 * @param projectMemberRepository the repository for the members of research projects.
 	 * @param organizationRepository the repository for the research organizations.
@@ -123,13 +125,14 @@ public class ProjectService extends AbstractEntityService<Project> {
 	public ProjectService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired ProjectMemberRepository projectMemberRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired MembershipService membershipService,
 			@Autowired DownloadableFileManager fileManager) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;
 		this.organizationRepository = organizationRepository;

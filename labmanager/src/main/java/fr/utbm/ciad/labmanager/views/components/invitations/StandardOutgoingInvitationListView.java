@@ -182,7 +182,7 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				dialog -> refreshItem(invitation),
+				(dialog, entity) -> refreshItem(entity),
 				null);
 	}
 

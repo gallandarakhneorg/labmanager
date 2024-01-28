@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.views.components.addons.ranking;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -95,7 +96,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 		this.editButton.setEnabled(false);
 
 		this.addBeforeButton = ComponentFactory.addIconItem(menuBar, LineAwesomeIcon.ARROW_ALT_CIRCLE_UP_SOLID, null, null);
-		this.addBeforeButton.setEnabled(false);
+		this.addBeforeButton.setEnabled(true);
 
 		this.addAfterButton = ComponentFactory.addIconItem(menuBar, LineAwesomeIcon.ARROW_ALT_CIRCLE_DOWN_SOLID, null, null);
 		this.addAfterButton.setEnabled(false);
@@ -121,10 +122,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 		// Add listener on selection change
 		this.grid.addSelectionListener(event -> {
 			final var hasSelection = !event.getAllSelectedItems().isEmpty();
-			this.editButton.setEnabled(hasSelection);
-			this.addBeforeButton.setEnabled(hasSelection);
-			this.addAfterButton.setEnabled(hasSelection);
-			this.removeButton.setEnabled(hasSelection);
+			updateMenuItemEnablingState(hasSelection);
 		});
 
 		// Add callbacks for menu bar
@@ -156,7 +154,22 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 		this.grid.getEditor().addSaveListener(it -> updateValue());
 	}
 
-	private <Q> ComboBox<Q> createBaseComboEditor(ListDataProvider<Q> dataProvider) {
+	/** Replies the default reference year for annual ranking.
+	 *
+	 * @return the default reference year.
+	 */
+	public static int getDefaultReferenceYear() {
+		return LocalDate.now().getYear() - 1;
+	}
+
+	private void updateMenuItemEnablingState(boolean hasSelection) {
+		this.editButton.setEnabled(hasSelection || this.grid.getListDataView().getItemCount() == 0);
+		this.addBeforeButton.setEnabled(hasSelection || this.grid.getListDataView().getItemCount() == 0);
+		this.addAfterButton.setEnabled(hasSelection);
+		this.removeButton.setEnabled(hasSelection);
+	}
+
+	private <Q> ComboBox<Q> createBaseComboEditor(ListDataProvider<Q> dataProvider, Q notRankedValue) {
 		final var cellEditor = new ComboBox<Q>();
 		cellEditor.setItems(dataProvider)
 		.setIdentifierProvider(it -> {
@@ -169,7 +182,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 			if (it == null) {
 				return getTranslation("views.rankings.inherit_information"); //$NON-NLS-1$
 			}
-			if (it == QuartileRanking.NR) {
+			if (it == notRankedValue) {
 				return getTranslation("views.rankings.no_ranking"); //$NON-NLS-1$
 			}
 			return it.toString();
@@ -194,7 +207,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 				QuartileRanking.Q3,
 				QuartileRanking.Q4,
 				QuartileRanking.NR));
-		return createBaseComboEditor(dataProvider);
+		return createBaseComboEditor(dataProvider, QuartileRanking.NR);
 	}
 
 	/** Create a combo box for editing a core index. This function is a factory function
@@ -212,7 +225,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 				CoreRanking.C,
 				CoreRanking.D,
 				CoreRanking.NR));
-		return createBaseComboEditor(dataProvider);
+		return createBaseComboEditor(dataProvider, CoreRanking.NR);
 	}
 
 	/** Create a decimal field for editing an decimal indicator. This function is a factory function
@@ -304,23 +317,27 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 	/** Invoked when ranking information must be added before the current selection.
 	 */
 	protected void addRankingBeforeSelection() {
-		final var items = this.grid.getSelectedItems();
-		if (!items.isEmpty()) {
-			var item = items.iterator().next();
-			var year = item.getYear();
-
-			var previousOpt = this.grid.getListDataView().getPreviousItem(item);
-			while (previousOpt.isPresent() && previousOpt.get().getYear().intValue() == year.intValue() + 1) {
-				item = previousOpt.get();
-				year = item.getYear();
-				previousOpt = this.grid.getListDataView().getPreviousItem(item);
+		if (this.grid.getListDataView().getItemCount() == 0) {
+			addRanking(null, null, Integer.valueOf(getDefaultReferenceYear()));
+		} else {
+			final var selectedItems = this.grid.getSelectedItems();
+			if (!selectedItems.isEmpty()) {
+				var item = selectedItems.iterator().next();
+				var year = item.getYear();
+	
+				var previousOpt = this.grid.getListDataView().getPreviousItem(item);
+				while (previousOpt.isPresent() && previousOpt.get().getYear().intValue() == year.intValue() + 1) {
+					item = previousOpt.get();
+					year = item.getYear();
+					previousOpt = this.grid.getListDataView().getPreviousItem(item);
+				}
+	
+				while (this.data.containsKey(year)) {
+					year = Integer.valueOf(year.intValue() + 1);
+				}
+	
+				addRanking(item, this.grid.getListDataView().getPreviousItem(item).orElse(null), year);
 			}
-
-			while (this.data.containsKey(year)) {
-				year = Integer.valueOf(year.intValue() + 1);
-			}
-
-			addRanking(item, this.grid.getListDataView().getPreviousItem(item).orElse(null), year);
 		}
 	}
 
@@ -423,6 +440,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 			previous = item;
 		}
 		this.grid.setItems(viewData);
+		updateMenuItemEnablingState(false);
 	}
 
 	@Override
@@ -497,7 +515,7 @@ public abstract class AbstractAnnualRankingField<R extends QualityAnnualIndicato
 		public DataItem<R> getPreviousItem(Predicate<R> extractor) {
 			var item = this.previousItem;
 			while (item != null) {
-				final var hasIndicator = extractor.test(this.indicators);
+				final var hasIndicator = extractor.test(item.indicators);
 				if (hasIndicator) {
 					return item;
 				}

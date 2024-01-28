@@ -213,8 +213,9 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	public ConferencePaper createConferencePaper(Publication publication, Conference conference, int conferenceOccurrenceNumber,
 			String volume, String number, String pages, String editors, String series, String orga, String address,
 			boolean saveInDb) {
-		final var res = new ConferencePaper(publication, conference, conferenceOccurrenceNumber,
+		final var res = new ConferencePaper(publication, conferenceOccurrenceNumber,
 				volume, number, pages, editors, orga, address, series);
+		res.setConference(conference);
 		if (saveInDb) {
 			this.repository.save(res);
 		}

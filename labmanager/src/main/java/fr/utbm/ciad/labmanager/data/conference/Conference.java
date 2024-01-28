@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
@@ -37,6 +39,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -147,6 +150,13 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Conference enclosingConference;
+
+	/** List of papers that are published in this conference.
+	 * 
+	 * @since 4.0
+	 */
+	@OneToMany(mappedBy = "conference", fetch = FetchType.LAZY)
+	private Set<AbstractConferenceBasedPublication> publishedPapers;
 
 	/** Construct an empty conference.
 	 */
@@ -423,6 +433,22 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		return this.qualityIndicators;
 	}
 
+	/** Change the quality indicators of the conference.
+	 *
+	 * @param indicators the indicators.
+	 * @since 4.0
+	 */
+	public void setQualityIndicators(Map<Integer, ConferenceQualityAnnualIndicators> indicators) {
+		if (this.qualityIndicators == null) {
+			this.qualityIndicators = new TreeMap<>();
+		} else {
+			this.qualityIndicators.clear();
+		}
+		if (indicators != null && !indicators.isEmpty()) {
+			this.qualityIndicators.putAll(indicators);
+		}
+	}
+
 	/** Replies the quality indicators of the conference for the given year.
 	 *
 	 * @param year the year to search for.
@@ -600,6 +626,43 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	/** Replies the set of published papers in this conference.
+	 *
+	 * @return the published papers.
+	 * @since 4.0
+	 */
+	public Set<AbstractConferenceBasedPublication> getPublishedPapers() {
+		if (this.publishedPapers == null) {
+			this.publishedPapers = new HashSet<>();
+		}
+		return this.publishedPapers;
+	}
+
+	/** Change the set of published papers in this conference.
+	 *
+	 * @param papers the published papers.
+	 * @since 4.0
+	 */
+	public void setPublishedPapers(Set<? extends AbstractConferenceBasedPublication> papers) {
+		if (this.publishedPapers != null) {
+			this.publishedPapers.clear();
+		} else {
+			this.publishedPapers = new HashSet<>();
+		}
+		if (papers != null) {
+			this.publishedPapers.addAll(papers);
+		}
+	}
+
+	/** Replies if the conference has at least one published paper attached to it.
+	 *
+	 * @return {@code true} if a paper is attached to this conference.
+	 * @since 4.0
+	 */
+	public boolean hasPublishedPaper() {
+		return this.publishedPapers != null && !this.publishedPapers.isEmpty();
 	}
 
 }

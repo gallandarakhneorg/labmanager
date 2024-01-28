@@ -66,8 +66,6 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 
 	private final ResearchOrganizationRepository organizationRepository;
 
-	private final SessionFactory sessionFactory;
-
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -87,9 +85,8 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired DownloadableFileManager fileManager) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.addressRepository = addressRepository;
-		this.sessionFactory = sessionFactory;
 		this.organizationRepository = organizationRepository;
 		this.fileManager = fileManager;
 	}
@@ -411,12 +408,12 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		assert organization != null;
 		// Force initialization of the internal properties that are needed for editing
 		if (organization.getId() != 0l) {
-			try (final var session = this.sessionFactory.openSession()) {
+			inSession(session -> {
 				session.load(organization, Long.valueOf(organization.getId()));
 				Hibernate.initialize(organization.getAddresses());
 				Hibernate.initialize(organization.getSuperOrganizations());
 				Hibernate.initialize(organization.getSubOrganizations());
-			}
+			});
 		}
 		return new EditingContext(organization);
 	}
@@ -425,7 +422,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> organizations) {
 		assert organizations != null && !organizations.isEmpty();
 		// Force loading of the super and suborganizations
-		try (final var session = this.sessionFactory.openSession()) {
+		inSession(session -> {
 			for (final var organization : organizations) {
 				if (organization.getId() != 0l) {
 					session.load(organization, Long.valueOf(organization.getId()));
@@ -435,7 +432,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 					Hibernate.initialize(organization.getMemberships());
 				}
 			}
-		}
+		});
 		return new DeletingContext(organizations);
 	}
 
@@ -483,7 +480,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				final var orgas = new ArrayList<ResearchOrganization>();
 				orgas.add(this.entity);
 				if (!addedOrganizations.isEmpty() || !removedOrganizations.isEmpty()) {
-					try (final var session = ResearchOrganizationService.this.sessionFactory.openSession()) {
+					inSession(session -> {
 						for (final var addedOrganization : addedOrganizations) {
 							// The following line is here for ensuring that proxys are initialized
 							final var addedOrganization0 = session.getReference(ResearchOrganization.class, Long.valueOf(addedOrganization.getId()));
@@ -498,7 +495,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 							removedOrganization0.getSubOrganizations().remove(this.entity);
 							orgas.add(removedOrganization0);
 						}
-					}
+					});
 				}
 	
 				final var changedOrganizations = ResearchOrganizationService.this.organizationRepository.saveAll(orgas);

@@ -62,6 +62,7 @@ import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,13 +109,16 @@ public class MembershipServiceTest {
 
 	private MembershipService test;
 
+	private SessionFactory sessionFactory;
+
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
 		this.membershipRepository = mock(MembershipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
-		this.test = new MembershipService(this.messages, new Constants(), this.organizationRepository, this.membershipRepository, this.personRepository);
+		this.sessionFactory = mock(SessionFactory.class);
+		this.test = new MembershipService(this.messages, new Constants(), this.sessionFactory, this.organizationRepository, this.membershipRepository, this.personRepository);
 
 		// Prepare some memberships to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.conference;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal.CorePortalConference;
@@ -47,6 +49,7 @@ import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,13 +81,12 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 
 	private final CorePortal corePortal;
 
-	private final SessionFactory sessionFactory;
-
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param conferenceRepository the journal repository.
 	 * @param indicatorsRepository the repository for accessing to the quality indicators.
 	 * @param corePortal the accessor to the online CORE portal.
@@ -93,15 +95,14 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	public ConferenceService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired ConferenceQualityAnnualIndicatorsRepository indicatorsRepository,
-			@Autowired CorePortal corePortal,
-			@Autowired SessionFactory sessionFactory) {
-		super(messages, constants);
+			@Autowired CorePortal corePortal) {
+		super(messages, constants, sessionFactory);
 		this.conferenceRepository = conferenceRepository;
 		this.indicatorsRepository = indicatorsRepository;
 		this.corePortal = corePortal;
-		this.sessionFactory = sessionFactory;
 	}
 
 	/** Replies all the conferences for the database.
@@ -172,6 +173,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @return the list of conferences.
 	 * @since 4.0
 	 */
+	@Transactional
 	public Page<Conference> getAllConferences(Pageable pageable, Specification<Conference> filter, Consumer<Conference> callback) {
 		if (callback != null) {
 			final var page = this.conferenceRepository.findAll(filter, pageable);
@@ -394,7 +396,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 */
 	public void computeConferenceRankingIndicatorUpdates(int year, Locale locale, DefaultProgression progression, BiConsumer<Conference, Map<String, Object>> callback) {
 		final Set<Conference> treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
-		try (final Session session = this.sessionFactory.openSession()) {
+		inSession(session -> {
 			final List<Conference> conferences = this.conferenceRepository.findAll();
 			final Progression progress = progression == null ? new DefaultProgression() : progression;
 			progress.setProperties(0, 0, conferences.size(), false);
@@ -410,7 +412,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 				progress.increment();
 			}
 			progress.end();
-		}
+		});
 	}
 
 	private void readCorePortalIndicators(Session session, int year, Conference conference, Map<String, Object> newIndicators) {
@@ -461,12 +463,29 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	@Override
 	public EditingContext startEditing(Conference conference) {
 		assert conference != null;
+		// Force loading of the quality indicators that may be edited at the same time as the rest of the conference properties
+		inSession(session -> {
+			if (conference.getId() != 0l) {
+				session.load(conference, Long.valueOf(conference.getId()));
+				Hibernate.initialize(conference.getQualityIndicators());
+			}
+		});
 		return new EditingContext(conference);
 	}
 
 	@Override
 	public EntityDeletingContext<Conference> startDeletion(Set<Conference> conferences) {
 		assert conferences != null && !conferences.isEmpty();
+		// Force loading of the publishers papers and quality indicators
+		inSession(session -> {
+			for (final var conference : conferences) {
+				if (conference.getId() != 0l) {
+					session.load(conference, Long.valueOf(conference.getId()));
+					Hibernate.initialize(conference.getPublishedPapers());
+					Hibernate.initialize(conference.getQualityIndicators());
+				}
+			}
+		});
 		return new DeletingContext(conferences);
 	}
 
@@ -525,7 +544,29 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		}
 
 		@Override
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getPublishedPapers().isEmpty()) {
+					return ConferenceDeletionStatus.ARTICLE;
+				}
+			}
+			return DeletionStatus.OK;
+		}
+
+		@Override
 		protected void deleteEntities() throws Exception {
+			// Remove the quality indicators
+			final List<Conference> updatedConferences = new ArrayList<>();
+			for (final var conference : getEntities())  {
+				if (!conference.getQualityIndicators().isEmpty()) {
+					conference.getQualityIndicators().clear();
+					updatedConferences.add(conference);
+				}
+			}
+			if (!updatedConferences.isEmpty()) {
+				ConferenceService.this.conferenceRepository.saveAllAndFlush(updatedConferences);
+			}
+			//
 			ConferenceService.this.conferenceRepository.deleteAllById(getDeletableEntityIdentifiers());
 		}
 

@@ -528,6 +528,39 @@ public enum FundingScheme {
 			return false;
 		}
 	},
+	/** 
+	 * France 2030 (Plan d'Investissement d'Avenir France 2030) 
+	 */
+	FRANCE_2030 {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
+	},
 	/** Funds are provided in the context of a CIFRE by ANRT.
 	 *
 	 * @see #FRENCH_COMPANY

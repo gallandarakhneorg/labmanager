@@ -23,10 +23,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,13 +43,29 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public abstract class AbstractEntityService<T extends IdentifiableEntity> extends AbstractService {
 
+
+	private final SessionFactory sessionFactory;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param sessionFactory the factory of JPA session.
 	 */
-	public AbstractEntityService(MessageSourceAccessor messages, Constants constants) {
+	public AbstractEntityService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
 		super(messages, constants);
+		this.sessionFactory = sessionFactory;
+	}
+
+	/** Run the provided code in a JPA session.
+	 *
+	 * @param code the code to run. It takes the session as argument.
+	 * @since 4.0
+	 */
+	public void inSession(Consumer<Session> code) {
+		try (final var session = this.sessionFactory.openSession()) {
+			code.accept(session);
+		}
 	}
 
 	/** Start the editing of the given entity.

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.services.journal;
+package fr.utbm.ciad.labmanager.services.conference;
 
 import java.util.Locale;
 
@@ -25,7 +25,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Status for the journal deletion.
+/** Status for the conference deletion.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -33,13 +33,13 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public enum JournalDeletionStatus implements DeletionStatus {
+public enum ConferenceDeletionStatus implements DeletionStatus {
 
-	/** Deletion is impossible because the journal has linked articles.
+	/** Deletion is impossible because the conference has linked articles.
 	 */
 	ARTICLE;
 
-	private static final String MESSAGE_PREFIX = "journalDeletionStatus."; //$NON-NLS-1$
+	private static final String MESSAGE_PREFIX = "conferenceDeletionStatus."; //$NON-NLS-1$
 
 	/** Replies the label of the deletion status.
 	 *
@@ -52,14 +52,14 @@ public enum JournalDeletionStatus implements DeletionStatus {
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the status of journal deletion that corresponds to the given name, with a case-insensitive
+	/** Replies the status of conference deletion that corresponds to the given name, with a case-insensitive
 	 * test of the name.
 	 *
-	 * @param name the name of the status of journal deletion, to search for.
+	 * @param name the name of the status of conference deletion, to search for.
 	 * @return the status.
 	 * @throws IllegalArgumentException if the given name does not corresponds to a type.
 	 */
-	public static JournalDeletionStatus valueOfCaseInsensitive(String name) {
+	public static ConferenceDeletionStatus valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
 			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
@@ -67,7 +67,7 @@ public enum JournalDeletionStatus implements DeletionStatus {
 				}
 			}
 		}
-		throw new IllegalArgumentException("Invalid status of journal deletion: " + name); //$NON-NLS-1$
+		throw new IllegalArgumentException("Invalid status of conference deletion: " + name); //$NON-NLS-1$
 	}
 
 	@Override

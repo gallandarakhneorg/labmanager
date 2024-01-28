@@ -20,22 +20,15 @@
 package fr.utbm.ciad.labmanager.data.publication.type;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
-import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
-import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -51,23 +44,9 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 @Entity
 @DiscriminatorValue("KeyNote")
-public class KeyNote extends Publication implements ConferenceBasedPublication {
+public class KeyNote extends AbstractConferenceBasedPublication {
 
-	private static final long serialVersionUID = -6657050556989265460L;
-
-	/** Reference to the conference.
-	 *
-	 * @since 3.6
-	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Conference conference;
-
-	/** Number of the conference occurrence.
-	 *
-	 * @since 3.6
-	 */
-	@Column
-	private int conferenceOccurrenceNumber;
+	private static final long serialVersionUID = 6305786419717116761L;
 
 	/** List of names of the editors of the proceedings of the event.
 	 * The list of names is usually a sequence of names separated by {@code AND}, and each name has the format {@code LAST, VON, FIRST}.
@@ -88,17 +67,14 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	/** Construct a conference paper with the given values.
 	 *
 	 * @param publication the publication to copy.
-	 * @param conference the reference to the conference
 	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param editors the list of the names of the editors. Each name may have the format {@code LAST, VON, FIRST} and the names may be separated
 	 *     with {@code AND}.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
-	public KeyNote(Publication publication, Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address) {
-		super(publication);
-		this.conference = conference;
-		this.conferenceOccurrenceNumber = conferenceOccurrenceNumber;
+	public KeyNote(Publication publication, int conferenceOccurrenceNumber, String editors, String orga, String address) {
+		super(publication, conferenceOccurrenceNumber);
 		this.editors = editors;
 		this.organization = orga;
 		this.address = address;
@@ -111,40 +87,8 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	}
 
 	@Override
-	public int hashCode() {
-		if (getId() != 0) {
-			return Long.hashCode(getId());
-		}
-		var h = super.hashCode();
-		h = HashCodeUtils.add(h, this.conference);
-		return h;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (this == obj) {
-			return true;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final var other = (KeyNote) obj;
-		if (getId() != 0 && other.getId() != 0) {
-			return getId() == other.getId();
-		}
-		return super.equals(other)
-				&& Objects.equals(this.conference, other.conference);
-	}
-
-	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
-		if (getConferenceOccurrenceNumber() > 0) {
-			consumer.accept("conferenceOcccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
-		}
 		if (!Strings.isNullOrEmpty(getEditors())) {
 			consumer.accept("editors", getEditors()); //$NON-NLS-1$
 		}
@@ -169,86 +113,15 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 			buf.append(", "); //$NON-NLS-1$
 			buf.append(getAddress());
 		}
-		if (!Strings.isNullOrEmpty(getISBN())) {
+		if (!Strings.isNullOrEmpty(getConference().getISBN())) {
 			buf.append(", ISBN "); //$NON-NLS-1$
-			buf.append(getISBN());
+			buf.append(getConference().getISBN());
 		}
-		if (!Strings.isNullOrEmpty(getISSN())) {
+		if (!Strings.isNullOrEmpty(getConference().getISSN())) {
 			buf.append(", ISSN "); //$NON-NLS-1$
-			buf.append(getISSN());
+			buf.append(getConference().getISSN());
 		}
 		return buf.toString();
-	}
-
-	private static void appendConferenceName(StringBuilder buf, Conference conference, int year) {
-		buf.append(conference.getName());
-		if (!Strings.isNullOrEmpty(conference.getAcronym())) {
-			buf.append(" (").append(conference.getAcronym()).append("-").append(year % 100).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-	}
-
-	@Override
-	public String getPublicationTarget() {
-		final var buf = new StringBuilder();
-		final var conference = getConference();
-		if (conference != null) {
-			final var number = getConferenceOccurrenceNumber();
-			if (number > 1) {
-				buf.append(number).append(ConferenceBasedPublication.getNumberDecorator(number, getMajorLanguage())).append(" "); //$NON-NLS-1$;
-			}
-			final var year = getPublicationYear();
-			appendConferenceName(buf, conference, year);
-			var enclosingConference = conference.getEnclosingConference();
-			if (enclosingConference != null) {
-				final var identifiers = new HashSet<Long>();
-				identifiers.add(Long.valueOf(conference.getId()));
-				while (enclosingConference != null && identifiers.add(Long.valueOf(enclosingConference.getId()))) {
-					buf.append(", ").append("in").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					appendConferenceName(buf, enclosingConference, year);
-					enclosingConference = enclosingConference.getEnclosingConference();
-				}
-			}
-		}
-		return buf.toString();
-	}
-
-	@Override
-	public Conference getConference() {
-		return this.conference;
-	}
-
-	@Override
-	public void setConference(Conference conference) {
-		this.conference = conference;
-	}
-
-	@Override
-	public int getConferenceOccurrenceNumber() {
-		return this.conferenceOccurrenceNumber;
-	}
-
-	@Override
-	public void setConferenceOccurrenceNumber(int number) {
-		if (number > 0) {
-			this.conferenceOccurrenceNumber = number;
-		} else {
-			this.conferenceOccurrenceNumber = 0;
-		}
-	}
-
-	/** Change the number of the occurrence of the conference in which the publication was published.
-	 * <p>
-	 * In the example of the "14th International Conference on Systems", the occurrence number is "14".
-	 *
-	 * @param number the conference occurrence number.
-	 * @see #setConference(Conference)
-	 */
-	public final void setConferenceOccurrenceNumber(Number number) {
-		if (number == null) {
-			setConferenceOccurrenceNumber(0);
-		} else {
-			setConferenceOccurrenceNumber(number.intValue());
-		}
 	}
 
 	/** Replies the editors of the proceedings of the event (conference or workshop) in which the publication was published.
@@ -301,128 +174,6 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	 */
 	public void setAddress(String address) {
 		this.address = Strings.emptyToNull(address);
-	}
-
-	@Override
-	public CoreRanking getCoreRanking() {
-		final var conference = getConference();
-		if (conference != null) {
-			return conference.getCoreIndexByYear(getPublicationYear());
-		}
-		return CoreRanking.NR;
-	}
-	
-	@Override
-	public boolean isRanked() {
-		final var conference = getConference();
-		if (conference != null) {
-			return conference.getCoreIndexByYear(getPublicationYear()) != CoreRanking.NR;
-		}
-		return false;
-	}
-
-	@Override
-	public Boolean getOpenAccess() {
-		final var conference = getConference();
-		if (conference != null) {
-			return conference.getOpenAccess();
-		}
-		return null;
-	}
-
-	/** Replies the name of the publisher.
-	 * This functions delegates to the conference.
-	 *
-	 * @return the publisher name.
-	 * @deprecated see {@link Conference#getPublisher()}
-	 */
-	@Deprecated(forRemoval = true, since = "3.6")
-	public String getPublisher() {
-		final var conference = getConference();
-		if (conference != null) {
-			return conference.getPublisher();
-		}
-		return null;
-	}
-
-	/** Change the name of the publisher.
-	 * This functions delegates to the conference.
-	 *
-	 * @param name the publisher name.
-	 * @deprecated see {@link Conference#setPublisher(String)}
-	 */
-	@Deprecated(forRemoval = true, since = "3.6")
-	public void setPublisher(String name) {
-		final var conference = getConference();
-		if (conference != null) {
-			conference.setPublisher(name);
-		}
-	}
-
-	/** Replies the ISBN number that is associated to this publication.
-	 * This functions delegates to the conference.
-	 *
-	 * @return the ISBN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/ISBN"
-	 * @deprecated See {@link Conference#getISBN()}
-	 */
-	@Override
-	@Deprecated(since = "3.6")
-	public String getISBN() {
-		final var conference = getConference();
-		if (conference != null) {
-			return conference.getISBN();
-		}
-		return null;
-	}
-
-	/** Change the ISBN number that is associated to this publication.
-	 * This functions delegates to the conference.
-	 *
-	 * @param isbn the ISBN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/ISBN"
-	 * @deprecated See {@link Conference#setISBN(String)}
-	 */
-	@Override
-	@Deprecated(since = "3.6")
-	public void setISBN(String isbn) {
-		final var conference = getConference();
-		if (conference != null) {
-			conference.setISBN(isbn);
-		}
-	}
-
-	/** Replies the ISSN number that is associated to this publication.
-	 * This functions delegates to the conference.
-	 *
-	 * @return the ISSN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
-	 * @deprecated See {@link Conference#getISSN()}
-	 */
-	@Override
-	@Deprecated(since = "3.6")
-	public String getISSN() {
-		final var conference = getConference();
-		if (conference != null) {
-			return conference.getISSN();
-		}
-		return null;
-	}
-
-	/** Change the ISSN number that is associated to this publication.
-	 * This functions delegates to the conference.
-	 *
-	 * @param issn the ISSN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
-	 * @deprecated See {@link Conference#setISSN(String)}
-	 */
-	@Override
-	@Deprecated(since = "3.6")
-	public final void setISSN(String issn) {
-		final var conference = getConference();
-		if (conference != null) {
-			conference.setISSN(issn);
-		}
 	}
 
 }

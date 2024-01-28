@@ -31,6 +31,7 @@ import java.util.TreeSet;
 
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
+import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
@@ -528,6 +529,44 @@ public class ConferenceTest {
 		var t1 = createTransient1();
 		var m1 = createManaged1();
 		assertNotEquals(t1.hashCode(), m1.hashCode());
+	}
+
+	@Test
+	public void getPublishedPapers() {
+		assertTrue(this.test.getPublishedPapers().isEmpty());
+	}
+
+	@Test
+	public void setPublishedPapers() {
+		assertTrue(this.test.getPublishedPapers().isEmpty());
+
+		final Set<ConferencePaper> base0 = new TreeSet<>();
+		this.test.setPublishedPapers(base0);
+		assertNotNull(this.test.getPublishedPapers());
+		assertEquals(base0, this.test.getPublishedPapers());
+
+		final Set<ConferencePaper> base1 = new TreeSet<>();
+		base1.add(mock(ConferencePaper.class));
+		this.test.setPublishedPapers(base1);
+		assertNotNull(this.test.getPublishedPapers());
+		assertEquals(base1, this.test.getPublishedPapers());
+
+		this.test.setPublishedPapers(null);
+		assertTrue(this.test.getPublishedPapers().isEmpty());
+	}
+
+	@Test
+	public void hasPublishedPaper() {
+		assertFalse(this.test.hasPublishedPaper());
+
+		final Set<ConferencePaper> base0 = new TreeSet<>();
+		this.test.setPublishedPapers(base0);
+		assertFalse(this.test.hasPublishedPaper());
+
+		final Set<ConferencePaper> base1 = new TreeSet<>();
+		base1.add(mock(ConferencePaper.class));
+		this.test.setPublishedPapers(base1);
+		assertTrue(this.test.hasPublishedPaper());
 	}
 
 }

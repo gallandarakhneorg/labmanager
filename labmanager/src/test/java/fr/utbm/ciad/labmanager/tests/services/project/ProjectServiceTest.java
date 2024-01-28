@@ -79,6 +79,7 @@ import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,6 +116,8 @@ public class ProjectServiceTest {
 
 	private ProjectService test;
 
+	private SessionFactory sessionFactory;
+
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
@@ -124,7 +127,8 @@ public class ProjectServiceTest {
 		this.personRepository = mock(PersonRepository.class);
 		this.membershipService = mock(MembershipService.class);
 		this.fileManager = mock(DownloadableFileManager.class);
-		this.test = new ProjectService(this.messages, new Constants(), this.projectRepository, this.projectMemberRepository,
+		this.sessionFactory = mock(SessionFactory.class);
+		this.test = new ProjectService(this.messages, new Constants(), this.sessionFactory, this.projectRepository, this.projectMemberRepository,
 				this.organizationRepository, this.personRepository, this.membershipService, this.fileManager);
 	}
 	

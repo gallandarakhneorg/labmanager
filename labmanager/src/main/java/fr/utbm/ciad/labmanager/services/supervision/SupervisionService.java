@@ -38,6 +38,7 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import jakarta.transaction.Transactional;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -70,6 +71,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param supervisionRepository the repository for person supervisions.
 	 * @param supervisorRepository the repository for person supervisors.
 	 * @param membershipRepository the repository for accessing the organization memberships.
@@ -78,11 +80,12 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	public SupervisionService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired SupervisorRepository supervisorRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired PersonService personService) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.supervisionRepository = supervisionRepository;
 		this.supervisorRepository = supervisorRepository;
 		this.membershipRepository = membershipRepository;

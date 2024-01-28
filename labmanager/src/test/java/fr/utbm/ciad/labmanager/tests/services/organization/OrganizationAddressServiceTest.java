@@ -41,6 +41,7 @@ import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,13 +73,16 @@ public class OrganizationAddressServiceTest {
 
 	private OrganizationAddressService test;
 
+	private SessionFactory sessionFactory;
+
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.addressRepository = mock(OrganizationAddressRepository.class);
 		this.fileManager = mock(DownloadableFileManager.class);
+		this.sessionFactory = mock(SessionFactory.class);
 		
-		this.test = new OrganizationAddressService(this.messages, new Constants(), this.fileManager, this.addressRepository);
+		this.test = new OrganizationAddressService(this.messages, new Constants(), this.sessionFactory, this.fileManager, this.addressRepository);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

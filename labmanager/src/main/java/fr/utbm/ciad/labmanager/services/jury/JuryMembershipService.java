@@ -38,6 +38,7 @@ import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -68,6 +69,7 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param membershipRepository the jury membership repository.
 	 * @param personService the service for accessing the persons.
 	 * @param nameParser the parser of person names.
@@ -75,10 +77,11 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 	public JuryMembershipService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired JuryMembershipRepository membershipRepository,
 			@Autowired PersonService personService,
 			@Autowired PersonNameParser nameParser) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.membershipRepository = membershipRepository;
 		this.personService = personService;
 		this.nameParser = nameParser;

@@ -73,8 +73,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class JournalService extends AbstractEntityService<Journal> {
 
 	private static final String NOT_RANKED_STR = "--"; //$NON-NLS-1$
-
-	private final SessionFactory sessionFactory;
 	
 	private final JournalRepository journalRepository;
 
@@ -111,8 +109,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 			@Autowired ScimagoPlatform scimago,
 			@Autowired WebOfSciencePlatform wos,
 			@Autowired NetConnection netConnection) {
-		super(messages, constants);
-		this.sessionFactory = sessionFactory;
+		super(messages, constants, sessionFactory);
 		this.journalRepository = journalRepository;
 		this.indicatorRepository = indicatorRepository;
 		this.publicationRepository = publicationRepository;
@@ -722,12 +719,12 @@ public class JournalService extends AbstractEntityService<Journal> {
 	public EntityEditingContext<Journal> startEditing(Journal journal) {
 		assert journal != null;
 		// Force loading of the quality indicators that may be edited at the same time as the rest of the journal properties
-		try (final var session = this.sessionFactory.openSession()) {
+		inSession(session -> {
 			if (journal.getId() != 0l) {
 				session.load(journal, Long.valueOf(journal.getId()));
 				Hibernate.initialize(journal.getQualityIndicators());
 			}
-		}
+		});
 		return new EditingContext(journal);
 	}
 
@@ -735,7 +732,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 	public EntityDeletingContext<Journal> startDeletion(Set<Journal> journals) {
 		assert journals != null && !journals.isEmpty();
 		// Force loading of the memberships and authorships
-		try (final var session = this.sessionFactory.openSession()) {
+		inSession(session -> {
 			for (final var journal : journals) {
 				if (journal.getId() != 0l) {
 					session.load(journal, Long.valueOf(journal.getId()));
@@ -743,7 +740,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 					Hibernate.initialize(journal.getQualityIndicators());
 				}
 			}
-		}
+		});
 		return new DeletingContext(journals);
 	}
 

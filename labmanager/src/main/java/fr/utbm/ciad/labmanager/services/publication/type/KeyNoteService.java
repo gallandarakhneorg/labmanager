@@ -160,7 +160,8 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 * @since 3.8
 	 */
 	public KeyNote createKeyNote(Publication publication, Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address, boolean saveInDb) {
-		final var res = new KeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address);
+		final var res = new KeyNote(publication, conferenceOccurrenceNumber, editors, orga, address);
+		res.setConference(conference);
 		if (saveInDb) {
 			this.repository.save(res);
 		}

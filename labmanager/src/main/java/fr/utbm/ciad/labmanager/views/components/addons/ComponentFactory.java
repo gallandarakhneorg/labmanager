@@ -53,9 +53,11 @@ import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
+import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import org.apache.commons.lang3.StringUtils;
@@ -445,6 +447,7 @@ public final class ComponentFactory {
 	 * turning on the validation flag by the local authority. Third is the standard deletion callback that invoked
 	 * after querying the user for accepting the deletion. 
 	 *
+	 * @param <T> the type of the edited entity.
 	 * @param title the title of the dialog.
 	 * @param content the content of the dialog, where the editing fields are located.
 	 * @param mapEnterKeyToSave if {@code true}, the "save" button is activated when the {@code Enter}
@@ -453,11 +456,11 @@ public final class ComponentFactory {
 	 * @param saveDoneCallback the callback that is invoked after saving
 	 * @param deleteDoneCallback the callback that is invoked after deleting
 	 */
-	public static void openEditionModalDialog(String title, AbstractEntityEditor<?> content, boolean mapEnterKeyToSave,
-			SerializableConsumer<Dialog> saveDoneCallback, SerializableConsumer<Dialog> deleteDoneCallback) {
-		final SerializableConsumer<Dialog> validateCallback;
+	public static <T extends IdentifiableEntity> void openEditionModalDialog(String title, AbstractEntityEditor<T> content,
+			boolean mapEnterKeyToSave, SerializableBiConsumer<Dialog, T> saveDoneCallback, SerializableBiConsumer<Dialog, T> deleteDoneCallback) {
+		final SerializableBiConsumer<Dialog, T> validateCallback;
 		if (content.isBaseAdmin()) {
-			validateCallback = dialog -> {
+			validateCallback = (dialog, entity) -> {
 				content.validateByOrganizationalStructureManager();
 				if (content.isValidData()) {
 					content.save();
@@ -478,6 +481,7 @@ public final class ComponentFactory {
 	 * This function provides a standard saving callback that is verifying the validity of
 	 * the input data.
 	 *
+	 * @param <T> the type of the edited entity.
 	 * @param title the title of the dialog.
 	 * @param content the content of the dialog, where the editing fields are located.
 	 * @param mapEnterKeyToSave if {@code true}, the "save" button is activated when the {@code Enter}
@@ -487,10 +491,16 @@ public final class ComponentFactory {
 	 * @param validateCallback the callback for validating the information.
 	 * @param deleteDoneCallback the callback that is invoked after deleting
 	 */
-	public static void openEditionModalDialog(String title, AbstractEntityEditor<?> content, boolean mapEnterKeyToSave,
-			SerializableConsumer<Dialog> saveDoneCallback,
-			SerializableConsumer<Dialog> validateCallback,
-			SerializableConsumer<Dialog> deleteDoneCallback) {
+	public static <T extends IdentifiableEntity> void openEditionModalDialog(String title, AbstractEntityEditor<T> content, boolean mapEnterKeyToSave,
+			SerializableBiConsumer<Dialog, T> saveDoneCallback,
+			SerializableBiConsumer<Dialog, T> validateCallback,
+			SerializableBiConsumer<Dialog, T> deleteDoneCallback) {
+		final SerializableConsumer<Dialog> validateCallback0;
+		if (validateCallback != null) {
+			validateCallback0 = dialog -> validateCallback.accept(dialog, content.getEditedEntity()); 
+		} else {
+			validateCallback0 = null;
+		}
 		final SerializableConsumer<Dialog> deleteCallback;
 		if (deleteDoneCallback != null) {
 			deleteCallback = dialog -> {
@@ -503,7 +513,7 @@ public final class ComponentFactory {
 				confirmDialog.addConfirmListener(event -> {
 					if (content.delete()) {
 						dialog.close();
-						deleteDoneCallback.accept(dialog);
+						deleteDoneCallback.accept(dialog, content.getEditedEntity());
 					}
 				});
 				confirmDialog.open();
@@ -517,14 +527,14 @@ public final class ComponentFactory {
 						if (content.save()) {
 							dialog.close();
 							if (saveDoneCallback != null) {
-								saveDoneCallback.accept(dialog);
+								saveDoneCallback.accept(dialog, content.getEditedEntity());
 							}
 						}
 					} else {
 						content.notifyInvalidity();
 					}
 				},
-				validateCallback,
+				validateCallback0,
 				deleteCallback);
 	}
 

@@ -30,7 +30,7 @@ import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatWithPrecisionConverter;
 
-/** Vaadin component for input an annual ranking.
+/** Vaadin component for input an annual ranking for a journal.
  *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$

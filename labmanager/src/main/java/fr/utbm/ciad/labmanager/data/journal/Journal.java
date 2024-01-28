@@ -39,7 +39,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
+import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
@@ -147,7 +147,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	/** List of papers that are published in this journal.
 	 */
 	@OneToMany(mappedBy = "journal", fetch = FetchType.LAZY)
-	private Set<JournalPaper> publishedPapers;
+	private Set<AbstractJournalBasedPublication> publishedPapers;
 
 	/** History of the quality indicators for this journal.
 	 */
@@ -473,7 +473,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 *
 	 * @return the published papers.
 	 */
-	public Set<JournalPaper> getPublishedPapers() {
+	public Set<AbstractJournalBasedPublication> getPublishedPapers() {
 		if (this.publishedPapers == null) {
 			this.publishedPapers = new HashSet<>();
 		}
@@ -484,16 +484,14 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 *
 	 * @param papers the published papers.
 	 */
-	public void setPublishedPapers(Set<JournalPaper> papers) {
+	public void setPublishedPapers(Set<? extends AbstractJournalBasedPublication> papers) {
 		if (this.publishedPapers != null) {
 			this.publishedPapers.clear();
-			if (papers != null) {
-				this.publishedPapers.addAll(papers);
-			}
-		} else if (papers == null) {
-			this.publishedPapers = new HashSet<>();
 		} else {
-			this.publishedPapers = papers;
+			this.publishedPapers = new HashSet<>();
+		}
+		if (papers != null) {
+			this.publishedPapers.addAll(papers);
 		}
 	}
 

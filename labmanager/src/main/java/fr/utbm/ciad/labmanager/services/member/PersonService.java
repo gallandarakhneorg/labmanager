@@ -78,8 +78,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PersonService extends AbstractEntityService<Person> {
 
-	private final SessionFactory sessionFactory;
-	
 	private PublicationRepository publicationRepository;
 
 	private AuthorshipRepository authorshipRepository;
@@ -130,8 +128,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			@Autowired WebOfSciencePlatform wosPlatfom,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonNameComparator nameComparator) {
-		super(messages, constants);
-		this.sessionFactory = sessionFactory;
+		super(messages, constants, sessionFactory);
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
@@ -809,7 +806,7 @@ public class PersonService extends AbstractEntityService<Person> {
 	public EntityDeletingContext<Person> startDeletion(Set<Person> persons) {
 		assert persons != null && !persons.isEmpty();
 		// Force loading of the memberships and authorships
-		try (final var session = this.sessionFactory.openSession()) {
+		inSession(session -> {
 			for (final var person : persons) {
 				if (person.getId() != 0l) {
 					session.load(person, Long.valueOf(person.getId()));
@@ -817,7 +814,7 @@ public class PersonService extends AbstractEntityService<Person> {
 					Hibernate.initialize(person.getAuthorships());
 				}
 			}
-		}
+		});
 		return new DeletingContext(persons);
 	}
 

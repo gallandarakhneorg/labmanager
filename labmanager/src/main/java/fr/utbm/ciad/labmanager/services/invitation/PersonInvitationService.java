@@ -40,6 +40,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -70,6 +71,7 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param invitationRepository the person invitation repository.
 	 * @param personService the service for accessing the person.
 	 * @param nameParser the parser of person names.
@@ -77,10 +79,11 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	public PersonInvitationService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired PersonService personService,
 			@Autowired PersonNameParser nameParser) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.invitationRepository = invitationRepository;
 		this.personService = personService;
 		this.nameParser = nameParser;

@@ -49,7 +49,7 @@ public class KeyNoteTest extends AbstractTypedPublicationTest<KeyNote> {
 
 	@Override
 	protected KeyNote createTest(Publication prePublication) {
-		return new KeyNote(prePublication, null, 0, null, null, null);
+		return new KeyNote(prePublication, 0, null, null, null);
 	}
 
 	@Test

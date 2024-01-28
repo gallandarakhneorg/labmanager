@@ -37,6 +37,7 @@ import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -70,6 +71,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param scientificAxisRepository the repository for accessing the scientific axes.
 	 * @param publicationRepository the repository for accessing the publications.
 	 * @param membershipRepository the repository for accessing the memberships.
@@ -78,11 +80,12 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	public ScientificAxisService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired ScientificAxisRepository scientificAxisRepository,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired ProjectRepository projectRepository) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.scientificAxisRepository = scientificAxisRepository;
 		this.publicationRepository = publicationRepository;
 		this.membershipRepository = membershipRepository;

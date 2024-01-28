@@ -109,13 +109,23 @@ public interface ConferenceBasedPublication extends Production {
 		}
 	}
 
-	/** Deprecated
+	/** Deprecated.
 	 * 
-	 * @param name deprecated
+	 * @param name deprecated.
 	 * @deprecated Don't use.
 	 */
 	@Deprecated(forRemoval = true)
 	default void setScientificEventName(String name) {
+		//
+	}
+
+	/** Deprecated.
+	 * 
+	 * @param name deprecated.
+	 * @deprecated Don't use.
+	 */
+	@Deprecated(forRemoval = true)
+	default void setPublisher(String name) {
 		//
 	}
 

@@ -54,6 +54,8 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
+import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaperRepository;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
@@ -288,7 +290,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void linkPaper() {
-		final Set<JournalPaper> papers = new HashSet<>();
+		final Set<AbstractJournalBasedPublication> papers = new HashSet<>();
 		when(this.jour1.getPublishedPapers()).thenReturn(papers);
 		final JournalPaper paper = mock(JournalPaper.class);
 		when(this.publicationRepository.findById(anyLong())).then(it -> {
@@ -348,7 +350,7 @@ public class JournalServiceTest {
 			return Optional.empty();
 		});
 
-		final Set<JournalPaper> papers = new HashSet<>();
+		final Set<AbstractJournalBasedPublication> papers = new HashSet<>();
 		when(this.jour1.getPublishedPapers()).thenReturn(papers);
 		papers.add(paper);
 
@@ -403,7 +405,7 @@ public class JournalServiceTest {
 			return Optional.empty();
 		});
 
-		final Set<JournalPaper> papers = new HashSet<>();
+		final Set<AbstractJournalBasedPublication> papers = new HashSet<>();
 		when(this.jour1.getPublishedPapers()).thenReturn(papers);
 		papers.add(paper);
 
@@ -438,7 +440,7 @@ public class JournalServiceTest {
 			return Optional.empty();
 		});
 
-		final Set<JournalPaper> papers = new HashSet<>();
+		final Set<AbstractJournalBasedPublication> papers = new HashSet<>();
 		when(this.jour1.getPublishedPapers()).thenReturn(papers);
 		papers.add(paper);
 

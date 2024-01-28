@@ -33,7 +33,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
@@ -104,14 +104,15 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		this.journalService = journalService;
 		// The reference year cannot be the current year because ranking of journals is not done
 		this.referenceYear = LocalDate.now().getYear() - 1;
-		this.dataProvider = (ps, query, filters) -> ps.getAllJournals(query, filters,
-				it -> {
-					// Force the loaded of the lazy data that is needed for rendering the table
-					it.getPublishedPapers().size();
-					it.getScimagoQIndexByYear(this.referenceYear);
-					it.getWosQIndexByYear(this.referenceYear);
-				});
+		this.dataProvider = (ps, query, filters) -> ps.getAllJournals(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
+	}
+
+	private void initializeEntityFromJPA(Journal entity) {
+		// Force the loaded of the lazy data that is needed for rendering the table
+		entity.getPublishedPapers().size();
+		entity.getScimagoQIndexByYear(this.referenceYear);
+		entity.getWosQIndexByYear(this.referenceYear);
 	}
 
 	@Override
@@ -129,13 +130,13 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 				.setAutoWidth(true)
 				.setSortProperty("publisher"); //$NON-NLS-1$
 		this.scimagoRankingColumn = grid.addColumn(new ComponentRenderer<>(this::getScimagoQuartile))
-				.setAutoWidth(true);
+				.setAutoWidth(false);
 		this.wosRankingColumn = grid.addColumn(new ComponentRenderer<>(this::getWosQuartile))
-				.setAutoWidth(true);
+				.setAutoWidth(false);
 		this.impactFactorColumn = grid.addColumn(new ComponentRenderer<>(this::getImpactFactor))
-				.setAutoWidth(true);
+				.setAutoWidth(false);
 		this.paperCountColumn = grid.addColumn(journal -> getPaperCount(journal))
-				.setAutoWidth(true);
+				.setAutoWidth(false);
 		this.validationColumn = grid.addColumn(new BadgeRenderer<>((data, callback) -> {
 			if (data.isValidated()) {
 				callback.create(BadgeState.SUCCESS, null, getTranslation("views.validated")); //$NON-NLS-1$
@@ -155,7 +156,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		final var rank = QuartileRanking.normalize(journal.getScimagoQIndexByYear(this.referenceYear));
 		final var span = new Span();
 		if (rank != QuartileRanking.NR) {
-			span.setText(rank.name());
+			span.setText(rank.toString());
 			final var id = journal.getScimagoId();
 			final var category = journal.getScimagoCategory();
 			if (Strings.isNullOrEmpty(id)) {
@@ -171,7 +172,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 					span.setTitle(getTranslation("views.journals.ranking_details3", Integer.toString(this.referenceYear), id, category)); //$NON-NLS-1$
 				}
 			}
-			if (Strings.isNullOrEmpty(journal.getScimagoId())) {
+			if (Strings.isNullOrEmpty(id)) {
 				span.getStyle().setColor("var(--lumo-error-color-50pct)"); //$NON-NLS-1$
 			}
 		}
@@ -182,7 +183,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		final var rank = QuartileRanking.normalize(journal.getWosQIndexByYear(this.referenceYear));
 		final var span = new Span();
 		if (rank != QuartileRanking.NR) {
-			span.setText(rank.name());
+			span.setText(rank.toString());
 			final var id = journal.getWosId();
 			final var category = journal.getWosCategory();
 			if (Strings.isNullOrEmpty(id)) {
@@ -198,7 +199,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 					span.setTitle(getTranslation("views.journals.ranking_details3", Integer.toString(this.referenceYear), id, category)); //$NON-NLS-1$
 				}
 			}
-			if (Strings.isNullOrEmpty(journal.getWosId())) {
+			if (Strings.isNullOrEmpty(id)) {
 				span.getStyle().setColor("var(--lumo-error-color-50pct)"); //$NON-NLS-1$
 			}
 		}
@@ -215,8 +216,8 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		return span;
 	}
 
-	private static Integer getPaperCount(Journal journal) {
-		return Integer.valueOf(journal.getPublishedPapers().size());
+	private static String getPaperCount(Journal journal) {
+		return Integer.toString(journal.getPublishedPapers().size());
 	}
 
 	@Override
@@ -254,8 +255,22 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 				this.journalService.startEditing(journal),
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
-		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
-		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(journal);
+		final SerializableBiConsumer<Dialog, Journal> refreshAll = (dialog, entity) -> {
+			// The number of papers should be loaded because it was not loaded before
+			this.journalService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshGrid();
+		};
+		final SerializableBiConsumer<Dialog, Journal> refreshOne = (dialog, entity) -> {
+			// The number of papers should be loaded because it was not loaded before
+			this.journalService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshItem(entity);
+		};
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				newEntity ? refreshAll : refreshOne,

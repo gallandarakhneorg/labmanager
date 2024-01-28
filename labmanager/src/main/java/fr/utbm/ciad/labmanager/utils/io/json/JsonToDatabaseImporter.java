@@ -52,7 +52,6 @@ import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
-import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationRepository;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
@@ -74,6 +73,8 @@ import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
 import fr.utbm.ciad.labmanager.data.project.Role;
+import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
@@ -82,10 +83,7 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
-import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionRepository;
-import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
-import fr.utbm.ciad.labmanager.data.supervision.SupervisorType;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
@@ -1307,8 +1305,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 				getLogger().info("> Publication " + (i + 1) + "/" + publications.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final var id = getId(publicationObject);
+					final var updatedObjects = new ArrayList<>();
 					final var publication = createPublicationInstance(id,
-							publicationObject, objectIdRepository, aliasRepository);
+							publicationObject, objectIdRepository, aliasRepository, updatedObjects);
 					// Test if the publication is already inside the database
 					session.beginTransaction();
 					// Save the publication
@@ -1389,7 +1388,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	}
 
 	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Long> objectIdRepository,
-			Map<String, Set<String>> aliasRepository) throws Exception {
+			Map<String, Set<String>> aliasRepository, Collection<Object> updatedObjects) throws Exception {
 		// Retrieve the elements that characterize the type of the publication
 		final var type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
 		if (type == null) {
@@ -1409,7 +1408,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		if (publication == null) {
 			throw new IllegalArgumentException("Unable to create the instance of the publication of type: " + publicationClass); //$NON-NLS-1$
 		}
-
+	
 		// Attach month if it is provided
 		final var month = parseMonthField(publicationObject.get(MONTH_KEY));
 		if (month > 0 && month <= 12) {
@@ -1421,8 +1420,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		}
 
 		// Attach journal if needed for the type of publication
-		final Journal targetJournal;
-		if (publication instanceof JournalBasedPublication journalPaper) {
+		if (publication instanceof AbstractJournalBasedPublication journalPaper) {
 			final var journalId = getRef(publicationObject.get(JOURNAL_KEY));
 			if (Strings.isNullOrEmpty(journalId)) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
@@ -1435,35 +1433,28 @@ public class JsonToDatabaseImporter extends JsonTool {
 			if (optJournal.isEmpty()) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
-			targetJournal = optJournal.get();
+			final var targetJournal = optJournal.get();
 			journalPaper.setJournal(targetJournal);
-		} else {
-			targetJournal = null;
+			updatedObjects.add(targetJournal);
 		}
 
 		// Attach conference if needed for the type of publication
-		final Conference targetConference;
-		// TODO: Thrown exception if the conference is not found
-		if (publication instanceof ConferenceBasedPublication conferencePaper) {
+		if (publication instanceof AbstractConferenceBasedPublication conferencePaper) {
 			final var conferenceId = getRef(publicationObject.get(CONFERENCE_KEY));
 			if (Strings.isNullOrEmpty(conferenceId)) {
-				getLogger().warn("Conference not found for publication with id: " + id); //$NON-NLS-1$
-				getLogger().warn("Field 'scientificEventName' will be used for publication with id: " + id); //$NON-NLS-1$
-				//throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
-			} else {
-				final var conferenceDbId = objectIdRepository.get(conferenceId);
-				if (conferenceDbId == null || conferenceDbId.intValue() == 0) {
-					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
-				}
-				final var optConference = this.conferenceRepository.findById(conferenceDbId);
-				if (optConference.isEmpty()) {
-					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
-				}
-				targetConference = optConference.get();
-				conferencePaper.setConference(targetConference);
+				throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
 			}
-		} else {
-			targetConference = null;
+			final var conferenceDbId = objectIdRepository.get(conferenceId);
+			if (conferenceDbId == null || conferenceDbId.intValue() == 0) {
+				throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
+			}
+			final var optConference = this.conferenceRepository.findById(conferenceDbId);
+			if (optConference.isEmpty()) {
+				throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
+			}
+			final var targetConference = optConference.get();
+			conferencePaper.setConference(targetConference);
+			updatedObjects.add(targetConference);
 		}
 
 		// Check the minimum set of fields

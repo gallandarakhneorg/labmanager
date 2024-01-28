@@ -45,7 +45,7 @@ public class ConferencePaperTest extends AbstractTypedPublicationTest<Conference
 
 	@Override
 	protected ConferencePaper createTest(Publication prePublication) {
-		return new ConferencePaper(prePublication, null, 0, null, null, null, null, null, null, null);
+		return new ConferencePaper(prePublication, 0, null, null, null, null, null, null, null);
 	}
 
 	@Test

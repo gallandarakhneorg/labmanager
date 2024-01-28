@@ -40,6 +40,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -68,15 +69,17 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param structureRepository the repository for the associated structures.
 	 * @param organizationRepository the repository for the research organizations.
 	 */
 	public AssociatedStructureService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired AssociatedStructureRepository structureRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.structureRepository = structureRepository;
 		this.organizationRepository = organizationRepository;
 	}

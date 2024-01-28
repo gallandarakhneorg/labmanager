@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -72,15 +73,17 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param teachingActivityRepository the repository for the teaching activities.
 	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
 	public TeachingService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired TeachingActivityRepository teachingActivityRepository,
 			@Autowired DownloadableFileManager fileManager) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.teachingActivityRepository = teachingActivityRepository;
 		this.fileManager = fileManager;
 	}

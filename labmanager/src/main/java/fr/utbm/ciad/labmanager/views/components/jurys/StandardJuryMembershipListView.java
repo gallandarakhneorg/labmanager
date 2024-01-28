@@ -181,7 +181,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				dialog -> refreshItem(membership),
+				(dialog, entity) -> refreshItem(entity),
 				null);
 	}
 

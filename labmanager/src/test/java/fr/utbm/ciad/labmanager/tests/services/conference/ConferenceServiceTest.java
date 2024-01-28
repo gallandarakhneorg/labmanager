@@ -90,8 +90,8 @@ public class ConferenceServiceTest {
 		Session session = mock(Session.class);
 		lenient().when(session.getTransaction()).thenReturn(mock(Transaction.class));
 		lenient().when(this.sessionFactory.openSession()).thenReturn(session);
-		this.test = new ConferenceService(this.messages, new Constants(), this.conferenceRepository,
-				this.indicatorRepository, this.core, this.sessionFactory);
+		this.test = new ConferenceService(this.messages, new Constants(), this.sessionFactory, this.conferenceRepository,
+				this.indicatorRepository, this.core);
 	}
 
 	@Test

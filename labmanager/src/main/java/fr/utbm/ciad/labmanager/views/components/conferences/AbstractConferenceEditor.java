@@ -40,6 +40,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.ranking.ConferenceAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -73,6 +74,8 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 	private Details rankingDetails;
 
 	private TextField coreId;
+
+	private ConferenceAnnualRankingField rankings;
 
 	private DetailsWithErrorMark publicationDetails;
 
@@ -190,6 +193,9 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.coreId.setClearButtonVisible(true);
 		content.add(this.coreId, 2);
 
+		this.rankings = new ConferenceAnnualRankingField();
+		content.add(this.rankings, 2);
+
 		this.rankingDetails = new Details("", content); //$NON-NLS-1$
 		this.rankingDetails.setOpened(false);
 		rootContainer.add(this.rankingDetails);
@@ -197,6 +203,8 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		getEntityDataBinder().forField(this.coreId)
 			.withConverter(new StringTrimer())
 			.bind(Conference::getCoreId, Conference::setCoreId);
+		getEntityDataBinder().forField(this.rankings)
+			.bind(Conference::getQualityIndicators, Conference::setQualityIndicators);
 	}
 
 	/** Create the section for editing the publishing information of the conference.
@@ -294,6 +302,8 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.rankingDetails.setSummaryText(getTranslation("views.conferences.ranking_informations")); //$NON-NLS-1$
 		this.coreId.setLabel(getTranslation("views.conferences.core.id")); //$NON-NLS-1$
 		this.coreId.setHelperText(getTranslation("views.conferences.core.id.help")); //$NON-NLS-1$
+		this.rankings.setLabel(getTranslation("views.conferences.rankings")); //$NON-NLS-1$
+		this.rankings.setHelperText(getTranslation("views.conferences.rankings.help")); //$NON-NLS-1$
 
 		this.publicationDetails.setSummaryText(getTranslation("views.conferences.publisher_informations")); //$NON-NLS-1$
 		this.publisherName.setLabel(getTranslation("views.conferences.publisher_name")); //$NON-NLS-1$

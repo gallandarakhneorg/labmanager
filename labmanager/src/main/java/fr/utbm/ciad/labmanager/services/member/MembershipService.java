@@ -55,6 +55,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -86,6 +87,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param organizationRepository the organization repository.
 	 * @param membershipRepository the membership repository.
 	 * @param personRepository the person repository.
@@ -93,10 +95,11 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	public MembershipService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired PersonRepository personRepository) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.organizationRepository = organizationRepository;
 		this.membershipRepository = membershipRepository;
 		this.personRepository = personRepository;

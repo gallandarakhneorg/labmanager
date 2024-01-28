@@ -20,13 +20,11 @@
 package fr.utbm.ciad.labmanager.data.conference;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
-import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.QualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -193,7 +191,7 @@ public class ConferenceQualityAnnualIndicators implements QualityAnnualIndicator
 
 	@Override
 	public boolean isSignificant() {
-		return coreIndex != null;
+		return this.coreIndex != null;
 	}
 
 }

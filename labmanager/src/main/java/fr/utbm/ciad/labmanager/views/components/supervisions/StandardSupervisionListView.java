@@ -168,7 +168,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				dialog -> refreshItem(supervision),
+				(dialog, entity) -> refreshItem(entity),
 				null);
 	}
 

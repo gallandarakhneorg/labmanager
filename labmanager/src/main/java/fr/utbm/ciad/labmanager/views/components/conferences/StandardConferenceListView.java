@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
@@ -44,9 +43,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.ranking.AbstractAnnualRankingField;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -97,13 +98,15 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 				"views.conferences.delete_error"); //$NON-NLS-1$
 		this.conferenceService = conferenceService;
 		// The reference year cannot be the current year because ranking of journals is not done
-		this.referenceYear = LocalDate.now().getYear() - 1;
-		this.dataProvider = (ps, query, filters) -> ps.getAllConferences(query, filters,
-				it -> {
-					// Force the loaded of the lazy data that is needed for rendering the table
-					it.getCoreIndexByYear(this.referenceYear);
-				});
+		this.referenceYear = AbstractAnnualRankingField.getDefaultReferenceYear();
+		this.dataProvider = (ps, query, filters) -> ps.getAllConferences(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
+	}
+
+	private void initializeEntityFromJPA(Conference entity) {
+		// Force the loaded of the lazy data that is needed for rendering the table
+		entity.getCoreIndexByYear(this.referenceYear);
+		entity.getPublishedPapers().size();
 	}
 
 	@Override
@@ -124,12 +127,10 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		this.publisherColumn = grid.addColumn(conference -> conference.getPublisher())
 				.setAutoWidth(true)
 				.setSortProperty("publisher"); //$NON-NLS-1$
-		this.coreRankingColumn = grid.addColumn(new ComponentRenderer<>(this::getCoreRank))
-				.setAutoWidth(true)
-				.setSortProperty("coreRanking"); //$NON-NLS-1$
+		this.coreRankingColumn = grid.addColumn(new ComponentRenderer<>(this::getCoreRanking))
+				.setAutoWidth(false);
 		this.paperCountColumn = grid.addColumn(conference -> getPaperCount(conference))
-				.setAutoWidth(true)
-				.setSortProperty("paperCount"); //$NON-NLS-1$
+				.setAutoWidth(false);
 		this.validationColumn = grid.addColumn(new BadgeRenderer<>((data, callback) -> {
 			if (data.isValidated()) {
 				callback.create(BadgeState.SUCCESS, null, getTranslation("views.validated")); //$NON-NLS-1$
@@ -145,18 +146,26 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		return isAdminRole();
 	}
 
-	private Component getCoreRank(Conference conference) {
-		final CoreRanking rank = CoreRanking.normalize(conference.getCoreIndexByYear(this.referenceYear));
-		final Span span = new Span();
+	private Component getCoreRanking(Conference conference) {
+		final var rank = CoreRanking.normalize(conference.getCoreIndexByYear(this.referenceYear));
+		final var span = new Span();
 		if (rank != CoreRanking.NR) {
-			span.setText(rank.name());
-			span.setTitle(getTranslation("views.conferences.ranking_details", Integer.toString(this.referenceYear))); //$NON-NLS-1$
+			span.setText(rank.toString());
+			final var id = conference.getCoreId();
+			if (Strings.isNullOrEmpty(id)) {
+				span.setTitle(getTranslation("views.conferences.ranking_details0", Integer.toString(this.referenceYear))); //$NON-NLS-1$
+			} else {
+				span.setTitle(getTranslation("views.conferences.ranking_details1", Integer.toString(this.referenceYear), id)); //$NON-NLS-1$
+			}
+			if (Strings.isNullOrEmpty(id)) {
+				span.getStyle().setColor("var(--lumo-error-color-50pct)"); //$NON-NLS-1$
+			}
 		}
 		return span;
 	}
 
-	private static Integer getPaperCount(Conference conference) {
-		return Integer.valueOf(0);
+	private static String getPaperCount(Conference conference) {
+		return Integer.toString(conference.getPublishedPapers().size());
 	}
 
 	@Override
@@ -194,8 +203,22 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 				this.conferenceService.startEditing(conference),
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
-		final SerializableConsumer<Dialog> refreshAll = dialog -> refreshGrid();
-		final SerializableConsumer<Dialog> refreshOne = dialog -> refreshItem(conference);
+		final SerializableBiConsumer<Dialog, Conference> refreshAll = (dialog, entity) -> {
+			// The number of papers should be loaded because it was not loaded before
+			this.conferenceService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshGrid();
+		};
+		final SerializableBiConsumer<Dialog, Conference> refreshOne = (dialog, entity) -> {
+			// The number of papers should be loaded because it was not loaded before
+			this.conferenceService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshItem(entity);
+		};
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				newEntity ? refreshAll : refreshOne,
