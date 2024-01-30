@@ -53,7 +53,7 @@ public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 	public EmbeddedProjectEditor(EntityEditingContext<Project> context,
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, fileManager, authenticatedUser, messages, LOGGER);
+		super(context, false, fileManager, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

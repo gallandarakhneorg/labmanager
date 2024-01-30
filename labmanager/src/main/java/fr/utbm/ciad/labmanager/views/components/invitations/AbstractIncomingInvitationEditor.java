@@ -74,13 +74,15 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 	/** Constructor.
 	 *
 	 * @param context the editing context for the person invitation.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractIncomingInvitationEditor(EntityEditingContext<PersonInvitation> context, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
-		super(PersonInvitation.class, authenticatedUser, messages, logger, null, null, context);
+	public AbstractIncomingInvitationEditor(EntityEditingContext<PersonInvitation> context, boolean relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+		super(PersonInvitation.class, authenticatedUser, messages, logger, null, null, context, relinkEntityWhenSaving);
 	}
 
 	@Override

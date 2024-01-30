@@ -50,7 +50,7 @@ public final class EmbeddedOutgoingInvitationEditor extends AbstractOutgoingInvi
 	 */
 	public EmbeddedOutgoingInvitationEditor(EntityEditingContext<PersonInvitation> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, authenticatedUser, messages, LOGGER);
+		super(context, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

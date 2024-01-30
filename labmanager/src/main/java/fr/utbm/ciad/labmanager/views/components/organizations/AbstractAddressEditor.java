@@ -83,17 +83,19 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractAddressEditor(EntityEditingContext<OrganizationAddress> context, DownloadableFileManager fileManager,
+	public AbstractAddressEditor(EntityEditingContext<OrganizationAddress> context, boolean relinkEntityWhenSaving, DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(OrganizationAddress.class, authenticatedUser, messages, logger,
 				"views.addresses.administration_details", //$NON-NLS-1$
 				"views.addresses.administration.validated_address", //$NON-NLS-1$
-				context);
+				context, relinkEntityWhenSaving);
 		this.fileManager = fileManager;
 	}
 

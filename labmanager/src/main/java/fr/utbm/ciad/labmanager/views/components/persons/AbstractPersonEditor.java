@@ -169,17 +169,19 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	/** Constructor.
 	 *
 	 * @param userContext the editing context for the user.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractPersonEditor(
-			UserEditingContext userContext,
+			UserEditingContext userContext, boolean relinkEntityWhenSaving,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(Person.class, authenticatedUser, messages, logger,
 				"views.persons.administration_details", //$NON-NLS-1$
 				"views.persons.administration.validated_person", //$NON-NLS-1$
-				userContext.getPersonContext());
+				userContext.getPersonContext(), relinkEntityWhenSaving);
 		this.userContext = userContext;
 	}
 

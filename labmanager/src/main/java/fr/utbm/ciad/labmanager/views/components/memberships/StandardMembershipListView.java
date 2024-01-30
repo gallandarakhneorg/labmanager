@@ -35,13 +35,12 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
-import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
+import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -104,17 +103,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	@Override
 	protected Component createRootEntityComponent(Person entity) {
-		final var avatar = new AvatarItem();
-		avatar.setHeading(entity.getFullNameWithLastNameFirst());
-		final var contact = entity.getEmail();
-		if (!Strings.isNullOrEmpty(contact)) {
-			avatar.setDescription(contact);
-		}
-		final var url = entity.getPhotoURL();
-		if (url != null) {
-			avatar.setAvatarURL(url.toExternalForm());
-		}
-		return avatar;
+		return ComponentFactory.newPersonAvatar(entity);
 	}
 
 	@Override

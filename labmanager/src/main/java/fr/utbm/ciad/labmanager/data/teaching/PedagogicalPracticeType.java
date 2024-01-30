@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.teaching;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -183,9 +184,18 @@ public enum PedagogicalPracticeType {
 	 * @return the list of all the types.
 	 */
 	public static List<PedagogicalPracticeType> getAllDisplayTypes(MessageSourceAccessor messages, Locale locale) {
-		return Arrays.asList(values()).stream().sorted(
-				(a, b) -> a.getLabel(messages, locale).compareToIgnoreCase(b.getLabel(messages, locale)))
+		return Arrays.asList(values()).stream().sorted(getLabelBasedComparator(messages, locale))
 				.collect(Collectors.toList());
+	}
+
+	/** Replies the comparator that may be used for sorting the pedagogical pratices based on their labels.
+	 *
+	 * @param messages the accessor to the localized labels.
+	 * @param locale the locale to use.
+	 * @return the comparator.
+	 */
+	public static Comparator<PedagogicalPracticeType> getLabelBasedComparator(MessageSourceAccessor messages, Locale locale) {
+		return (a, b) -> a.getLabel(messages, locale).compareToIgnoreCase(b.getLabel(messages, locale));
 	}
 
 }

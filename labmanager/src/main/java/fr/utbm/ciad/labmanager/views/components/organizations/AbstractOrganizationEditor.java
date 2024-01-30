@@ -49,7 +49,6 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
@@ -64,7 +63,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
@@ -125,6 +123,8 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param fileManager the manager of the file system at server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
@@ -132,14 +132,14 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 * @param organizationService the service for accessing the organizations.
 	 * @param addressService the service for accessing the organization addresses.
 	 */
-	public AbstractOrganizationEditor(EntityEditingContext<ResearchOrganization> context, 
+	public AbstractOrganizationEditor(EntityEditingContext<ResearchOrganization> context, boolean relinkEntityWhenSaving,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger,
 				"views.organizations.administration_details", //$NON-NLS-1$
 				"views.organizations.administration.validated_organization", //$NON-NLS-1$
-				context);
+				context, relinkEntityWhenSaving);
 		this.fileManager = fileManager;
 		this.organizationService = organizationService;
 		this.addressService = addressService;
@@ -341,45 +341,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	}
 
 	private Component createNameComponent(ResearchOrganization organization) {
-		final var acronym = organization.getAcronym();
-		final var name = organization.getName();
-		final var logo = organization.getPathToLogo();
-		final var identifier = organization.getNationalIdentifier();
-		final var rnsr = organization.getRnsr();
-
-		final var details = new StringBuilder();
-		if (!Strings.isNullOrEmpty(acronym)) {
-			details.append(acronym);
-		}
-		if (!Strings.isNullOrEmpty(identifier)) {
-			if (details.length() > 0) {
-				details.append(' ');
-			}
-			details.append(identifier);
-		}
-		if (!Strings.isNullOrEmpty(rnsr)) {
-			if (details.length() > 0) {
-				details.append(" - "); //$NON-NLS-1$
-			}
-			details.append("RNSR ").append(rnsr); //$NON-NLS-1$
-		}
-
-		final var avatar = new AvatarItem();
-		avatar.setHeading(name);
-		if (details.length() > 0) {
-			avatar.setDescription(details.toString());
-		}
-		if (organization.isMajorOrganization()) {
-			avatar.setAvatarBorderColor(Integer.valueOf(3));
-		}
-		var logoFile = FileSystem.convertStringToFile(logo);
-		if (logoFile != null) {
-			logoFile = this.fileManager.normalizeForServerSide(logoFile);
-			if (logoFile != null) {
-				avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
-			}
-		}
-		return avatar;
+		return ComponentFactory.newOrganizationAvatar(organization, this.fileManager);
 	}
 
 	/** Create the section for editing the communication of the organization.

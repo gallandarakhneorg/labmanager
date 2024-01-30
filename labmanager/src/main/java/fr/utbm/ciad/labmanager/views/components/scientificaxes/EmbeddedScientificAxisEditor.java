@@ -50,7 +50,7 @@ public final class EmbeddedScientificAxisEditor extends AbstractScientificAxisEd
 	 */
 	public EmbeddedScientificAxisEditor(EntityEditingContext<ScientificAxis> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, authenticatedUser, messages, LOGGER);
+		super(context, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

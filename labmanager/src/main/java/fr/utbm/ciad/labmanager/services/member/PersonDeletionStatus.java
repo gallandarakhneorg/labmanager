@@ -41,7 +41,11 @@ public enum PersonDeletionStatus implements DeletionStatus {
 
 	/** Deletion is impossible because the person has linked articles.
 	 */
-	AUTHORSHIP;
+	AUTHORSHIP,
+
+	/** Deletion is impossible because the person has linked teaching activities.
+	 */
+	TEACHING_ACTIVITY;
 
 	private static final String MESSAGE_PREFIX = "personDeletionStatus."; //$NON-NLS-1$
 

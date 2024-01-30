@@ -53,7 +53,7 @@ public final class EmbeddedAddressEditor extends AbstractAddressEditor {
 	public EmbeddedAddressEditor(EntityEditingContext<OrganizationAddress> context,
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, fileManager, authenticatedUser, messages, LOGGER);
+		super(context, false, fileManager, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

@@ -177,6 +177,17 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 		}
 	}
 
+	/** Change the height of the lists. This function differs to {@link #setHeight(float, Unit)} in the fact
+	 * it changes the heights of the inner lists and not of the global component.
+	 *
+	 * @param height the height value.
+	 * @param unit the height unit.
+	 */
+	public void setListHeight(float height, Unit unit) {
+		this.availableEntities.setHeight(height, unit);
+		this.selectedEntities.setHeight(height, unit);
+	}
+
 	/** Do the insertion of the selected items in the list of available
 	 * entities into the list of selected entities.
 	 *

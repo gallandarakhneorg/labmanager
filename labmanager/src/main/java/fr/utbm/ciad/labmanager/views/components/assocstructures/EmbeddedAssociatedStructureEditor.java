@@ -50,7 +50,7 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 	 */
 	public EmbeddedAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, authenticatedUser, messages, LOGGER);
+		super(context, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

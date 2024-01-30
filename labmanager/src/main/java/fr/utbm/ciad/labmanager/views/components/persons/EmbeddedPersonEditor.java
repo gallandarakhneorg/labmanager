@@ -49,7 +49,7 @@ public final class EmbeddedPersonEditor extends AbstractPersonEditor {
 	 */
 	public EmbeddedPersonEditor(UserEditingContext userContext, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages) {
-		super(userContext, authenticatedUser, messages, LOGGER);
+		super(userContext, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

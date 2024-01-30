@@ -23,11 +23,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
+import com.ibm.icu.text.Normalizer2;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -52,16 +58,28 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.user.User;
+import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -75,6 +93,26 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  */
 @org.springframework.stereotype.Component
 public final class ComponentFactory {
+
+	/** Define the color of the border of the regular user avatars: red.
+	 */
+	private static final int ADMINISTRATOR_BORDER_COLOR = 0;
+
+	/** Define the color of the border of the regular user avatars: dark blue.
+	 */
+	private static final int USER_BORDER_COLOR = 5;
+
+	private static final String FOR_MANY = "%"; //$NON-NLS-1$
+
+	private static final Normalizer2 NORMALIZER = Normalizer2.getNFKDInstance();
+
+	private static final Pattern PATTERN = Pattern.compile(".[\\p{M}]"); //$NON-NLS-1$
+
+	private static final String FOR_ONE = "_"; //$NON-NLS-1$
+
+	private static final int DEFAULT_POPUP_DURATION = 5000;
+
+	private static final Position DEFAULT_POPUP_POSITION = Position.BOTTOM_START;
 
 	private ComponentFactory() {
 		//
@@ -369,8 +407,8 @@ public final class ComponentFactory {
 	 * @param message the message in the box.
 	 * @return the dialog.
 	 */
-	public static ConfirmDialog createDeletionDialog(com.vaadin.flow.component.Component parent, String title, String message) {
-		return createDeletionDialog(parent, title, message, null);
+	public static ConfirmDialog newDeletionDialog(com.vaadin.flow.component.Component parent, String title, String message) {
+		return newDeletionDialog(parent, title, message, null);
 	}
 
 	/** Create a dialog that asks for a critical question and that is modal.
@@ -381,9 +419,9 @@ public final class ComponentFactory {
 	 * @param confirmHandler the handler invoked when the confirm button is pushed.
 	 * @return the dialog.
 	 */
-	public static ConfirmDialog createDeletionDialog(com.vaadin.flow.component.Component parent, String title, String message,
+	public static ConfirmDialog newDeletionDialog(com.vaadin.flow.component.Component parent, String title, String message,
 			ComponentEventListener<ConfirmEvent> confirmHandler) {
-		return createCriticalQuestionDialog(
+		return newCriticalQuestionDialog(
 				title, message,
 				parent.getTranslation("views.delete"), //$NON-NLS-1$
 				confirmHandler);
@@ -398,8 +436,8 @@ public final class ComponentFactory {
 	 * @param confirmHandler the handler invoked when the confirm button is pushed.
 	 * @return the dialog.
 	 */
-	public static ConfirmDialog createCriticalQuestionDialog(String title, String message, String confirmText) {
-		return createCriticalQuestionDialog(title, message, confirmText, null);
+	public static ConfirmDialog newCriticalQuestionDialog(String title, String message, String confirmText) {
+		return newCriticalQuestionDialog(title, message, confirmText, null);
 	}
 
 	/** Create a dialog that asks for a critical question and that is modal.
@@ -410,7 +448,7 @@ public final class ComponentFactory {
 	 * @param confirmHandler the handler invoked when the confirm button is pushed.
 	 * @return the dialog.
 	 */
-	public static ConfirmDialog createCriticalQuestionDialog(String title, String message, String confirmText,
+	public static ConfirmDialog newCriticalQuestionDialog(String title, String message, String confirmText,
 			ComponentEventListener<ConfirmEvent> confirmHandler) {
 		final var dialog = new ConfirmDialog();
 		dialog.setConfirmButtonTheme("error primary"); //$NON-NLS-1$
@@ -602,7 +640,7 @@ public final class ComponentFactory {
 		} else {
 			dialog.getFooter().add(cancelButton, saveButton);
 		}
-		
+
 		dialog.open();
 	}
 
@@ -672,6 +710,265 @@ public final class ComponentFactory {
 			return cmp;
 		}
 		return (a, b) -> comparator.compare(a, b);
+	}
+
+	/** Create the standard avatar item for the given person.
+	 *
+	 * @param person the person to show in the avatar item, never {@code null}.
+	 * @return the avatar item for the person.
+	 */
+	public static AvatarItem newPersonAvatar(Person person) {
+		return newPersonAvatar(person, null, null);
+	}
+
+	/** Create the standard avatar item for the given person.
+	 *
+	 * @param person the person to show in the avatar item, never {@code null}.
+	 * @param associatedUser the user associated to the person, or {@code null}.
+	 * @param detailsProvider the provider of the details string from the user information, or {@code null}.
+	 * @return the avatar item for the person.
+	 */
+	public static AvatarItem newPersonAvatar(Person person, User associatedUser, PersonDetailProvider detailsProvider) {
+		assert person != null;
+
+		final var fullName = person.getFullNameWithLastNameFirst();
+		final var photo = person.getPhotoURL();
+
+		String contactDetails = null;
+		Integer avatarBorder = null;
+		if (associatedUser != null) {
+			final var login = associatedUser.getLogin();
+			if (!Strings.isNullOrEmpty(login)) {
+				final var role = associatedUser.getRole();
+				avatarBorder = Integer.valueOf(role == UserRole.ADMIN ? ADMINISTRATOR_BORDER_COLOR : USER_BORDER_COLOR);
+				if (detailsProvider != null) {
+					contactDetails = detailsProvider.getUserDetails(login, role);
+				}
+			}
+		}
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(fullName);
+		avatar.setAvatarBorderColor(avatarBorder);
+		if (!Strings.isNullOrEmpty(contactDetails)) {
+			avatar.setDescription(contactDetails);
+		} else if (detailsProvider != null) {
+			avatar.setDescription(detailsProvider.getPersonDetails(person.getEmail()));
+		} else {
+			avatar.setDescription(Strings.emptyToNull(person.getEmail()));
+		}
+		if (photo != null) {
+			avatar.setAvatarURL(photo.toExternalForm());
+		}
+
+		return avatar;
+	}
+
+	/** Create the standard avatar item for the given organization, without the organization logo.
+	 *
+	 * @param organization the organization to show in the avatar item, never {@code null}.
+	 * @return the avatar item for the person.
+	 */
+	public static AvatarItem newOrganizationAvatar(ResearchOrganization organization) {
+		return newOrganizationAvatar(organization, null);
+	}
+
+	/** Create the standard avatar item for the given organization.
+	 *
+	 * @param organization the organization to show in the avatar item, never {@code null}.
+	 * @param fileManager the manager of files that may be used for obtaining the organization logo in the avatar item.
+	 * @return the avatar item for the person.
+	 */
+	public static AvatarItem newOrganizationAvatar(ResearchOrganization organization, FileManager fileManager) {
+		assert organization != null;
+
+		final var acronym = organization.getAcronym();
+		final var name = organization.getName();
+		final var logo = organization.getPathToLogo();
+		final var identifier = organization.getNationalIdentifier();
+		final var rnsr = organization.getRnsr();
+
+		final var details = new StringBuilder();
+		if (!Strings.isNullOrEmpty(acronym)) {
+			details.append(acronym);
+		}
+		if (!Strings.isNullOrEmpty(identifier)) {
+			if (details.length() > 0) {
+				details.append(' ');
+			}
+			details.append(identifier);
+		}
+		if (!Strings.isNullOrEmpty(rnsr)) {
+			if (details.length() > 0) {
+				details.append(" - "); //$NON-NLS-1$
+			}
+			details.append("RNSR ").append(rnsr); //$NON-NLS-1$
+		}
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(name);
+		if (details.length() > 0) {
+			avatar.setDescription(details.toString());
+		}
+		if (organization.isMajorOrganization()) {
+			avatar.setAvatarBorderColor(Integer.valueOf(3));
+		}
+		if (fileManager != null) {
+			var logoFile = FileSystem.convertStringToFile(logo);
+			if (logoFile != null) {
+				logoFile = fileManager.normalizeForServerSide(logoFile);
+				if (logoFile != null) {
+					avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
+				}
+			}
+		}
+		return avatar;
+	}
+
+	private static List<StringBuilder> buildCases(String filter) {
+		final var allCases = new ArrayList<StringBuilder>();
+		for (final var filterItem : filter.split("[ \n\r\t\f%]+")) { //$NON-NLS-1$
+			final var filter0 = new StringBuilder(FOR_MANY);
+			var normedFilter0 = NORMALIZER.normalize(filterItem);
+			normedFilter0 = normedFilter0.toLowerCase();
+			final var matcher = PATTERN.matcher(normedFilter0);
+			normedFilter0 = matcher.replaceAll(FOR_ONE);
+			filter0.append(normedFilter0);
+			filter0.append(FOR_MANY);
+			allCases.add(filter0);
+		}
+		return allCases;
+	}
+
+	/** Create a collection of predicate that matches the given keywords.
+	 * The keywords are considered separately as separated words (separator
+	 * is a spacing character) and each word may be part of a larger value.
+	 *
+	 * @param <T> the type of entity.
+	 * @param keywords the keywords to match.
+	 * @param root the root element that must be used for the query.
+	 * @param query the query.
+	 * @param criteriaBuilder the builder of criteria component.
+	 * @param filterBuilder the builder of the filter query. First argument is the query keyword.
+	 *      Second argument is the list of predicates to fill up, assuming that they are merged with
+	 *      "or". Third argument is {@code root}. Fourth argument is {@code critriaBuilder}.
+	 * @return the predicate for the query.
+	 */
+	public static <T> Predicate newPredicateContainsOneOf(String keywords, Root<T> root, CriteriaQuery<?> query,
+			CriteriaBuilder criteriaBuilder, HqlQueryFilterBuilder<T> filterBuilder) {
+		assert filterBuilder != null;
+		final var kws = Strings.nullToEmpty(keywords).trim();
+		if (!Strings.isNullOrEmpty(kws)) {
+			final var cases = buildCases(kws);
+			final var predicates = new ArrayList<Predicate>();
+			for (final var acase : cases) {
+				final var predicates0 = new ArrayList<Predicate>();
+				filterBuilder.buildQueryFor(acase.toString(), predicates0, root, criteriaBuilder);
+				predicates.add(criteriaBuilder.or(predicates0.toArray(new Predicate[predicates0.size()])));
+			}
+			return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
+		}
+		return null;
+	}
+
+	/** Show an error notification with the given message.
+	 *
+	 * @param message the message to show up.
+	 * @return the notification object.
+	 */
+	public static Notification showErrorNotification(String message) {
+		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		notification.open();
+		return notification;
+	}
+
+	/** Show a warning notification with the given message.
+	 *
+	 * @param message the message to show up.
+	 * @return the notification object.
+	 */
+	public static Notification showWarningNotification(String message) {
+		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+		notification.open();
+		return notification;
+	}
+
+	/** Show a success notification with the given message.
+	 *
+	 * @param message the message to show up.
+	 * @return the notification object.
+	 */
+	public static Notification showSuccessNotification(String message) {
+		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		notification.open();
+		return notification;
+	}
+
+	/** Show an information notification with the given message.
+	 *
+	 * @param message the message to show up.
+	 * @return the notification object.
+	 */
+	public static Notification showInfoNotification(String message) {
+		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+		notification.open();
+		return notification;
+	}
+
+	/** Builder of a HQL query filter.
+	 *
+	 * @param <T> the type of entity.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public interface HqlQueryFilterBuilder<T> extends Serializable {
+
+		/** Build the HQL query for the filtering.
+		 * 
+		 * @param keyword the keyword to search for.
+		 * @param predicates the list of filtering criteria with "or" semantic, being filled by this function.
+		 * @param root the root not for the search.
+		 * @param criteriaBuilder the criteria builder. It is the Hibernate version in order to
+		 *     have access to extra functions, e.g. {@code collate}.
+		 */
+		void buildQueryFor(String keyword, List<Predicate> predicates, Root<T> root, CriteriaBuilder criteriaBuilder);
+
+	}
+
+	/** Provider of details for a person's avatar item.
+	 *
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public interface PersonDetailProvider extends Serializable {
+
+		/** Replies the details string.
+		 *
+		 * @param login the login of the user.
+		 * @param role the role of the user.
+		 * @return the details string.
+		 */
+		String getUserDetails(String login, UserRole role);
+
+		/** Replies the details string.
+		 *
+		 * @param email the email of the person
+		 * @return the details string.
+		 */
+		default String getPersonDetails(String email) {
+			return Strings.emptyToNull(email);
+		}
+
 	}
 
 }

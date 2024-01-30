@@ -27,8 +27,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.BindingBuilder;
@@ -80,6 +78,8 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	
 	private final EntityEditingContext<T> editingContext;
 
+	private boolean relinkEntityWhenSaving;
+
 	/** Constructor.
 	 *
 	 * @param entityType the type of the edited entity.
@@ -91,11 +91,14 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param validationTranslationKey the key in the translation file that corresponds to the
 	 *     label of the validation checkbox.
 	 * @param editingContext the context that is used for representing the edited entity and all the associated files and entities.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 */
 	public AbstractEntityEditor(Class<T> entityType, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger, String administationSectionTranslationKey,
 			String validationTranslationKey,
-			EntityEditingContext<T> editingContext) {
+			EntityEditingContext<T> editingContext,
+			boolean relinkEntityWhenSaving) {
 		this.administationSectionTranslationKey = administationSectionTranslationKey;
 		this.validationTranslationKey = validationTranslationKey;
 		this.entityType = entityType;
@@ -104,6 +107,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		this.entityBinder = new Binder<>(this.entityType);
 		this.authenticatedUser = authenticatedUser;
 		this.editingContext = editingContext;
+		this.relinkEntityWhenSaving = relinkEntityWhenSaving;
 
 		if (this.authenticatedUser != null && this.authenticatedUser.get().isPresent()) {
 			final var role = this.authenticatedUser.get().get().getRole();
@@ -305,9 +309,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 */
 	@SuppressWarnings("static-method")
 	protected void notifyValidated(String message) {
-		final var notification = new Notification(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		notification.open();
+		ComponentFactory.showSuccessNotification(message);
 	}
 
 	/** Notify the user that its personal information has changed.
@@ -321,17 +323,13 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		if (app != null) {
 			app.authenticatedUserIdentityChange();
 		}
-		final var notification = new Notification(getTranslation("views.authenticated_user_change")); //$NON-NLS-1$
-		notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-		notification.open();
+		ComponentFactory.showInfoNotification(getTranslation("views.authenticated_user_change")); //$NON-NLS-1$
 	}
 
 	/** Notify the user that the form contains invalid information.
 	 */
 	public void notifyInvalidity() {
-		final var notification = new Notification(getTranslation("views.save_invalid_data")); //$NON-NLS-1$
-		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
-		notification.open();
+		ComponentFactory.showWarningNotification(getTranslation("views.save_invalid_data")); //$NON-NLS-1$
 	}
 
 	/** Notify the user that the entity cannot be validated.
@@ -356,9 +354,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	protected void notifyValidationError(Throwable error, String message) {
 		this.logger.warn("Error when validating the entity by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
-		final var notification = new Notification(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-		notification.open();
+		ComponentFactory.showErrorNotification(message);
 	}
 
 	/** Invoked for saving the entity. This function must be overridden by the child class that need to do a specific
@@ -381,7 +377,9 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 			// Relink the beans for ensuring the editor has
 			// the last instance of the entity instance
 			// that may have changed due to the saving process
-			linkBeans();
+			if (this.relinkEntityWhenSaving) {
+				linkBeans();
+			}
 			notifySaved();
 			return true;
 		} catch (Throwable ex) {
@@ -409,9 +407,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	protected void notifySaved(String message) {
 		this.logger.info("Data successfully saved by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 		+ ": " + message); //$NON-NLS-1$
-		final Notification notification = new Notification(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		notification.open();
+		ComponentFactory.showSuccessNotification(message);
 	}
 
 	/** Notify the user that the entity cannot be saved.
@@ -436,9 +432,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	protected void notifySavingError(Throwable error, String message) {
 		this.logger.warn("Error when saving entity data by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
-		final var notification = new Notification(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-		notification.open();
+		ComponentFactory.showErrorNotification(message);
 	}
 
 	/** Invoked for preparing the deletion of the entity. This function must be overridden by the child class that need to do a specific
@@ -506,9 +500,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	protected void notifyDeleted(String message) {
 		this.logger.info("Data successfully deleted by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 		+ ": " + message); //$NON-NLS-1$
-		final Notification notification = new Notification(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		notification.open();
+		ComponentFactory.showSuccessNotification(message);
 	}
 
 	/** Notify the user that the entity cannot be deleted.
@@ -533,9 +525,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	protected void notifyDeletionError(Throwable error, String message) {
 		this.logger.warn("Error when deleting entity data by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
 			+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
-		final var notification = new Notification(message);
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-		notification.open();
+		ComponentFactory.showErrorNotification(message);
 	}
 
 	@Override

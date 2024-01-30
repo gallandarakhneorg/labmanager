@@ -18,13 +18,10 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
-import com.ibm.icu.text.Normalizer2;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
@@ -43,8 +40,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -62,7 +57,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
@@ -281,7 +275,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		try {
 			if (context.isDeletionPossible()) {
 				final int size = entities.size();
-				ComponentFactory.createDeletionDialog(this,
+				ComponentFactory.newDeletionDialog(this,
 						getTranslation(this.deletionTitleMessageKey, Integer.valueOf(size)),
 						getTranslation(this.deletionMessageKey, Integer.valueOf(size)),
 						it ->  {
@@ -313,9 +307,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	/** Notify the user that the no entity was found for the requested operation.
 	 */
 	protected void notifyNotEntity() {
-		final var notification = new Notification(getTranslation("views.no_entity")); //$NON-NLS-1$
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-		notification.open();
+		ComponentFactory.showErrorNotification(getTranslation("views.no_entity")); //$NON-NLS-1$
 	}
 
 	/** Notify the user that the entities were deleted.
@@ -334,9 +326,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @see #notifyDeleted(int)
 	 */
 	protected void notifyDeleted(int size, String messageKey) {
-		final var notification = new Notification(getTranslation(messageKey, Integer.valueOf(size)));
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		notification.open();
+		ComponentFactory.showSuccessNotification(getTranslation(messageKey, Integer.valueOf(size)));
 	}
 	
 	/** Notify the user that the entities cannot be deleted.
@@ -361,9 +351,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		msg.append(": "); //$NON-NLS-1$
 		msg.append(error.getLocalizedMessage());
 		this.logger.info(msg.toString(), error);
-		final var notification = new Notification(getTranslation(messageKey, error.getLocalizedMessage()));
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-		notification.open();
+		ComponentFactory.showErrorNotification(getTranslation(messageKey, error.getLocalizedMessage()));
 	}
 
 	private void editSelection() {
@@ -542,14 +530,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 		private static final long serialVersionUID = -7453493729641988299L;
 
-		private static final Pattern PATTERN = Pattern.compile(".[\\p{M}]"); //$NON-NLS-1$
-
-		private static final String FOR_ONE = "_"; //$NON-NLS-1$
-
-		private static final String FOR_MANY = "%"; //$NON-NLS-1$
-
-		private static final Normalizer2 NORMALIZER = Normalizer2.getNFKDInstance();
-
 		private final TextField keywords;
 
 		private final Button resetButton;
@@ -607,39 +587,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		 */
 		protected abstract void resetFilters();
 
-		private static List<StringBuilder> buildCases(String filter) {
-			final var allCases = new ArrayList<StringBuilder>();
-			for (final var filterItem : filter.split("[ \n\r\t\f%]+")) { //$NON-NLS-1$
-				final var filter0 = new StringBuilder(FOR_MANY);
-				var normedFilter0 = NORMALIZER.normalize(filterItem);
-				normedFilter0 = normedFilter0.toLowerCase();
-				final var matcher = PATTERN.matcher(normedFilter0);
-				normedFilter0 = matcher.replaceAll(FOR_ONE);
-				filter0.append(normedFilter0);
-				filter0.append(FOR_MANY);
-				allCases.add(filter0);
-			}
-			return allCases;
-		}
-
-		/** Build the HQL query for the filtering.
-		 * 
-		 * @param cases the list of all the words to search for.
-		 * @param root the root not for the search.
-		 * @param criteriaBuilder the criteria builder. It is the Hibernate version in order to
-		 *     have access to extra functions, e.g. {@code collate}.
-		 * @return the selection predicate.
-		 */
-		private Predicate buildQuery(List<StringBuilder> cases, Root<T> root, CriteriaBuilder criteriaBuilder) {
-			final var predicates = new ArrayList<Predicate>();
-			for (final var acase : cases) {
-				final var predicates0 = new ArrayList<Predicate>();
-				buildQueryFor(acase.toString(), predicates0, root, criteriaBuilder);
-				predicates.add(criteriaBuilder.or(predicates0.toArray(new Predicate[predicates0.size()])));
-			}
-			return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
-		}
-
 		/** Build the HQL query for the filtering.
 		 * 
 		 * @param keywords the keywords to search for.
@@ -652,12 +599,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 		@Override
 		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			final var kws = this.keywords.getValue().trim();
-			if (!Strings.isNullOrEmpty(kws)) {
-				final var cases = buildCases(kws);
-				return buildQuery(cases, root, criteriaBuilder);
-			}
-			return null;
+			return ComponentFactory.newPredicateContainsOneOf(this.keywords.getValue(), root, query, criteriaBuilder, this::buildQueryFor);
 		}
 
 		@Override

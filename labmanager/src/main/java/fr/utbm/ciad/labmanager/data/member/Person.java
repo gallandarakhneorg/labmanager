@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +47,7 @@ import fr.utbm.ciad.labmanager.data.PhoneNumberJPAConverter;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
@@ -350,6 +352,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Authorship> authorships;
+
+	/** List of teaching activities for the person.
+	 */
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<TeachingActivity> teachingActivities;
 
 	/** Indicates if the address was validated by an authority.
 	 */
@@ -811,6 +818,34 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			setGender((Gender) null);
 		} else {
 			setGender(Gender.valueOfCaseInsensitive(gender));
+		}
+	}
+
+	/** Replies the list of teaching activities of the person.
+	 *
+	 * @return the list of publications.
+	 * @since 4.0
+	 */
+	public Set<TeachingActivity> getTeachingActivities() {
+		if (this.teachingActivities == null) {
+			this.teachingActivities = new HashSet<>();
+		}
+		return this.teachingActivities;
+	}
+
+	/** Change the list of teaching activities of the person.
+	 *
+	 * @param list the list of activities.
+	 * since 4.0
+	 */
+	public void setTeachingActivities(Set<TeachingActivity> list) {
+		if (this.teachingActivities != null) {
+			this.teachingActivities.clear();
+		} else {
+			this.teachingActivities = new HashSet<>();
+		}
+		if (list != null) {
+			this.teachingActivities.addAll(list);
 		}
 	}
 

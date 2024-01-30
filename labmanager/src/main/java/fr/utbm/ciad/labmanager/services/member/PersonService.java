@@ -812,6 +812,7 @@ public class PersonService extends AbstractEntityService<Person> {
 					session.load(person, Long.valueOf(person.getId()));
 					Hibernate.initialize(person.getMemberships());
 					Hibernate.initialize(person.getAuthorships());
+					Hibernate.initialize(person.getTeachingActivities());
 				}
 			}
 		});
@@ -880,6 +881,9 @@ public class PersonService extends AbstractEntityService<Person> {
 				}
 				if (!entity.getAuthorships().isEmpty()) {
 					return PersonDeletionStatus.AUTHORSHIP;
+				}
+				if (!entity.getTeachingActivities().isEmpty()) {
+					return PersonDeletionStatus.TEACHING_ACTIVITY;
 				}
 			}
 			return DeletionStatus.OK;

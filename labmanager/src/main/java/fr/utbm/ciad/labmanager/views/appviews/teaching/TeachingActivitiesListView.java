@@ -23,6 +23,8 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
@@ -55,12 +57,15 @@ public class TeachingActivitiesListView extends StandardTeachingActivitiesListVi
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
+	 * @param personService the service for accessing the persons.
+	 * @param organizationService the service for accessing the research organizations.
 	 */
 	public TeachingActivitiesListView(
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
-			@Autowired TeachingService teachingService) {
-		super(fileManager, authenticatedUser, messages, teachingService, LOGGER);
+			@Autowired TeachingService teachingService, @Autowired PersonService personService,
+			@Autowired ResearchOrganizationService organizationService) {
+		super(fileManager, authenticatedUser, messages, teachingService, personService, organizationService, LOGGER);
 	}
 
 	@Override

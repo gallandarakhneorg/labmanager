@@ -175,12 +175,11 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 */
 	@Transactional
 	public Page<Conference> getAllConferences(Pageable pageable, Specification<Conference> filter, Consumer<Conference> callback) {
+		final var page = this.conferenceRepository.findAll(filter, pageable);
 		if (callback != null) {
-			final var page = this.conferenceRepository.findAll(filter, pageable);
 			page.forEach(callback);
-			return page;
 		}
-		return this.conferenceRepository.findAll(filter, pageable);
+		return page;
 	}
 
 	/** Replies the conference with the given identifier.

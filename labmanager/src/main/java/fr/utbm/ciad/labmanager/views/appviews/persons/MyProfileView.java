@@ -74,7 +74,7 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
 		super(
 				createEditingContext(personService, userService, authenticatedUser),
-				authenticatedUser, messages, LOGGER);
+				true, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

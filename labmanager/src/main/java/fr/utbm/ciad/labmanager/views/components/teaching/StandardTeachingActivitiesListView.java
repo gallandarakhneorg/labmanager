@@ -24,16 +24,21 @@ import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -44,6 +49,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -63,7 +69,11 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 	private final TeachingActivityDataProvider dataProvider;
 
-	private TeachingService teachingService;
+	private final TeachingService teachingService;
+
+	private final PersonService personService;
+
+	private final ResearchOrganizationService organizationService;
 
 	private Column<TeachingActivity> titleColumn;
 
@@ -83,12 +93,15 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param logger the logger to use.
 	 */
 	public StandardTeachingActivitiesListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			TeachingService teachingService, Logger logger) {
+			TeachingService teachingService, PersonService personService,
+			ResearchOrganizationService organizationService, Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
 				"views.teaching_activities.delete.title", //$NON-NLS-1$
 				"views.teaching_activities.delete.message", //$NON-NLS-1$
@@ -96,8 +109,16 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 				"views.teaching_activities.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.teachingService = teachingService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters);
+		this.personService = personService;
+		this.organizationService = organizationService;
+		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
+	}
+
+	private void initializeEntityFromJPA(TeachingActivity entity) {
+		// Force the loaded of the lazy data that is needed for rendering the table
+		Hibernate.initialize(entity.getPerson());
+		Hibernate.initialize(entity.getUniversity());
 	}
 
 	@Override
@@ -146,23 +167,20 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		return label.toString();
 	}
 
-	private String getUniversityName(TeachingActivity activity) {
-		/*TODO final var organization = activity.getUniversity();
-		if (organization != null) {
-			final var acronym = organization.getAcronym();
-			final var name = organization.getName();
-			if (Strings.isNullOrEmpty(acronym)) {
-				if (Strings.isNullOrEmpty(name)) {
-					return ""; //$NON-NLS-1$
-				}
-				return name;
-			}
-			if (Strings.isNullOrEmpty(name)) {
-				return acronym;
-			}
-			return new StringBuilder().append(acronym).append(" - ").append(name).toString(); //$NON-NLS-1$
-		}*/
-		return ""; //$NON-NLS-1$
+	private Component createUniversityComponent(TeachingActivity activity) {
+		final var university = activity.getUniversity();
+		if (university != null) {
+			return ComponentFactory.newOrganizationAvatar(university, this.fileManager);
+		}
+		return new Span();
+	}
+
+	private Component createTeacherComponent(TeachingActivity activity) {
+		final var person = activity.getPerson();
+		if (person != null) {
+			return ComponentFactory.newPersonAvatar(person);
+		}
+		return new Span();
 	}
 
 	private String getPeriodLabel(TeachingActivity activity) {
@@ -184,29 +202,18 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		return ""; //$NON-NLS-1$
 	}
 
-	private String getTeacherName(TeachingActivity activity) {
-		/* TODO final var teacher = activity.getPerson();
-		if (teacher != null) {
-			return teacher.getFullNameWithLastNameFirst();
-		}*/
-		return ""; //$NON-NLS-1$
-	}
-
 	@Override
 	protected boolean createGridColumns(Grid<TeachingActivity> grid) {
 		this.titleColumn = grid.addColumn(new ComponentRenderer<>(this::createNameComponent))
 				.setAutoWidth(true)
 				.setFrozen(true)
 				.setSortProperty("code", "title"); //$NON-NLS-1$ //$NON-NLS-2$
-		this.teacherColumn = grid.addColumn(this::getTeacherName)
-				.setAutoWidth(true)
-				.setSortProperty("person"); //$NON-NLS-1$
+		this.teacherColumn = grid.addColumn(new ComponentRenderer<>(this::createTeacherComponent))
+				.setAutoWidth(true);
 		this.levelColumn = grid.addColumn(this::getLevelStudentTypeDegree)
-				.setAutoWidth(true)
-				.setSortProperty("level", "studentType", "degree"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		this.universityColumn = grid.addColumn(this::getUniversityName)
-				.setAutoWidth(true)
-				.setSortProperty("university"); //$NON-NLS-1$
+				.setAutoWidth(true);
+		this.universityColumn = grid.addColumn(new ComponentRenderer<>(this::createUniversityComponent))
+				.setAutoWidth(true);
 		this.periodColumn = grid.addColumn(this::getPeriodLabel)
 				.setAutoWidth(true)
 				.setSortProperty("startDate", "endDate"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -247,11 +254,28 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	protected void openActivityEditor(TeachingActivity activity, String title) {
 		final var editor = new EmbeddedTeachingActivityEditor(
 				this.teachingService.startEditing(activity),
-				this.fileManager, getAuthenticatedUser(), getMessageSourceAccessor());
+				this.fileManager, this.personService, this.organizationService, getAuthenticatedUser(), getMessageSourceAccessor());
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, TeachingActivity> refreshAll = (dialog, entity) -> {
+			// The person should be loaded because it was not loaded before
+			this.teachingService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshGrid();
+		};
+		final SerializableBiConsumer<Dialog, TeachingActivity> refreshOne = (dialog, entity) -> {
+			// The person should be loaded because it was not loaded before
+			this.teachingService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshItem(entity);
+		};
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				(dialog, entity) -> refreshItem(entity),
-				null);
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
 	}
 
 	@Override

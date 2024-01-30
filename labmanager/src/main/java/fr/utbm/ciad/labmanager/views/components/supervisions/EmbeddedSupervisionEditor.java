@@ -50,7 +50,7 @@ public final class EmbeddedSupervisionEditor extends AbstractSupervisionEditor {
 	 */
 	public EmbeddedSupervisionEditor(EntityEditingContext<Supervision> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, authenticatedUser, messages, LOGGER);
+		super(context, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

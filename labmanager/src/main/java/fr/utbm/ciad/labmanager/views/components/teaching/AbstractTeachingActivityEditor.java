@@ -19,6 +19,12 @@
 
 package fr.utbm.ciad.labmanager.views.components.teaching;
 
+import java.util.Arrays;
+import java.util.Optional;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ItemLabelGenerator;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -27,16 +33,24 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.teaching.PedagogicalPracticeType;
 import fr.utbm.ciad.labmanager.data.teaching.StudentType;
 import fr.utbm.ciad.labmanager.data.teaching.TeacherRole;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -44,13 +58,18 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.NumberPerEnumField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.LanguageValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.jpa.domain.Specification;
 
 /** Abstract implementation for the editor of the information related to a teaching activity.
  * 
@@ -71,13 +90,21 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private TextField activityTitle;
 
+	private ComboBox<ResearchOrganization> university;
+
 	private ComboBox<CountryCode> language;
 
 	private DatePicker startDate;
 
 	private DatePicker endDate;
 
-	private DetailsWithErrorMark studentsDetails;
+	private DetailsWithErrorMark contentDetails;
+
+	private TextArea explanation;
+
+	private EntityLeftRightListsEditor<PedagogicalPracticeType> pedagogicalPractices;
+
+	private DetailsWithErrorMark degreeDetails;
 
 	private TextField degree;
 
@@ -85,13 +112,17 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private ComboBox<StudentType> studentType;
 
+	private DetailsWithErrorMark studentsDetails;
+
 	private IntegerField numberOfStudents;
+
+	private NumberPerEnumField<TeachingActivityType, Float> annualWorkPerType;
 
 	private DetailsWithErrorMark teacherDetails;
 
-	private ComboBox<TeacherRole> teacherRole;
+	private ComboBox<Person> person;
 
-	private ComboBox<PedagogicalPracticeType> pedagogicalPractices;
+	private ComboBox<TeacherRole> teacherRole;
 	
 	private Checkbox labworkTutorialEtpDifference;
 
@@ -105,26 +136,39 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private final DownloadableFileManager fileManager;
 
+	private final PersonService personService;
+
+	private final ResearchOrganizationService organizationService;
+
 	/** Constructor.
 	 *
 	 * @param context the context for editing the teaching activity.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param fileManager the manager of the downloadable files.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, DownloadableFileManager fileManager,
+	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, boolean relinkEntityWhenSaving, DownloadableFileManager fileManager,
+			PersonService personService, ResearchOrganizationService organizationService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
 				"views.teaching_activity.administration_details", //$NON-NLS-1$
 				"views.teaching_activity.administration.validated_address", //$NON-NLS-1$
-				context);
+				context, relinkEntityWhenSaving);
 		this.fileManager = fileManager;
+		this.personService = personService;
+		this.organizationService = organizationService;
 	}
 
 	@Override
 	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
+		createContentDetails(rootContainer);
+		createDegreeDetails(rootContainer);
 		createStudentDetails(rootContainer);
 		createTeacherDetails(rootContainer);
 		createDocumentDetails(rootContainer);
@@ -164,7 +208,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		content.add(this.endDate, 1);
 
 		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
+		this.descriptionDetails.setOpened(true);
 		rootContainer.add(this.descriptionDetails);
 
 		getEntityDataBinder().forField(this.activityCode)
@@ -187,12 +231,50 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 			.bind(TeachingActivity::getEndDate, TeachingActivity::setEndDate);
 	}
 
-	/** Create the section for editing the description of the students.
+	/** Create the section for editing the content of the teaching activity.
 	 *
 	 * @param rootContainer the container.
 	 */
-	protected void createStudentDetails(VerticalLayout rootContainer) {
+	protected void createContentDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
+
+		this.explanation = new TextArea();
+		this.explanation.setPrefixComponent(VaadinIcon.TEXT_INPUT.create());
+		this.explanation.setClearButtonVisible(true);
+		content.add(this.explanation, 2);
+
+		this.pedagogicalPractices = new EntityLeftRightListsEditor<>(ComponentFactory.toSerializableComparator(PedagogicalPracticeType.getLabelBasedComparator(getMessageSourceAccessor(), getLocale())));
+		this.pedagogicalPractices.setEntityLabelGenerator(this::getPedagogicalPracticeLabel);
+		this.pedagogicalPractices.setAvailableEntities(PedagogicalPracticeType.getAllDisplayTypes(getMessageSourceAccessor(), getLocale()));
+		this.pedagogicalPractices.setListHeight(150, Unit.PIXELS);
+		content.add(this.pedagogicalPractices, 2);
+
+		this.contentDetails = new DetailsWithErrorMark(content);
+		this.contentDetails.setOpened(false);
+		rootContainer.add(this.contentDetails);
+
+		getEntityDataBinder().forField(this.explanation)
+			.withConverter(new StringTrimer())
+			.bind(TeachingActivity::getExplanation, TeachingActivity::setExplanation);
+		getEntityDataBinder().forField(this.pedagogicalPractices)
+			.bind(TeachingActivity::getPedagogicalPracticeTypes, TeachingActivity::setPedagogicalPracticeTypes);
+	}
+
+	/** Create the section for editing the description of the degree.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createDegreeDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
+
+		this.university = new ComboBox<>();
+		this.university.setRenderer(new ComponentRenderer<>(this::createUniversityComponent));
+		this.university.setItemLabelGenerator(this::getUniversityLabel);
+		this.university.setPrefixComponent(VaadinIcon.INSTITUTION.create());
+		this.university.setItems(query -> this.organizationService.getAllResearchOrganizations(
+				VaadinSpringDataHelpers.toSpringPageRequest(query),
+				createUniversityFilter(query.getFilter()), false).stream());
+		content.add(this.university, 2);
 
 		this.degree = new TextField();
 		this.degree.setPrefixComponent(VaadinIcon.DIPLOMA_SCROLL.create());
@@ -204,6 +286,64 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.level.setItemLabelGenerator(this::getTeachingActivityLevelLabel);
 		this.level.setPrefixComponent(VaadinIcon.FORM.create());
 		content.add(this.level, 1);
+
+		this.degreeDetails = new DetailsWithErrorMark(content);
+		this.degreeDetails.setOpened(false);
+		rootContainer.add(this.degreeDetails);
+
+		getEntityDataBinder().forField(this.university)
+			.withValidator(new NotNullEntityValidator<>(getTranslation("views.teaching_activities.university.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.university, this.descriptionDetails))
+			.bind(TeachingActivity::getUniversity, TeachingActivity::setUniversity);
+		getEntityDataBinder().forField(this.degree)
+			.withConverter(new StringTrimer())
+			.bind(TeachingActivity::getDegree, TeachingActivity::setDegree);
+		getEntityDataBinder().forField(this.level)
+			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.level.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.level, this.degreeDetails))
+			.bind(TeachingActivity::getLevel, TeachingActivity::setLevel);
+	}
+
+	private Component createUniversityComponent(ResearchOrganization university) {
+		return ComponentFactory.newOrganizationAvatar(university, this.fileManager);
+	}
+
+	private String getUniversityLabel(ResearchOrganization university) {
+		final var buffer = new StringBuilder();
+		if (university != null) {
+			final var acronym = university.getAcronym();
+			final var name = university.getName();
+			if (!Strings.isNullOrEmpty(acronym)) {
+				buffer.append(acronym);
+			}
+			if (!Strings.isNullOrEmpty(name)) {
+				if (buffer.length() > 0) {
+					buffer.append(" - "); //$NON-NLS-1$
+				}
+				buffer.append(name);
+			}
+		}
+		return buffer.toString();
+	}
+
+	private static Specification<ResearchOrganization> createUniversityFilter(Optional<String> filter) {
+		if (filter.isPresent()) {
+			return (root, query, criteriaBuilder) -> 
+				ComponentFactory.newPredicateContainsOneOf(filter.get(), root, query, criteriaBuilder,
+						(keyword, predicates, root0, criteriaBuilder0) -> {
+							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("acronym")), keyword)); //$NON-NLS-1$
+							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), keyword)); //$NON-NLS-1$
+						});
+		}
+		return null;
+	}
+
+	/** Create the section for editing the description of the students.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createStudentDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
 
 		this.studentType = new ComboBox<>();
 		this.studentType.setItems(StudentType.getAllDisplayTypes(getMessageSourceAccessor(), getLocale()));
@@ -221,13 +361,6 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.studentsDetails.setOpened(false);
 		rootContainer.add(this.studentsDetails);
 
-		getEntityDataBinder().forField(this.degree)
-			.withConverter(new StringTrimer())
-			.bind(TeachingActivity::getDegree, TeachingActivity::setDegree);
-		getEntityDataBinder().forField(this.level)
-			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.level.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.level, this.studentsDetails))
-			.bind(TeachingActivity::getLevel, TeachingActivity::setLevel);
 		getEntityDataBinder().forField(this.studentType)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.student_type.error"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.studentType, this.studentsDetails))
@@ -253,35 +386,65 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	protected void createTeacherDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
+		this.person = new ComboBox<>();
+		this.person.setRenderer(new ComponentRenderer<>(ComponentFactory::newPersonAvatar));
+		this.person.setItemLabelGenerator(it -> it.getFullNameWithLastNameFirst());
+		this.person.setPrefixComponent(VaadinIcon.USER.create());
+		this.person.setItems(query -> this.personService.getAllPersons(
+				VaadinSpringDataHelpers.toSpringPageRequest(query),
+				createPersonFilter(query.getFilter())).stream());
+		content.add(this.person, 2);
+
 		this.teacherRole = new ComboBox<>();
 		this.teacherRole.setItems(TeacherRole.values());
 		this.teacherRole.setItemLabelGenerator(this::getTeacherRoleLabel);
 		this.teacherRole.setPrefixComponent(VaadinIcon.FORM.create());
 		content.add(this.teacherRole, 2);
 
-//		this.pedagogicalPractices = new ComboBox<>();
-//		this.pedagogicalPractices.setItems(PedagogicalPracticeType.getAllDisplayTypes(getMessageSourceAccessor(), getLocale()));
-//		this.pedagogicalPractices.setItemLabelGenerator(this::getPedagogicalPracticeLabel);
-//		this.pedagogicalPractices.setPrefixComponent(VaadinIcon.FORM.create());
-//		content.add(this.pedagogicalPractices, 1);
-
 		this.labworkTutorialEtpDifference = new Checkbox();
 		content.add(this.labworkTutorialEtpDifference, 2);
+		
+		final ItemLabelGenerator<TeachingActivityType> renderer = it -> it.getLabel(getMessageSourceAccessor(), getLocale());
+		this.annualWorkPerType = NumberPerEnumField.forFloat(
+				"views.teaching_activities.annualWorkPerType.type_column", //$NON-NLS-1$
+				"views.teaching_activities.annualWorkPerType.hour_column", //$NON-NLS-1$
+				"views.teaching_activities.annualWorkPerType.edit", //$NON-NLS-1$
+				"views.teaching_activities.annualWorkPerType.add", //$NON-NLS-1$
+				"views.teaching_activities.annualWorkPerType.remove", //$NON-NLS-1$
+				it -> {
+					it.setItems(Arrays.asList(TeachingActivityType.values()));
+				});
+		this.annualWorkPerType.setEnumValueItemLabelGenerator(renderer);
+		content.add(this.annualWorkPerType, 2);
 
 		this.teacherDetails = new DetailsWithErrorMark(content);
 		this.teacherDetails.setOpened(false);
 		rootContainer.add(this.teacherDetails);
 
+		getEntityDataBinder().forField(this.person)
+			.withValidator(new NotNullEntityValidator<>(getTranslation("views.teaching_activities.teacher.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.person, this.teacherDetails))
+			.bind(TeachingActivity::getPerson, TeachingActivity::setPerson);
 		getEntityDataBinder().forField(this.teacherRole)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.teacher_role.error"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.teacherRole, this.teacherDetails))
 			.bind(TeachingActivity::getRole, TeachingActivity::setRole);
-//		getEntityDataBinder().forField(this.pedagogicalPractices)
-//			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.pedagogical_practices.error"))) //$NON-NLS-1$
-//			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.pedagogicalPractices, this.teacherDetails))
-//			.bind(TeachingActivity::getPedagogicalPracticeTypes, TeachingActivity::setPedagogicalPracticeTypes);
 		getEntityDataBinder().forField(this.labworkTutorialEtpDifference)
 			.bind(TeachingActivity::isDifferentHetdForTdTp, TeachingActivity::setDifferentHetdForTdTp);
+		getEntityDataBinder().forField(this.annualWorkPerType)
+			.bind(TeachingActivity::getAnnualWorkPerType, TeachingActivity::setAnnualWorkPerType);
+	}
+
+	private static Specification<Person> createPersonFilter(Optional<String> filter) {
+		if (filter.isPresent()) {
+			return (root, query, criteriaBuilder) -> 
+				ComponentFactory.newPredicateContainsOneOf(filter.get(), root, query, criteriaBuilder,
+						(keyword, predicates, root0, criteriaBuilder0) -> {
+							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), keyword)); //$NON-NLS-1$
+							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), keyword)); //$NON-NLS-1$
+						});
+		}
+		return null;
 	}
 
 	private String getTeacherRoleLabel(TeacherRole role) {
@@ -391,22 +554,33 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.endDate.setLabel(getTranslation("views.teaching_activities.end_date")); //$NON-NLS-1$
 		this.endDate.setHelperText(getTranslation("views.teaching_activities.end_date.help")); //$NON-NLS-1$
 
-		this.studentsDetails.setSummaryText(getTranslation("views.teaching_activities.student_details")); //$NON-NLS-1$
+		this.contentDetails.setSummaryText(getTranslation("views.teaching_activities.content_details")); //$NON-NLS-1$
+		this.explanation.setLabel(getTranslation("views.teaching_activities.explanation")); //$NON-NLS-1$
+		this.explanation.setHelperText(getTranslation("views.teaching_activities.explanation.help")); //$NON-NLS-1$
+		this.pedagogicalPractices.setLabel(getTranslation("views.teaching_activities.pedagogical_practices")); //$NON-NLS-1$
+		this.pedagogicalPractices.setAdditionTooltip(getTranslation("views.teaching_activities.pedagogical_practices.insert")); //$NON-NLS-1$
+		this.pedagogicalPractices.setDeletionTooltip(getTranslation("views.teaching_activities.pedagogical_practices.delete")); //$NON-NLS-1$
+
+		this.degreeDetails.setSummaryText(getTranslation("views.teaching_activities.degree_details")); //$NON-NLS-1$
+		this.university.setLabel(getTranslation("views.teaching_activities.university")); //$NON-NLS-1$
 		this.degree.setLabel(getTranslation("views.teaching_activities.degree")); //$NON-NLS-1$
 		this.degree.setHelperText(getTranslation("views.teaching_activities.degree.help")); //$NON-NLS-1$
 		this.level.setLabel(getTranslation("views.teaching_activities.level")); //$NON-NLS-1$
 		this.level.setItemLabelGenerator(this::getTeachingActivityLevelLabel);
+
+		this.studentsDetails.setSummaryText(getTranslation("views.teaching_activities.student_details")); //$NON-NLS-1$
 		this.studentType.setLabel(getTranslation("views.teaching_activities.student_type")); //$NON-NLS-1$
 		this.studentType.setItemLabelGenerator(this::getStudentTypeLabel);
 		this.numberOfStudents.setLabel(getTranslation("views.teaching_activities.student_count")); //$NON-NLS-1$
 		this.numberOfStudents.setHelperText(getTranslation("views.teaching_activities.student_count.help")); //$NON-NLS-1$
 
 		this.teacherDetails.setSummaryText(getTranslation("views.teaching_activities.teacher_details")); //$NON-NLS-1$
+		this.person.setLabel(getTranslation("views.teaching_activities.teacher")); //$NON-NLS-1$
 		this.teacherRole.setLabel(getTranslation("views.teaching_activities.teacher_role")); //$NON-NLS-1$
 		this.teacherRole.setItemLabelGenerator(this::getTeacherRoleLabel);
-//		this.pedagogicalPractices.setLabel(getTranslation("views.teaching_activities.pedagogical_practices")); //$NON-NLS-1$
-//		this.pedagogicalPractices.setItemLabelGenerator(this::getPedagogicalPracticeLabel);
 		this.labworkTutorialEtpDifference.setLabel(getTranslation("views.teaching_activities.different_etp")); //$NON-NLS-1$
+		this.annualWorkPerType.setLabel(getTranslation("views.teaching_activities.annualWorkPerType")); //$NON-NLS-1$
+		this.annualWorkPerType.setHelperText(getTranslation("views.teaching_activities.annualWorkPerType.help")); //$NON-NLS-1$
 
 		this.documentsDetails.setSummaryText(getTranslation("views.teaching_activities.document_details")); //$NON-NLS-1$
 		this.activityUrl.setLabel(getTranslation("views.teaching_activities.activity_url")); //$NON-NLS-1$

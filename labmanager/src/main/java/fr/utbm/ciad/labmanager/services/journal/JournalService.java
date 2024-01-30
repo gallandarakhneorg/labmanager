@@ -188,12 +188,11 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 */
 	@Transactional
 	public Page<Journal> getAllJournals(Pageable pageable, Specification<Journal> filter, Consumer<Journal> callback) {
+		final var page = this.journalRepository.findAll(filter, pageable);
 		if (callback != null) {
-			final var page = this.journalRepository.findAll(filter, pageable);
 			page.forEach(callback);
-			return page;
 		}
-		return this.journalRepository.findAll(filter, pageable);
+		return page;
 	}
 
 	/** Replies the journal with the given identifier.

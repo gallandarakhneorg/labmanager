@@ -50,7 +50,7 @@ public final class EmbeddedJuryMembershipEditor extends AbstractJuryMembershipEd
 	 */
 	public EmbeddedJuryMembershipEditor(EntityEditingContext<JuryMembership> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, authenticatedUser, messages, LOGGER);
+		super(context, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

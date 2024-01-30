@@ -50,7 +50,7 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 	 */
 	public EmbeddedMembershipEditor(EntityEditingContext<Membership> context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, authenticatedUser, messages, LOGGER);
+		super(context, false, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

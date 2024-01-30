@@ -46,20 +46,17 @@ import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.User;
-import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -77,14 +74,6 @@ import org.springframework.data.domain.PageRequest;
 public class StandardPersonListView extends AbstractEntityListView<Person> {
 
 	private static final long serialVersionUID = 7976104010438012270L;
-
-	/** Define the color of the border of the regular user avatars: red.
-	 */
-	private static final int ADMINISTRATOR_BORDER_COLOR = 0;
-	
-	/** Define the color of the border of the regular user avatars: dark blue.
-	 */
-	private static final int USER_BORDER_COLOR = 5;
 
 	private final PersonService personService;
 
@@ -169,33 +158,10 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	}
 
 	private Component createNameComponent(Person person) {
-		final var fullName = person.getFullNameWithLastNameFirst();
-		final var photo = person.getPhotoURL();
-
-		String contactDetails = null;
-		Integer avatarBorder = null;
-		final var user = this.personIdToUserMap.get(Long.valueOf(person.getId()));
-		if (user != null) {
-			final var login = user.getLogin();
-			if (!Strings.isNullOrEmpty(login)) {
-				final var role = user.getRole();
-				avatarBorder = Integer.valueOf(role == UserRole.ADMIN ? ADMINISTRATOR_BORDER_COLOR : USER_BORDER_COLOR);
-				contactDetails = getTranslation("views.persons.person_details.login", //$NON-NLS-1$
+		final var avatar = ComponentFactory.newPersonAvatar(person, this.personIdToUserMap.get(Long.valueOf(person.getId())),
+				(login, role) -> getTranslation("views.persons.person_details.login", //$NON-NLS-1$
 						login,
-						role.getLabel(getMessageSourceAccessor(), getLocale()));
-			}
-		}
-
-		final var avatar = new AvatarItem();
-		avatar.setHeading(fullName);
-		avatar.setAvatarBorderColor(avatarBorder);
-		if (!Strings.isNullOrEmpty(contactDetails)) {
-			avatar.setDescription(contactDetails);
-		}
-		if (photo != null) {
-			avatar.setAvatarURL(photo.toExternalForm());
-		}
-
+						role.getLabel(getMessageSourceAccessor(), getLocale())));
 		return avatar;
 	}
 

@@ -88,13 +88,15 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	/** Constructor.
 	 *
 	 * @param context the editing context for the supervisison.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractSupervisionEditor(EntityEditingContext<Supervision> context, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
-		super(Supervision.class, authenticatedUser, messages, logger, null, null, context);
+	public AbstractSupervisionEditor(EntityEditingContext<Supervision> context, boolean relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+		super(Supervision.class, authenticatedUser, messages, logger, null, null, context, relinkEntityWhenSaving);
 	}
 
 	@Override

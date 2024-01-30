@@ -59,7 +59,7 @@ public final class EmbeddedOrganizationEditor extends AbstractOrganizationEditor
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ResearchOrganizationService organizationService,
 			OrganizationAddressService addressService) {
-		super(context, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService);
+		super(context, false, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService);
 		createEditorContentAndLinkBeans();
 	}
 

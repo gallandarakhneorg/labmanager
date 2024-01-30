@@ -131,6 +131,16 @@ public class EntityComboListEditor<T> extends CustomField<Set<T>> {
 		this.selectedEntities.addSelectionListener(it -> this.deleteButton.setEnabled(!it.getAllSelectedItems().isEmpty()));
 	}
 
+	/** Change the height of the list. This function differs to {@link #setHeight(float, Unit)} in the fact
+	 * it changes the height of the inner list and not of the global component.
+	 *
+	 * @param height the height value.
+	 * @param unit the height unit.
+	 */
+	public void setListHeight(float height, Unit unit) {
+		this.selectedEntities.setHeight(height, unit);
+	}
+
 	/** Do the insertion of the given item. This function add the given item
 	 * in the combo box of available entities and in the list of selected entities.
 	 *
@@ -246,6 +256,25 @@ public class EntityComboListEditor<T> extends CustomField<Set<T>> {
 	 * @param items the list of items.
 	 */
 	public void setAvailableEntities(FetchCallback<T, String> items) {
+		this.availableEntities.setItems(items);
+	}
+
+	/** Change the list of items that are proposed as available.
+	 * The provided list is copied in a in-memory collection.
+	 *
+	 * @param items the list of items.
+	 */
+	public void setAvailableEntities(Collection<T> items) {
+		this.availableEntities.setItems(items);
+	}
+
+	/** Change the list of items that are proposed as available.
+	 * The provided list is copied in a in-memory collection.
+	 *
+	 * @param items the list of items.
+	 */
+	@SuppressWarnings("unchecked")
+	public void setAvailableEntities(T... items) {
 		this.availableEntities.setItems(items);
 	}
 

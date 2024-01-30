@@ -43,7 +43,6 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
@@ -51,8 +50,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityLi
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -195,45 +192,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	}
 
 	private Component createNameComponent(ResearchOrganization organization) {
-		final var acronym = organization.getAcronym();
-		final var name = organization.getName();
-		final var logo = organization.getPathToLogo();
-		final var identifier = organization.getNationalIdentifier();
-		final var rnsr = organization.getRnsr();
-
-		final var details = new StringBuilder();
-		if (!Strings.isNullOrEmpty(acronym)) {
-			details.append(acronym);
-		}
-		if (!Strings.isNullOrEmpty(identifier)) {
-			if (details.length() > 0) {
-				details.append(' ');
-			}
-			details.append(identifier);
-		}
-		if (!Strings.isNullOrEmpty(rnsr)) {
-			if (details.length() > 0) {
-				details.append(" - "); //$NON-NLS-1$
-			}
-			details.append("RNSR ").append(rnsr); //$NON-NLS-1$
-		}
-
-		final var avatar = new AvatarItem();
-		avatar.setHeading(name);
-		if (details.length() > 0) {
-			avatar.setDescription(details.toString());
-		}
-		if (organization.isMajorOrganization()) {
-			avatar.setAvatarBorderColor(Integer.valueOf(3));
-		}
-		var logoFile = FileSystem.convertStringToFile(logo);
-		if (logoFile != null) {
-			logoFile = this.fileManager.normalizeForServerSide(logoFile);
-			if (logoFile != null) {
-				avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
-			}
-		}
-		return avatar;
+		return ComponentFactory.newOrganizationAvatar(organization, this.fileManager);
 	}
 
 	@Override

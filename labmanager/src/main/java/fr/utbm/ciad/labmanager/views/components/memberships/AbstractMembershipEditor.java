@@ -95,16 +95,17 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	/** Constructor.
 	 *
 	 * @param context the editing context for the membership.
+	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
+	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractMembershipEditor(EntityEditingContext<Membership> context, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
+	public AbstractMembershipEditor(EntityEditingContext<Membership> context, boolean relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(Membership.class, authenticatedUser, messages, logger,
 				"views.membership.administration_details", //$NON-NLS-1$
-				null,
-				context);
+				null, context, relinkEntityWhenSaving);
 	}
 
 	@Override

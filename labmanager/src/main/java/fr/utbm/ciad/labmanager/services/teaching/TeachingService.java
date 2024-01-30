@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -42,6 +43,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -155,7 +157,24 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 * @since 4.0
 	 */
 	public Page<TeachingActivity> getAllActivities(Pageable pageable, Specification<TeachingActivity> filter) {
-		return this.teachingActivityRepository.findAll(filter, pageable);
+		return getAllActivities(pageable, filter, null);
+	}
+
+	/** Replies all the known teaching activities.
+	 *
+	 * @param pageable a manager of pages.
+	 * @param filter the filter to apply to the activities.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return all the activities, never {@code null}.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<TeachingActivity> getAllActivities(Pageable pageable, Specification<TeachingActivity> filter, Consumer<TeachingActivity> callback) {
+		final var page = this.teachingActivityRepository.findAll(filter, pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
 	}
 
 	/** Replies the teaching activity that has the given identifier.
@@ -390,6 +409,16 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	@Override
 	public EntityEditingContext<TeachingActivity> startEditing(TeachingActivity activity) {
 		assert activity != null;
+		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
+		inSession(session -> {
+			if (activity.getId() != 0l) {
+				session.load(activity, Long.valueOf(activity.getId()));
+				Hibernate.initialize(activity.getPerson());
+				Hibernate.initialize(activity.getUniversity());
+				Hibernate.initialize(activity.getPedagogicalPracticeTypes());
+				Hibernate.initialize(activity.getAnnualWorkPerType());
+			}
+		});
 		return new EditingContext(activity);
 	}
 

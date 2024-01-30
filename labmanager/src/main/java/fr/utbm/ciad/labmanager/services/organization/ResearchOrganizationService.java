@@ -144,14 +144,14 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 *
 	 * @param pageable the manager of the pages.
 	 * @param filter the filter of organizations.
-	 * @param initializeLinkedentities indicates if the linked entities should be initialized before returning from the call.
+	 * @param initializeLinkedEntities indicates if the linked entities should be initialized before returning from the call.
 	 * @return the research organizations.
 	 * @since 4.0
 	 */
 	@Transactional
-	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter, boolean initializeLinkedentities) {
+	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter, boolean initializeLinkedEntities) {
 		final var page = this.organizationRepository.findAll(filter, pageable);
-		if (initializeLinkedentities) {
+		if (initializeLinkedEntities) {
 			page.forEach(it -> {
 				Hibernate.initialize(it.getSubOrganizations());
 			});
