@@ -121,9 +121,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 		this.title.setClearButtonVisible(true);
 		content.add(this.title, 2);
 
-		this.supervisedWorkDetails = new DetailsWithErrorMark(content);
-		this.supervisedWorkDetails.setOpened(false);
-		rootContainer.add(this.supervisedWorkDetails);
+		this.supervisedWorkDetails = createDetailsWithErrorMark(rootContainer, content, "supervisedWork", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
@@ -169,9 +167,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 		this.entrepreneur = new Checkbox();
 		content.add(this.entrepreneur, 1);
 
-		this.fundDetails = new DetailsWithErrorMark(content);
-		this.fundDetails.setOpened(false);
-		rootContainer.add(this.fundDetails);
+		this.fundDetails = createDetailsWithErrorMark(rootContainer, content, "fund"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
@@ -207,9 +203,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 		this.defenseDate.setClearButtonVisible(true);
 		content.add(this.defenseDate, 2);
 
-		this.defenseDetails = new DetailsWithErrorMark(content);
-		this.defenseDetails.setOpened(false);
-		rootContainer.add(this.defenseDetails);
+		this.defenseDetails = createDetailsWithErrorMark(rootContainer, content, "defense"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.defenseDate)
 			.bind(Supervision::getDefenseDate, Supervision::setDefenseDate);
@@ -236,9 +230,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 		this.numberOfAterPositions.setClearButtonVisible(true);
 		content.add(this.numberOfAterPositions, 2);
 
-		this.afterDefenseDetails = new DetailsWithErrorMark(content);
-		this.afterDefenseDetails.setOpened(false);
-		rootContainer.add(this.afterDefenseDetails);
+		this.afterDefenseDetails = createDetailsWithErrorMark(rootContainer, content, "future"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.abandonment)
 			.bind(Supervision::isAbandonment, Supervision::setAbandonment);

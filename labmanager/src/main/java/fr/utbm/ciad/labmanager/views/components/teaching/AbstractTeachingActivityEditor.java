@@ -207,9 +207,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.endDate.setClearButtonVisible(true);
 		content.add(this.endDate, 1);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(true);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.activityCode)
 			.withConverter(new StringTrimer())
@@ -249,9 +247,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.pedagogicalPractices.setListHeight(150, Unit.PIXELS);
 		content.add(this.pedagogicalPractices, 2);
 
-		this.contentDetails = new DetailsWithErrorMark(content);
-		this.contentDetails.setOpened(false);
-		rootContainer.add(this.contentDetails);
+		this.contentDetails = createDetailsWithErrorMark(rootContainer, content, "content"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.explanation)
 			.withConverter(new StringTrimer())
@@ -287,9 +283,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.level.setPrefixComponent(VaadinIcon.FORM.create());
 		content.add(this.level, 1);
 
-		this.degreeDetails = new DetailsWithErrorMark(content);
-		this.degreeDetails.setOpened(false);
-		rootContainer.add(this.degreeDetails);
+		this.degreeDetails = createDetailsWithErrorMark(rootContainer, content, "degree"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.university)
 			.withValidator(new NotNullEntityValidator<>(getTranslation("views.teaching_activities.university.error"))) //$NON-NLS-1$
@@ -357,9 +351,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.numberOfStudents.setClearButtonVisible(true);
 		content.add(this.numberOfStudents, 1);
 
-		this.studentsDetails = new DetailsWithErrorMark(content);
-		this.studentsDetails.setOpened(false);
-		rootContainer.add(this.studentsDetails);
+		this.studentsDetails = createDetailsWithErrorMark(rootContainer, content, "students"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.studentType)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.student_type.error"))) //$NON-NLS-1$
@@ -417,9 +409,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.annualWorkPerType.setEnumValueItemLabelGenerator(renderer);
 		content.add(this.annualWorkPerType, 2);
 
-		this.teacherDetails = new DetailsWithErrorMark(content);
-		this.teacherDetails.setOpened(false);
-		rootContainer.add(this.teacherDetails);
+		this.teacherDetails = createDetailsWithErrorMark(rootContainer, content, "teacher"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.person)
 			.withValidator(new NotNullEntityValidator<>(getTranslation("views.teaching_activities.teacher.error"))) //$NON-NLS-1$
@@ -475,9 +465,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.slides.setClearButtonVisible(true);
 		content.add(this.slides, 2);
 
-		this.documentsDetails = new DetailsWithErrorMark(content);
-		this.documentsDetails.setOpened(false);
-		rootContainer.add(this.documentsDetails);
+		this.documentsDetails = createDetailsWithErrorMark(rootContainer, content, "documents"); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 

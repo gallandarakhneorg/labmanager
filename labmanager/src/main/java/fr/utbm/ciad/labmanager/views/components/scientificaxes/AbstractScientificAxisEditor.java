@@ -117,9 +117,7 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 		this.endDate.setClearButtonVisible(true);
 		content.add(this.endDate, 1);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(true);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.acronym)
 		.withConverter(new StringTrimer())

@@ -191,9 +191,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.type.setValue(ResearchOrganizationType.DEFAULT);
 		content.add(this.type, 2);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(true);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.acronym)
 		.withConverter(new StringTrimer())
@@ -224,9 +222,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.country.setPrefixComponent(VaadinIcon.GLOBE_WIRE.create());
 		content.add(this.country, 1);
 
-		this.geographyDetails = new DetailsWithErrorMark(content);
-		this.geographyDetails.setOpened(false);
-		rootContainer.add(this.geographyDetails);
+		this.geographyDetails = createDetailsWithErrorMark(rootContainer, content, "geography"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.addresses).bind(ResearchOrganization::getAddresses, ResearchOrganization::setAddresses);
 		getEntityDataBinder().forField(this.country).bind(ResearchOrganization::getCountry, ResearchOrganization::setCountry);
@@ -266,9 +262,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.rnsr.setClearButtonVisible(true);
 		content.add(this.rnsr, 2);
 
-		this.identificationDetails = new DetailsWithErrorMark(content);
-		this.identificationDetails.setOpened(false);
-		rootContainer.add(this.identificationDetails);
+		this.identificationDetails = createDetailsWithErrorMark(rootContainer, content, "identification"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.nationalIdentifier)
 		.withConverter(new StringTrimer())
@@ -298,9 +292,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		});
 		content.add(this.superStructures, 2);
 
-		this.superStructureDetails = new DetailsWithErrorMark(content);
-		this.superStructureDetails.setOpened(false);
-		rootContainer.add(this.superStructureDetails);
+		this.superStructureDetails = createDetailsWithErrorMark(rootContainer, content, "superStructure"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.superStructures).bind(ResearchOrganization::getSuperOrganizations, ResearchOrganization::setSuperOrganizations);
 	}
@@ -367,9 +359,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.logo.setClearButtonVisible(true);
 		content.add(this.logo, 2);
 
-		this.communicationDetails = new DetailsWithErrorMark(content);
-		this.communicationDetails.setOpened(false);
-		rootContainer.add(this.communicationDetails);
+		this.communicationDetails = createDetailsWithErrorMark(rootContainer, content, "communication"); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 

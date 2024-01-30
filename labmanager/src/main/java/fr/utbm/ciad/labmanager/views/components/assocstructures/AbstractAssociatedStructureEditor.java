@@ -139,9 +139,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.type.setValue(AssociatedStructureType.PRIVATE_COMPANY);
 		content.add(this.type, 2);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.acronym)
 			.withConverter(new StringTrimer())
@@ -187,9 +185,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.budget.setClearButtonVisible(true);
 		content.add(this.budget, 1);
 
-		this.creationDetails = new DetailsWithErrorMark(content);
-		this.creationDetails.setOpened(false);
-		rootContainer.add(this.creationDetails);
+		this.creationDetails = createDetailsWithErrorMark(rootContainer, content, "creation"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.creationDate)
 			.withValidator(new NotNullDateValidator(getTranslation("views.associated_structure.creation_date.error"))) //$NON-NLS-1$
@@ -221,9 +217,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.description.setClearButtonVisible(true);
 		content.add(this.description, 1);
 
-		this.communicationDetails = new DetailsWithErrorMark(content);
-		this.communicationDetails.setOpened(false);
-		rootContainer.add(this.communicationDetails);
+		this.communicationDetails = createDetailsWithErrorMark(rootContainer, content, "communication"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.confidential)
 			.bind(AssociatedStructure::isConfidential, AssociatedStructure::setConfidential);

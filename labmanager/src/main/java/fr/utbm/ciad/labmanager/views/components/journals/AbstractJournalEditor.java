@@ -146,9 +146,7 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		this.journalUrl.setClearButtonVisible(true);
 		content.add(this.journalUrl, 2);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(true);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
@@ -209,9 +207,7 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		this.isbn.setClearButtonVisible(true);
 		content.add(this.isbn, 1);
 
-		this.publisherDetails = new DetailsWithErrorMark(content);
-		this.publisherDetails.setOpened(false);
-		rootContainer.add(this.publisherDetails);
+		this.publisherDetails = createDetailsWithErrorMark(rootContainer, content, "publisher"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.publisherName)
 			.withConverter(new StringTrimer())
@@ -263,9 +259,7 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		this.rankings = new JournalAnnualRankingField();
 		content.add(this.rankings, 2);
 
-		this.rankingDetails = new Details("", content); //$NON-NLS-1$
-		this.rankingDetails.setOpened(false);
-		rootContainer.add(this.rankingDetails);
+		this.rankingDetails = createDetails(rootContainer, content, "ranking"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.wosId)
 			.withConverter(new StringTrimer())

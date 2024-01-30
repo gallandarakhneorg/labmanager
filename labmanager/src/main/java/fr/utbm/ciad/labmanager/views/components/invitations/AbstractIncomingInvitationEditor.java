@@ -109,9 +109,7 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 		this.country.setRequired(true);
 		content.add(this.country, 1);
 
-		this.guestDetails = new DetailsWithErrorMark(content);
-		this.guestDetails.setOpened(false);
-		rootContainer.add(this.guestDetails);
+		this.guestDetails = createDetailsWithErrorMark(rootContainer, content, "guest", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.university)
 			.withConverter(new StringTrimer())
@@ -161,9 +159,7 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 		this.title.setClearButtonVisible(true);
 		content.add(this.title, 2);
 
-		this.informationDetails = new DetailsWithErrorMark(content);
-		this.informationDetails.setOpened(false);
-		rootContainer.add(this.informationDetails);
+		this.informationDetails = createDetailsWithErrorMark(rootContainer, content, "information"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.startDate)
 			.withValidator(new NotNullDateValidator(getTranslation("views.incoming_invitation.start_date.error"))) //$NON-NLS-1$

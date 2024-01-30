@@ -144,9 +144,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.conferenceUrl.setClearButtonVisible(true);
 		content.add(this.conferenceUrl, 2);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
@@ -198,9 +196,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.rankings = new ConferenceAnnualRankingField();
 		content.add(this.rankings, 2);
 
-		this.rankingDetails = new Details("", content); //$NON-NLS-1$
-		this.rankingDetails.setOpened(false);
-		rootContainer.add(this.rankingDetails);
+		this.rankingDetails = createDetails(rootContainer, content, "ranking"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.coreId)
 			.withConverter(new StringTrimer())
@@ -232,9 +228,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.isbn.setClearButtonVisible(true);
 		content.add(this.isbn, 1);
 
-		this.publicationDetails = new DetailsWithErrorMark(content);
-		this.publicationDetails.setOpened(false);
-		rootContainer.add(this.publicationDetails);
+		this.publicationDetails = createDetailsWithErrorMark(rootContainer, content, "publication"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.publisherName)
 			.withConverter(new StringTrimer())

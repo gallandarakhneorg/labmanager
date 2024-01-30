@@ -209,9 +209,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.duration.setClearButtonVisible(true);
 		content.add(this.duration, 1);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(false);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.acronym)
 			.withConverter(new StringTrimer())
@@ -253,9 +251,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.globalBudget.setClearButtonVisible(true);
 		content.add(this.globalBudget, 2);
 
-		this.fundingDetails = new DetailsWithErrorMark(content);
-		this.fundingDetails.setOpened(false);
-		rootContainer.add(this.fundingDetails);
+		this.fundingDetails = createDetailsWithErrorMark(rootContainer, content, "funding"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.globalBudget)
 			.withConverter(new DoubleToFloatConverter())
@@ -295,9 +291,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.openSource = new Checkbox();
 		content.add(this.openSource, 2);
 
-		this.innovationDetails = new DetailsWithErrorMark(content);
-		this.innovationDetails.setOpened(false);
-		rootContainer.add(this.innovationDetails);
+		this.innovationDetails = createDetailsWithErrorMark(rootContainer, content, "innovation"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.activityType)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.projects.activity_type.error"))) //$NON-NLS-1$
@@ -360,9 +354,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.powerpoint.setClearButtonVisible(true);
 		content.add(this.powerpoint, 1);
 
-		this.presentationDetails = new DetailsWithErrorMark(content);
-		this.presentationDetails.setOpened(false);
-		rootContainer.add(this.presentationDetails);
+		this.presentationDetails = createDetailsWithErrorMark(rootContainer, content, "presentation"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.confidential)
 			.bind(Project::isConfidential, Project::setConfidential);
@@ -399,9 +391,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.pressDocument.setClearButtonVisible(true);
 		content.add(this.pressDocument, 1);
 
-		this.communicationDetails = new DetailsWithErrorMark(content);
-		this.communicationDetails.setOpened(false);
-		rootContainer.add(this.communicationDetails);
+		this.communicationDetails = createDetailsWithErrorMark(rootContainer, content, "communication"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.logo)
 			.withConverter(new StringTrimer())

@@ -380,9 +380,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		content.add(this.photo, 2);
 		updatePhoto();
 		
-		this.personalInformationDetails = new DetailsWithErrorMark(content);
-		this.personalInformationDetails.setOpened(true);
-		receiver.add(this.personalInformationDetails);
+		this.personalInformationDetails = createDetailsWithErrorMark(receiver, content, "personal", true); //$NON-NLS-1$
 		
 		getEntityDataBinder().forField(this.lastname)
 			.withConverter(new StringTrimer())
@@ -438,9 +436,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.officeRoom.setPrefixComponent(VaadinIcon.OFFICE.create());
 		content.add(this.officeRoom, 2);
 
-		this.contactInformationDetails = new DetailsWithErrorMark(content);
-		this.contactInformationDetails.setOpened(false);
-		receiver.add(this.contactInformationDetails);
+		this.contactInformationDetails = createDetailsWithErrorMark(receiver, content, "contact"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.email)
 			.withConverter(new StringTrimer())
@@ -493,9 +489,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.gscholar.setPrefixComponent(VaadinIcon.HASH.create());
 		content.add(this.gscholar, 2);
 
-		this.researcherIdsDetails = new DetailsWithErrorMark(content);
-		this.researcherIdsDetails.setOpened(false);
-		receiver.add(this.researcherIdsDetails);
+		this.researcherIdsDetails = createDetailsWithErrorMark(receiver, content, "identifiers"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.orcid)
 			.withConverter(new StringTrimer())
@@ -579,9 +573,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		final var vl = new VerticalLayout(content0, content1);
 		vl.setSpacing(false);
 
-		this.indexesDetails = new Details("", vl); //$NON-NLS-1$
-		this.indexesDetails.setOpened(false);
-		receiver.add(this.indexesDetails);
+		this.indexesDetails = createDetails(receiver, vl, "indexes"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.wosHindex).bind(Person::getWosHindex, Person::setWosHindex);
 		getEntityDataBinder().forField(this.scopusHindex).bind(Person::getScopusHindex, Person::setScopusHindex);
@@ -648,9 +640,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.facebook.setPrefixComponent(VaadinIcon.HASH.create());
 		content.add(this.facebook);
 
-		this.socialLinksDetails = new DetailsWithErrorMark(content);
-		this.socialLinksDetails.setOpened(false);
-		receiver.add(this.socialLinksDetails);
+		this.socialLinksDetails = createDetailsWithErrorMark(receiver, content, "social"); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 		

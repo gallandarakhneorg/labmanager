@@ -129,9 +129,7 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 		this.country.setRequired(true);
 		content.add(this.country, 1);
 
-		this.descriptionDetails = new DetailsWithErrorMark(content);
-		this.descriptionDetails.setOpened(true);
-		rootContainer.add(this.descriptionDetails);
+		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
@@ -175,9 +173,7 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 		this.type.setItemLabelGenerator(this::getMembershipTypeLabel);
 		content.add(this.type, 1);
 
-		this.participantDetails = new DetailsWithErrorMark(content);
-		this.participantDetails.setOpened(false);
-		rootContainer.add(this.participantDetails);
+		this.participantDetails = createDetailsWithErrorMark(rootContainer, content, "participant"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.type)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.jury_membership.membership_type.error"))) //$NON-NLS-1$

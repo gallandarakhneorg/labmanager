@@ -143,9 +143,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	protected void createEmployeeDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.employeeDetails = new DetailsWithErrorMark(content);
-		this.employeeDetails.setOpened(false);
-		rootContainer.add(this.employeeDetails);
+		this.employeeDetails = createDetailsWithErrorMark(rootContainer, content, "epmployee", true); //$NON-NLS-1$
 	}
 
 	/** Create the section for editing the description of the employer.
@@ -155,9 +153,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	protected void createEmployerDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.employerDetails = new DetailsWithErrorMark(content);
-		this.employerDetails.setOpened(false);
-		rootContainer.add(this.employerDetails);
+		this.employerDetails = createDetailsWithErrorMark(rootContainer, content, "employer"); //$NON-NLS-1$
 	}
 
 	/** Create the section for editing the description of the position.
@@ -202,9 +198,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		this.permanentPosition = new Checkbox(); 
 		content.add(this.to, 2);
 
-		this.positionDetails = new DetailsWithErrorMark(content);
-		this.positionDetails.setOpened(false);
-		rootContainer.add(this.positionDetails);
+		this.positionDetails = createDetailsWithErrorMark(rootContainer, content, "position"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.status)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.membership.status.error"))) //$NON-NLS-1$
@@ -252,9 +246,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		this.bap.setPrefixComponent(VaadinIcon.COMPILE.create());
 		content.add(this.bap, 2);
 
-		this.sectionDetails = new DetailsWithErrorMark(content);
-		this.sectionDetails.setOpened(false);
-		rootContainer.add(this.sectionDetails);
+		this.sectionDetails = createDetailsWithErrorMark(rootContainer, content, "section"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.cnu)
 			.bind(Membership::getCnuSection, Membership::setCnuSection);

@@ -147,9 +147,7 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 		this.city.setClearButtonVisible(true);
 		content.add(this.city, 1);
 
-		this.postalInformationDetails = new DetailsWithErrorMark(content);
-		this.postalInformationDetails.setOpened(true);
-		rootContainer.add(this.postalInformationDetails);
+		this.postalInformationDetails = createDetailsWithErrorMark(rootContainer, content, "postalInformation", true); //$NON-NLS-1$
 		
 		getEntityDataBinder().forField(this.name)
 			.withConverter(new StringTrimer())
@@ -193,9 +191,7 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 		this.googleMapUrl.setClearButtonVisible(true);
 		content.add(this.googleMapUrl, 2);
 
-		this.geographicDetails = new DetailsWithErrorMark(content);
-		this.geographicDetails.setOpened(false);
-		rootContainer.add(this.geographicDetails);
+		this.geographicDetails = createDetailsWithErrorMark(rootContainer, content, "geography"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.gps)
 			.withConverter(new StringTrimer())
@@ -221,9 +217,7 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 		this.uploadImage.setClearButtonVisible(true);
 		content.add(this.uploadImage, 2);
 
-		this.presentationDetails = new Details("", content); //$NON-NLS-1$
-		this.presentationDetails.setOpened(false);
-		rootContainer.add(this.presentationDetails);
+		this.presentationDetails = createDetails(rootContainer, content, "presentation"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.uploadImage)
 			.withConverter(new StringTrimer())

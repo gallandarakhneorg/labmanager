@@ -21,7 +21,9 @@ package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
 import java.util.function.Consumer;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.details.Details;
@@ -32,11 +34,14 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.BindingBuilder;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
+import com.vaadin.flow.server.VaadinService;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -536,6 +541,106 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		if (this.validatedEntity != null) {
 			this.validatedEntity.setLabel(getTranslation(this.validationTranslationKey));
 		}
+	}
+
+	/** Create a "details" section that may be marked with error.
+	 *
+	 * @param container the container of the section.
+	 * @param content the content of the section.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @return the section container.
+	 * @see #createDetails(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String)
+	 */
+	protected DetailsWithErrorMark createDetailsWithErrorMark(HasComponents container, Component content, String sectionId) {
+		return createDetailsWithErrorMark(container, content, sectionId, false);
+	}
+
+	/** Create a "details" section that may be marked with error.
+	 *
+	 * @param container the container of the section.
+	 * @param content the content of the section.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
+	 * @return the section container.
+	 * @see #createDetails(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String)
+	 */
+	protected DetailsWithErrorMark createDetailsWithErrorMark(HasComponents container, Component content, String sectionId, boolean openByDefault) {
+		final var details = new DetailsWithErrorMark(content);
+		if (container != null) {
+			container.add(details);
+		}
+		initializeDetails(details, sectionId, openByDefault);
+		return details;
+	}
+
+	/** Create a "details" section.
+	 *
+	 * @param container the container of the section.
+	 * @param content the content of the section.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @return the section container.
+	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String)
+	 */
+	protected Details createDetails(HasComponents container, Component content, String sectionId) {
+		return createDetails(container, content, sectionId, false);
+	}
+
+	/** Create a "details" section.
+	 *
+	 * @param container the container of the section.
+	 * @param content the content of the section.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
+	 * @return the section container.
+	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String)
+	 */
+	protected Details createDetails(HasComponents container, Component content, String sectionId, boolean openByDefault) {
+		final var details = new Details("", content); //$NON-NLS-1$
+		if (container != null) {
+			container.add(details);
+		}
+		initializeDetails(details, sectionId, openByDefault);
+		return details;
+	}
+
+	/** Initialize a "details" section.
+	 *
+	 * @param details the component to initialize.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
+	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
+	 * @see #createDetails(HasComponents, Component, String)
+	 */
+	protected void initializeDetails(Details details, String sectionId, boolean openByDefault) {
+		final var key = new StringBuilder().append(ViewConstants.DETAILS_SECTION_OPENING_ROOT).append(getClass().getName());
+		final var sectionKey = key.toString();
+		final var attributeKey = key.append('.').append(sectionId).toString();
+		
+		final var session = VaadinService.getCurrentRequest().getWrappedSession();
+		if (session.getAttribute(sectionKey) == null) {
+			// Section was never defined. Use the default configuration.
+			details.setOpened(openByDefault);
+		} else {
+			// Section was defined. Use the stored configuration.
+			final var value = session.getAttribute(attributeKey);
+			if (value instanceof Boolean bvalue) {
+				details.setOpened(bvalue.booleanValue());
+			} else if (value instanceof String svalue) {
+					details.setOpened(Boolean.parseBoolean(svalue));
+			} else {
+				details.setOpened(openByDefault);
+			}
+		}
+
+		details.addOpenedChangeListener(event -> {
+			final var session0 = VaadinService.getCurrentRequest().getWrappedSession();
+			session0.setAttribute(sectionKey, Boolean.TRUE.toString());
+			session0.setAttribute(attributeKey, Boolean.toString(event.isOpened()));
+		});
 	}
 
 }

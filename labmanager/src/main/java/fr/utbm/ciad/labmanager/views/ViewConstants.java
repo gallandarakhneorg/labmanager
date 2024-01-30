@@ -125,6 +125,16 @@ public final class ViewConstants {
 	 */
 	public static final int PHOTO_SIZE = 75;
 
+	/** Root attribute name for the UI preferences.
+	 * @since 4.0
+	 */
+	public static final String PREFERENCE_ROOT = ViewConstants.class.getPackage().getName() + ".preferences."; //$NON-NLS-1$
+
+	/** Root attribute name for the details section opening.
+	 * @since 4.0
+	 */
+	public static final String DETAILS_SECTION_OPENING_ROOT = PREFERENCE_ROOT + "details_open."; //$NON-NLS-1$
+
 	private ViewConstants() {
 		//
 	}
