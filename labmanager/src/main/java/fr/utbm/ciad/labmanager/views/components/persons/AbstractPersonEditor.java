@@ -403,12 +403,6 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	}
 
 	/** Create the components for entering the contact informations.
-	 * The information includes:<ul>
-	 * <li>Email</li>
-	 * <li>Office phone</li>
-	 * <li>Mobile phone</li>
-	 * <li>Office room</li>
-	 * </ul>
 	 *
 	 * @param receiver the receiver of the component
 	 */
@@ -416,7 +410,6 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		final var content = ComponentFactory.newColumnForm(1);
 
 		this.email = new TextField();
-		this.email.setRequired(true);
 		this.email.setPrefixComponent(VaadinIcon.AT.create());
 		this.email.setClearButtonVisible(true);
 		content.add(this.email, 2);
@@ -440,7 +433,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 		getEntityDataBinder().forField(this.email)
 			.withConverter(new StringTrimer())
-			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"))) //$NON-NLS-1$
+			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.email, this.contactInformationDetails))
 			.bind(Person::getEmail, Person::setEmail);
 		getEntityDataBinder().forField(this.officePhone)

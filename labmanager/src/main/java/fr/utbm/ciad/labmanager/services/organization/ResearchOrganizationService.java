@@ -91,6 +91,15 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		this.fileManager = fileManager;
 	}
 
+	/** Replies the file manager used by this service.
+	 *
+	 * @return the file manager.
+	 * @since 4.0
+	 */
+	public DownloadableFileManager getFileManager() {
+		return this.fileManager;
+	}
+
 	/** Replies all the research organizations.
 	 *
 	 * @return the research organizations.

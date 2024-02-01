@@ -24,8 +24,10 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.teaching.StandardTeachingActivitiesListView;
@@ -58,14 +60,17 @@ public class TeachingActivitiesListView extends StandardTeachingActivitiesListVi
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
 	 * @param personService the service for accessing the persons.
+	 * @param userService the service for accessing the users.
 	 * @param organizationService the service for accessing the research organizations.
+	 * @param addressService the service for accessing the organization addresses.
 	 */
 	public TeachingActivitiesListView(
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
 			@Autowired TeachingService teachingService, @Autowired PersonService personService,
-			@Autowired ResearchOrganizationService organizationService) {
-		super(fileManager, authenticatedUser, messages, teachingService, personService, organizationService, LOGGER);
+			@Autowired UserService userService, @Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService) {
+		super(fileManager, authenticatedUser, messages, teachingService, personService, userService, organizationService, addressService, LOGGER);
 	}
 
 	@Override

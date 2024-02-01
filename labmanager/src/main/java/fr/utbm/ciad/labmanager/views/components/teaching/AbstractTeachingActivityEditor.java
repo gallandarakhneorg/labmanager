@@ -20,9 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components.teaching;
 
 import java.util.Arrays;
-import java.util.Optional;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -35,13 +33,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
-import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.teaching.PedagogicalPracticeType;
 import fr.utbm.ciad.labmanager.data.teaching.StudentType;
 import fr.utbm.ciad.labmanager.data.teaching.TeacherRole;
@@ -50,7 +44,9 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -60,16 +56,16 @@ import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorM
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.NumberPerEnumField;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.LanguageValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.jpa.domain.Specification;
 
 /** Abstract implementation for the editor of the information related to a teaching activity.
  * 
@@ -90,7 +86,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private TextField activityTitle;
 
-	private ComboBox<ResearchOrganization> university;
+	private SingleOrganizationNameField university;
 
 	private ComboBox<CountryCode> language;
 
@@ -120,7 +116,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private DetailsWithErrorMark teacherDetails;
 
-	private ComboBox<Person> person;
+	private SinglePersonNameField person;
 
 	private ComboBox<TeacherRole> teacherRole;
 	
@@ -138,7 +134,11 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private final PersonService personService;
 
+	private final UserService userService;
+
 	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
 
 	/** Constructor.
 	 *
@@ -147,13 +147,15 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param fileManager the manager of the downloadable files.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, boolean relinkEntityWhenSaving, DownloadableFileManager fileManager,
-			PersonService personService, ResearchOrganizationService organizationService,
+			PersonService personService, UserService userService, ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
 				"views.teaching_activity.administration_details", //$NON-NLS-1$
@@ -161,7 +163,9 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 				context, relinkEntityWhenSaving);
 		this.fileManager = fileManager;
 		this.personService = personService;
+		this.userService = userService;
 		this.organizationService = organizationService;
+		this.addressService = addressService;
 	}
 
 	@Override
@@ -262,14 +266,10 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	 */
 	protected void createDegreeDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
-
-		this.university = new ComboBox<>();
-		this.university.setRenderer(new ComponentRenderer<>(this::createUniversityComponent));
-		this.university.setItemLabelGenerator(this::getUniversityLabel);
+		
+		this.university = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
+				getTranslation("views.teaching_activities.new_university"), getLogger()); //$NON-NLS-1$
 		this.university.setPrefixComponent(VaadinIcon.INSTITUTION.create());
-		this.university.setItems(query -> this.organizationService.getAllResearchOrganizations(
-				VaadinSpringDataHelpers.toSpringPageRequest(query),
-				createUniversityFilter(query.getFilter()), false).stream());
 		content.add(this.university, 2);
 
 		this.degree = new TextField();
@@ -287,7 +287,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 		getEntityDataBinder().forField(this.university)
 			.withValidator(new NotNullEntityValidator<>(getTranslation("views.teaching_activities.university.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.university, this.descriptionDetails))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.university, this.degreeDetails))
 			.bind(TeachingActivity::getUniversity, TeachingActivity::setUniversity);
 		getEntityDataBinder().forField(this.degree)
 			.withConverter(new StringTrimer())
@@ -296,40 +296,6 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.teaching_activities.level.error"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.level, this.degreeDetails))
 			.bind(TeachingActivity::getLevel, TeachingActivity::setLevel);
-	}
-
-	private Component createUniversityComponent(ResearchOrganization university) {
-		return ComponentFactory.newOrganizationAvatar(university, this.fileManager);
-	}
-
-	private String getUniversityLabel(ResearchOrganization university) {
-		final var buffer = new StringBuilder();
-		if (university != null) {
-			final var acronym = university.getAcronym();
-			final var name = university.getName();
-			if (!Strings.isNullOrEmpty(acronym)) {
-				buffer.append(acronym);
-			}
-			if (!Strings.isNullOrEmpty(name)) {
-				if (buffer.length() > 0) {
-					buffer.append(" - "); //$NON-NLS-1$
-				}
-				buffer.append(name);
-			}
-		}
-		return buffer.toString();
-	}
-
-	private static Specification<ResearchOrganization> createUniversityFilter(Optional<String> filter) {
-		if (filter.isPresent()) {
-			return (root, query, criteriaBuilder) -> 
-				ComponentFactory.newPredicateContainsOneOf(filter.get(), root, query, criteriaBuilder,
-						(keyword, predicates, root0, criteriaBuilder0) -> {
-							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("acronym")), keyword)); //$NON-NLS-1$
-							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), keyword)); //$NON-NLS-1$
-						});
-		}
-		return null;
 	}
 
 	/** Create the section for editing the description of the students.
@@ -378,13 +344,9 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	protected void createTeacherDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.person = new ComboBox<>();
-		this.person.setRenderer(new ComponentRenderer<>(ComponentFactory::newPersonAvatar));
-		this.person.setItemLabelGenerator(it -> it.getFullNameWithLastNameFirst());
+		this.person = new SinglePersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.teaching_activities.new_teacher"), getLogger()); //$NON-NLS-1$
 		this.person.setPrefixComponent(VaadinIcon.USER.create());
-		this.person.setItems(query -> this.personService.getAllPersons(
-				VaadinSpringDataHelpers.toSpringPageRequest(query),
-				createPersonFilter(query.getFilter())).stream());
 		content.add(this.person, 2);
 
 		this.teacherRole = new ComboBox<>();
@@ -423,18 +385,6 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 			.bind(TeachingActivity::isDifferentHetdForTdTp, TeachingActivity::setDifferentHetdForTdTp);
 		getEntityDataBinder().forField(this.annualWorkPerType)
 			.bind(TeachingActivity::getAnnualWorkPerType, TeachingActivity::setAnnualWorkPerType);
-	}
-
-	private static Specification<Person> createPersonFilter(Optional<String> filter) {
-		if (filter.isPresent()) {
-			return (root, query, criteriaBuilder) -> 
-				ComponentFactory.newPredicateContainsOneOf(filter.get(), root, query, criteriaBuilder,
-						(keyword, predicates, root0, criteriaBuilder0) -> {
-							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), keyword)); //$NON-NLS-1$
-							predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), keyword)); //$NON-NLS-1$
-						});
-		}
-		return null;
 	}
 
 	private String getTeacherRoleLabel(TeacherRole role) {
@@ -551,6 +501,8 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 		this.degreeDetails.setSummaryText(getTranslation("views.teaching_activities.degree_details")); //$NON-NLS-1$
 		this.university.setLabel(getTranslation("views.teaching_activities.university")); //$NON-NLS-1$
+		this.university.setPlaceholder(getTranslation("views.teaching_activities.university.placeholder")); //$NON-NLS-1$
+		this.university.setHelperText(getTranslation("views.teaching_activities.university.help")); //$NON-NLS-1$
 		this.degree.setLabel(getTranslation("views.teaching_activities.degree")); //$NON-NLS-1$
 		this.degree.setHelperText(getTranslation("views.teaching_activities.degree.help")); //$NON-NLS-1$
 		this.level.setLabel(getTranslation("views.teaching_activities.level")); //$NON-NLS-1$
@@ -564,6 +516,8 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 		this.teacherDetails.setSummaryText(getTranslation("views.teaching_activities.teacher_details")); //$NON-NLS-1$
 		this.person.setLabel(getTranslation("views.teaching_activities.teacher")); //$NON-NLS-1$
+		this.person.setPlaceholder(getTranslation("views.teaching_activities.teacher.placeholder")); //$NON-NLS-1$
+		this.person.setHelperText(getTranslation("views.teaching_activities.teacher.help")); //$NON-NLS-1$
 		this.teacherRole.setLabel(getTranslation("views.teaching_activities.teacher_role")); //$NON-NLS-1$
 		this.teacherRole.setItemLabelGenerator(this::getTeacherRoleLabel);
 		this.labworkTutorialEtpDifference.setLabel(getTranslation("views.teaching_activities.different_etp")); //$NON-NLS-1$

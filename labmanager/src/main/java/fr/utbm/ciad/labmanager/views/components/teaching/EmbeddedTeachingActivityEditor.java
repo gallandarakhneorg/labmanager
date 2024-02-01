@@ -23,7 +23,9 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,15 +52,18 @@ public final class EmbeddedTeachingActivityEditor extends AbstractTeachingActivi
 	 * @param context the editing context for the teaching activity.
 	 * @param fileManager the manager of the downloadable files.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedTeachingActivityEditor(EntityEditingContext<TeachingActivity> context,
 			DownloadableFileManager fileManager, PersonService personService,
-			ResearchOrganizationService organizationService,
+			UserService userService, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, fileManager, personService, organizationService, authenticatedUser, messages, LOGGER);
+		super(context, false, fileManager, personService, userService, organizationService, addressService, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

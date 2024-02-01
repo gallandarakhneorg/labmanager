@@ -38,8 +38,10 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
@@ -73,7 +75,11 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 	private final PersonService personService;
 
+	private final UserService userService;
+
 	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
 
 	private Column<TeachingActivity> titleColumn;
 
@@ -94,14 +100,17 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param logger the logger to use.
 	 */
 	public StandardTeachingActivitiesListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			TeachingService teachingService, PersonService personService,
-			ResearchOrganizationService organizationService, Logger logger) {
+			UserService userService, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
 				"views.teaching_activities.delete.title", //$NON-NLS-1$
 				"views.teaching_activities.delete.message", //$NON-NLS-1$
@@ -110,7 +119,9 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		this.fileManager = fileManager;
 		this.teachingService = teachingService;
 		this.personService = personService;
+		this.userService = userService;
 		this.organizationService = organizationService;
+		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
 	}
@@ -254,7 +265,8 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	protected void openActivityEditor(TeachingActivity activity, String title) {
 		final var editor = new EmbeddedTeachingActivityEditor(
 				this.teachingService.startEditing(activity),
-				this.fileManager, this.personService, this.organizationService, getAuthenticatedUser(), getMessageSourceAccessor());
+				this.fileManager, this.personService, this.userService,
+				this.organizationService, this.addressService, getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, TeachingActivity> refreshAll = (dialog, entity) -> {
 			// The person should be loaded because it was not loaded before

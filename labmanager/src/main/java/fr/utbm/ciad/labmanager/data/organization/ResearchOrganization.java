@@ -70,6 +70,15 @@ import org.springframework.context.support.MessageSourceAccessor;
 @Table(name = "ResearchOrgs")
 public class ResearchOrganization implements Serializable, JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
+	/** Default separator between the acronym and name.
+	 *
+	 * @see #getAcronymAndName()
+	 * @since 4.0
+	 */
+	public static final String ACRONYM_NAME_SEPARATOR = "-"; //$NON-NLS-1$
+
+	private static final String FULL_ACRONYM_NAME_SEPARATOR = new StringBuilder().append(" ").append(ACRONYM_NAME_SEPARATOR).append(" ").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+
 	private static final long serialVersionUID = -450531251083286848L;
 
 	/** Default type for research organizations.
@@ -443,6 +452,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 * @see #getNameOrAcronym()
 	 * @see #getAcronym()
 	 * @see #getName()
+	 * @see #getAcronymAndName()
 	 */
 	public String getAcronymOrName() {
 		return Strings.isNullOrEmpty(this.acronym) ? this.name : this.acronym;
@@ -457,6 +467,38 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	public String getNameOrAcronym() {
 		return Strings.isNullOrEmpty(this.name) ? this.acronym: this.name;
+	}
+
+	/** Replies the acronym and the name of the research organization, if they exist, with the format {@code "Acronym - Name"}.
+	 *
+	 * @return the acronym and the name, or {@code null} if there is neither acronym nor name.
+	 * @see #getAcronymOrName()
+	 * @see #ACRONYM_NAME_SEPARATOR
+	 * @since 4.0
+	 */
+	public String getAcronymAndName() {
+		return getAcronymAndName(FULL_ACRONYM_NAME_SEPARATOR);
+	}
+
+	/** Replies the acronym and the name of the research organization, if they exist.
+	 *
+	 * @param separator the string to be written between the acronym and the name.
+	 * @return the acronym and the name, or {@code null} if there is neither acronym nor name.
+	 * @see #getAcronymOrName()
+	 * @since 4.0
+	 */
+	public String getAcronymAndName(String separator) {
+		final var buffer = new StringBuilder();
+		if (!Strings.isNullOrEmpty(this.acronym)) {
+			buffer.append(this.acronym);
+		}
+		if (!Strings.isNullOrEmpty(this.name)) {
+			if (buffer.length() > 0 && !Strings.isNullOrEmpty(separator)) {
+				buffer.append(separator);
+			}
+			buffer.append(this.name);
+		}
+		return Strings.emptyToNull(buffer.toString());
 	}
 
 	/** Replies the acronym of the research organization.

@@ -139,6 +139,15 @@ public class PersonService extends AbstractEntityService<Person> {
 		this.nameComparator = nameComparator;
 	}
 
+	/** Replies the name parser that is used by this service.
+	 *
+	 * @return the name parser.
+	 * @since 4.0
+	 */
+	public PersonNameParser getNameParser() {
+		return this.nameParser;
+	}
+
 	/** Replies the list of all the persons from the database.
 	 *
 	 * @return all the persons.
@@ -797,7 +806,7 @@ public class PersonService extends AbstractEntityService<Person> {
 	}
 
 	@Override
-	public EditingContext startEditing(Person person) {
+	public EntityEditingContext<Person> startEditing(Person person) {
 		assert person != null;
 		return new EditingContext(person);
 	}
