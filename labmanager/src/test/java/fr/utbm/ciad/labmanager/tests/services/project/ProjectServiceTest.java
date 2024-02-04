@@ -16,78 +16,45 @@
 
 package fr.utbm.ciad.labmanager.tests.services.project;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
-import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
-import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
-import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.ProjectMemberRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
-import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
-import fr.utbm.ciad.labmanager.data.project.Role;
-import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
-import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
-import fr.utbm.ciad.labmanager.utils.names.DefaultPersonNameParser;
-import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
-import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
-import fr.utbm.ciad.labmanager.utils.names.SorensenDicePersonNameComparator;
-import fr.utbm.ciad.labmanager.utils.trl.TRL;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.FileSystem;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.web.multipart.MultipartFile;
 
 /** Tests for {@link ProjectService}.
  * 

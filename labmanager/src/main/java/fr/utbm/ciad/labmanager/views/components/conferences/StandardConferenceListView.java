@@ -19,9 +19,11 @@
 
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -47,7 +49,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.ranking.AbstractAnnualRan
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -169,8 +170,8 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	}
 
 	@Override
-	protected Column<Conference> getInitialSortingColumn() {
-		return this.nameColumn;
+	protected List<Column<Conference>> getInitialSortingColumns() {
+		return Collections.singletonList(this.nameColumn);
 	}
 
 	@Override

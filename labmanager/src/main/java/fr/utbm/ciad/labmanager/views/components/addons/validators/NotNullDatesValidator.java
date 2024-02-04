@@ -43,7 +43,7 @@ public class NotNullDatesValidator extends AbstractValidator<LocalDate> {
 	/**
 	 * Constructor.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate.
+	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param otherDateSupplier the supplier of a local date that must be compared to the validated value.
 	 */
 	public NotNullDatesValidator(String errorMessage, Supplier<LocalDate> otherDateSupplier) {

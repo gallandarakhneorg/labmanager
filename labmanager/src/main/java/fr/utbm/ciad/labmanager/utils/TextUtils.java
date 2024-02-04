@@ -26,7 +26,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.jena.ext.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 
 /** Utilities for text.
  * 

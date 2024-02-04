@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.utils.io.html;
 
 import java.util.Locale;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
@@ -39,7 +40,6 @@ import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Functions.Function2;
 import org.springframework.context.support.MessageSourceAccessor;
 

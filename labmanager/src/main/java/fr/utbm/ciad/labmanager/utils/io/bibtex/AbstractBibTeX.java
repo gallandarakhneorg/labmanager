@@ -21,9 +21,9 @@ package fr.utbm.ciad.labmanager.utils.io.bibtex;
 
 import java.util.Random;
 
+import com.google.common.base.Strings;
 import com.ibm.icu.text.Normalizer2;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of the utilities for BibTeX.

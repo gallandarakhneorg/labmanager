@@ -23,12 +23,12 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Locale;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;

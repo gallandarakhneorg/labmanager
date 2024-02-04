@@ -22,8 +22,8 @@ package fr.utbm.ciad.labmanager.utils.io.ris;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.utils.IntegerRange;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Utilities for RIS.

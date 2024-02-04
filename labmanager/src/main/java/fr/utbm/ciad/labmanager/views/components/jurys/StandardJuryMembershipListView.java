@@ -19,28 +19,36 @@
 
 package fr.utbm.ciad.labmanager.views.components.jurys;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
+import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -59,6 +67,10 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	private static final long serialVersionUID = 7493099024816373107L;
 
 	private final JuryMembershipDataProvider dataProvider;
+
+	private final PersonService personService;
+
+	private final UserService userService;
 
 	private JuryMembershipService membershipService;
 
@@ -79,19 +91,30 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param membershipService the service for accessing the jury memberships.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param logger the logger to use.
 	 */
 	public StandardJuryMembershipListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			JuryMembershipService membershipService, Logger logger) {
+			JuryMembershipService membershipService, PersonService personService,
+			UserService userService,Logger logger) {
 		super(JuryMembership.class, authenticatedUser, messages, logger,
 				"views.jury_membership.delete.title", //$NON-NLS-1$
 				"views.jury_membership.delete.message", //$NON-NLS-1$
 				"views.jury_memberships.delete_success", //$NON-NLS-1$
 				"views.jury_memberships.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters);
+		this.personService = personService;
+		this.userService = userService;
+		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
+	}
+
+	private void initializeEntityFromJPA(JuryMembership entity) {
+		// Force the loaded of the lazy data that is needed for rendering the table
+		Hibernate.initialize(entity.getCandidate());
+		Hibernate.initialize(entity.getPerson());
 	}
 
 	@Override
@@ -101,9 +124,8 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 
 	@Override
 	protected boolean createGridColumns(Grid<JuryMembership> grid) {
-		this.candidateColumn = grid.addColumn(this::getCandidateLabel)
-				.setAutoWidth(true)
-				.setSortProperty("candidate"); //$NON-NLS-1$
+		this.candidateColumn = grid.addColumn(new ComponentRenderer<>(this::createCandidateComponent))
+				.setAutoWidth(true);
 		this.defenseTypeColumn = grid.addColumn(this::getDefenseTypeLabel)
 				.setAutoWidth(true)
 				.setSortProperty("defenseType"); //$NON-NLS-1$
@@ -113,41 +135,59 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		this.dateColumn = grid.addColumn(this::getDateLabel)
 				.setAutoWidth(true)
 				.setSortProperty("date"); //$NON-NLS-1$
-		this.participantColumn = grid.addColumn(new ComponentRenderer<>(this::createNameComponent))
-				.setAutoWidth(true)
-				.setSortProperty("person"); //$NON-NLS-1$
+		this.participantColumn = grid.addColumn(new ComponentRenderer<>(this::createParticipantComponent))
+				.setAutoWidth(true);
 		this.roleColumn = grid.addColumn(this::getRoleLabel)
 				.setAutoWidth(true)
 				.setSortProperty("type"); //$NON-NLS-1$
 		return isAdminRole();
 	}
 
+	private Component createCandidateComponent(JuryMembership jury) {
+		final var candidate = jury.getCandidate();
+		if (candidate != null) {
+			return ComponentFactory.newPersonAvatar(candidate);
+		}
+		return new Span();
+	}
+
+	private Component createParticipantComponent(JuryMembership jury) {
+		final var participant = jury.getPerson();
+		if (participant != null) {
+			return ComponentFactory.newPersonAvatar(participant);
+		}
+		return new Span();
+	}
+
 	private String getRoleLabel(JuryMembership membership) {
-		// TODO: Support gender
-		return membership.getType().getLabel(getMessageSourceAccessor(), null, getLocale());
+		final var type = membership.getType();
+		Gender gender = null;
+		final var participant = membership.getPerson();
+		if (participant != null) {
+			gender = participant.getGender();
+		}
+		return type.getLabel(getMessageSourceAccessor(), gender, getLocale());
 	}
 
 	private String getDefenseTypeLabel(JuryMembership membership) {
 		return membership.getDefenseType().getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
-	private String getCandidateLabel(JuryMembership membership) {
-		// TODO
-		return "";
-	}
-
 	private String getDateLabel(JuryMembership membership) {
 		return Integer.toString(membership.getDate().getYear());
 	}
 
-	private Component createNameComponent(JuryMembership membership) {
-		// TODO
-		return new Span("");
-	}
-
 	@Override
-	protected Column<JuryMembership> getInitialSortingColumn() {
-		return this.dateColumn;
+	protected List<Column<JuryMembership>> getInitialSortingColumns() {
+		return Arrays.asList(this.dateColumn, this.candidateColumn);
+	}
+	
+	@Override
+	protected SortDirection getInitialSortingDirection(Column<JuryMembership> column) {
+		if (column == this.dateColumn) {
+			return SortDirection.DESCENDING;
+		}
+		return SortDirection.ASCENDING;
 	}
 
 	@Override
@@ -178,11 +218,29 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	protected void openMembershipEditor(JuryMembership membership, String title) {
 		final var editor = new EmbeddedJuryMembershipEditor(
 				this.membershipService.startEditing(membership),
+				this.personService, this.userService,
 				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, JuryMembership> refreshAll = (dialog, entity) -> {
+			// The person should be loaded because it was not loaded before
+			this.membershipService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshGrid();
+		};
+		final SerializableBiConsumer<Dialog, JuryMembership> refreshOne = (dialog, entity) -> {
+			// The person should be loaded because it was not loaded before
+			this.membershipService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshItem(entity);
+		};
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
-				(dialog, entity) -> refreshItem(entity),
-				null);
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
 	}
 
 	@Override

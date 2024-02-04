@@ -18,6 +18,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -213,7 +214,16 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 *
 	 * @return the column or {@code null}.
 	 */
-	protected abstract Column<T> getInitialSortingColumn();
+	protected abstract List<Column<T>> getInitialSortingColumns();
+
+	/** Replies the order to be used for the initial sorting for the given column.
+	 *
+	 * @param column the column to check.
+	 * @return the order, never {@code null}.
+	 */
+	protected SortDirection getInitialSortingDirection(Column<T> column) {
+		return SortDirection.ASCENDING;
+	}
 
 	/** Create the list of tools.
 	 *
@@ -428,9 +438,16 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		grid.setSelectionMode(SelectionMode.MULTI);
 
 		// Default sorting on names
-		final var initialSortingColumn = getInitialSortingColumn();
-		if (initialSortingColumn != null) {
-			grid.sort(Collections.singletonList(new GridSortOrder<>(initialSortingColumn, SortDirection.ASCENDING)));
+		final var initialSortingColumns = getInitialSortingColumns();
+		if (initialSortingColumns != null && !initialSortingColumns.isEmpty()) {
+			final var orders = new ArrayList<GridSortOrder<T>>();
+			for (var column : initialSortingColumns) {
+				final var initialSortingOrder = getInitialSortingDirection(column);
+				orders.add(new GridSortOrder<>(column, initialSortingOrder));
+			}
+			if (!orders.isEmpty()) {
+				grid.sort(orders);
+			}
 		}
 
 		if (isAdminRole()) {

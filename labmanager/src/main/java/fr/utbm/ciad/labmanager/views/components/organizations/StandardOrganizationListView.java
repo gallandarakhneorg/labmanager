@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -196,8 +197,8 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	}
 
 	@Override
-	protected Column<ResearchOrganization> getInitialSortingColumn() {
-		return this.nameColumn;
+	protected List<Column<ResearchOrganization>> getInitialSortingColumns() {
+		return Collections.singletonList(this.nameColumn);
 	}
 
 	@Override

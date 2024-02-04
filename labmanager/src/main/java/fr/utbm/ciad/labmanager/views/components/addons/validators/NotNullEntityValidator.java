@@ -40,7 +40,7 @@ public class NotNullEntityValidator<T extends IdentifiableEntity> extends Abstra
 	/**
 	 * Constructor.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate.
+	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 */
 	public NotNullEntityValidator(String errorMessage) {
 		super(errorMessage);

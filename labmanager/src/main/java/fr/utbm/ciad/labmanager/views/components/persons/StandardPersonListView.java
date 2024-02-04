@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components.persons;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -241,8 +242,8 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	}
 
 	@Override
-	protected Column<Person> getInitialSortingColumn() {
-		return this.nameColumn;
+	protected List<Column<Person>> getInitialSortingColumns() {
+		return Collections.singletonList(this.nameColumn);
 	}
 
 	/** Refresh the user list.

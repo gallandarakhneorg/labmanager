@@ -44,6 +44,7 @@ import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.PhoneNumberJPAConverter;
+import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
@@ -357,6 +358,21 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<TeachingActivity> teachingActivities;
+
+	/** List of jury memberships for the person as member.
+	 */
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<JuryMembership> participationJurys;
+
+	/** List of jury memberships for the person as candidate.
+	 */
+	@OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<JuryMembership> candidateJurys;
+
+	/** List of jury memberships for the person as promoters.
+	 */
+	@OneToMany(mappedBy = "promoters", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<JuryMembership> promoterJurys;
 
 	/** Indicates if the address was validated by an authority.
 	 */
@@ -823,7 +839,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	/** Replies the list of teaching activities of the person.
 	 *
-	 * @return the list of publications.
+	 * @return the list of teaching activities.
 	 * @since 4.0
 	 */
 	public Set<TeachingActivity> getTeachingActivities() {
@@ -836,7 +852,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Change the list of teaching activities of the person.
 	 *
 	 * @param list the list of activities.
-	 * since 4.0
+	 * @since 4.0
 	 */
 	public void setTeachingActivities(Set<TeachingActivity> list) {
 		if (this.teachingActivities != null) {
@@ -846,6 +862,90 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (list != null) {
 			this.teachingActivities.addAll(list);
+		}
+	}
+
+	/** Replies the list of participations to jurys as member.
+	 *
+	 * @return the list of jury memberships.
+	 * @since 4.0
+	 */
+	public Set<JuryMembership> getParticipationJurys() {
+		if (this.participationJurys == null) {
+			this.participationJurys = new HashSet<>();
+		}
+		return this.participationJurys;
+	}
+
+	/** Change the list of participations to jurys as member.
+	 *
+	 * @param list the list of jury memberships.
+	 * @since 4.0
+	 */
+	public void setJuryParticipations(Set<JuryMembership> list) {
+		if (this.participationJurys != null) {
+			this.participationJurys.clear();
+		} else {
+			this.participationJurys = new HashSet<>();
+		}
+		if (list != null) {
+			this.participationJurys.addAll(list);
+		}
+	}
+
+	/** Replies the list of participations to jurys as candidate.
+	 *
+	 * @return the list of jury memberships.
+	 * @since 4.0
+	 */
+	public Set<JuryMembership> getCandidateJurys() {
+		if (this.candidateJurys == null) {
+			this.candidateJurys = new HashSet<>();
+		}
+		return this.candidateJurys;
+	}
+
+	/** Change the list of participations to jurys as candidate.
+	 *
+	 * @param list the list of jury memberships.
+	 * @since 4.0
+	 */
+	public void setCandidateJurys(Set<JuryMembership> list) {
+		if (this.candidateJurys != null) {
+			this.candidateJurys.clear();
+		} else {
+			this.candidateJurys = new HashSet<>();
+		}
+		if (list != null) {
+			this.candidateJurys.addAll(list);
+		}
+	}
+
+	/** Replies the list of participations to jurys as promoter.
+	 *
+	 * @return the list of jury memberships.
+	 * @since 4.0
+	 */
+	public Set<JuryMembership> getPromoterJurys() {
+		if (this.promoterJurys == null) {
+			this.promoterJurys = new HashSet<>();
+		}
+		return this.promoterJurys;
+	}
+
+	/** Change the list of participations to jurys as promoter.
+	 *
+	 * @param list the list of jury memberships.
+	 * @since 4.0
+	 */
+	public void setPromoterJurys(Set<JuryMembership> list) {
+		if (this.promoterJurys != null) {
+			this.promoterJurys.clear();
+		} else {
+			this.promoterJurys = new HashSet<>();
+		}
+		if (list != null) {
+			this.promoterJurys.addAll(list);
 		}
 	}
 

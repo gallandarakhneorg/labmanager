@@ -21,9 +21,9 @@ package fr.utbm.ciad.labmanager.components.start;
 
 import java.net.URL;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter;
 import fr.utbm.ciad.labmanager.utils.io.json.ZipToDatabaseImporter;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.arakhne.afc.vmutil.Resources;
 import org.slf4j.Logger;

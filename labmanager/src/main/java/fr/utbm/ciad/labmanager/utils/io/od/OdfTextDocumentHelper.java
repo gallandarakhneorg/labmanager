@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.utils.io.od;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 
-import org.apache.jena.ext.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.Resources;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;

@@ -23,9 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.i18n.I18NProvider;
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

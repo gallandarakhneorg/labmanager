@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.utils;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.jena.ext.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 
 /** An exception that contains multiple causes.
  * 

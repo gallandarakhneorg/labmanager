@@ -45,7 +45,19 @@ public enum PersonDeletionStatus implements DeletionStatus {
 
 	/** Deletion is impossible because the person has linked teaching activities.
 	 */
-	TEACHING_ACTIVITY;
+	TEACHING_ACTIVITY,
+
+	/** Deletion is impossible because the person has linked jury membership as member.
+	 */
+	JURY_MEMBER,
+
+	/** Deletion is impossible because the person has linked jury membership as candidate.
+	 */
+	JURY_CANDIDATE,
+
+	/** Deletion is impossible because the person has linked jury membership as supervisor.
+	 */
+	JURY_PROMOTER;
 
 	private static final String MESSAGE_PREFIX = "personDeletionStatus."; //$NON-NLS-1$
 

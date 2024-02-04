@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
@@ -46,7 +47,6 @@ import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal.CorePortalConference;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;

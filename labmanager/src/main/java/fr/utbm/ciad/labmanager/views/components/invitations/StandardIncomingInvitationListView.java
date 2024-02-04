@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components.invitations;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -147,8 +149,16 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	}
 
 	@Override
-	protected Column<PersonInvitation> getInitialSortingColumn() {
-		return this.dateColumn;
+	protected List<Column<PersonInvitation>> getInitialSortingColumns() {
+		return Collections.singletonList(this.dateColumn);
+	}
+
+	@Override
+	protected SortDirection getInitialSortingDirection(Column<PersonInvitation> column) {
+		if (column == this.dateColumn) {
+			return SortDirection.DESCENDING;
+		}
+		return SortDirection.ASCENDING;
 	}
 
 	@Override

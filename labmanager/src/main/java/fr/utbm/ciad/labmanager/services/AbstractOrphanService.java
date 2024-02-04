@@ -23,9 +23,9 @@ import java.util.Locale;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.repository.JpaRepository;

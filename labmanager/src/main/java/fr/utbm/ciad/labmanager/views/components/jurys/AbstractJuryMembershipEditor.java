@@ -31,13 +31,20 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipType;
 import fr.utbm.ciad.labmanager.data.jury.JuryType;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.MultiPersonNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityIterableValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
@@ -57,7 +64,9 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 
 	private static final long serialVersionUID = -5831566011340136766L;
 
-	private DetailsWithErrorMark descriptionDetails;
+	private DetailsWithErrorMark defenseDetails;
+
+	private SinglePersonNameField candidate;
 
 	private TextField title;
 
@@ -65,40 +74,61 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 
 	private DatePicker date;
 
+	private DetailsWithErrorMark institutionDetails;
+
 	private TextField university;
 
 	private ComboBox<CountryCode> country;
 
-	private DetailsWithErrorMark participantDetails;
+	private DetailsWithErrorMark juryDetails;
+
+	private MultiPersonNameField promoters;
+
+	private SinglePersonNameField person;
 
 	private ComboBox<JuryMembershipType> type;
+
+	private final PersonService personService;
+
+	private final UserService userService;
 
 	/** Constructor.
 	 *
 	 * @param context the editing context for the jury membership.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractJuryMembershipEditor(EntityEditingContext<JuryMembership> context, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			PersonService personService, UserService userService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(JuryMembership.class, authenticatedUser, messages, logger, null, null, context, relinkEntityWhenSaving);
+		this.personService = personService;
+		this.userService = userService;
 	}
 
 	@Override
 	protected void createEditorContent(VerticalLayout rootContainer) {
-		createDescriptionDetails(rootContainer);
-		createParticipantDetails(rootContainer);
+		createDefenseDetails(rootContainer);
+		createInstitutionDetails(rootContainer);
+		createJuryMemberDetails(rootContainer);
 	}
 
-	/** Create the section for editing the description of the jury membership.
+	/** Create the section for editing the defense description.
 	 *
 	 * @param rootContainer the container.
 	 */
-	protected void createDescriptionDetails(VerticalLayout rootContainer) {
+	protected void createDefenseDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
+
+		this.candidate = new SinglePersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.jury_membership.new_candidate"), getLogger()); //$NON-NLS-1$
+		this.candidate.setRequiredIndicatorVisible(true);
+		this.candidate.setPrefixComponent(VaadinIcon.USER.create());
+		content.add(this.candidate, 2);
 
 		this.title = new TextField();
 		this.title.setPrefixComponent(VaadinIcon.HASH.create());
@@ -111,7 +141,7 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 		this.defenseType.setRequired(true);
 		this.defenseType.setItems(JuryType.values());
 		this.defenseType.setItemLabelGenerator(this::getDefenseTypeLabel);
-		content.add(this.title, 1);
+		content.add(this.defenseType, 1);
 
 		this.date = new DatePicker();
 		this.date.setPrefixComponent(VaadinIcon.CALENDAR_O.create());
@@ -119,52 +149,81 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 		this.date.setClearButtonVisible(true);
 		content.add(this.date, 1);
 
-		this.university = new TextField();
-		this.university.setPrefixComponent(VaadinIcon.INSTITUTION.create());
-		this.university.setRequired(true);
-		this.university.setClearButtonVisible(true);
-		content.add(this.university, 1);
+		this.defenseDetails = createDetailsWithErrorMark(rootContainer, content, "defense", true); //$NON-NLS-1$
 
-		this.country = ComponentFactory.newCountryComboBox(getLocale());
-		this.country.setRequired(true);
-		content.add(this.country, 1);
-
-		this.descriptionDetails = createDetailsWithErrorMark(rootContainer, content, "description", true); //$NON-NLS-1$
-
+		getEntityDataBinder().forField(this.candidate)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.jury_membership.candidate.error.null"), //$NON-NLS-1$
+					getTranslation("views.jury_membership.candidate.error.disjoint"), //$NON-NLS-1$
+					this::checkCandidateUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.candidate, this.defenseDetails))
+			.bind(JuryMembership::getCandidate, JuryMembership::setCandidate);
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
 			.withValidator(new NotEmptyStringValidator(getTranslation("views.jury_membership.title.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.title, this.descriptionDetails))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.title, this.defenseDetails))
 			.bind(JuryMembership::getTitle, JuryMembership::setTitle);
 		getEntityDataBinder().forField(this.defenseType)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.jury_membership.defense_type.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.defenseType, this.descriptionDetails))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.defenseType, this.defenseDetails))
 			.bind(JuryMembership::getDefenseType, JuryMembership::setDefenseType);
 		getEntityDataBinder().forField(this.date)
 			.withValidator(new NotNullDateValidator(getTranslation("views.jury_membership.date.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.date, this.descriptionDetails))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.date, this.defenseDetails))
 			.bind(JuryMembership::getDate, JuryMembership::setDate);
-		getEntityDataBinder().forField(this.university)
-			.withConverter(new StringTrimer())
-			.withValidator(new NotEmptyStringValidator(getTranslation("views.jury_membership.university.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.university, this.descriptionDetails))
-			.bind(JuryMembership::getUniversity, JuryMembership::setUniversity);
-		getEntityDataBinder().forField(this.country)
-			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.jury_membership.country.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.country, this.descriptionDetails))
-			.bind(JuryMembership::getCountry, JuryMembership::setCountry);
 	}
 
 	private String getDefenseTypeLabel(JuryType type) {
 		return type.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
-	/** Create the section for editing the participants to the jury membership.
+	/** Create the section for editing the institution.
 	 *
 	 * @param rootContainer the container.
 	 */
-	protected void createParticipantDetails(VerticalLayout rootContainer) {
+	protected void createInstitutionDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
+
+		this.university = new TextField();
+		this.university.setPrefixComponent(VaadinIcon.INSTITUTION.create());
+		this.university.setRequired(true);
+		this.university.setClearButtonVisible(true);
+		content.add(this.university, 2);
+
+		this.country = ComponentFactory.newCountryComboBox(getLocale());
+		this.country.setRequired(true);
+		content.add(this.country, 1);
+
+		this.institutionDetails = createDetailsWithErrorMark(rootContainer, content, "institution"); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.university)
+			.withConverter(new StringTrimer())
+			.withValidator(new NotEmptyStringValidator(getTranslation("views.jury_membership.university.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.university, this.institutionDetails))
+			.bind(JuryMembership::getUniversity, JuryMembership::setUniversity);
+		getEntityDataBinder().forField(this.country)
+			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.jury_membership.country.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.country, this.institutionDetails))
+			.bind(JuryMembership::getCountry, JuryMembership::setCountry);
+	}
+
+	/** Create the section for editing the participants to the jury members.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createJuryMemberDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
+
+		this.promoters = new MultiPersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.jury_membership.new_promoter"), getLogger()); //$NON-NLS-1$
+		this.promoters.setPrefixComponent(VaadinIcon.USERS.create());
+		content.add(this.promoters, 2);
+
+		this.person = new SinglePersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.jury_membership.new_participant"), getLogger()); //$NON-NLS-1$
+		this.person.setRequiredIndicatorVisible(true);
+		this.person.setPrefixComponent(VaadinIcon.USER.create());
+		content.add(this.person, 2);
 
 		this.type = new ComboBox<>();
 		this.type.setPrefixComponent(VaadinIcon.ACADEMY_CAP.create());
@@ -173,11 +232,25 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 		this.type.setItemLabelGenerator(this::getMembershipTypeLabel);
 		content.add(this.type, 1);
 
-		this.participantDetails = createDetailsWithErrorMark(rootContainer, content, "participant"); //$NON-NLS-1$
+		this.juryDetails = createDetailsWithErrorMark(rootContainer, content, "jury"); //$NON-NLS-1$
 
+		getEntityDataBinder().forField(this.promoters)
+			.withValidator(new DisjointEntityIterableValidator<>(
+					getTranslation("views.jury_membership.promoters.error.null"), //$NON-NLS-1$
+					getTranslation("views.jury_membership.promoters.error.disjoint"), //$NON-NLS-1$
+					this::checkPromoterUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.promoters, this.juryDetails))
+			.bind(JuryMembership::getPromoters, JuryMembership::setPromoters);
+		getEntityDataBinder().forField(this.person)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.jury_membership.participant.error.null"), //$NON-NLS-1$
+					getTranslation("views.jury_membership.participant.error.disjoint"), //$NON-NLS-1$
+					this::checkMemberUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.person, this.juryDetails))
+			.bind(JuryMembership::getPerson, JuryMembership::setPerson);
 		getEntityDataBinder().forField(this.type)
 			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.jury_membership.membership_type.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.type, this.participantDetails))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.type, this.juryDetails))
 			.bind(JuryMembership::getType, JuryMembership::setType);
 	}
 
@@ -221,19 +294,61 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 				getEditedEntity().getTitle(), error.getLocalizedMessage());
 	}
 
+	private boolean checkCandidateUnicity(Person candidate) {
+		assert candidate != null;
+		final var member = getEditedEntity().getPerson();
+		if (!candidate.equals(member)) {
+			final var list = getEditedEntity().getPromoters();
+			if (list == null || !list.contains(candidate)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean checkMemberUnicity(Person member) {
+		assert member != null;
+		final var candidate = getEditedEntity().getCandidate();
+		if (!member.equals(candidate)) {
+			final var list = getEditedEntity().getPromoters();
+			if (list == null || !list.contains(member)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean checkPromoterUnicity(Person promoter) {
+		assert promoter != null;
+		final var candidate = getEditedEntity().getCandidate();
+		if (!promoter.equals(candidate)) {
+			final var member = getEditedEntity().getPerson();
+			return !promoter.equals(member);
+		}
+		return false;
+	}
+
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
-		this.descriptionDetails.setSummaryText(getTranslation("views.jury_membership.description_details")); //$NON-NLS-1$
+		this.defenseDetails.setSummaryText(getTranslation("views.jury_membership.defense_details")); //$NON-NLS-1$
+		this.candidate.setLabel(getTranslation("views.jury_membership.candidate")); //$NON-NLS-1$
+		this.candidate.setHelperText(getTranslation("views.jury_membership.candidate.help")); //$NON-NLS-1$
 		this.title.setLabel(getTranslation("views.jury_membership.title")); //$NON-NLS-1$
 		this.defenseType.setLabel(getTranslation("views.jury_membership.defense_type")); //$NON-NLS-1$
 		this.defenseType.setItemLabelGenerator(this::getDefenseTypeLabel);
 		this.date.setLabel(getTranslation("views.jury_membership.date")); //$NON-NLS-1$
+
+		this.institutionDetails.setSummaryText(getTranslation("views.jury_membership.institution_details")); //$NON-NLS-1$
 		this.university.setLabel(getTranslation("views.jury_membership.university")); //$NON-NLS-1$
 		this.country.setLabel(getTranslation("views.jury_membership.country")); //$NON-NLS-1$
 		ComponentFactory.updateCountryComboBoxItems(this.country, getLocale());
 
-		this.participantDetails.setSummaryText(getTranslation("views.jury_membership.participant_details")); //$NON-NLS-1$
+		this.juryDetails.setSummaryText(getTranslation("views.jury_membership.jury_details")); //$NON-NLS-1$
+		this.promoters.setLabel(getTranslation("views.jury_membership.promoters")); //$NON-NLS-1$
+		this.promoters.setHelperText(getTranslation("views.jury_membership.promoters.help")); //$NON-NLS-1$
+		this.person.setLabel(getTranslation("views.jury_membership.participant")); //$NON-NLS-1$
+		this.person.setHelperText(getTranslation("views.jury_membership.participant.help")); //$NON-NLS-1$
 		this.type.setLabel(getTranslation("views.jury_membership.membership_type")); //$NON-NLS-1$
 		this.type.setItemLabelGenerator(this::getMembershipTypeLabel);
 	}

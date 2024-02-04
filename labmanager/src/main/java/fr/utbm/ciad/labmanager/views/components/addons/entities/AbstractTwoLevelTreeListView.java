@@ -18,6 +18,8 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Component;
@@ -161,8 +163,8 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	}
 
 	@Override
-	protected final Column<TreeListEntity<R, C>> getInitialSortingColumn() {
-		return this.firstColumn;
+	protected final List<Column<TreeListEntity<R, C>>> getInitialSortingColumns() {
+		return Collections.singletonList(this.firstColumn);
 	}
 
 	@Override

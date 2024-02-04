@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Locale;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.OrphanEntityBuilder;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import jakarta.transaction.Transactional;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.progress.ProgressionListener;

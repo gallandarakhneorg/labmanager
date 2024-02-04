@@ -36,7 +36,7 @@ public class LanguageValidator extends NotNullEnumerationValidator<CountryCode> 
 	/**
 	 * Constructor.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate.
+	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 */
 	public LanguageValidator(String errorMessage) {
 		super(errorMessage);

@@ -21,10 +21,10 @@ package fr.utbm.ciad.labmanager.views.components.addons.validators;
 
 import java.net.URL;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.AbstractValidator;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A string validator for URL addresses.
  * 
@@ -49,7 +49,7 @@ public class UrlValidator extends AbstractValidator<String> {
 	 * constructor with {@code true} as a value for the second argument to
 	 * create a validator which not accepts an empty string.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate.
+	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @see #UrlValidator(String, boolean)
 	 */
 	public UrlValidator(String errorMessage) {

@@ -19,8 +19,8 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
+import com.google.common.base.Strings;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Abstract implementation of utilities for comparing organization names.
  * 

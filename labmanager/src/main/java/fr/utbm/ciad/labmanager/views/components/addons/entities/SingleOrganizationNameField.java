@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.addons.entities;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -31,7 +32,6 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.EmbeddedOrganizationEditor;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 

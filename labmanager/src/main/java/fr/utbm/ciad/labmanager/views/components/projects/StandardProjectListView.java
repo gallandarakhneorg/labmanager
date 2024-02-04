@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components.projects;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -249,8 +250,8 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	}
 
 	@Override
-	protected Column<Project> getInitialSortingColumn() {
-		return this.nameColumn;
+	protected List<Column<Project>> getInitialSortingColumns() {
+		return Collections.singletonList(this.nameColumn);
 	}
 
 	@Override

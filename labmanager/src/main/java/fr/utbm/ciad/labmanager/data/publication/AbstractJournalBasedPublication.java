@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.JournalRankingSystem;
@@ -30,7 +31,6 @@ import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Abstract publication that is related to a journal.
  * 

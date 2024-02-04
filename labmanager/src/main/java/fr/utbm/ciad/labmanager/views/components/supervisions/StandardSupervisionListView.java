@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.supervisions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -133,8 +134,8 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	}
 
 	@Override
-	protected Column<Supervision> getInitialSortingColumn() {
-		return this.supervisedPersonColumn;
+	protected List<Column<Supervision>> getInitialSortingColumns() {
+		return Collections.singletonList(this.supervisedPersonColumn);
 	}
 
 	@Override

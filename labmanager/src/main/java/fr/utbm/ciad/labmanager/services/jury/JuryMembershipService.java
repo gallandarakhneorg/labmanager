@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
@@ -38,6 +39,7 @@ import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -146,6 +148,23 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 	 */
 	public Page<JuryMembership> getAllJuryMemberships(Pageable pageable, Specification<JuryMembership> filter) {
 		return this.membershipRepository.findAll(filter, pageable);
+	}
+
+	/** Replies the list of all the jury memberships.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of all the jury memberships.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<JuryMembership> getAllJuryMemberships(Pageable pageable, Specification<JuryMembership> filter, Consumer<JuryMembership> callback) {
+		final var page = this.membershipRepository.findAll(filter, pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
 	}
 
 	/** Replies the list of jury memberships for the person with the given identifier.
@@ -308,6 +327,15 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 	@Override
 	public EntityEditingContext<JuryMembership> startEditing(JuryMembership jury) {
 		assert jury != null;
+		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
+		inSession(session -> {
+			if (jury.getId() != 0l) {
+				session.load(jury, Long.valueOf(jury.getId()));
+				Hibernate.initialize(jury.getPerson());
+				Hibernate.initialize(jury.getCandidate());
+				Hibernate.initialize(jury.getPromoters());
+			}
+		});
 		return new EditingContext(jury);
 	}
 

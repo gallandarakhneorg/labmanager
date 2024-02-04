@@ -21,11 +21,11 @@ package fr.utbm.ciad.labmanager.utils.io;
 
 import java.net.URL;
 
+import com.google.common.base.Strings;
 import com.microsoft.playwright.BrowserType.LaunchOptions;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 

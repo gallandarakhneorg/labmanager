@@ -19,11 +19,12 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -37,7 +38,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
-/** Abstract implementation of a field for entering an entity, with auto-completion from the person JPA entities.
+/** Abstract implementation of a field for entering multiple entities, with auto-completion from the person JPA entities.
  * 
  * @param <E> the type of edited entity.
  * @author $Author: sgalland$
@@ -46,11 +47,11 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity> extends CustomField<E> implements HasPrefix {
+public abstract class AbstractMultiEntityNameField<E extends IdentifiableEntity> extends CustomField<List<E>> implements HasPrefix {
 
-	private static final long serialVersionUID = -6289181807207159605L;
+	private static final long serialVersionUID = 8608252253714436879L;
 
-	private final ComboBox<E> combo;
+	private final MultiSelectComboBox<E> combo;
 
 	private final MenuItem createButton;
 
@@ -71,9 +72,9 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
 	 *      This second lambda takes the created person.
 	 */
-	public AbstractSingleEntityNameField(
-			SerializableConsumer<ComboBox<E>> comboConfigurator,
-			SerializableConsumer<ComboBox<E>> comboInitializer,
+	public AbstractMultiEntityNameField(
+			SerializableConsumer<MultiSelectComboBox<E>> comboConfigurator,
+			SerializableConsumer<MultiSelectComboBox<E>> comboInitializer,
 			SerializableBiConsumer<E, Consumer<E>> creationWithUiCallback,
 			SerializableBiConsumer<E, Consumer<E>> creationWithoutUiCallback) {
 		final var enableDynamicCreationWithUi = creationWithUiCallback != null;
@@ -82,9 +83,11 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 		this.creationWithUiCallback = creationWithUiCallback;
 		this.creationWithoutUiCallback = creationWithoutUiCallback;
 		
-		this.combo = new ComboBox<>();
+		this.combo = new MultiSelectComboBox<>();
 		this.combo.setAutoOpen(true);
+		this.combo.setSelectedItemsOnTop(false);
 		this.combo.setClearButtonVisible(true);
+		this.combo.setManualValidation(false);
 		this.combo.setAllowCustomValue(enableDynamicCreationWithUi || enableDynamicCreationWithoutUi);
 		if (comboConfigurator != null) {
 			comboConfigurator.accept(this.combo);
@@ -108,7 +111,7 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 		}
 
 		this.combo.setPlaceholder(getLabel());
-		
+
 		if (comboInitializer != null) {
 			comboInitializer.accept(this.combo);
 		}
@@ -128,13 +131,14 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void addEntity(SerializableBiConsumer<E, Consumer<E>> callback) {
 		if (callback != null) {
 			final var customName = Strings.nullToEmpty(this.customEntity).trim();
 			final E newEntity = createNewEntity(customName);
 			callback.accept(newEntity, newEntity0 -> {
 				this.combo.getGenericDataView().refreshAll();
-				this.combo.setValue(newEntity0);
+				this.combo.select(newEntity0);
 			});
 		}
 	}
@@ -159,14 +163,15 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 	protected abstract E createNewEntity(String customName);
 
 	@Override
-	protected E generateModelValue() {
-		return Strings.isNullOrEmpty(this.customEntity) ? this.combo.getValue() : null;
+	protected List<E> generateModelValue() {
+		return Strings.isNullOrEmpty(this.customEntity) ? new ArrayList<>(this.combo.getValue()) : null;
 	}
 
 	@Override
-	protected void setPresentationValue(E newPresentationValue) {
+	protected void setPresentationValue(List<E> newPresentationValue) {
 		if (Strings.isNullOrEmpty(this.customEntity) || newPresentationValue != null) {
-			this.combo.setValue(newPresentationValue);
+			this.combo.deselectAll();
+			this.combo.select(newPresentationValue);
 		}
 	}
 
@@ -205,9 +210,9 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 
 	@Override
 	public String getErrorMessage() {
-		return this.combo.getErrorMessage();
+		return super.getErrorMessage();
 	}
-	
+
 	@Override
 	public void setInvalid(boolean invalid) {
 		this.combo.setInvalid(invalid);
@@ -216,12 +221,6 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 	@Override
 	public boolean isInvalid() {
 		return this.combo.isInvalid();
-	}
-
-	@Override
-	public void setManualValidation(boolean enabled) {
-		super.setManualValidation(enabled);
-		this.combo.setManualValidation(enabled);
 	}
 
 	@Override
@@ -242,16 +241,6 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 		if (this.createButton != null) {
 			this.createButton.setAriaLabel(title);
 		}
-	}
-
-	@Override
-	public void setPrefixComponent(Component component) {
-		this.combo.setPrefixComponent(component);
-	}
-
-	@Override
-	public Component getPrefixComponent() {
-		return this.combo.getPrefixComponent();
 	}
 
 }

@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Utilities for BibTeX. BibTeX is reference management software for formatting lists of bibliography references.
  * The BibTeX tool is typically used together with the LaTeX document preparation system.

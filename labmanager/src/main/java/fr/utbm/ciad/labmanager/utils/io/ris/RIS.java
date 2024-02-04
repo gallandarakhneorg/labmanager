@@ -30,10 +30,12 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
-import org.apache.jena.ext.com.google.common.base.Strings;
+import fr.utbm.ciad.labmanager.utils.io.bibtex.ConferenceFake;
+import fr.utbm.ciad.labmanager.utils.io.bibtex.JournalFake;
 
 /** Utilities for RIS.
  * RIS is a standardized tag format developed by Research Information Systems, Incorporated to enable citation programs

@@ -36,7 +36,7 @@ import fr.utbm.ciad.labmanager.views.components.persons.EmbeddedPersonEditor;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 
-/** Implementation of a field for entering the name of a person, with auto-completion from the person JPA entities.
+/** Implementation of a field for entering the names of persons, with auto-completion from the person JPA entities.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -44,9 +44,9 @@ import org.springframework.data.jpa.domain.Specification;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class SinglePersonNameField extends AbstractSingleEntityNameField<Person> {
+public class MultiPersonNameField extends AbstractMultiEntityNameField<Person> {
 
-	private static final long serialVersionUID = 2759562152618869115L;
+	private static final long serialVersionUID = 7107742910744624635L;
 
 	private final PersonNameParser nameParser;
 
@@ -60,7 +60,7 @@ public class SinglePersonNameField extends AbstractSingleEntityNameField<Person>
 	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
 	 *      This second lambda takes the created person.
 	 */
-	public SinglePersonNameField(PersonService personService, SerializableBiConsumer<Person, Consumer<Person>> creationWithUiCallback,
+	public MultiPersonNameField(PersonService personService, SerializableBiConsumer<Person, Consumer<Person>> creationWithUiCallback,
 			SerializableBiConsumer<Person, Consumer<Person>> creationWithoutUiCallback) {
 		super(
 				combo -> {
@@ -84,7 +84,7 @@ public class SinglePersonNameField extends AbstractSingleEntityNameField<Person>
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 */
-	public SinglePersonNameField(PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
+	public MultiPersonNameField(PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
 			String creationTitle, Logger logger) {
 		this(personService,
 				(newPerson, saver) -> {

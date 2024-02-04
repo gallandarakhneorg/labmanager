@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.utils.io.od;
 
 import java.util.Locale;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
 import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
 import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
@@ -32,7 +33,6 @@ import fr.utbm.ciad.labmanager.data.publication.type.Patent;
 import fr.utbm.ciad.labmanager.data.publication.type.Report;
 import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.badges;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableFunction;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.OutputParameter;
 
 /** A renderer that could be using for displaying badges in grids, combos, etc.

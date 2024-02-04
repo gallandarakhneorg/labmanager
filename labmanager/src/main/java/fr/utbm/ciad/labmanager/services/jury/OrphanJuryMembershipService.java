@@ -22,11 +22,11 @@ package fr.utbm.ciad.labmanager.services.jury;
 import java.util.Locale;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipRepository;
 import fr.utbm.ciad.labmanager.services.AbstractOrphanService;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;

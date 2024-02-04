@@ -41,7 +41,7 @@ import com.aspose.pdf.Document;
 import com.aspose.pdf.devices.JpegDevice;
 import com.aspose.pdf.devices.Resolution;
 import com.aspose.slides.Presentation;
-import org.apache.jena.ext.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 import org.arakhne.afc.sizediterator.SizedIterator;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;

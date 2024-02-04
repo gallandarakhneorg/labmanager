@@ -39,7 +39,7 @@ public class NotNullEnumerationValidator<T extends Enum<T>> extends AbstractVali
 	/**
 	 * Constructor.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate.
+	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 */
 	public NotNullEnumerationValidator(String errorMessage) {
 		super(errorMessage);

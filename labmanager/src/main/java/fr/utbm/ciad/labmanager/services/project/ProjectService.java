@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
@@ -70,7 +71,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.hibernate.SessionFactory;

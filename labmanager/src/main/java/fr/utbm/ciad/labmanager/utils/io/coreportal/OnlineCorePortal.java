@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
 import com.microsoft.playwright.ElementHandle;
 import fr.utbm.ciad.labmanager.utils.io.AbstractWebScraper;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;

@@ -19,8 +19,8 @@
 
 package fr.utbm.ciad.labmanager.components.start;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.Constants;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

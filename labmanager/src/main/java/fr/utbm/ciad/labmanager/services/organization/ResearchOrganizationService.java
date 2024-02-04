@@ -439,6 +439,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 					Hibernate.initialize(organization.getSuperOrganizations());
 					Hibernate.initialize(organization.getSubOrganizations());
 					Hibernate.initialize(organization.getMemberships());
+					Hibernate.initialize(organization.getTeachingActivities());
 				}
 			}
 		});
@@ -574,6 +575,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 			for(final var entity : getEntities()) {
 				if (!entity.getMemberships().isEmpty()) {
 					return OrganizationDeletionStatus.MEMBERSHIP;
+				}
+				if (!entity.getTeachingActivities().isEmpty()) {
+					return OrganizationDeletionStatus.TEACHING_ACTIVITY;
 				}
 			}
 			return DeletionStatus.OK;

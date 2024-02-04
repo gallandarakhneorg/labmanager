@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
@@ -39,7 +40,6 @@ import fr.utbm.ciad.labmanager.utils.io.AbstractPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextListElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;

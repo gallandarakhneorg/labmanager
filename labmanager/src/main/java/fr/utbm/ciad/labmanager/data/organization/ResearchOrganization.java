@@ -38,6 +38,7 @@ import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Membership;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
@@ -185,6 +186,11 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	@Column(nullable = false)
 	private boolean validated;
+
+	/** List of teaching activities for the organization.
+	 */
+	@OneToMany(mappedBy = "university", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<TeachingActivity> teachingActivities;
 
 	/** Construct a research organization from the given values.
 	 * 
@@ -854,6 +860,34 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	/** Replies the list of teaching activities associated to the organization.
+	 *
+	 * @return the list of teaching activities.
+	 * @since 4.0
+	 */
+	public Set<TeachingActivity> getTeachingActivities() {
+		if (this.teachingActivities == null) {
+			this.teachingActivities = new HashSet<>();
+		}
+		return this.teachingActivities;
+	}
+
+	/** Change the list of teaching activities associated to the organization.
+	 *
+	 * @param list the list of activities.
+	 * @since 4.0
+	 */
+	public void setTeachingActivities(Set<TeachingActivity> list) {
+		if (this.teachingActivities != null) {
+			this.teachingActivities.clear();
+		} else {
+			this.teachingActivities = new HashSet<>();
+		}
+		if (list != null) {
+			this.teachingActivities.addAll(list);
+		}
 	}
 
 }

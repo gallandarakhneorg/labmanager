@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.validators;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.RegexpValidator;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A string validator for GPS coordinates in Decimal Degrees format.
  * 
@@ -52,7 +52,7 @@ public class GpsCoordinatesValidator extends RegexpValidator {
 	 * constructor with {@code false} as a value for the second argument to
 	 * create a validator which not accepts an empty string.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate.
+	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param warningMessage the message to display in case the value does validate but is empty. It could be
 	 *     {@code null} to disable the warning.
 	 * @see #GpsCoordinatesValidator(String, String, boolean)
@@ -65,7 +65,7 @@ public class GpsCoordinatesValidator extends RegexpValidator {
 	 * Creates a validator for checking that a string is a syntactically valid
 	 * GPS coordinates.
 	 *
-	 * @param errorMessage the message to display in case the value does not validate. Must not be {@code null}.
+	 * @param errorMessage the message to display in case the value does not validate. Must not be {@code null}. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param warningMessageWhenEmpty the message to display in case the value does validate but is empty. It could be
 	 *     {@code null} to disable the warning.
 	 * @param allowEmpty if {@code true} then an empty string passes the validation,

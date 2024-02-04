@@ -21,7 +21,7 @@ package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
 import java.io.File;
 
-import org.apache.jena.ext.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
