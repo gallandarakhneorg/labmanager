@@ -30,19 +30,26 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.FloatRangeValidator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
@@ -76,7 +83,17 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private IntegerField creationDuration;
 
+//	holders : Set<AssociatedStructureHolder>
+
+	private DetailsWithErrorMark fundingDetails;
+
 	private NumberField budget;
+
+	private SingleOrganizationNameField fundingOrganization;
+
+	private DetailsWithErrorMark projectDetails;
+
+	//	projects : List<Project>
 
 	private DetailsWithErrorMark communicationDetails;
 
@@ -84,27 +101,38 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private TextArea description;
 
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+	
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context, 
-			boolean relinkEntityWhenSaving, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			boolean relinkEntityWhenSaving, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structure.administration_details", //$NON-NLS-1$
 				"views.associated_structure.administration.validated_structure", //$NON-NLS-1$
 				context, relinkEntityWhenSaving);
+		this.organizationService = organizationService;
+		this.addressService = addressService;
 	}
 
 	@Override
 	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		createCreationDetails(rootContainer);
+		createFundingDetails(rootContainer);
+		createProjectDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
 		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
@@ -113,7 +141,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		}
 	}
 
-	/** Create the section for editing the description of the organization.
+	/** Create the section for editing the description of the associated structure.
 	 *
 	 * @param rootContainer the container.
 	 */
@@ -161,7 +189,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		return type.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 	
-	/** Create the section for editing the creation of the organization.
+	/** Create the section for editing the creation of the associated structure.
 	 *
 	 * @param rootContainer the container.
 	 */
@@ -180,11 +208,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.creationDuration.setClearButtonVisible(true);
 		content.add(this.creationDuration, 1);
 
-		this.budget = new NumberField();
-		this.budget.setPrefixComponent(VaadinIcon.EURO.create());
-		this.budget.setClearButtonVisible(true);
-		content.add(this.budget, 1);
-
 		this.creationDetails = createDetailsWithErrorMark(rootContainer, content, "creation"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.creationDate)
@@ -195,14 +218,49 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 			.withValidator(new IntegerRangeValidator(getTranslation("views.associated_structure.creation_duration.error"), Integer.valueOf(0), null)) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.creationDuration, this.creationDetails))
 			.bind(AssociatedStructure::getCreationDuration, AssociatedStructure::setCreationDuration);
+	}
+
+	/** Create the section for editing the funding of the associated structure.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createFundingDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
+
+		this.budget = new NumberField();
+		this.budget.setPrefixComponent(VaadinIcon.EURO.create());
+		this.budget.setClearButtonVisible(true);
+		content.add(this.budget, 2);
+
+		this.fundingOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
+				getTranslation("views.associated_structure.new_funding_organization"), getLogger()); //$NON-NLS-1$
+		this.fundingOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
+		content.add(this.fundingOrganization, 2);
+
+		this.fundingDetails = createDetailsWithErrorMark(rootContainer, content, "funding"); //$NON-NLS-1$
+
 		getEntityDataBinder().forField(this.budget)
 			.withConverter(new DoubleToFloatConverter())
 			.withValidator(new FloatRangeValidator(getTranslation("views.associated_structure.budget.error"), Float.valueOf(0f), null)) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.budget, this.creationDetails))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.budget, this.fundingDetails))
 			.bind(AssociatedStructure::getBudget, AssociatedStructure::setBudget);
+		getEntityDataBinder().forField(this.fundingOrganization)
+			.withValidator(new FundingOrganizationValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.fundingOrganization, this.fundingDetails))
+			.bind(AssociatedStructure::getFundingOrganization, AssociatedStructure::setFundingOrganization);
 	}
 
-	/** Create the section for editing the communication of the organization.
+	/** Create the section for editing the projects of the associated structure.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createProjectDetails(VerticalLayout rootContainer) {
+		final var content = ComponentFactory.newColumnForm(2);
+
+		this.projectDetails = createDetailsWithErrorMark(rootContainer, content, "project"); //$NON-NLS-1$
+	}
+
+	/** Create the section for editing the communication of the associated structure.
 	 *
 	 * @param rootContainer the container.
 	 */
@@ -210,12 +268,12 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		final var content = ComponentFactory.newColumnForm(2);
 
 		this.confidential = new Checkbox();
-		content.add(this.confidential, 1);
+		content.add(this.confidential, 2);
 
 		this.description = new TextArea();
 		this.description.setPrefixComponent(VaadinIcon.TEXT_INPUT.create());
 		this.description.setClearButtonVisible(true);
-		content.add(this.description, 1);
+		content.add(this.description, 2);
 
 		this.communicationDetails = createDetailsWithErrorMark(rootContainer, content, "communication"); //$NON-NLS-1$
 
@@ -277,13 +335,72 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.creationDate.setHelperText(getTranslation("views.associated_structure.creation_date.help")); //$NON-NLS-1$
 		this.creationDuration.setLabel(getTranslation("views.associated_structure.creation_duration")); //$NON-NLS-1$
 		this.creationDuration.setHelperText(getTranslation("views.associated_structure.creation_duration.help")); //$NON-NLS-1$
+
+		this.fundingDetails.setSummaryText(getTranslation("views.associated_structure.funding_informations")); //$NON-NLS-1$
 		this.budget.setLabel(getTranslation("views.associated_structure.budget")); //$NON-NLS-1$
 		this.budget.setHelperText(getTranslation("views.associated_structure.budget.help")); //$NON-NLS-1$
+		this.fundingOrganization.setLabel(getTranslation("views.associated_structure.funding_organization")); //$NON-NLS-1$
+		this.fundingOrganization.setHelperText(getTranslation("views.associated_structure.funding_organization.help")); //$NON-NLS-1$
+
+		this.projectDetails.setSummaryText(getTranslation("views.associated_structure.project_informations")); //$NON-NLS-1$
 
 		this.communicationDetails.setSummaryText(getTranslation("views.associated_structure.communication_informations")); //$NON-NLS-1$
 		this.confidential.setLabel(getTranslation("views.associated_structure.confidential")); //$NON-NLS-1$
 		this.description.setLabel(getTranslation("views.associated_structure.description")); //$NON-NLS-1$
 		this.description.setHelperText(getTranslation("views.associated_structure.description.help")); //$NON-NLS-1$
+	}
+
+	/** A validator that matches funding organization for an associated structure.
+	 *
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private class FundingOrganizationValidator implements Validator<ResearchOrganization> {
+		
+		private static final long serialVersionUID = 8523364404465641409L;
+
+		/**
+		 * Constructor.
+		 */
+		FundingOrganizationValidator() {
+			//
+		}
+
+		@Override
+		public String toString() {
+			return "FundingOrganizationValidator"; //$NON-NLS-1$
+		}
+
+		/** Returns the error message.
+		 */
+		protected String getErrorMessage() {
+			return getTranslation("views.associated_structure.funding_organization.error"); //$NON-NLS-1$
+		}
+
+		/** Replies if the given research organization is valid.
+		 *
+		 * @param value the value to check.
+		 * @return {@code true} if the value is valid.
+		 */
+		protected boolean isValid(ResearchOrganization value) {
+			if (value == null) {
+				final var budget = getEditedEntity().getBudget();
+				return budget <= 0f;
+			}
+			return true;
+		}
+
+		@Override
+		public ValidationResult apply(ResearchOrganization value, ValueContext context) {
+			if (isValid(value)) {
+				return ValidationResult.ok();
+			}
+			return ValidationResult.error(getErrorMessage());
+		}
+
 	}
 
 }

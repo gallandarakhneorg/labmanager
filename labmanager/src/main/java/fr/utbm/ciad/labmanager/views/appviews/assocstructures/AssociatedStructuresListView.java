@@ -24,6 +24,8 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.StandardAssociatedStructureListView;
 import jakarta.annotation.security.RolesAllowed;
@@ -52,10 +54,13 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param structureService the service for accessing the associated structures.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 */
 	public AssociatedStructuresListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			AssociatedStructureService structureService) {
-		super(authenticatedUser, messages, structureService, LOGGER);
+			AssociatedStructureService structureService, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService) {
+		super(authenticatedUser, messages, structureService, organizationService, addressService, LOGGER);
 	}
 
 	@Override

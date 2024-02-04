@@ -37,6 +37,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
@@ -191,6 +192,11 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	@OneToMany(mappedBy = "university", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<TeachingActivity> teachingActivities;
+
+	/** List of associated structures that have been funded by the organization.
+	 */
+	@OneToMany(mappedBy = "fundingOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<AssociatedStructure> fundedAssociatedStructures;
 
 	/** Construct a research organization from the given values.
 	 * 
@@ -887,6 +893,34 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (list != null) {
 			this.teachingActivities.addAll(list);
+		}
+	}
+
+	/** Replies the list of associated structures that have been funded by the organization.
+	 *
+	 * @return the list of associated structures.
+	 * @since 4.0
+	 */
+	public Set<AssociatedStructure> getFundedAssociatedStructures() {
+		if (this.fundedAssociatedStructures == null) {
+			this.fundedAssociatedStructures = new HashSet<>();
+		}
+		return this.fundedAssociatedStructures;
+	}
+
+	/** Change the list of associated structures that have been funded by the organization.
+	 *
+	 * @param list the list of associated structures.
+	 * @since 4.0
+	 */
+	public void setFundedAssociatedStructures(Set<AssociatedStructure> list) {
+		if (this.fundedAssociatedStructures != null) {
+			this.fundedAssociatedStructures.clear();
+		} else {
+			this.fundedAssociatedStructures = new HashSet<>();
+		}
+		if (list != null) {
+			this.fundedAssociatedStructures.addAll(list);
 		}
 	}
 

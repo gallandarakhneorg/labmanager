@@ -40,6 +40,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -363,6 +364,13 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	@Override
 	public EntityEditingContext<AssociatedStructure> startEditing(AssociatedStructure structure) {
 		assert structure != null;
+		// Force loading of the entities that may be edited at the same time as the rest of the structure properties
+		inSession(session -> {
+			if (structure.getId() != 0l) {
+				session.load(structure, Long.valueOf(structure.getId()));
+				Hibernate.initialize(structure.getFundingOrganization());
+			}
+		});
 		return new EditingContext(structure);
 	}
 

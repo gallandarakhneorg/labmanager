@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.assocstructures;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -45,12 +47,15 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 	/** Constructor.
 	 *
 	 * @param context the editing context for the associated structure.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, authenticatedUser, messages, LOGGER);
+		super(context, false, organizationService, addressService, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

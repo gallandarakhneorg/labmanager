@@ -40,6 +40,8 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -68,6 +70,10 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	private AssociatedStructureService structureService;
 
+	private ResearchOrganizationService organizationService;
+
+	private OrganizationAddressService addressService;
+
 	private Column<AssociatedStructure> nameColumn;
 
 	private Column<AssociatedStructure> dateColumn;
@@ -79,17 +85,22 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param structureService the service for accessing the associated structures.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param logger the logger to use.
 	 */
 	public StandardAssociatedStructureListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			AssociatedStructureService structureService, Logger logger) {
+			AssociatedStructureService structureService, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structures.delete.title", //$NON-NLS-1$
 				"views.associated_structures.delete.message", //$NON-NLS-1$
 				"views.associated_structure.delete_success", //$NON-NLS-1$
 				"views.associated_structure.delete_error"); //$NON-NLS-1$
 		this.structureService = structureService;
+		this.organizationService = organizationService;
+		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAssociatedStructures(query, filters);
 		initializeDataInGrid(getGrid(), getFilters());
 	}
@@ -171,6 +182,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	protected void openStructureEditor(AssociatedStructure structure, String title) {
 		final var editor = new EmbeddedAssociatedStructureEditor(
 				this.structureService.startEditing(structure),
+				this.organizationService, this.addressService,
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshAll = (dialog, entity) -> refreshGrid();

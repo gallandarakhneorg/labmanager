@@ -579,6 +579,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				if (!entity.getTeachingActivities().isEmpty()) {
 					return OrganizationDeletionStatus.TEACHING_ACTIVITY;
 				}
+				if (!entity.getFundedAssociatedStructures().isEmpty()) {
+					return OrganizationDeletionStatus.FUNDED_ASSOCIATED_STRUCTURE;
+				}
 			}
 			return DeletionStatus.OK;
 		}
