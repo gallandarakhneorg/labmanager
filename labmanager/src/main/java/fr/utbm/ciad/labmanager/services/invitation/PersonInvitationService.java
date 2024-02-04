@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
@@ -40,6 +41,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -150,6 +152,23 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter), pageable);
 	}
 
+	/** Replies the list of all the outgoing invitations.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of all the outgoing invitations.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<PersonInvitation> getAllOutgoingInvitations(Pageable pageable, Specification<PersonInvitation> filter, Consumer<PersonInvitation> callback) {
+		final var page = this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter), pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
+	}
+
 	/** Replies the list of all the incoming invitations.
 	 *
 	 * @return the list of all the incoming invitations.
@@ -209,6 +228,23 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 */
 	public Page<PersonInvitation> getAllIncomingInvitations(Pageable pageable, Specification<PersonInvitation> filter) {
 		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter), pageable);
+	}
+
+	/** Replies the list of all the incoming invitations.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of all the incoming invitations.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<PersonInvitation> getAllIncomingInvitations(Pageable pageable, Specification<PersonInvitation> filter, Consumer<PersonInvitation> callback) {
+		final var page = this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter), pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
 	}
 
 	/** Replies the invitations for the given person whatever if he/she is guest or inviter.
@@ -355,6 +391,14 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	@Override
 	public EntityEditingContext<PersonInvitation> startEditing(PersonInvitation invitation) {
 		assert invitation != null;
+		// Force loading of the persons that may be edited at the same time as the rest of the invitation properties
+		inSession(session -> {
+			if (invitation.getId() != 0l) {
+				session.load(invitation, Long.valueOf(invitation.getId()));
+				Hibernate.initialize(invitation.getInviter());
+				Hibernate.initialize(invitation.getGuest());
+			}
+		});
 		return new EditingContext(invitation);
 	}
 

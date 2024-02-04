@@ -24,6 +24,8 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.invitations.StandardOutgoingInvitationListView;
 import jakarta.annotation.security.RolesAllowed;
@@ -52,10 +54,13 @@ public class OutgoingInvitationsListView extends StandardOutgoingInvitationListV
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param invitationService the service for accessing the outgoing invitations.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 */
 	public OutgoingInvitationsListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PersonInvitationService invitationService) {
-		super(authenticatedUser, messages, invitationService, LOGGER);
+			PersonInvitationService invitationService, PersonService personService,
+			UserService userService) {
+		super(authenticatedUser, messages, invitationService, personService, userService, LOGGER);
 	}
 
 	@Override

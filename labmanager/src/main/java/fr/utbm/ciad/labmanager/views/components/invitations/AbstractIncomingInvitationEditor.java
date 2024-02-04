@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views.components.invitations;
 
+import java.util.Arrays;
+
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -29,13 +31,19 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
+import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationType;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
@@ -57,13 +65,19 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 
 	private DetailsWithErrorMark guestDetails;
 
+	private SinglePersonNameField guest;
+
 	private TextField university;
 
 	private ComboBox<CountryCode> country;
 
 	private DetailsWithErrorMark inviterDetails;
 	
+	private SinglePersonNameField inviter;
+
 	private DetailsWithErrorMark informationDetails;
+
+	private ComboBox<PersonInvitationType> type;
 
 	private DatePicker startDate;
 
@@ -71,18 +85,26 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 
 	private TextField title;
 
+	private final PersonService personService;
+
+	private final UserService userService;
+
 	/** Constructor.
 	 *
 	 * @param context the editing context for the person invitation.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractIncomingInvitationEditor(EntityEditingContext<PersonInvitation> context, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			PersonService personService, UserService userService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(PersonInvitation.class, authenticatedUser, messages, logger, null, null, context, relinkEntityWhenSaving);
+		this.personService = personService;
+		this.userService = userService;
 	}
 
 	@Override
@@ -99,6 +121,12 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 	protected void createGuestDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
+		this.guest = new SinglePersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.incoming_invitation.new_guest"), getLogger()); //$NON-NLS-1$
+		this.guest.setRequiredIndicatorVisible(true);
+		this.guest.setPrefixComponent(VaadinIcon.USER.create());
+		content.add(this.guest, 2);
+
 		this.university = new TextField();
 		this.university.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 		this.university.setRequired(true);
@@ -111,6 +139,13 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 
 		this.guestDetails = createDetailsWithErrorMark(rootContainer, content, "guest", true); //$NON-NLS-1$
 
+		getEntityDataBinder().forField(this.guest)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.incoming_invitation.guest.error.null"), //$NON-NLS-1$
+					getTranslation("views.incoming_invitation.guest.error.disjoint"), //$NON-NLS-1$
+					this::checkGuestUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.guest, this.guestDetails))
+			.bind(PersonInvitation::getGuest, PersonInvitation::setGuest);
 		getEntityDataBinder().forField(this.university)
 			.withConverter(new StringTrimer())
 			.withValidator(new NotEmptyStringValidator(getTranslation("views.incoming_invitation.university.error"))) //$NON-NLS-1$
@@ -122,6 +157,12 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 			.bind(PersonInvitation::getCountry, PersonInvitation::setCountry);
 	}
 
+	private boolean checkGuestUnicity(Person guest) {
+		assert guest != null;
+		final var inviter = getEditedEntity().getInviter();
+		return !guest.equals(inviter);
+	}
+
 	/** Create the section for editing the description of the inviter.
 	 *
 	 * @param rootContainer the container.
@@ -129,9 +170,27 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 	protected void createInviterDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.inviterDetails = new DetailsWithErrorMark(content);
-		this.inviterDetails.setOpened(false);
-		rootContainer.add(this.inviterDetails);
+		this.inviter = new SinglePersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.incoming_invitation.new_inviter"), getLogger()); //$NON-NLS-1$
+		this.inviter.setRequiredIndicatorVisible(true);
+		this.inviter.setPrefixComponent(VaadinIcon.USER.create());
+		content.add(this.inviter, 2);
+
+		this.inviterDetails = createDetailsWithErrorMark(rootContainer, content, "inviter"); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.inviter)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.incoming_invitation.inviter.error.null"), //$NON-NLS-1$
+					getTranslation("views.incoming_invitation.inviter.error.disjoint"), //$NON-NLS-1$
+					this::checkInviterUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.inviter, this.inviterDetails))
+			.bind(PersonInvitation::getInviter, PersonInvitation::setInviter);
+	}
+
+	private boolean checkInviterUnicity(Person inviter) {
+		assert inviter != null;
+		final var guest = getEditedEntity().getGuest();
+		return !inviter.equals(guest);
 	}
 
 	/** Create the section for editing the description of the invitation.
@@ -140,6 +199,13 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 	 */
 	protected void createInformationDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
+
+		this.type = new ComboBox<>();
+		this.type.setPrefixComponent(VaadinIcon.ACADEMY_CAP.create());
+		this.type.setRequired(true);
+		this.type.setItems(Arrays.stream(PersonInvitationType.values()).filter(it -> !it.isOutgoing()).toList());
+		this.type.setItemLabelGenerator(this::getTypeLabel);
+		content.add(this.type, 2);
 
 		this.startDate = new DatePicker();
 		this.startDate.setPrefixComponent(VaadinIcon.SIGN_OUT_ALT.create());
@@ -161,6 +227,10 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 
 		this.informationDetails = createDetailsWithErrorMark(rootContainer, content, "information"); //$NON-NLS-1$
 
+		getEntityDataBinder().forField(this.type)
+			.withValidator(new NotNullEnumerationValidator<>(getTranslation("views.incoming_invitation.type.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.type, this.informationDetails))
+			.bind(PersonInvitation::getType, PersonInvitation::setType);
 		getEntityDataBinder().forField(this.startDate)
 			.withValidator(new NotNullDateValidator(getTranslation("views.incoming_invitation.start_date.error"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.startDate, this.informationDetails))
@@ -171,7 +241,13 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 			.bind(PersonInvitation::getEndDate, PersonInvitation::setEndDate);
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
+			.withValidator(new NotEmptyStringValidator(getTranslation("views.incoming_invitation.title.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.startDate, this.informationDetails))
 			.bind(PersonInvitation::getTitle, PersonInvitation::setTitle);
+	}
+
+	private String getTypeLabel(PersonInvitationType type) {
+		return type.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
 	@Override
@@ -214,13 +290,18 @@ public abstract class AbstractIncomingInvitationEditor extends AbstractEntityEdi
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 		this.guestDetails.setSummaryText(getTranslation("views.incoming_invitation.guest_details")); //$NON-NLS-1$
+		this.guest.setLabel(getTranslation("views.incoming_invitation.guest")); //$NON-NLS-1$
+		this.guest.setHelperText(getTranslation("views.incoming_invitation.guest.help")); //$NON-NLS-1$
 		this.university.setLabel(getTranslation("views.incoming_invitation.university")); //$NON-NLS-1$
 		this.country.setLabel(getTranslation("views.incoming_invitation.country")); //$NON-NLS-1$
 		ComponentFactory.updateCountryComboBoxItems(this.country, getLocale());
 
 		this.inviterDetails.setSummaryText(getTranslation("views.incoming_invitation.inviter_details")); //$NON-NLS-1$
+		this.inviter.setLabel(getTranslation("views.incoming_invitation.inviter")); //$NON-NLS-1$
+		this.inviter.setHelperText(getTranslation("views.incoming_invitation.inviter.help")); //$NON-NLS-1$
 
 		this.informationDetails.setSummaryText(getTranslation("views.incoming_invitation.information_details")); //$NON-NLS-1$
+		this.type.setLabel(getTranslation("views.incoming_invitation.type")); //$NON-NLS-1$
 		this.startDate.setLabel(getTranslation("views.incoming_invitation.start_date")); //$NON-NLS-1$
 		this.endDate.setLabel(getTranslation("views.incoming_invitation.end_date")); //$NON-NLS-1$
 		this.title.setLabel(getTranslation("views.incoming_invitation.title")); //$NON-NLS-1$

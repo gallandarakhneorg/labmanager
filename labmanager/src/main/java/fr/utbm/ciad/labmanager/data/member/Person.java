@@ -44,6 +44,7 @@ import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.PhoneNumberJPAConverter;
+import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
@@ -373,6 +374,16 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@OneToMany(mappedBy = "promoters", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<JuryMembership> promoterJurys;
+
+	/** List of invitations as guest for the person.
+	 */
+	@OneToMany(mappedBy = "guest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<PersonInvitation> guestInvitations;
+
+	/** List of invitations as inviter for the person.
+	 */
+	@OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<PersonInvitation> inviterInvitations;
 
 	/** Indicates if the address was validated by an authority.
 	 */
@@ -946,6 +957,62 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (list != null) {
 			this.promoterJurys.addAll(list);
+		}
+	}
+
+	/** Replies the list of invitations as guest of the person.
+	 *
+	 * @return the list of guest invitations.
+	 * @since 4.0
+	 */
+	public Set<PersonInvitation> getGuestInvitations() {
+		if (this.guestInvitations == null) {
+			this.guestInvitations = new HashSet<>();
+		}
+		return this.guestInvitations;
+	}
+
+	/** Change the list of invitations as guest of the person.
+	 *
+	 * @param list the list of guest invitations.
+	 * @since 4.0
+	 */
+	public void setGuestInvitations(Set<PersonInvitation> list) {
+		if (this.guestInvitations != null) {
+			this.guestInvitations.clear();
+		} else {
+			this.guestInvitations = new HashSet<>();
+		}
+		if (list != null) {
+			this.guestInvitations.addAll(list);
+		}
+	}
+
+	/** Replies the list of invitations as inviter of the person.
+	 *
+	 * @return the list of inviter invitations.
+	 * @since 4.0
+	 */
+	public Set<PersonInvitation> getInviterInvitations() {
+		if (this.inviterInvitations == null) {
+			this.inviterInvitations = new HashSet<>();
+		}
+		return this.inviterInvitations;
+	}
+
+	/** Change the list of invitations as inviter of the person.
+	 *
+	 * @param list the list of inviter invitations.
+	 * @since 4.0
+	 */
+	public void setInviterInvitations(Set<PersonInvitation> list) {
+		if (this.inviterInvitations != null) {
+			this.inviterInvitations.clear();
+		} else {
+			this.inviterInvitations = new HashSet<>();
+		}
+		if (list != null) {
+			this.inviterInvitations.addAll(list);
 		}
 	}
 

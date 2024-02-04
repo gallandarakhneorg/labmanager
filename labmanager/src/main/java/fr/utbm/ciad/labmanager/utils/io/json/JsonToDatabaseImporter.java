@@ -53,6 +53,7 @@ import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
+import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationRepository;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
@@ -1697,62 +1698,61 @@ public class JsonToDatabaseImporter extends JsonTool {
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (invitations != null && !invitations.isEmpty()) {
-			// FIXME
-//			getLogger().info("Inserting " + invitations.size() + " invitations..."); //$NON-NLS-1$ //$NON-NLS-2$
-//			var i = 0;
-//			for (var invitationObject : invitations) {
-//				getLogger().info("> Invitation " + (i + 1) + "/" + invitations.size()); //$NON-NLS-1$ //$NON-NLS-2$
-//				try {
-//					final var id = getId(invitationObject);
-//					var invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
-//					if (invitation != null) {
-//						session.beginTransaction();
-//						// Guest
-//						final var guestId = getRef(invitationObject.get(GUEST_KEY));
-//						if (Strings.isNullOrEmpty(guestId)) {
-//							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
-//						}
-//						final var guestDbId = objectIdRepository.get(guestId);
-//						if (guestDbId == null || guestDbId.intValue() == 0) {
-//							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
-//						}
-//						final var targetGuest = this.personRepository.findById(guestDbId);
-//						if (targetGuest.isEmpty()) {
-//							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
-//						}
-//						invitation.setGuest(targetGuest.get());
-//						// Inviter
-//						final var inviterId = getRef(invitationObject.get(INVITER_KEY));
-//						if (Strings.isNullOrEmpty(inviterId)) {
-//							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
-//						}
-//						final var inviterDbId = objectIdRepository.get(inviterId);
-//						if (inviterDbId == null || inviterDbId.intValue() == 0) {
-//							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
-//						}
-//						final var targetInviter = this.personRepository.findById(inviterDbId);
-//						if (targetInviter.isEmpty()) {
-//							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
-//						}
-//						invitation.setInviter(targetInviter.get());
-//						//
-//						if (!isFake()) {
-//							this.invitationRepository.save(invitation);
-//						}
-//						++nbNew;
-//						getLogger().info("  + " + invitation.getGuest().getFullName() //$NON-NLS-1$
-//								+ " - " + invitation.getInviter().getFullName() //$NON-NLS-1$
-//								+ " (id: " + invitation.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-//						if (!Strings.isNullOrEmpty(id)) {
-//							objectIdRepository.put(id, Long.valueOf(invitation.getId()));
-//						}
-//						session.getTransaction().commit();
-//					}
-//				} catch (Throwable ex) {
-//					throw new UnableToImportJsonException(INVITATIONS_SECTION, i, invitationObject, ex);
-//				}
-//				++i;
-//			}
+			getLogger().info("Inserting " + invitations.size() + " invitations..."); //$NON-NLS-1$ //$NON-NLS-2$
+			var i = 0;
+			for (var invitationObject : invitations) {
+				getLogger().info("> Invitation " + (i + 1) + "/" + invitations.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final var id = getId(invitationObject);
+					var invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
+					if (invitation != null) {
+						session.beginTransaction();
+						// Guest
+						final var guestId = getRef(invitationObject.get(GUEST_KEY));
+						if (Strings.isNullOrEmpty(guestId)) {
+							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final var guestDbId = objectIdRepository.get(guestId);
+						if (guestDbId == null || guestDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final var targetGuest = this.personRepository.findById(guestDbId);
+						if (targetGuest.isEmpty()) {
+							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						invitation.setGuest(targetGuest.get());
+						// Inviter
+						final var inviterId = getRef(invitationObject.get(INVITER_KEY));
+						if (Strings.isNullOrEmpty(inviterId)) {
+							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final var inviterDbId = objectIdRepository.get(inviterId);
+						if (inviterDbId == null || inviterDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final var targetInviter = this.personRepository.findById(inviterDbId);
+						if (targetInviter.isEmpty()) {
+							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						invitation.setInviter(targetInviter.get());
+						//
+						if (!isFake()) {
+							this.invitationRepository.save(invitation);
+						}
+						++nbNew;
+						getLogger().info("  + " + invitation.getGuest().getFullName() //$NON-NLS-1$
+								+ " - " + invitation.getInviter().getFullName() //$NON-NLS-1$
+								+ " (id: " + invitation.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(invitation.getId()));
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(INVITATIONS_SECTION, i, invitationObject, ex);
+				}
+				++i;
+			}
 		}
 		return nbNew;
 	}

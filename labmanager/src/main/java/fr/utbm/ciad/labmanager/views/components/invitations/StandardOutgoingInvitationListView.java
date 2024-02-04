@@ -26,6 +26,7 @@ import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
@@ -33,17 +34,21 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -65,6 +70,10 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 
 	private PersonInvitationService invitationService;
 
+	private final PersonService personService;
+
+	private final UserService userService;
+
 	private Column<PersonInvitation> inviterColumn;
 
 	private Column<PersonInvitation> universityColumn;
@@ -78,19 +87,30 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param invitationService the service for accessing the outgoing invitations.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param logger the logger to use.
 	 */
 	public StandardOutgoingInvitationListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PersonInvitationService invitationService, Logger logger) {
+			PersonInvitationService invitationService, PersonService personService,
+			UserService userService, Logger logger) {
 		super(PersonInvitation.class, authenticatedUser, messages, logger,
 				"views.outgoing_invitation.delete.title", //$NON-NLS-1$
 				"views.outgoing_invitation.delete.message", //$NON-NLS-1$
 				"views.outgoing_invitation.delete_success", //$NON-NLS-1$
 				"views.outgoing_invitation.delete_error"); //$NON-NLS-1$
 		this.invitationService = invitationService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllOutgoingInvitations(query, filters);
+		this.personService = personService;
+		this.userService = userService;
+		this.dataProvider = (ps, query, filters) -> ps.getAllOutgoingInvitations(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
+	}
+
+	private void initializeEntityFromJPA(PersonInvitation entity) {
+		// Force the loaded of the lazy data that is needed for rendering the table
+		Hibernate.initialize(entity.getInviter());
+		Hibernate.initialize(entity.getGuest());
 	}
 
 	@Override
@@ -101,8 +121,7 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 	@Override
 	protected boolean createGridColumns(Grid<PersonInvitation> grid) {
 		this.inviterColumn = grid.addColumn(new ComponentRenderer<>(this::createInviterComponent))
-				.setAutoWidth(true)
-				.setSortProperty("inviter"); //$NON-NLS-1$
+				.setAutoWidth(true);
 		this.universityColumn = grid.addColumn(inviter -> inviter.getUniversity())
 				.setAutoWidth(true)
 				.setSortProperty("university"); //$NON-NLS-1$
@@ -110,14 +129,16 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 				.setAutoWidth(true)
 				.setSortProperty("startDate", "endDate"); //$NON-NLS-1$ //$NON-NLS-2$
 		this.guestColumn = grid.addColumn(new ComponentRenderer<>(this::createGuestComponent))
-				.setAutoWidth(true)
-				.setSortProperty("guest"); //$NON-NLS-1$
+				.setAutoWidth(true);
 		return isAdminRole();
 	}
 
 	private Component createGuestComponent(PersonInvitation invitation) {
-		// TODO
-		return new Span("");
+		final var guest = invitation.getGuest();
+		if (guest != null) {
+			return ComponentFactory.newPersonAvatar(guest);
+		}
+		return new Span();
 	}
 
 	private String getDateLabel(PersonInvitation invitation) {
@@ -144,8 +165,11 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 	}
 
 	private Component createInviterComponent(PersonInvitation invitation) {
-		// TODO
-		return new Span("");
+		final var inviter = invitation.getInviter();
+		if (inviter != null) {
+			return ComponentFactory.newPersonAvatar(inviter);
+		}
+		return new Span();
 	}
 
 	@Override
@@ -189,11 +213,29 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 	protected void openInvitationEditor(PersonInvitation invitation, String title) {
 		final var editor = new EmbeddedOutgoingInvitationEditor(
 				this.invitationService.startEditing(invitation),
+				this.personService, this.userService,
 				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, PersonInvitation> refreshAll = (dialog, entity) -> {
+			// The person should be loaded because it was not loaded before
+			this.invitationService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshGrid();
+		};
+		final SerializableBiConsumer<Dialog, PersonInvitation> refreshOne = (dialog, entity) -> {
+			// The person should be loaded because it was not loaded before
+			this.invitationService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshItem(entity);
+		};
 		ComponentFactory.openEditionModalDialog(title, editor, false,
-				// Refresh the "old" item, even if its has been changed in the JPA database
-				(dialog, entity) -> refreshItem(entity),
-				null);
+			// Refresh the "old" item, even if its has been changed in the JPA database
+			newEntity ? refreshAll : refreshOne,
+			newEntity ? null : refreshAll);
 	}
 
 	@Override

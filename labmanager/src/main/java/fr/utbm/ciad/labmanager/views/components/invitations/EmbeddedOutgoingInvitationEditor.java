@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.invitations;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -45,12 +47,15 @@ public final class EmbeddedOutgoingInvitationEditor extends AbstractOutgoingInvi
 	/** Constructor.
 	 *
 	 * @param context the editing context for the outgoing invitation.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedOutgoingInvitationEditor(EntityEditingContext<PersonInvitation> context,
+			PersonService personService, UserService userService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, authenticatedUser, messages, LOGGER);
+		super(context, false, personService, userService, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

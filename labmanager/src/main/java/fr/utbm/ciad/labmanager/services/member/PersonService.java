@@ -824,6 +824,8 @@ public class PersonService extends AbstractEntityService<Person> {
 					Hibernate.initialize(person.getTeachingActivities());
 					Hibernate.initialize(person.getParticipationJurys());
 					Hibernate.initialize(person.getCandidateJurys());
+					Hibernate.initialize(person.getGuestInvitations());
+					Hibernate.initialize(person.getInviterInvitations());
 				}
 			}
 		});
@@ -904,6 +906,12 @@ public class PersonService extends AbstractEntityService<Person> {
 				}
 				if (!entity.getPromoterJurys().isEmpty()) {
 					return PersonDeletionStatus.JURY_PROMOTER;
+				}
+				if (!entity.getGuestInvitations().isEmpty()) {
+					return PersonDeletionStatus.INVITED_GUEST;
+				}
+				if (!entity.getInviterInvitations().isEmpty()) {
+					return PersonDeletionStatus.PERSON_INVITER;
 				}
 			}
 			return DeletionStatus.OK;
