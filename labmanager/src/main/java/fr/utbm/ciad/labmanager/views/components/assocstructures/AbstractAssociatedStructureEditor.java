@@ -233,7 +233,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		content.add(this.budget, 2);
 
 		this.fundingOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
-				getTranslation("views.associated_structure.new_funding_organization"), getLogger()); //$NON-NLS-1$
+				getTranslation("views.associated_structure.new_funding_organization"), getLogger(), null); //$NON-NLS-1$
 		this.fundingOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 		content.add(this.fundingOrganization, 2);
 

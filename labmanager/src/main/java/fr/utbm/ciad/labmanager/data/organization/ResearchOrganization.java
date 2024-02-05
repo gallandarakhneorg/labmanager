@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -197,6 +198,16 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	@OneToMany(mappedBy = "fundingOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<AssociatedStructure> fundedAssociatedStructures;
+
+	/** List of memberships that have the organization as direct organization.
+	 */
+	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Membership> directOrganizationMemberships;
+
+	/** List of memberships that have the organization as super organization.
+	 */
+	@OneToMany(mappedBy = "superResearchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Membership> superOrganizationMemberships;
 
 	/** Construct a research organization from the given values.
 	 * 
@@ -456,6 +467,28 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		if (newSubOrganizations != null) {
 			this.subOrganizations.addAll(newSubOrganizations);
 		}
+	}
+
+	/** Replies if the given organization is a super organization of this organization.
+	 *
+	 * @param candidate the organization to search for in the super orgnaizations.
+	 * @return {@code true} if the given {@code candidate} is a super organization of this organization.
+	 * @since 4.0
+	 */
+	public boolean isSubOrganizationOf(ResearchOrganization candidate) {
+		final var found = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+		final var buffer = new LinkedList<ResearchOrganization>();
+		buffer.addAll(getSuperOrganizations());
+		while (!buffer.isEmpty()) {
+			final var superOrga = buffer.removeFirst();
+			if (found.add(superOrga)) {
+				if (superOrga.equals(candidate)) {
+					return true;
+				}
+				buffer.addAll(superOrga.getSuperOrganizations());
+			}
+		}
+		return false;
 	}
 
 	/** Replies the acronym or the name of the research organization, that order.
@@ -921,6 +954,62 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (list != null) {
 			this.fundedAssociatedStructures.addAll(list);
+		}
+	}
+
+	/** Replies the list of memberships that have this organization as direct organization.
+	 *
+	 * @return the list of memberships.
+	 * @since 4.0
+	 */
+	public Set<Membership> getDirectOrganizationMemberships() {
+		if (this.directOrganizationMemberships == null) {
+			this.directOrganizationMemberships = new HashSet<>();
+		}
+		return this.directOrganizationMemberships;
+	}
+
+	/** Change the list of memberships that have this organization as direct organization.
+	 *
+	 * @param list the list of memberships.
+	 * @since 4.0
+	 */
+	public void setDirectOrganizationMemberships(Set<Membership> list) {
+		if (this.directOrganizationMemberships != null) {
+			this.directOrganizationMemberships.clear();
+		} else {
+			this.directOrganizationMemberships = new HashSet<>();
+		}
+		if (list != null) {
+			this.directOrganizationMemberships.addAll(list);
+		}
+	}
+
+	/** Replies the list of memberships that have this organization as super organization.
+	 *
+	 * @return the list of memberships.
+	 * @since 4.0
+	 */
+	public Set<Membership> getSuperOrganizationMemberships() {
+		if (this.superOrganizationMemberships == null) {
+			this.superOrganizationMemberships = new HashSet<>();
+		}
+		return this.superOrganizationMemberships;
+	}
+
+	/** Change the list of memberships that have this organization as super organization.
+	 *
+	 * @param list the list of memberships.
+	 * @since 4.0
+	 */
+	public void setSuperOrganizationMemberships(Set<Membership> list) {
+		if (this.superOrganizationMemberships != null) {
+			this.superOrganizationMemberships.clear();
+		} else {
+			this.superOrganizationMemberships = new HashSet<>();
+		}
+		if (list != null) {
+			this.superOrganizationMemberships.addAll(list);
 		}
 	}
 

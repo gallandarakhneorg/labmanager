@@ -288,7 +288,8 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.superStructures.setAvailableEntities(query -> {
 			return this.organizationService.getAllResearchOrganizations(
 					VaadinSpringDataHelpers.toSpringPageRequest(query),
-					new OtherOrganizationSpecification(currentId), false).stream();
+					new OtherOrganizationSpecification(currentId),
+					null).stream();
 		});
 		content.add(this.superStructures, 2);
 

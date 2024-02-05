@@ -56,9 +56,10 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new person without using an UI. The first argument is the new person entity.
 	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
 	 *      This second lambda takes the created person.
+	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
 	 */
 	public SingleOrganizationNameField(ResearchOrganizationService organizationService, SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithUiCallback,
-			SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithoutUiCallback) {
+			SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithoutUiCallback, Consumer<ResearchOrganization> entityInitializer) {
 		super(
 				combo -> {
 					combo.setRenderer(new ComponentRenderer<>(ComponentFactory::newOrganizationAvatar));
@@ -68,7 +69,7 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 					combo.setItems(query -> organizationService.getAllResearchOrganizations(
 							VaadinSpringDataHelpers.toSpringPageRequest(query),
 							createOrganizationFilter(query.getFilter()),
-							false).stream());
+							entityInitializer).stream());
 				},
 				creationWithUiCallback, creationWithoutUiCallback);
 	}
@@ -80,9 +81,10 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
+	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
 	 */
 	public SingleOrganizationNameField(ResearchOrganizationService organizationService, OrganizationAddressService addressService, AuthenticatedUser authenticatedUser,
-			String creationTitle, Logger logger) {
+			String creationTitle, Logger logger, Consumer<ResearchOrganization> entityInitializer) {
 		this(organizationService,
 				(newOrganization, saver) -> {
 					final var organizationContext = organizationService.startEditing(newOrganization);
@@ -105,7 +107,8 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(organizationService.getMessageSourceAccessor().getMessage("views.organizations.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
-				});
+				},
+				entityInitializer);
 	}
 
 	private static Specification<ResearchOrganization> createOrganizationFilter(Optional<String> filter) {

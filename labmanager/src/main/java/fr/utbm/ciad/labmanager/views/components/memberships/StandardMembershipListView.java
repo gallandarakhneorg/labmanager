@@ -19,22 +19,33 @@
 
 package fr.utbm.ciad.labmanager.views.components.memberships;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
@@ -44,7 +55,7 @@ import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** List all the memberships.
+/** List all the organization memberships.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -54,28 +65,59 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Person, Membership> {
 
-	private static final long serialVersionUID = -5070828159033969321L;
+	private static final long serialVersionUID = 2320930215751419329L;
 
-	private MembershipService membershipService;
+	private final MembershipService membershipService;
+	
+	private final PersonService personService;
 
-	private Column<TreeListEntity<Person, Membership>> organizationColumn;
+	private final UserService userService;
+
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+
+	private final ScientificAxisService axisService;
+
+	private final FileManager fileManager;
+
+	private Column<TreeListEntity<Person, Membership>> periodColumn;
+
+	private Column<TreeListEntity<Person, Membership>> serviceColumn;
+
+	private Column<TreeListEntity<Person, Membership>> employerColumn;
 
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param membershipService the service for accessing the memberships.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
+	 * @param fileManager the manager of files that is used for obtaining the associated icons to entities.
 	 * @param logger the logger to use.
 	 */
 	public StandardMembershipListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			MembershipService membershipService, Logger logger) {
+			MembershipService membershipService, PersonService personService,
+			UserService userService, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, ScientificAxisService axisService,
+			FileManager fileManager, Logger logger) {
 		super(Person.class, Membership.class, authenticatedUser, messages, logger,
 				"views.memberships.delete.title", //$NON-NLS-1$
 				"views.memberships.delete.message", //$NON-NLS-1$
 				"views.membership.delete_success", //$NON-NLS-1$
 				"views.membership.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
+		this.personService = personService;
+		this.userService = userService;
+		this.organizationService = organizationService;
+		this.addressService = addressService;
+		this.axisService = axisService;
+		this.fileManager = fileManager;
 		setHoverMenu(isAdminRole());
 		setRootEntityFetcher(
 				(parentId, pageRequest, filters) -> {
@@ -91,6 +133,19 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	}
 
 	@Override
+	protected List<Column<TreeListEntity<Person, Membership>>> getInitialSortingColumns() {
+		return Arrays.asList(getFirstColumn(), this.periodColumn);
+	}
+	
+	@Override
+	protected SortDirection getInitialSortingDirection(Column<TreeListEntity<Person, Membership>> column) {
+		if (column == this.periodColumn) {
+			return SortDirection.DESCENDING;
+		}
+		return SortDirection.ASCENDING;
+	}
+
+	@Override
 	protected Filters<Membership> createFilters() {
 		return new MembershipFilters(this::refreshGrid);
 	}
@@ -98,7 +153,6 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	@Override
 	protected void configureFirstColumn(Column<TreeListEntity<Person, Membership>> rootColumn) {
 		super.configureFirstColumn(rootColumn);
-		//TODO rootColumn.setSortProperty("person"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -108,8 +162,26 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	@Override
 	protected Component createChildEntityComponent(Membership entity) {
-		final var position = new Span(entity.getMemberStatus().getLabel(getMessageSourceAccessor(), null, false, getLocale()));
+		final var person = entity.getPerson();
+		final var gender = person == null ? null : person.getGender();
+		return new Span(entity.getMemberStatus().getLabel(getMessageSourceAccessor(), gender, false, getLocale()));
+	}
 
+	@Override
+	protected void createAdditionalColumns(TreeGrid<TreeListEntity<Person, Membership>> grid) {
+		this.periodColumn = grid.addColumn(new ComponentRenderer<>(this::getPeriodLabel))
+				.setAutoWidth(false);
+		this.serviceColumn = grid.addColumn(new ComponentRenderer<>(this::getServiceName))
+				.setAutoWidth(true);
+		this.employerColumn = grid.addColumn(new ComponentRenderer<>(this::getEmployerName))
+				.setAutoWidth(true);
+	}
+
+	private Component getPeriodLabel(TreeListEntity<Person, Membership> treeEntity) {
+		final var entity = treeEntity.getChildEntity();
+		if (entity == null) {
+			return new Span();
+		}
 		final var sdate = entity.getMemberSinceWhen();
 		final var edate = entity.getMemberToWhen();
 		String periodStr;
@@ -132,79 +204,97 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		}
 
 		final var period = new Span(periodStr);
-		period.getStyle()
-			.set("color", "var(--lumo-secondary-text-color)")  //$NON-NLS-1$//$NON-NLS-2$
-			.set("font-size", "var(--lumo-font-size-s)"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		final var column = new VerticalLayout(position, period);
-		column.getStyle().set("line-height", "var(--lumo-line-height-m)"); //$NON-NLS-1$ //$NON-NLS-2$
-		column.setPadding(false);
-		column.setSpacing(false);
-		return column;
+		return period;
 	}
 
-	@Override
-	protected void createAdditionalColumns(TreeGrid<TreeListEntity<Person, Membership>> grid) {
-		this.organizationColumn = grid.addColumn(this::getOrganizationLabel)
-				.setAutoWidth(true)
-				.setSortProperty("researchOrganization"); //$NON-NLS-1$
+	private static ResearchOrganization getService(Membership membership) {
+		assert membership != null;
+		final var employer = membership.getSuperResearchOrganization();
+		if (employer != null) {
+			return membership.getDirectResearchOrganization();
+		}
+		return employer;
 	}
 
-	private String getOrganizationLabel(TreeListEntity<Person, Membership> entity) {
-		// TODO
-		return "?";
+	private Component getServiceName(TreeListEntity<Person, Membership> entity) {
+		if (entity != null) {
+			final var membership = entity.getChildEntity();
+			if (membership != null) {
+				final var organization = getService(membership);
+				if (organization != null) {
+					return ComponentFactory.newOrganizationAvatar(organization, this.fileManager);
+				}
+			}
+		}
+		return new Span();
+	}
+
+	private static ResearchOrganization getEmployer(Membership membership) {
+		assert membership != null;
+		final var employer = membership.getSuperResearchOrganization();
+		if (employer != null) {
+			return employer;
+		}
+		return membership.getDirectResearchOrganization();
+	}
+
+	private Component getEmployerName(TreeListEntity<Person, Membership> entity) {
+		if (entity != null) {
+			final var membership = entity.getChildEntity();
+			if (membership != null) {
+				final var organization = getEmployer(membership);
+				if (organization != null) {
+					return ComponentFactory.newOrganizationAvatar(organization, this.fileManager);
+				}
+			}
+		}
+		return new Span();
 	}
 
 	@Override
 	protected void addEntity() {
-		// TODO Auto-generated method stub
-
+		openMembershipEditor(new Membership(), getTranslation("views.membership.add_membership")); //$NON-NLS-1$
 	}
 
 	@Override
-	protected void edit(TreeListEntity<Person, Membership> entity) {
-		// TODO Auto-generated method stub
-
+	protected void editChildEntity(Membership membership) {
+		openMembershipEditor(membership, getTranslation("views.membership.edit_membership", membership.getPerson().getFullName())); //$NON-NLS-1$
 	}
 
-	//	@Override
-	//	protected void addEntity() {
-	//		openMembershipEditor(new Membership(), getTranslation("views.membership.add_membership")); //$NON-NLS-1$
-	//	}
-	//
-	//	@Override
-	//	protected void edit(Membership membership) {
-	//		openMembershipEditor(membership, getTranslation("views.membership.edit_membership", //$NON-NLS-1$
-	//				membership.getMemberStatus().getLabel(getMessageSourceAccessor(), null, false, getLocale())));
-	//	}
-	//
-	//	/** Show the editor of a membership.
-	//	 *
-	//	 * @param membership the membership to edit.
-	//	 * @param title the title of the editor.
-	//	 */
-	//	protected void openMembershipEditor(Membership membership, String title) {
-	//		final var editor = new EmbeddedMembershipEditor(
-	//				this.membershipService.startEditing(membership),
-	//				getAuthenticatedUser(), getMessageSourceAccessor());
-	//		ComponentFactory.openEditionModalDialog(title, editor, false,
-	//				// Refresh the "old" item, even if its has been changed in the JPA database
-	//				dialog -> refreshItem(membership),
-	//				null);
-	//	}
+	/** Show the editor of a membership.
+	 *
+	 * @param membership the membership to edit.
+	 * @param title the title of the editor.
+	 */
+	protected void openMembershipEditor(Membership membership, String title) {
+		final var editor = new EmbeddedMembershipEditor(
+				this.membershipService.startEditing(membership),
+				membership.getPerson() == null,
+				this.personService, this.userService,
+				this.organizationService, this.addressService,
+				this.axisService,
+				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, Membership> refreshAll = (dialog, entity) -> refreshGrid();
+		final SerializableBiConsumer<Dialog, Membership> refreshOne = (dialog, entity) -> refreshItem(TreeListEntity.child(entity));
+		ComponentFactory.openEditionModalDialog(title, editor, false,
+				// Refresh the "old" item, even if its has been changed in the JPA database
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
+	}
 
 	@Override
-	protected EntityDeletingContext<TreeListEntity<Person, Membership>> createDeletionContextFor(
-			Set<TreeListEntity<Person, Membership>> entities) {
-		//TODO return this.membershipService.startDeletion(entities);
-		return null;
+	protected EntityDeletingContext<Membership> createDeletionContextForChildEntities(Set<Membership> entities) {
+		return this.membershipService.startDeletion(entities);
 	}
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 		getFirstColumn().setHeader(getTranslation("views.person")); //$NON-NLS-1$
-		this.organizationColumn.setHeader(getTranslation("views.organization")); //$NON-NLS-1$
+		this.periodColumn.setHeader(getTranslation("views.period")); //$NON-NLS-1$
+		this.serviceColumn.setHeader(getTranslation("views.service")); //$NON-NLS-1$
+		this.employerColumn.setHeader(getTranslation("views.employer")); //$NON-NLS-1$
 	}
 
 	/** UI and JPA filters for {@link StandardMembershipListView}.
@@ -219,11 +309,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 		private static final long serialVersionUID = -7866307628748739653L;
 
-		private Checkbox includePersons;
-
 		private Checkbox includeTypes;
-
-		private Checkbox includeOrganizations;
 
 		/** Constructor.
 		 *
@@ -235,44 +321,32 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 		@Override
 		protected Component getOptionsComponent() {
-			this.includePersons = new Checkbox(true);
 			this.includeTypes = new Checkbox(true);
-			this.includeOrganizations = new Checkbox(true);
 
 			final var options = new HorizontalLayout();
 			options.setSpacing(false);
-			options.add(this.includePersons, this.includeTypes, this.includeOrganizations);
+			options.add(this.includeTypes);
 
 			return options;
 		}
 
 		@Override
 		protected void resetFilters() {
-			this.includePersons.setValue(Boolean.TRUE);
 			this.includeTypes.setValue(Boolean.TRUE);
-			this.includeOrganizations.setValue(Boolean.TRUE);
 		}
 
 		@Override
 		protected void buildQueryFor(String keywords, List<Predicate> predicates, Root<Membership> root,
 				CriteriaBuilder criteriaBuilder) {
-			if (this.includePersons.getValue() == Boolean.TRUE) {
-				//TODO predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("person")), keywords)); //$NON-NLS-1$
-			}
 			if (this.includeTypes.getValue() == Boolean.TRUE) {
-				//TODO predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("memberStatus")), keywords)); //$NON-NLS-1$
-			}
-			if (this.includeOrganizations.getValue() == Boolean.TRUE) {
-				//TODO predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("researchOrganization")), keywords)); //$NON-NLS-1$
+				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("memberStatus")), keywords)); //$NON-NLS-1$
 			}
 		}
 
 		@Override
 		public void localeChange(LocaleChangeEvent event) {
 			super.localeChange(event);
-			this.includePersons.setLabel(getTranslation("views.filters.include_persons")); //$NON-NLS-1$
 			this.includeTypes.setLabel(getTranslation("views.filters.include_types")); //$NON-NLS-1$
-			this.includeOrganizations.setLabel(getTranslation("views.filters.include_organizations")); //$NON-NLS-1$
 		}
 
 	}

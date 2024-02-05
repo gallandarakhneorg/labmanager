@@ -22,6 +22,11 @@ package fr.utbm.ciad.labmanager.views.components.memberships;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -45,12 +50,21 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 	/** Constructor.
 	 *
 	 * @param context the editing context for the membership.
+	 * @param editAssociatedPerson indicates if the associated person could be edited or not.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedMembershipEditor(EntityEditingContext<Membership> context,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, authenticatedUser, messages, LOGGER);
+			boolean editAssociatedPerson, PersonService personService, UserService userService,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+		super(context, editAssociatedPerson, false, personService, userService,
+				organizationService, addressService, axisService, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

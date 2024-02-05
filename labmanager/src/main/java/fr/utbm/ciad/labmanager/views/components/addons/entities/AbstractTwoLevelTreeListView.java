@@ -20,6 +20,8 @@ package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.Component;
@@ -30,6 +32,8 @@ import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -91,6 +95,35 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 		this.rootEntityType = rootEntityType;
 		this.childEntityType = childEntityType;
 	}
+
+	@Override
+	protected final void edit(TreeListEntity<R, C> entity) {
+		final var membership = entity.getChildEntity();
+		// Membership may be null because the user has clicked on the person name (the root).
+		if (membership != null) {
+			editChildEntity(membership);
+		}
+	}
+
+	/** Edit the child entity.
+	 *
+	 * @param entity the entity to edit.
+	 */
+	protected abstract void editChildEntity(C entity);
+
+	@Override
+	protected final EntityDeletingContext<TreeListEntity<R, C>> createDeletionContextFor(Set<TreeListEntity<R, C>> entities) {
+		final var input = entities.stream().map(it -> it.getChildEntity()).collect(Collectors.toSet());
+		final var context = createDeletionContextForChildEntities(input);
+		return DeletionContextWrapper.<R, C>of(context);
+	}
+
+	/** Create the deletion context for deleting all the pgiven child entities.
+	 *
+	 * @param entities the entities to delete.
+	 * @return the deletion context.
+	 */
+	protected abstract EntityDeletingContext<C> createDeletionContextForChildEntities(Set<C> entities);
 
 	/** Change the flag that indicates if the hover menu should be created.
 	 *
@@ -163,7 +196,7 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	}
 
 	@Override
-	protected final List<Column<TreeListEntity<R, C>>> getInitialSortingColumns() {
+	protected List<Column<TreeListEntity<R, C>>> getInitialSortingColumns() {
 		return Collections.singletonList(this.firstColumn);
 	}
 
@@ -314,6 +347,65 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 		 * @return the number of child entities in the given parent entity.
 		 */
 		int count(T parentEntity);
+
+	}
+
+	/** Deletion context for a grid entry.
+	 *
+	 * @param <R> the type of the root entities, that must be {@link IdentifiableEntity} to be able to provide their id.
+	 * @param <C> the type of the child entities, that must be {@link IdentifiableEntity} to be able to provide their id.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected static final class DeletionContextWrapper<R extends IdentifiableEntity, C extends IdentifiableEntity>
+		implements EntityDeletingContext<TreeListEntity<R, C>> {
+
+		private static final long serialVersionUID = 5230145754672876216L;
+
+		private final EntityDeletingContext<C> original;
+
+		/** Constructor.
+		 *
+		 * @param original the original deletion context.
+		 */
+		private DeletionContextWrapper(EntityDeletingContext<C> original) {
+			this.original = original;
+		}
+		
+		/** Create a wrapper for deletion context.
+		 *
+		 * @param <R> the type of the root entities, that must be {@link IdentifiableEntity} to be able to provide their id.
+		 * @param <C> the type of the child entities, that must be {@link IdentifiableEntity} to be able to provide their id.
+		 * @param original the original deletion context.
+		 * @return the wrapper.
+		 */
+		public static <R extends IdentifiableEntity, C extends IdentifiableEntity>
+				DeletionContextWrapper<R, C> of(EntityDeletingContext<C> original) {
+			return new DeletionContextWrapper<>(original);
+		}
+		
+		@Override
+		public Set<TreeListEntity<R, C>> getEntities() {
+			return this.original.getEntities().stream().map(it -> TreeListEntity.<R, C>child(it)).collect(Collectors.toSet());
+		}
+
+		@Override
+		public boolean isDeletionPossible() {
+			return this.original.isDeletionPossible();
+		}
+
+		@Override
+		public DeletionStatus getDeletionStatus() {
+			return this.original.getDeletionStatus();
+		}
+
+		@Override
+		public void delete() throws Exception {
+			this.original.delete();
+		}
 
 	}
 

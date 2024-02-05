@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -153,17 +154,15 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 *
 	 * @param pageable the manager of the pages.
 	 * @param filter the filter of organizations.
-	 * @param initializeLinkedEntities indicates if the linked entities should be initialized before returning from the call.
+	 * @param initializer icallback function that is invoked for each loaded organization to initialize its properties.
 	 * @return the research organizations.
 	 * @since 4.0
 	 */
 	@Transactional
-	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter, boolean initializeLinkedEntities) {
+	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter, Consumer<ResearchOrganization> initializer) {
 		final var page = this.organizationRepository.findAll(filter, pageable);
-		if (initializeLinkedEntities) {
-			page.forEach(it -> {
-				Hibernate.initialize(it.getSubOrganizations());
-			});
+		if (initializer != null) {
+			page.forEach(initializer);
 		}
 		return page;
 	}
@@ -581,6 +580,12 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				}
 				if (!entity.getFundedAssociatedStructures().isEmpty()) {
 					return OrganizationDeletionStatus.FUNDED_ASSOCIATED_STRUCTURE;
+				}
+				if (!entity.getDirectOrganizationMemberships().isEmpty()) {
+					return OrganizationDeletionStatus.DIRECT_ORGANIZATION_MEMBERSHIP;
+				}
+				if (!entity.getSuperOrganizationMemberships().isEmpty()) {
+					return OrganizationDeletionStatus.SUPER_ORGANIZATION_MEMBERSHIP;
 				}
 			}
 			return DeletionStatus.OK;

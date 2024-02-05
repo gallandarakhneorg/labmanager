@@ -248,7 +248,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		this.id = id;
 	}
 
-	/** Replies the acronym or the name of the scientific axis, that order.
+	/** Replies the acronym or the name of the scientific axis, in that order.
 	 *
 	 * @return the acronym or name.
 	 * @see #getNameOrAcronym()
@@ -259,7 +259,27 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		return Strings.isNullOrEmpty(this.acronym) ? this.name : this.acronym;
 	}
 
-	/** Replies the name or the acronym of the scientific axis, that order.
+	/** Replies the acronym followed by the name of the scientific axis.
+	 *
+	 * @return the acronym and name.
+	 * @see #getAcronymAndName()
+	 * @since 4.0
+	 */
+	public String getAcronymAndName() {
+		final StringBuilder buffer = new StringBuilder();
+		if (!Strings.isNullOrEmpty(this.acronym)) {
+			buffer.append(this.acronym);
+		}
+		if (!Strings.isNullOrEmpty(this.name)) {
+			if (buffer.length() > 0) {
+				buffer.append(" - "); //$NON-NLS-1$
+			}
+			buffer.append(this.name);
+		}
+		return buffer.toString();
+	}
+
+	/** Replies the name or the acronym of the scientific axis, in that order.
 	 *
 	 * @return the name or acronym.
 	 * @see #getAcronymOrName()

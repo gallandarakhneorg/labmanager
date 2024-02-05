@@ -101,6 +101,7 @@ import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.xtext.xbase.lib.Functions.Function3;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -914,6 +915,19 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return allData;
 	}
 
+	private static ResearchOrganization findSuperOrganization(Membership serviceMembership, List<MembershipInfo> employers) {
+		final var service = serviceMembership.getDirectResearchOrganization();
+		final var superOrgs = service.getSuperOrganizations();
+		for (final var employer : employers) {
+			final var active = serviceMembership.isActiveIn(employer.membership.getMemberSinceWhen(), employer.membership.getMemberToWhen());
+			final var directOrg = employer.membership.getDirectResearchOrganization();
+			if (active && superOrgs.contains(directOrg)) {
+				return directOrg;
+			}
+		}
+		return null;
+	}
+
 	private void reassignSuperOrgnaizationsInMemberships(Map<Person, PersonMemberships> allData) {
 		final var size = allData.size();
 		var i = 0;
@@ -921,29 +935,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final var person = entry.getKey();
 			final var memberships = entry.getValue();
 			getLogger().info("> Relinking memberships " + (i + 1) + "/" + size //$NON-NLS-1$ //$NON-NLS-2$
-				+ " of " + person.getFullNameWithLastNameFirst()); //$NON-NLS-1$
+				+ " for " + person.getFullNameWithLastNameFirst()); //$NON-NLS-1$
 
-			memberships.services.stream().filter(it -> it.membership.getSuperResearchOrganization() == null).forEach(it -> {
-				final var superOrganization = findSuperOrganization(it.membership, memberships.employers);
-				if (superOrganization != null) {
-					it.membership.setSuperResearchOrganization(superOrganization);
-					person.getMemberships().removeIf(it0 -> superOrganization.equals(it0.getDirectResearchOrganization()));
-					memberships.employers.removeIf(it0 -> superOrganization.equals(it0.membership.getDirectResearchOrganization()));
+			final var includedEmployers = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+
+			for (final var service : memberships.services) {
+				if (service.membership.getSuperResearchOrganization() == null) {
+					final var superOrganization = findSuperOrganization(service.membership, memberships.employers);
+					if (superOrganization != null) {
+						service.membership.setSuperResearchOrganization(superOrganization);
+						if (Hibernate.isInitialized(person.getMemberships())) {
+							person.getMemberships().removeIf(it -> superOrganization.equals(it.getDirectResearchOrganization()));
+						}
+						includedEmployers.add(superOrganization);
+					}
 				}
-			});
+			}
+
+			memberships.employers.removeIf(it -> includedEmployers.contains(it.membership.getDirectResearchOrganization()));
 
 			++i;
 		}
-	}
-
-	private static ResearchOrganization findSuperOrganization(Membership serviceMembership, List<MembershipInfo> employers) {
-		final var service = serviceMembership.getDirectResearchOrganization();
-		for (final var employer : employers) {
-			if (service.getSuperOrganizations().contains(employer.membership.getDirectResearchOrganization())) {
-				return employer.membership.getDirectResearchOrganization();
-			}
-		}
-		return null;
 	}
 
 	private int saveOrganizationMemberships(Session session, Map<Person, PersonMemberships> allData, Map<String, Long> objectIdRepository) throws Exception {
@@ -956,9 +968,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final var person = membershipPair.getKey();
 				final var memberships = membershipPair.getValue();
 				
-				session.beginTransaction();
 
 				if (!isFake()) {
+					session.beginTransaction();
 					for (final var mbr : memberships.services) {
 						final var newMbr = this.organizationMembershipRepository.save(mbr.membership);
 						++nbNew;
@@ -980,9 +992,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 					}
 					this.personRepository.save(person);
+					session.getTransaction().commit();
 				}
-
-				session.getTransaction().commit();
 			} catch (Throwable ex) {
 				throw new UnableToImportJsonException(ORGANIZATION_MEMBERSHIPS_SECTION, i, "", ex); //$NON-NLS-1$
 			}
@@ -993,8 +1004,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private void postFixingAddresses(Session session, List<Pair<Membership, Long>> addressPostProcessing) throws Exception {
 		if (!addressPostProcessing.isEmpty()) {
+			final var size = addressPostProcessing.size();
+			var i = 0;
 			session.beginTransaction();
 			for (final var pair : addressPostProcessing) {
+				getLogger().info("  + Updating membership address " + (i+1) + "/" + size); //$NON-NLS-1$ //$NON-NLS-2$
 				final var membership = pair.getLeft();
 				final var targetAddress = this.addressRepository.findById(pair.getRight());
 				if (targetAddress.isEmpty()) {
@@ -1002,6 +1016,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				}
 				membership.setOrganizationAddress(targetAddress.get(), false);
 				this.organizationMembershipRepository.save(membership);
+				++i;
 			}
 			session.getTransaction().commit();
 		}
@@ -1020,27 +1035,26 @@ public class JsonToDatabaseImporter extends JsonTool {
 	protected int insertOrganizationMemberships(Session session, JsonNode memberships, JsonNode scientificAxes,
 			Map<String, Long> objectIdRepository, Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
-		//FIXME
-//		if (memberships != null && !memberships.isEmpty()) {
-//			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
-//			//
-//			final var addressPostProcessing = new ArrayList<Pair<Membership, Long>>();
-//			//
-//			// Preparing the memberships
-//			final var allData = prepareOrganizationMembershipInsertion(memberships, scientificAxes, objectIdRepository, aliasRepository, addressPostProcessing);
-//			//
-//			// Relinking the super organizations of the memberships
-//			reassignSuperOrgnaizationsInMemberships(allData);
-//
-//			//
-//			// Saving the memberships in the JPA database
-//			final var n = saveOrganizationMemberships(session, allData, objectIdRepository);
-//			nbNew += n;
-//
-//			//
-//			// Post processing of the addresses for avoiding lazy loading errors
-//			postFixingAddresses(session, addressPostProcessing);
-//		}
+		if (memberships != null && !memberships.isEmpty()) {
+			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
+			//
+			final var addressPostProcessing = new ArrayList<Pair<Membership, Long>>();
+			//
+			// Preparing the memberships
+			final var allData = prepareOrganizationMembershipInsertion(memberships, scientificAxes, objectIdRepository, aliasRepository, addressPostProcessing);
+			//
+			// Relinking the super organizations of the memberships
+			reassignSuperOrgnaizationsInMemberships(allData);
+
+			//
+			// Saving the memberships in the JPA database
+			final var n = saveOrganizationMemberships(session, allData, objectIdRepository);
+			nbNew += n;
+
+			//
+			// Post processing of the addresses for avoiding lazy loading errors
+			postFixingAddresses(session, addressPostProcessing);
+		}
 		return nbNew;
 	}
 

@@ -268,7 +268,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		final var content = ComponentFactory.newColumnForm(2);
 		
 		this.university = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
-				getTranslation("views.teaching_activities.new_university"), getLogger()); //$NON-NLS-1$
+				getTranslation("views.teaching_activities.new_university"), getLogger(), null); //$NON-NLS-1$
 		this.university.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 		content.add(this.university, 2);
 

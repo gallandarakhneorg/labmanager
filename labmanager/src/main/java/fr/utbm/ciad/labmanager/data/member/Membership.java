@@ -198,6 +198,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		h = HashCodeUtils.add(h, this.researchOrganization);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberToWhen);
+		h = HashCodeUtils.add(h, this.responsibility);
 		return h;
 	}
 
@@ -219,7 +220,8 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		return Objects.equals(this.person, other.person)
 				&& Objects.equals(this.researchOrganization, other.researchOrganization)
 				&& Objects.equals(this.memberSinceWhen, other.memberSinceWhen)
-				&& Objects.equals(this.memberToWhen, other.memberToWhen);
+				&& Objects.equals(this.memberToWhen, other.memberToWhen)
+				&& Objects.equals(this.responsibility, other.responsibility);
 	}
 
 	@Override

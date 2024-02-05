@@ -227,11 +227,19 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 	@Override
 	public void setReadOnly(boolean readOnly) {
 		this.combo.setReadOnly(readOnly);
+		this.createButton.setEnabled(!readOnly);
 	}
 	
 	@Override
 	public boolean isReadOnly() {
 		return this.combo.isReadOnly();
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		this.combo.setEnabled(enabled);
+		this.createButton.setEnabled(enabled && !this.combo.isReadOnly());
 	}
 	
 	/** Change the title of the create button.

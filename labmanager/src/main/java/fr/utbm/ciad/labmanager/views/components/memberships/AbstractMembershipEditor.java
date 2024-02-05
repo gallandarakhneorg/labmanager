@@ -19,19 +19,43 @@
 
 package fr.utbm.ciad.labmanager.views.components.memberships;
 
+import java.util.Collections;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.Responsibility;
+import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
+import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisComparator;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
@@ -39,8 +63,15 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.EmbeddedScientificAxisEditor;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -57,14 +88,21 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private static final long serialVersionUID = -592763051466628800L;
 
+	private static final String ANONYMOUS = "?"; //$NON-NLS-1$
+
+	private final boolean editAssociatedPerson;
+
 	private DetailsWithErrorMark employeeDetails;
 
-	//	setPerson(Person)
+	private SinglePersonNameField person;
 
 	private DetailsWithErrorMark employerDetails;
 
-	//	setResearchOrganization(ResearchOrganization)
-	//	setOrganizationAddress(OrganizationAddress)
+	private SingleOrganizationNameField serviceOrganization;
+
+	private SingleOrganizationNameField employerOrganization;
+
+	private ComboBox<OrganizationAddress> organizationAddress;
 
 	private DetailsWithErrorMark positionDetails;
 
@@ -86,26 +124,53 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private DetailsWithErrorMark activityDetails;
 
-	//	setScientificAxes(Collection<ScientificAxis>)
+	private EntityComboListEditor<ScientificAxis> scientificAxes;
 
 	private ComboBox<Responsibility> responsibility;
 
 	private Checkbox publicPosition; 
 
+	private final PersonService personService;
+
+	private final UserService userService;
+
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+
+	private final ScientificAxisService axisService;
+
+	private ResearchOrganization addressReference;
+
 	/** Constructor.
 	 *
 	 * @param context the editing context for the membership.
+	 * @param editAssociatedPerson indicates if the associated person could be edited or not.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractMembershipEditor(EntityEditingContext<Membership> context, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+	public AbstractMembershipEditor(EntityEditingContext<Membership> context, boolean editAssociatedPerson,
+			boolean relinkEntityWhenSaving, PersonService personService, UserService userService,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			Logger logger) {
 		super(Membership.class, authenticatedUser, messages, logger,
 				"views.membership.administration_details", //$NON-NLS-1$
 				null, context, relinkEntityWhenSaving);
+		this.editAssociatedPerson = editAssociatedPerson;
+		this.personService = personService;
+		this.userService = userService;
+		this.organizationService = organizationService;
+		this.addressService = addressService;
+		this.axisService = axisService;
 	}
 
 	@Override
@@ -118,17 +183,8 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					content -> {
-						this.responsibility = new ComboBox<>();
-						this.responsibility.setItems(Responsibility.values());
-						this.responsibility.setItemLabelGenerator(this::getResponsibilityLabel);
-						this.responsibility.setPrefixComponent(VaadinIcon.TASKS.create());
-						content.add(this.responsibility, 2);
-						
 						this.publicPosition = new Checkbox(); 
 						content.add(this.publicPosition, 2);
-
-						getEntityDataBinder().forField(this.responsibility)
-							.bind(Membership::getResponsibility, Membership::setResponsibility);
 						getEntityDataBinder().forField(this.publicPosition)
 							.bind(Membership::isMainPosition, Membership::setMainPosition);
 					},
@@ -143,7 +199,24 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	protected void createEmployeeDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.employeeDetails = createDetailsWithErrorMark(rootContainer, content, "epmployee", true); //$NON-NLS-1$
+		this.person = new SinglePersonNameField(this.personService, this.userService, getAuthenticatedUser(),
+				getTranslation("views.membership.new_person"), getLogger()); //$NON-NLS-1$
+		this.person.setReadOnly(!this.editAssociatedPerson);
+		this.person.setPrefixComponent(VaadinIcon.USER.create());
+		content.add(this.person, 2);
+
+		this.employeeDetails = createDetailsWithErrorMark(rootContainer, content, "employee", this.editAssociatedPerson); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.person)
+			.withValidator(new NotNullEntityValidator<>(getTranslation("views.membership.person.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.person, this.employeeDetails))
+			.bind(Membership::getPerson, this::setPersonSecurely);
+	}
+
+	private void setPersonSecurely(Membership membership, Person person) {
+		if (this.editAssociatedPerson) {
+			membership.setPerson(person);
+		}
 	}
 
 	/** Create the section for editing the description of the employer.
@@ -153,7 +226,75 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	protected void createEmployerDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.employerDetails = createDetailsWithErrorMark(rootContainer, content, "employer"); //$NON-NLS-1$
+		this.serviceOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
+				getTranslation("views.membership.new_service"), getLogger(), this::initializeOrgnaizationJPA); //$NON-NLS-1$
+		this.serviceOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
+		this.serviceOrganization.addValueChangeListener(this::onOrganizationChange);
+		content.add(this.serviceOrganization, 2);
+
+		this.employerOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
+				getTranslation("views.membership.new_organization"), getLogger(), this::initializeOrgnaizationJPA); //$NON-NLS-1$
+		this.employerOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
+		this.employerOrganization.addValueChangeListener(this::onOrganizationChange);
+		content.add(this.employerOrganization, 2);
+
+		this.organizationAddress = new ComboBox<>();
+		this.organizationAddress.setClearButtonVisible(true);
+		this.organizationAddress.setItems(Collections.emptyList());
+		this.organizationAddress.setItemLabelGenerator(it -> it.getName());
+		this.organizationAddress.setPrefixComponent(VaadinIcon.BUILDING.create());
+		content.add(this.organizationAddress, 2);
+
+		this.employerDetails = createDetailsWithErrorMark(rootContainer, content, "employer", !this.editAssociatedPerson); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.serviceOrganization)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.membership.service.error.null"), //$NON-NLS-1$
+					getTranslation("views.membership.service.error.disjoint"), //$NON-NLS-1$
+					this::checkServiceUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.serviceOrganization, this.employerDetails))
+			.bind(Membership::getDirectResearchOrganization, Membership::setDirectResearchOrganization);
+		getEntityDataBinder().forField(this.employerOrganization)
+			.withValidator(new MembershipSuperOrganizationValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.employerOrganization, this.employerDetails))
+			.bind(Membership::getSuperResearchOrganization, Membership::setSuperResearchOrganization);
+		getEntityDataBinder().forField(this.organizationAddress)
+			.withValidator(new OrganizationAddressValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.organizationAddress, this.employerDetails))
+			.bind(Membership::getOrganizationAddress, Membership::setOrganizationAddress);
+	}
+	
+	private void initializeOrgnaizationJPA(ResearchOrganization organization) {
+		Hibernate.initialize(organization.getAddresses());
+	}
+
+	private void onOrganizationChange(ComponentValueChangeEvent<CustomField<ResearchOrganization>, ResearchOrganization> event) {
+		final ResearchOrganization newReference;
+		final var serviceOrganization = this.serviceOrganization.getValue();
+		if (serviceOrganization != null && !serviceOrganization.getAddresses().isEmpty()) {
+			newReference = serviceOrganization;
+		} else {
+			final var employerOrganization = this.serviceOrganization.getValue();
+			if (employerOrganization != null && !employerOrganization.getAddresses().isEmpty()) {
+				newReference = employerOrganization;
+			} else {
+				newReference = null;
+			}
+		}
+		if (!Objects.equals(newReference, this.addressReference)) {
+			this.addressReference = newReference;
+			if (newReference != null) {
+				this.organizationAddress.setItems(newReference.getAddresses());
+			} else {
+				this.organizationAddress.setItems(Collections.emptyList());
+			}
+		}
+	}
+
+	private boolean checkServiceUnicity(ResearchOrganization service) {
+		assert service != null;
+		final var superOrganization = getEditedEntity().getSuperResearchOrganization();
+		return !service.equals(superOrganization);
 	}
 
 	/** Create the section for editing the description of the position.
@@ -216,9 +357,17 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 			.bind(Membership::isPermanentPosition, Membership::setPermanentPosition);
 	}
 
+	/** Replies the gender of the person associated to the membership.
+	 *
+	 * @return the gender. It may be {@code null} if the gender cannot be determined.
+	 */
+	protected Gender getPersonGender() {
+		final var person = getEditedEntity().getPerson();
+		return person == null ? null : person.getGender();
+	}
+
 	private String getStatusLabel(MemberStatus status) {
-		// TODO gender
-		return status.getLabel(getMessageSourceAccessor(), null, false, getLocale());
+		return status.getLabel(getMessageSourceAccessor(), getPersonGender(), false, getLocale());
 	}
 
 	/** Create the section for editing the description of the section.
@@ -287,58 +436,119 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	protected void createActivityDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.activityDetails = new DetailsWithErrorMark(content);
-		this.activityDetails.setOpened(false);
-		rootContainer.add(this.activityDetails);
+		if (isBaseAdmin()) {
+			this.responsibility = new ComboBox<>();
+			this.responsibility.setItems(Responsibility.values());
+			this.responsibility.setItemLabelGenerator(this::getResponsibilityLabel);
+			this.responsibility.setPrefixComponent(VaadinIcon.TASKS.create());
+			content.add(this.responsibility, 2);
+		}
+
+		this.scientificAxes = new EntityComboListEditor<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
+		this.scientificAxes.setEntityRenderers(
+				it -> it.getAcronymAndName(),
+				new ComponentRenderer<>(this::createScientificAxisNameComponent),
+				new ComponentRenderer<>(this::createScientificAxisNameComponent));
+		this.scientificAxes.setAvailableEntities(query -> {
+			return this.axisService.getAllScientificAxes(
+					VaadinSpringDataHelpers.toSpringPageRequest(query),
+					null).stream();
+		});
+		content.add(this.scientificAxes, 2);
+
+		this.activityDetails = createDetailsWithErrorMark(rootContainer, content, "activity"); //$NON-NLS-1$
+
+		if (this.responsibility != null) {
+			getEntityDataBinder().forField(this.responsibility)
+				.bind(Membership::getResponsibility, Membership::setResponsibility);
+		}
+		getEntityDataBinder().forField(this.scientificAxes).bind(Membership::getScientificAxes, Membership::setScientificAxes);
+	}
+
+	private Component createScientificAxisNameComponent(ScientificAxis axis) {
+		return new Span(axis.getAcronymAndName());
+	}
+
+	/** Invoked for creating a new scientific axis.
+	 *
+	 * @param saver the callback that is invoked when the scientific axis is saved as JPA entity.
+	 */
+	protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
+		final var newAxis = new ScientificAxis();
+		final var editor = new EmbeddedScientificAxisEditor(
+				this.axisService.startEditing(newAxis),
+				getAuthenticatedUser(), getMessageSourceAccessor());
+		ComponentFactory.openEditionModalDialog(
+				getTranslation("views.membership.scientific_axes.create"), //$NON-NLS-1$
+				editor, false,
+				(dialog, entity) -> saver.accept(entity),
+				null);
 	}
 
 	private String getResponsibilityLabel(Responsibility responsability) {
-		// TODO Gender
-		return responsability.getLabel(getMessageSourceAccessor(), null, getLocale());
+		return responsability.getLabel(getMessageSourceAccessor(), getPersonGender(), getLocale());
 	}
 
 	@Override
 	protected String computeSavingSuccessMessage() {
-		return getTranslation("views.membership.save_success", //$NON-NLS-1$
-				"?");
+		final var person = getEditedEntity().getPerson();
+		final var name = person != null ? person.getFullName() : ANONYMOUS;
+		return getTranslation("views.membership.save_success", name); //$NON-NLS-1$
 	}
 
 	@Override
 	protected String computeValidationSuccessMessage() {
-		return getTranslation("views.membership.validation_success", //$NON-NLS-1$
-				"?");
+		final var person = getEditedEntity().getPerson();
+		final var name = person != null ? person.getFullName() : ANONYMOUS;
+		return getTranslation("views.membership.validation_success", name); //$NON-NLS-1$
 	}
 
 	@Override
 	protected String computeDeletionSuccessMessage() {
-		return getTranslation("views.membership.delete_success2", //$NON-NLS-1$
-				"?");
+		final var person = getEditedEntity().getPerson();
+		final var name = person != null ? person.getFullName() : ANONYMOUS;
+		return getTranslation("views.membership.delete_success2", name); //$NON-NLS-1$
 	}
 
 	@Override
 	protected String computeSavingErrorMessage(Throwable error) {
-		return getTranslation("views.membership.save_error", //$NON-NLS-1$ 
-				"?", error.getLocalizedMessage());
+		final var person = getEditedEntity().getPerson();
+		final var name = person != null ? person.getFullName() : ANONYMOUS;
+		return getTranslation("views.membership.save_error", name); //$NON-NLS-1$ 
 	}
 
 	@Override
 	protected String computeValidationErrorMessage(Throwable error) {
-		return getTranslation("views.membership.validation_error", //$NON-NLS-1$ 
-				"?", error.getLocalizedMessage());
+		final var person = getEditedEntity().getPerson();
+		final var name = person != null ? person.getFullName() : ANONYMOUS;
+		return getTranslation("views.membership.validation_error", name, error.getLocalizedMessage()); //$NON-NLS-1$ 
 	}
 
 	@Override
 	protected String computeDeletionErrorMessage(Throwable error) {
-		return getTranslation("views.membership.deletion_error2", //$NON-NLS-1$ 
-				"?", error.getLocalizedMessage());
+		final var person = getEditedEntity().getPerson();
+		final var name = person != null ? person.getFullName() : ANONYMOUS;
+		return getTranslation("views.membership.deletion_error2", name, error.getLocalizedMessage()); //$NON-NLS-1$ 
 	}
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 		this.employeeDetails.setSummaryText(getTranslation("views.membership.employee_details")); //$NON-NLS-1$
+		this.person.setLabel(getTranslation("views.membership.person")); //$NON-NLS-1$
+		if (!this.person.isReadOnly()) {
+			this.person.setHelperText(getTranslation("views.membership.person.help")); //$NON-NLS-1$
+		}
 
 		this.employerDetails.setSummaryText(getTranslation("views.membership.employer_details")); //$NON-NLS-1$
+		this.serviceOrganization.setLabel(getTranslation("views.membership.service")); //$NON-NLS-1$
+		this.serviceOrganization.setPlaceholder(getTranslation("views.membership.service.placeholder")); //$NON-NLS-1$
+		this.serviceOrganization.setHelperText(getTranslation("views.membership.service.help")); //$NON-NLS-1$
+		this.employerOrganization.setLabel(getTranslation("views.membership.organization")); //$NON-NLS-1$
+		this.employerOrganization.setPlaceholder(getTranslation("views.membership.organization.placeholder")); //$NON-NLS-1$
+		this.employerOrganization.setHelperText(getTranslation("views.membership.organization.help")); //$NON-NLS-1$
+		this.organizationAddress.setLabel(getTranslation("views.membership.address")); //$NON-NLS-1$
+		this.organizationAddress.setHelperText(getTranslation("views.membership.address.help")); //$NON-NLS-1$
 
 		this.positionDetails.setSummaryText(getTranslation("views.membership.position_details")); //$NON-NLS-1$
 		this.status.setLabel(getTranslation("views.membership.status")); //$NON-NLS-1$
@@ -356,9 +566,122 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		this.bap.setHelperText(getTranslation("views.membership.bap.help")); //$NON-NLS-1$
 
 		this.activityDetails.setSummaryText(getTranslation("views.membership.activity_details")); //$NON-NLS-1$
+		if (this.responsibility != null) {
+			this.responsibility.setLabel(getTranslation("views.membership.responsibility")); //$NON-NLS-1$
+		}
+		this.scientificAxes.setLabel(getTranslation("views.membership.scientific_axes")); //$NON-NLS-1$
+		this.scientificAxes.setAdditionTooltip(getTranslation("views.membership.scientific_axes.insert")); //$NON-NLS-1$
+		this.scientificAxes.setDeletionTooltip(getTranslation("views.membership.scientific_axes.delete")); //$NON-NLS-1$
 
-		this.responsibility.setLabel(getTranslation("views.membership.responsibility")); //$NON-NLS-1$
+		this.scientificAxes.setLabel(getTranslation("views.membership.scientific_axes")); //$NON-NLS-1$
+		this.scientificAxes.setAdditionTooltip(getTranslation("views.membership.scientific_axes.insert")); //$NON-NLS-1$
+		this.scientificAxes.setDeletionTooltip(getTranslation("views.membership.scientific_axes.delete")); //$NON-NLS-1$
+		this.scientificAxes.setCreationTooltip(getTranslation("views.membership.scientific_axes.create")); //$NON-NLS-1$
+
 		this.publicPosition.setLabel(getTranslation("views.membership.public_position")); //$NON-NLS-1$
+	}
+
+	/** A validator for the super organization in organization memberships.
+	 *
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class MembershipSuperOrganizationValidator implements Validator<ResearchOrganization> {
+
+		private static final long serialVersionUID = -5928220978769779047L;
+
+		/**
+		 * Constructor.
+		 */
+		protected MembershipSuperOrganizationValidator() {
+			//
+		}
+
+		@Override
+		public String toString() {
+			return "MembershipSuperOrganizationValidator"; //$NON-NLS-1$
+		}
+
+		@Override
+		public ValidationResult apply(ResearchOrganization value, ValueContext context) {
+			final var service = getEditedEntity().getDirectResearchOrganization();
+			if (value != null) {
+				if (service.getType().isEmployer()) {
+					if (value.getType().isEmployer()) {
+						return ValidationResult.error(getTranslation("views.membership.organization.error.both_employers")); //$NON-NLS-1$
+					}
+					return ValidationResult.error(getTranslation("views.membership.organization.error.invalid_employer")); //$NON-NLS-1$
+				}
+				if (!value.getType().isEmployer()) {
+					return ValidationResult.error(getTranslation("views.membership.organization.error.no_employer")); //$NON-NLS-1$
+				}
+				if (!service.isSubOrganizationOf(value)) {
+					return ValidationResult.error(getTranslation("views.membership.organization.error.no_sub_organization")); //$NON-NLS-1$
+				}
+			} else {
+				if (service == null) {
+					return ValidationResult.error(getTranslation("views.membership.organization.error.no_service")); //$NON-NLS-1$
+				}
+				if (!service.getType().isEmployer()) {
+					return ValidationResult.error(getTranslation("views.membership.organization.error.no_employer")); //$NON-NLS-1$
+				}
+			}
+			return ValidationResult.ok();
+		}
+
+	}
+
+	/** A validator for the organization address in a membership.
+	 *
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class OrganizationAddressValidator implements Validator<OrganizationAddress> {
+
+		private static final long serialVersionUID = -7982111295740316957L;
+
+		/**
+		 * Constructor.
+		 */
+		protected OrganizationAddressValidator() {
+			//
+		}
+
+		@Override
+		public String toString() {
+			return "OrganizationAddressValidator"; //$NON-NLS-1$
+		}
+
+		@Override
+		public ValidationResult apply(OrganizationAddress value, ValueContext context) {
+			if (value != null) {
+				final var service = getEditedEntity().getDirectResearchOrganization();
+				final var employer = getEditedEntity().getSuperResearchOrganization();
+				if (service != null && employer != null) {
+					if (!service.getAddresses().contains(value) && !employer.getAddresses().contains(value)) {
+						ValidationResult.error(getTranslation("views.membership.address.error.invalid_address2")); //$NON-NLS-1$
+					}
+				} else if (service != null) {
+					if (!service.getAddresses().contains(value)) {
+						ValidationResult.error(getTranslation("views.membership.address.error.invalid_address0")); //$NON-NLS-1$
+					}
+				} else if (employer != null) {
+					if (!employer.getAddresses().contains(value)) {
+						ValidationResult.error(getTranslation("views.membership.address.error.invalid_address1")); //$NON-NLS-1$
+					}
+				} else {
+					ValidationResult.error(getTranslation("views.membership.address.error.no_orgnaization")); //$NON-NLS-1$
+				}
+			}
+			return ValidationResult.ok();
+		}
+
 	}
 
 }

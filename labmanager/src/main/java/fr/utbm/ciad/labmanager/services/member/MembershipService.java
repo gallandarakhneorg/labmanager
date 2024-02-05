@@ -614,6 +614,23 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	@Override
 	public EditingContext startEditing(Membership membership) {
 		assert membership != null;
+		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
+		inSession(session -> {
+			if (membership.getId() != 0l) {
+				session.load(membership, Long.valueOf(membership.getId()));
+				Hibernate.initialize(membership.getPerson());
+
+				Hibernate.initialize(membership.getDirectResearchOrganization());
+				Hibernate.initialize(membership.getDirectResearchOrganization().getAddresses());
+
+				Hibernate.initialize(membership.getSuperResearchOrganization());
+				Hibernate.initialize(membership.getSuperResearchOrganization().getAddresses());
+
+				Hibernate.initialize(membership.getOrganizationAddress());
+
+				Hibernate.initialize(membership.getScientificAxes());
+			}
+		});
 		return new EditingContext(membership);
 	}
 

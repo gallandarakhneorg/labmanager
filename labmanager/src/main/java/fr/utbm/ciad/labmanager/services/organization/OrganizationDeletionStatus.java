@@ -45,7 +45,15 @@ public enum OrganizationDeletionStatus implements DeletionStatus {
 
 	/** Deletion is impossible because the organization has linked funded associated structures.
 	 */
-	FUNDED_ASSOCIATED_STRUCTURE;
+	FUNDED_ASSOCIATED_STRUCTURE,
+
+	/** Deletion is impossible because the organization has linked membership with direct organization.
+	 */
+	DIRECT_ORGANIZATION_MEMBERSHIP,
+
+	/** Deletion is impossible because the organization has linked membership with super organization.
+	 */
+	SUPER_ORGANIZATION_MEMBERSHIP;
 
 	private static final String MESSAGE_PREFIX = "organizationDeletionStatus."; //$NON-NLS-1$
 

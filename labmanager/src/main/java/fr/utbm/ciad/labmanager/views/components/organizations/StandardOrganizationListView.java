@@ -51,6 +51,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityLi
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -112,7 +113,10 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		this.fileManager = fileManager;
 		this.organizationService = organizationService;
 		this.addressService = addressService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllResearchOrganizations(query, filters, true);
+		this.dataProvider = (ps, query, filters) -> ps.getAllResearchOrganizations(query, filters,
+				it -> {
+					Hibernate.initialize(it.getSubOrganizations());
+				});
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
