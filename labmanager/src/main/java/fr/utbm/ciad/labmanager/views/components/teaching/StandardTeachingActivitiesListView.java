@@ -25,11 +25,13 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -47,6 +49,7 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
+import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -87,6 +90,8 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	private Column<TeachingActivity> levelColumn;
 
 	private Column<TeachingActivity> universityColumn;
+
+	private Column<TeachingActivity> countryColumn;
 
 	private Column<TeachingActivity> periodColumn;
 
@@ -226,11 +231,34 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 				.setAutoWidth(true);
 		this.universityColumn = grid.addColumn(new ComponentRenderer<>(this::createUniversityComponent))
 				.setAutoWidth(true);
+		this.countryColumn = grid.addColumn(new ComponentRenderer<>(this::createCountryComponent))
+				.setAutoWidth(true);
 		this.periodColumn = grid.addColumn(this::getPeriodLabel)
 				.setAutoWidth(true)
 				.setSortProperty("startDate", "endDate"); //$NON-NLS-1$ //$NON-NLS-2$
 		// Create the hover tool bar only if administrator role
 		return isAdminRole();
+	}
+
+	private Component createCountryComponent(TeachingActivity activity) {
+		final var university = activity.getUniversity();
+		if (university != null) {
+			final var country = university.getCountry();
+			if (country != null) {
+				final var name = new Span(country.getDisplayCountry(getLocale()));
+				name.getStyle().set("margin-left", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				final var flag = new CountryFlag(country);
+				flag.setSizeFromHeight(1, Unit.REM);
+				
+				final var layout = new HorizontalLayout(flag, name);
+				layout.setSpacing(false);
+				layout.setAlignItems(Alignment.CENTER);
+
+				return layout;
+			}
+		}
+		return new Span();
 	}
 
 	@Override
@@ -302,6 +330,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		this.titleColumn.setHeader(getTranslation("views.title")); //$NON-NLS-1$
 		this.levelColumn.setHeader(getTranslation("views.type")); //$NON-NLS-1$
 		this.universityColumn.setHeader(getTranslation("views.university")); //$NON-NLS-1$
+		this.countryColumn.setHeader(getTranslation("views.country")); //$NON-NLS-1$
 		this.periodColumn.setHeader(getTranslation("views.period")); //$NON-NLS-1$
 		this.teacherColumn.setHeader(getTranslation("views.teacher")); //$NON-NLS-1$
 	}

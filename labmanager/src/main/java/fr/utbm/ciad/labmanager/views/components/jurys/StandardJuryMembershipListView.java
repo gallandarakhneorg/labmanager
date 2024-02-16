@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -44,6 +46,7 @@ import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -79,6 +82,8 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	private Column<JuryMembership> defenseTypeColumn;
 
 	private Column<JuryMembership> universityColumn;
+
+	private Column<JuryMembership> countryColumn;
 
 	private Column<JuryMembership> dateColumn;
 
@@ -132,6 +137,9 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		this.universityColumn = grid.addColumn(membership -> membership.getUniversity())
 				.setAutoWidth(true)
 				.setSortProperty("university"); //$NON-NLS-1$
+		this.countryColumn = grid.addColumn(new ComponentRenderer<>(this::createCountryComponent))
+				.setAutoWidth(true)
+				.setSortProperty("country"); //$NON-NLS-1$
 		this.dateColumn = grid.addColumn(this::getDateLabel)
 				.setAutoWidth(true)
 				.setSortProperty("date"); //$NON-NLS-1$
@@ -167,6 +175,24 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 			gender = participant.getGender();
 		}
 		return type.getLabel(getMessageSourceAccessor(), gender, getLocale());
+	}
+
+	private Component createCountryComponent(JuryMembership membership) {
+		final var country = membership.getCountry();
+		if (country != null) {
+			final var name = new Span(country.getDisplayCountry(getLocale()));
+			name.getStyle().set("margin-left", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+			
+			final var flag = new CountryFlag(country);
+			flag.setSizeFromHeight(1, Unit.REM);
+			
+			final var layout = new HorizontalLayout(flag, name);
+			layout.setSpacing(false);
+			layout.setAlignItems(Alignment.CENTER);
+
+			return layout;
+		}
+		return new Span();
 	}
 
 	private String getDefenseTypeLabel(JuryMembership membership) {
@@ -254,6 +280,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		this.candidateColumn.setHeader(getTranslation("views.candidates")); //$NON-NLS-1$
 		this.defenseTypeColumn.setHeader(getTranslation("views.type")); //$NON-NLS-1$
 		this.universityColumn.setHeader(getTranslation("views.university")); //$NON-NLS-1$
+		this.countryColumn.setHeader(getTranslation("views.country")); //$NON-NLS-1$
 		this.dateColumn.setHeader(getTranslation("views.date")); //$NON-NLS-1$
 		this.participantColumn.setHeader(getTranslation("views.participant")); //$NON-NLS-1$
 		this.roleColumn.setHeader(getTranslation("views.role")); //$NON-NLS-1$
