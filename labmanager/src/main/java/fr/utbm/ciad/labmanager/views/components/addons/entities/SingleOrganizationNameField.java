@@ -50,12 +50,12 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 	/** Constructor.
 	 *
 	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param creationWithUiCallback a lambda that is invoked for creating a new person using an UI, e.g., an editor. The first argument is the new person entity.
-	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
-	 *      This second lambda takes the created person.
-	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new person without using an UI. The first argument is the new person entity.
-	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
-	 *      This second lambda takes the created person.
+	 * @param creationWithUiCallback a lambda that is invoked for creating a new organization using an UI, e.g., an editor. The first argument is the new organization entity.
+	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code SingleOrganizationNameField}.
+	 *      This second lambda takes the created organization.
+	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new organization without using an UI. The first argument is the new organization entity.
+	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code SingleOrganizationNameField}.
+	 *      This second lambda takes the created organization.
 	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
 	 */
 	public SingleOrganizationNameField(ResearchOrganizationService organizationService, SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithUiCallback,

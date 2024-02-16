@@ -33,13 +33,22 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.MembershipService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleMembershipNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.SupervisorListGridField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -57,11 +66,27 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 
 	private static final long serialVersionUID = 7189628237085364285L;
 
+	private final MembershipService membershipService;
+	
+	private final PersonService personService;
+	
+	private final UserService userService;
+	
+	private final ResearchOrganizationService organizationService;
+	
+	private final OrganizationAddressService addressService;
+
+	private final ScientificAxisService axisService;
+
 	private DetailsWithErrorMark supervisedWorkDetails;
+
+	private SingleMembershipNameField supervisedPerson;
 
 	private TextField title;
 
 	private DetailsWithErrorMark supervisorsDetails;
+
+	private SupervisorListGridField supervisors;
 
 	private DetailsWithErrorMark fundDetails;
 
@@ -90,13 +115,27 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	 * @param context the editing context for the supervisison.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param membershipService the service for accessing the membership JPA entities.
+	 * @param personService the service for accessing the person JPA entities.
+	 * @param userService the service for accessing the connected user JPA entities.
+	 * @param organizationService the service for accessing the organization JPA entities.
+	 * @param addressService the service for accessing the organization address JPA entities.
+	 * @param axisService the service for accessing the scientific axis JPA entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractSupervisionEditor(EntityEditingContext<Supervision> context, boolean relinkEntityWhenSaving,
+			MembershipService membershipService, PersonService personService, UserService userService,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService, ScientificAxisService axisService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		super(Supervision.class, authenticatedUser, messages, logger, null, null, context, relinkEntityWhenSaving);
+		this.membershipService = membershipService;
+		this.personService = personService;
+		this.userService = userService;
+		this.organizationService = organizationService;
+		this.addressService = addressService;
+		this.axisService = axisService;
 	}
 
 	@Override
@@ -115,6 +154,15 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	protected void createSupervisedWorkDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 		
+		this.supervisedPerson = new SingleMembershipNameField(
+				this.membershipService, this.personService, this.userService, this.organizationService, this.addressService, this.axisService,
+				getAuthenticatedUser(),
+				getTranslation("views.supervision.new_membership"), getLogger(), () -> getLocale(), //$NON-NLS-1$
+				null);
+		this.supervisedPerson.setPrefixComponent(VaadinIcon.USER.create());
+		this.supervisedPerson.setRequiredIndicatorVisible(true);
+		content.add(this.supervisedPerson, 2);
+		
 		this.title = new TextField();
 		this.title.setPrefixComponent(VaadinIcon.HASH.create());
 		this.title.setRequired(true);
@@ -123,6 +171,10 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 
 		this.supervisedWorkDetails = createDetailsWithErrorMark(rootContainer, content, "supervisedWork", true); //$NON-NLS-1$
 
+		getEntityDataBinder().forField(this.supervisedPerson)
+			.withValidator(new NotNullEntityValidator<>(getTranslation("views.supervision.supervised_person.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.supervisedPerson, this.supervisedWorkDetails))
+			.bind(Supervision::getSupervisedPerson, Supervision::setSupervisedPerson);
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
 			.withValidator(new NotEmptyStringValidator(getTranslation("views.supervision.title.error"))) //$NON-NLS-1$
@@ -137,9 +189,15 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	protected void createSupervisorDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.supervisorsDetails = new DetailsWithErrorMark(content);
-		this.supervisorsDetails.setOpened(false);
-		rootContainer.add(this.supervisorsDetails);
+		this.supervisors = new SupervisorListGridField(this.personService, this.userService, getAuthenticatedUser(), getMessageSourceAccessor(), getLogger());
+		content.add(this.supervisors, 2);
+
+		this.supervisorsDetails = createDetailsWithErrorMark(rootContainer, content, "supervisors"); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.supervisors)
+			.withValidator(this.supervisors.newStandardValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.supervisors, this.supervisorsDetails))
+			.bind(Supervision::getSupervisors, Supervision::setSupervisors);
 	}
 
 	/** Create the section for editing the description of the funding.
@@ -158,7 +216,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 		content.add(this.funding, 1);
 
 		this.fundingDetails = new TextField();
-		this.fundingDetails.setPrefixComponent(VaadinIcon.EURO.create());
+		this.fundingDetails.setPrefixComponent(VaadinIcon.INFO.create());
 		content.add(this.fundingDetails, 1);
 
 		this.jointPosition = new Checkbox();
@@ -283,9 +341,13 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 		this.supervisedWorkDetails.setSummaryText(getTranslation("views.supervision.supervised_work_details")); //$NON-NLS-1$
+		this.supervisedPerson.setLabel(getTranslation("views.supervision.supervised_person")); //$NON-NLS-1$
+		this.supervisedPerson.setHelperText(getTranslation("views.supervision.supervised_person.help")); //$NON-NLS-1$
 		this.title.setLabel(getTranslation("views.supervision.title")); //$NON-NLS-1$
 
 		this.supervisorsDetails.setSummaryText(getTranslation("views.supervision.supervisor_details")); //$NON-NLS-1$
+		this.supervisors.setLabel(getTranslation("views.supervision.supervisors")); //$NON-NLS-1$
+		this.supervisors.setHelperText(getTranslation("views.supervision.supervisors.help")); //$NON-NLS-1$
 
 		this.fundDetails.setSummaryText(getTranslation("views.supervision.fund_details")); //$NON-NLS-1$
 		this.funding.setLabel(getTranslation("views.supervision.funding_scheme")); //$NON-NLS-1$

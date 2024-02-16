@@ -53,9 +53,9 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
- * @see EntityLeftRightListsEditor
+ * @see EntityLeftRightListsField
  */
-public class EntityComboListEditor<T> extends CustomField<Set<T>> {
+public class EntityComboListField<T> extends CustomField<Set<T>> {
 
 	private static final long serialVersionUID = -4788430817317673879L;
 
@@ -75,7 +75,7 @@ public class EntityComboListEditor<T> extends CustomField<Set<T>> {
 	 *
 	 * @param comparator the comparator to be used for sorting the entities in the list.
 	 */
-	public EntityComboListEditor(SerializableComparator<T> comparator) {
+	public EntityComboListField(SerializableComparator<T> comparator) {
 		this(comparator, null);
 	}
 
@@ -86,7 +86,7 @@ public class EntityComboListEditor<T> extends CustomField<Set<T>> {
 	 *     the list of selected entities. Argument is a lambda function that must be invoked for
 	 *     saving the new entity. The argument of this lambda function is the new entity itself.
 	 */
-	public EntityComboListEditor(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
+	public EntityComboListField(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
 		this.selectedEntities = new EmptySetMultiSelectListBox<>(comparator);
 
 		this.availableEntities = new ComboBox<>();

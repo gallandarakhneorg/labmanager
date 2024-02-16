@@ -54,7 +54,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsField;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.NumberPerEnumField;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
@@ -98,7 +98,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private TextArea explanation;
 
-	private EntityLeftRightListsEditor<PedagogicalPracticeType> pedagogicalPractices;
+	private EntityLeftRightListsField<PedagogicalPracticeType> pedagogicalPractices;
 
 	private DetailsWithErrorMark degreeDetails;
 
@@ -245,7 +245,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.explanation.setClearButtonVisible(true);
 		content.add(this.explanation, 2);
 
-		this.pedagogicalPractices = new EntityLeftRightListsEditor<>(ComponentFactory.toSerializableComparator(PedagogicalPracticeType.getLabelBasedComparator(getMessageSourceAccessor(), getLocale())));
+		this.pedagogicalPractices = new EntityLeftRightListsField<>(ComponentFactory.toSerializableComparator(PedagogicalPracticeType.getLabelBasedComparator(getMessageSourceAccessor(), getLocale())));
 		this.pedagogicalPractices.setEntityLabelGenerator(this::getPedagogicalPracticeLabel);
 		this.pedagogicalPractices.setAvailableEntities(PedagogicalPracticeType.getAllDisplayTypes(getMessageSourceAccessor(), getLocale()));
 		this.pedagogicalPractices.setListHeight(150, Unit.PIXELS);

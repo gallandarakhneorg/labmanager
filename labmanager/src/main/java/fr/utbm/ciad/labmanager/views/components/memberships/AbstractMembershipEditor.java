@@ -63,7 +63,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListField;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
@@ -124,7 +124,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private DetailsWithErrorMark activityDetails;
 
-	private EntityComboListEditor<ScientificAxis> scientificAxes;
+	private EntityComboListField<ScientificAxis> scientificAxes;
 
 	private ComboBox<Responsibility> responsibility;
 
@@ -444,7 +444,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 			content.add(this.responsibility, 2);
 		}
 
-		this.scientificAxes = new EntityComboListEditor<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
+		this.scientificAxes = new EntityComboListField<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
 		this.scientificAxes.setEntityRenderers(
 				it -> it.getAcronymAndName(),
 				new ComponentRenderer<>(this::createScientificAxisNameComponent),

@@ -37,17 +37,32 @@ public enum SupervisorType {
 
 	/** Director.
 	 */
-	DIRECTOR,
+	DIRECTOR {
+		@Override
+		public boolean hasPercentage() {
+			return true;
+		}
+	},
 
 	/** Regular supervisor.
 	 */
-	SUPERVISOR,
+	SUPERVISOR {
+		@Override
+		public boolean hasPercentage() {
+			return true;
+		}
+	},
 
 	/** Member of the committee of the Master/PhD.
 	 * The committee is the group of persons who are validating the progress of the supervised person
 	 * regularly (every year for example) but are not the direct directors or promoters.
 	 */
-	COMMITTEE_MEMBER;
+	COMMITTEE_MEMBER {
+		@Override
+		public boolean hasPercentage() {
+			return false;
+		}
+	};
 
 	private static final String MESSAGE_PREFIX = "supervisorType."; //$NON-NLS-1$
 
@@ -84,5 +99,12 @@ public enum SupervisorType {
 		}
 		throw new IllegalArgumentException("Invalid supervisor type: " + name); //$NON-NLS-1$
 	}
+
+	/** Replies if the type of supervisor may be associated to a percentage.
+	 *
+	 * @return {@code true} if the type may be associated to a percentage.
+	 * @since 4.0
+	 */
+	public abstract boolean hasPercentage();
 
 }

@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.member;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
@@ -164,6 +167,42 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	public Page<Membership> getAllMemberships(Pageable pageable, Specification<Membership> filter) {
 		return this.membershipRepository.findAll(filter, pageable);
 	}
+
+	/** Replies the list of all the memberships.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the memberships.
+	 * @param callback the initializer that is applied on each loaded entity.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<Membership> getAllMemberships(Pageable pageable, Specification<Membership> filter, Consumer<Membership> callback) {
+		final var page = this.membershipRepository.findAll(filter, pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
+	}
+	
+	/** Replies the list of all the memberships that correspond to a supervisable position.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the memberships.
+	 * @param callback the initializer that is applied on each loaded entity.
+	 * @return the list of all the memberships.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<Membership> getSupervisableMemberships(Pageable pageable, Specification<Membership> filter, Consumer<Membership> callback) {
+		final var page = this.membershipRepository.findAll(SupervisablePositionSpecification.SINGLETON.and(filter), pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
+	}
+
+
 
 	/** Replies the list that is composed by a single memberships per person.
 	 *
@@ -612,7 +651,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	}
 
 	@Override
-	public EditingContext startEditing(Membership membership) {
+	public EntityEditingContext<Membership> startEditing(Membership membership) {
 		assert membership != null;
 		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
 		inSession(session -> {
@@ -637,6 +676,15 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	@Override
 	public EntityDeletingContext<Membership> startDeletion(Set<Membership> memberships) {
 		assert memberships != null && !memberships.isEmpty();
+		// Force loading of the memberships and authorships
+		inSession(session -> {
+			for (final var membership : memberships) {
+				if (membership.getId() != 0l) {
+					session.load(membership, Long.valueOf(membership.getId()));
+					Hibernate.initialize(membership.getSupervision());
+				}
+			}
+		});
 		return new DeletingContext(memberships);
 	}
 
@@ -692,6 +740,16 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		 */
 		protected DeletingContext(Set<Membership> memberships) {
 			super(memberships);
+		}
+
+		@Override
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (entity.getSupervision() != null) {
+					return MembershipDeletionStatus.SUPERVISION;
+				}
+			}
+			return DeletionStatus.OK;
 		}
 
 		@Override
@@ -753,6 +811,38 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		public jakarta.persistence.criteria.Predicate toPredicate(Root<Person> root,
 				CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 			return criteriaBuilder.isNotEmpty(root.get("memberships")); //$NON-NLS-1$
+		}
+
+	}
+
+
+	/** Specification that is validating a supervisable membership.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private static class SupervisablePositionSpecification implements Specification<Membership> {
+
+		private static final long serialVersionUID = 8875171739971287552L;
+
+		/** Singleton for this criteria.
+		 */
+		public static final SupervisablePositionSpecification SINGLETON = new SupervisablePositionSpecification();
+
+		private static List<MemberStatus> SUPERVISABLE_STATUSES = Arrays.asList(MemberStatus.values()).stream().filter(it -> it.isSupervisable()).toList();
+
+		private SupervisablePositionSpecification() {
+			//
+		}
+		
+		@Override
+		public jakarta.persistence.criteria.Predicate toPredicate(Root<Membership> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			final var predicates = SUPERVISABLE_STATUSES.stream().map(it -> criteriaBuilder.equal(root.get("memberStatus"), it)); //$NON-NLS-1$
+			final var conditions = predicates.toArray(it -> new jakarta.persistence.criteria.Predicate[it]);
+			return criteriaBuilder.or(conditions);
 		}
 
 	}

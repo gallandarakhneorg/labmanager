@@ -22,6 +22,12 @@ package fr.utbm.ciad.labmanager.views.components.supervisions;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.MembershipService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -45,12 +51,22 @@ public final class EmbeddedSupervisionEditor extends AbstractSupervisionEditor {
 	/** Constructor.
 	 *
 	 * @param context the editing context for the supervision.
+	 * @param membershipService the service for accessing the membership JPA entities.
+	 * @param personService the service for accessing the person JPA entities.
+	 * @param userService the service for accessing the connected user JPA entities.
+	 * @param organizationService the service for accessing the organization JPA entities.
+	 * @param addressService the service for accessing the organization address JPA entities.
+	 * @param axisService the service for accessing the scientific axis JPA entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedSupervisionEditor(EntityEditingContext<Supervision> context,
+			MembershipService membershipService, PersonService personService, UserService userService,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService, ScientificAxisService axisService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, authenticatedUser, messages, LOGGER);
+		super(context, false, membershipService, personService, userService,
+				organizationService, addressService, axisService,
+				authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

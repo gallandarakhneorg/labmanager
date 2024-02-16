@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
+import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
@@ -49,6 +50,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -151,6 +153,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	@ManyToMany(fetch = FetchType.LAZY)
 	private Set<ScientificAxis> scientificAxes = new HashSet<>();
+
+	/** The supervision that is associated to this membership.
+	 *
+	 * @since 4.0
+	 */
+	@OneToOne(fetch = FetchType.LAZY)
+	private Supervision supervision;
 
 	/** Construct a membership with the given values.
 	 *
@@ -845,6 +854,28 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (axes != null && !axes.isEmpty()) {
 			this.scientificAxes.addAll(axes);
 		}
+	}
+
+	/** Replies the supervision that is associated to this membership.
+	 * The supervision is is associated to a membership that corresponds
+	 * to a supervisable position.
+	 *
+	 * @return the supervision, or {@code null} if no supervision is known.
+	 * @since 4.0
+	 */
+	public Supervision getSupervision() {
+		return this.supervision;
+	}
+
+	/** Change the supervision that is associated to this membership.
+	 * The supervision is is associated to a membership that corresponds
+	 * to a supervisable position.
+	 *
+	 * @param supervision the instance of supervision, or {@code null} if no supervision is known.
+	 * @since 4.0
+	 */
+	public void setSupervision(Supervision supervision) {
+		this.supervision = supervision;
 	}
 
 	/** Replies the number of days that this membership has with the given year.

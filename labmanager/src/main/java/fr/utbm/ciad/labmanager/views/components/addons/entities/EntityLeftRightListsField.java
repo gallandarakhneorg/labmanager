@@ -51,9 +51,9 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
- * @see EntityComboListEditor
+ * @see EntityComboListField
  */
-public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
+public class EntityLeftRightListsField<T> extends CustomField<Set<T>> {
 
 	private static final long serialVersionUID = 7855575001699179094L;
 
@@ -81,7 +81,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 *
 	 * @param comparator the comparator to be used for sorting the entities in the list.
 	 */
-	public EntityLeftRightListsEditor(SerializableComparator<T> comparator) {
+	public EntityLeftRightListsField(SerializableComparator<T> comparator) {
 		this(comparator, null);
 	}
 
@@ -92,7 +92,7 @@ public class EntityLeftRightListsEditor<T> extends CustomField<Set<T>> {
 	 *     the list of selected entities. Argument is a lambda function that must be invoked for
 	 *     saving the new entity. The argument of this lambda function is the new entity itself.
 	 */
-	public EntityLeftRightListsEditor(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
+	public EntityLeftRightListsField(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
 		this.availableEntityLabel = new Span(""); //$NON-NLS-1$
 		this.availableEntityLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)"); //$NON-NLS-1$ //$NON-NLS-2$
 		

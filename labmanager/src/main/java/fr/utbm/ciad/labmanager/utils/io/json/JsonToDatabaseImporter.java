@@ -83,7 +83,10 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
+import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionRepository;
+import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
+import fr.utbm.ciad.labmanager.data.supervision.SupervisorType;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
@@ -915,20 +918,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return allData;
 	}
 
-	private static ResearchOrganization findSuperOrganization(Membership serviceMembership, List<MembershipInfo> employers) {
+	private static Membership findSuperOrganization(Membership serviceMembership, List<MembershipInfo> employers) {
 		final var service = serviceMembership.getDirectResearchOrganization();
 		final var superOrgs = service.getSuperOrganizations();
 		for (final var employer : employers) {
 			final var active = serviceMembership.isActiveIn(employer.membership.getMemberSinceWhen(), employer.membership.getMemberToWhen());
 			final var directOrg = employer.membership.getDirectResearchOrganization();
 			if (active && superOrgs.contains(directOrg)) {
-				return directOrg;
+				return employer.membership;
 			}
 		}
 		return null;
 	}
 
-	private void reassignSuperOrgnaizationsInMemberships(Map<Person, PersonMemberships> allData) {
+	private void reassignSuperOrgnaizationsInMemberships(Map<Person, PersonMemberships> allData, Map<String, Long> objectIdRepository) {
 		final var size = allData.size();
 		var i = 0;
 		for (final var entry : allData.entrySet()) {
@@ -937,22 +940,29 @@ public class JsonToDatabaseImporter extends JsonTool {
 			getLogger().info("> Relinking memberships " + (i + 1) + "/" + size //$NON-NLS-1$ //$NON-NLS-2$
 				+ " for " + person.getFullNameWithLastNameFirst()); //$NON-NLS-1$
 
-			final var includedEmployers = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+			final var includedEmployers = new TreeSet<>(EntityUtils.getPreferredMembershipComparator());
 
 			for (final var service : memberships.services) {
 				if (service.membership.getSuperResearchOrganization() == null) {
-					final var superOrganization = findSuperOrganization(service.membership, memberships.employers);
-					if (superOrganization != null) {
+					final var superOrganizationMembership = findSuperOrganization(service.membership, memberships.employers);
+					if (superOrganizationMembership != null) {
+						final var superOrganization = superOrganizationMembership.getDirectResearchOrganization();
 						service.membership.setSuperResearchOrganization(superOrganization);
 						if (Hibernate.isInitialized(person.getMemberships())) {
 							person.getMemberships().removeIf(it -> superOrganization.equals(it.getDirectResearchOrganization()));
 						}
-						includedEmployers.add(superOrganization);
+						includedEmployers.add(superOrganizationMembership);
 					}
 				}
 			}
 
-			memberships.employers.removeIf(it -> includedEmployers.contains(it.membership.getDirectResearchOrganization()));
+			final var iterator = memberships.employers.iterator();
+			while (iterator.hasNext()) {
+				final var element = iterator.next();
+				if (includedEmployers.contains(element.membership)) {
+					iterator.remove();
+				}
+			}
 
 			++i;
 		}
@@ -1044,7 +1054,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final var allData = prepareOrganizationMembershipInsertion(memberships, scientificAxes, objectIdRepository, aliasRepository, addressPostProcessing);
 			//
 			// Relinking the super organizations of the memberships
-			reassignSuperOrgnaizationsInMemberships(allData);
+			reassignSuperOrgnaizationsInMemberships(allData, objectIdRepository);
 
 			//
 			// Saving the memberships in the JPA database
@@ -1626,75 +1636,74 @@ public class JsonToDatabaseImporter extends JsonTool {
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (supervisions != null && !supervisions.isEmpty()) {
-			// FIXME
-//			getLogger().info("Inserting " + supervisions.size() + " supervisions..."); //$NON-NLS-1$ //$NON-NLS-2$
-//			var i = 0;
-//			for (var supervisionObject : supervisions) {
-//				getLogger().info("> Supervision " + (i + 1) + "/" + supervisions.size()); //$NON-NLS-1$ //$NON-NLS-2$
-//				try {
-//					final var id = getId(supervisionObject);
-//					var supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
-//					if (supervision != null) {
-//						session.beginTransaction();
-//						// Supervised Person
-//						final var mbrId = getRef(supervisionObject.get(PERSON_KEY));
-//						if (Strings.isNullOrEmpty(mbrId)) {
-//							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
-//						}
-//						final var mbrDbId = objectIdRepository.get(mbrId);
-//						if (mbrDbId == null || mbrDbId.intValue() == 0) {
-//							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
-//						}
-//						final var targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
-//						if (targetMembership.isEmpty()) {
-//							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
-//						}
-//						supervision.setSupervisedPerson(targetMembership.get());
-//						if (!isFake()) {
-//							this.supervisionRepository.save(supervision);
-//						}
-//						// Directors
-//						final var supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
-//						if (supervisorsNode != null && supervisorsNode.isArray()) {
-//							final var supervisors = new ArrayList<Supervisor>();
-//							for (final var supervisorNode : supervisorsNode) {
-//								final var supervisorObj = new Supervisor();
-//								final var supervisorId = getRef(supervisorNode.get(PERSON_KEY));
-//								if (Strings.isNullOrEmpty(supervisorId)) {
-//									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
-//								}
-//								final var supervisorDbId = objectIdRepository.get(supervisorId);
-//								if (supervisorDbId == null || supervisorDbId.intValue() == 0) {
-//									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
-//								}
-//								final var targetSupervisor = this.personRepository.findById(supervisorDbId);
-//								if (targetSupervisor.isEmpty()) {
-//									throw new IllegalArgumentException("Invalid supervisor reference for jury membership with id: " + id); //$NON-NLS-1$
-//								}
-//								supervisorObj.setSupervisor(targetSupervisor.get());
-//								supervisorObj.setType(getEnum(supervisorNode, TYPE_KEY, SupervisorType.class));
-//								supervisorObj.setPercentage(getInt(supervisorNode, PERCENT_KEY, 0));
-//								supervisors.add(supervisorObj);
-//							}
-//							supervision.setSupervisors(supervisors);
-//							if (!isFake()) {
-//								this.supervisionRepository.save(supervision);
-//							}
-//						}
-//						++nbNew;
-//						getLogger().info("  + " + supervision.getSupervisedPerson().getPerson().getFullName() //$NON-NLS-1$
-//								+ " - " + supervision.getSupervisedPerson().getShortDescription(getMessageSourceAccessor(), Locale.US) //$NON-NLS-1$
-//								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-//						if (!Strings.isNullOrEmpty(id)) {
-//							objectIdRepository.put(id, Long.valueOf(supervision.getId()));
-//						}
-//						session.getTransaction().commit();
-//					}
-//				} catch (Throwable ex) {
-//					throw new UnableToImportJsonException(SUPERVISIONS_SECTION, i, supervisionObject, ex);
-//				}
-//				++i;
-//			}
+			getLogger().info("Inserting " + supervisions.size() + " supervisions..."); //$NON-NLS-1$ //$NON-NLS-2$
+			var i = 0;
+			for (var supervisionObject : supervisions) {
+				getLogger().info("> Supervision " + (i + 1) + "/" + supervisions.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final var id = getId(supervisionObject);
+					var supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
+					if (supervision != null) {
+						session.beginTransaction();
+						// Supervised Person
+						final var mbrId = getRef(supervisionObject.get(PERSON_KEY));
+						if (Strings.isNullOrEmpty(mbrId)) {
+							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+						}
+						final var mbrDbId = objectIdRepository.get(mbrId);
+						if (mbrDbId == null || mbrDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+						}
+						final var targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
+						if (targetMembership.isEmpty()) {
+							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+						}
+						supervision.setSupervisedPerson(targetMembership.get());
+						if (!isFake()) {
+							this.supervisionRepository.save(supervision);
+						}
+						// Directors
+						final var supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
+						if (supervisorsNode != null && supervisorsNode.isArray()) {
+							final var supervisors = new ArrayList<Supervisor>();
+							for (final var supervisorNode : supervisorsNode) {
+								final var supervisorObj = new Supervisor();
+								final var supervisorId = getRef(supervisorNode.get(PERSON_KEY));
+								if (Strings.isNullOrEmpty(supervisorId)) {
+									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
+								}
+								final var supervisorDbId = objectIdRepository.get(supervisorId);
+								if (supervisorDbId == null || supervisorDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
+								}
+								final var targetSupervisor = this.personRepository.findById(supervisorDbId);
+								if (targetSupervisor.isEmpty()) {
+									throw new IllegalArgumentException("Invalid supervisor reference for jury membership with id: " + id); //$NON-NLS-1$
+								}
+								supervisorObj.setSupervisor(targetSupervisor.get());
+								supervisorObj.setType(getEnum(supervisorNode, TYPE_KEY, SupervisorType.class));
+								supervisorObj.setPercentage(getInt(supervisorNode, PERCENT_KEY, 0));
+								supervisors.add(supervisorObj);
+							}
+							supervision.setSupervisors(supervisors);
+							if (!isFake()) {
+								this.supervisionRepository.save(supervision);
+							}
+						}
+						++nbNew;
+						getLogger().info("  + " + supervision.getSupervisedPerson().getPerson().getFullName() //$NON-NLS-1$
+								+ " - " + supervision.getSupervisedPerson().getShortDescription(getMessageSourceAccessor(), Locale.US) //$NON-NLS-1$
+								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Long.valueOf(supervision.getId()));
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(SUPERVISIONS_SECTION, i, supervisionObject, ex);
+				}
+				++i;
+			}
 		}
 		return nbNew;
 	}

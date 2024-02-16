@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -59,14 +60,15 @@ import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.user.User;
@@ -81,6 +83,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Factory of Vaadin components.
@@ -823,6 +826,106 @@ public final class ComponentFactory {
 			}
 		}
 		return avatar;
+	}
+
+	/** Create the standard avatar item for the given membership.
+	 *
+	 * @param membership the membership to show in the avatar item, never {@code null}.
+	 * @param messages the accessor to the localized messages.
+	 * @param locale the locale to use for building the details.
+	 * @return the avatar item for the membership.
+	 */
+	public static AvatarItem newMembershipAvatar(Membership membership, MessageSourceAccessor messages, Locale locale) {
+		return newMembershipAvatar(membership, messages, locale, null);
+	}
+
+	/** Create the standard avatar item for the given membership.
+	 *
+	 * @param membership the membership to show in the avatar item, never {@code null}.
+	 * @param detailsProvider the provider of the details string from the membership information, never {@code null}.
+	 * @return the avatar item for the membership.
+	 */
+	public static AvatarItem newMembershipAvatar(Membership membership, Function<Membership, String> detailsProvider) {
+		assert detailsProvider != null;
+		return newMembershipAvatar(membership, null, null, detailsProvider);
+	}
+
+	/** Create the standard avatar item for the given membership.
+	 *
+	 * @param membership the membership to show in the avatar item, never {@code null}.
+	 * @param messages the accessor to the localized messages.
+	 * @param locale the locale to use for building the details.
+	 * @param detailsProvider the provider of the details string from the membership information, or {@code null}.
+	 * @return the avatar item for the membership.
+	 */
+	private static AvatarItem newMembershipAvatar(Membership membership, MessageSourceAccessor messages, Locale locale, Function<Membership, String> detailsProvider) {
+		assert membership != null;
+		
+		final var person = membership.getPerson();
+		final var fullName = person.getFullNameWithLastNameFirst();
+		final var photo = person.getPhotoURL();
+
+		final String details;
+		if (detailsProvider != null) {
+			details = detailsProvider.apply(membership);
+		} else { 
+			final StringBuilder label = new StringBuilder();
+			final var gender = person.getGender();
+			final var status = membership.getMemberStatus().getLabel(messages, gender, false, locale);
+			label.append(status);
+			final var organization = membership.getDirectResearchOrganization().getAcronymOrName();
+			if (!Strings.isNullOrEmpty(organization)) {
+				if (label.length() > 0) {
+					label.append(" - "); //$NON-NLS-1$
+				}
+				label.append(organization);
+			}
+			details = label.toString();
+		}
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(fullName);
+		avatar.setDescription(Strings.emptyToNull(details));
+		if (photo != null) {
+			avatar.setAvatarURL(photo.toExternalForm());
+		}
+
+		return avatar;
+	}
+
+	/** Replies the default label of a membership.
+	 *
+	 * @param membership the membership to show in the avatar item, never {@code null}.
+	 * @param messages the accessor to the localized messages.
+	 * @param locale the locale to use for building the details.
+	 * @return the avatar item for the membership.
+	 */
+	public static String newMembershipLabel(Membership membership, MessageSourceAccessor messages, Locale locale) {
+		assert membership != null;
+		
+		final var person = membership.getPerson();
+		
+		final StringBuilder label = new StringBuilder();
+
+		final var fullName = person.getFullNameWithLastNameFirst();
+		label.append(fullName);
+
+		final var gender = person.getGender();
+		final var status = membership.getMemberStatus().getLabel(messages, gender, false, locale);
+		if (label.length() > 0) {
+			label.append(" - "); //$NON-NLS-1$
+		}
+		label.append(status);
+
+		final var organization = membership.getDirectResearchOrganization().getAcronymOrName();
+		if (!Strings.isNullOrEmpty(organization)) {
+			if (label.length() > 0) {
+				label.append(" - "); //$NON-NLS-1$
+			}
+			label.append(organization);
+		}
+
+		return label.toString();
 	}
 
 	private static List<StringBuilder> buildCases(String filter) {

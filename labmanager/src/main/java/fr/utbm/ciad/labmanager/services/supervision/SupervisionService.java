@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
@@ -38,6 +39,7 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -150,6 +152,23 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 */
 	public Page<Supervision> getAllSupervisions(Pageable pageable, Specification<Supervision> filter) {
 		return this.supervisionRepository.findAll(filter, pageable);
+	}
+
+	/** Replies the list of all the supervisions.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the supervisions.
+	 * @param callback the callback that is invoked for initializing each loaded entity.
+	 * @return the list of all the supervisions.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<Supervision> getAllSupervisions(Pageable pageable, Specification<Supervision> filter, Consumer<Supervision> callback) {
+		final var page = this.supervisionRepository.findAll(filter, pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
 	}
 
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is one of the supervisors.
@@ -349,6 +368,17 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	@Override
 	public EntityEditingContext<Supervision> startEditing(Supervision supervision) {
 		assert supervision != null;
+		// Force initialization of the internal properties that are needed for editing
+		if (supervision.getId() != 0l) {
+			inSession(session -> {
+				session.load(supervision, Long.valueOf(supervision.getId()));
+				Hibernate.initialize(supervision.getSupervisedPerson());
+				Hibernate.initialize(supervision.getSupervisors());
+				supervision.getSupervisors().forEach(it -> {
+					Hibernate.initialize(it.getSupervisor());
+				});
+			});
+		}
 		return new EditingContext(supervision);
 	}
 
