@@ -54,6 +54,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Articles in international or national journals with selection committee and not ranked in international databases.
 	 */
@@ -72,6 +84,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -94,6 +118,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Papers in the proceedings of an international conference.
 	 */
@@ -112,6 +148,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -134,6 +182,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Oral Communications without proceeding in international or national conference.
 	 */
@@ -152,6 +212,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -174,6 +246,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Editor of books or journals.
 	 */
@@ -194,6 +278,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return true;
+		}
 	},
 	/** Scientific books.
 	 */
@@ -212,6 +308,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return true;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -234,6 +342,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return true;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Keynotes in international or national conference.
 	 */
@@ -252,6 +372,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -274,6 +406,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return true;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Patents.
 	 */
@@ -292,6 +436,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -314,6 +470,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return false;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return true;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Research tools (not software).
 	 */
@@ -332,6 +500,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return true;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	},
@@ -354,6 +534,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return true;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Chapters in a book for scientific culture dissemination.
 	 */
@@ -373,6 +565,18 @@ public enum PublicationCategory {
 		@Override
 		public boolean isScientificCultureDissemination() {
 			return true;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
 		}
 	},
 	/** Papers for scientific culture dissemination.
@@ -394,6 +598,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return true;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Artistic research productions.
 	 */
@@ -414,6 +630,18 @@ public enum PublicationCategory {
 		public boolean isScientificCultureDissemination() {
 			return true;
 		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
+			return false;
+		}
 	},
 	/** Other productions (registered software, reports...)
 	 */
@@ -432,6 +660,18 @@ public enum PublicationCategory {
 		}
 		@Override
 		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+		@Override
+		public boolean isOtherScientificDocument() {
+			return false;
+		}
+		@Override
+		public boolean isProjectRelatedDocument() {
+			return false;
+		}
+		@Override
+		public boolean isDirectedPublication() {
 			return false;
 		}
 	};
@@ -475,6 +715,28 @@ public enum PublicationCategory {
 	 * @return {@code true} if the category is for scientific events.
 	 */
 	public abstract boolean isScientificEventPaper();
+
+	/** Replies if the category is for the scientific documents that are not journal or conference paper.
+	 * These documents may be PhD report, books, etc.
+	 *
+	 * @return {@code true} if the category is for scientific documents that are not in another category.
+	 * @since 4.0
+	 */
+	public abstract boolean isOtherScientificDocument();
+
+	/** Replies if the category is for the documents that are related to projects.
+	 *
+	 * @return {@code true} if the category is for projects' documents.
+	 * @since 4.0
+	 */
+	public abstract boolean isProjectRelatedDocument();
+
+	/** Replies if the category is for the direction of publication, such as journal or book edition.
+	 *
+	 * @return {@code true} if the category is for publication direction.
+	 * @since 4.0
+	 */
+	public abstract boolean isDirectedPublication();
 
 	/** Replies if the category is for the dissemination of scientific culture.
 	 *

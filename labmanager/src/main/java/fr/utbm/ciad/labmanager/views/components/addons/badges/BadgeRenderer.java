@@ -36,7 +36,7 @@ import org.arakhne.afc.util.OutputParameter;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class BadgeRenderer<ITEM> extends ComponentRenderer<Component, ITEM>{
+public class BadgeRenderer<ITEM> extends ComponentRenderer<Component, ITEM> {
 
 	private static final long serialVersionUID = 3215157356978585101L;
 

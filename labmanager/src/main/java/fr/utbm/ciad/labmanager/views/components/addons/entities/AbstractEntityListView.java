@@ -59,7 +59,7 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	}
 
 	@Override
-	protected final Grid<T> createGridInstance() {
+	protected Grid<T> createGridInstance() {
 		return new Grid<>(getEntityType(), false);
 	}
 

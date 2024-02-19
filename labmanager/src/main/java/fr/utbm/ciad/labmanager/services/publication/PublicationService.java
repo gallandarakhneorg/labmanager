@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -88,6 +89,7 @@ import fr.utbm.ciad.labmanager.utils.io.json.JsonExporter;
 import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentTextPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -307,6 +309,23 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	public Page<Publication> getAllPublications(Pageable pageable, Specification<Publication> filter) {
 		return this.publicationRepository.findAll(filter, pageable);
+	}
+
+	/** Replies all the publications from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of publications.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the publications.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<Publication> getAllPublications(Pageable pageable, Specification<Publication> filter, Consumer<Publication> callback) {
+		final var page = this.publicationRepository.findAll(filter, pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
 	}
 
 	/** Replies all the publications that have the given maximum age.

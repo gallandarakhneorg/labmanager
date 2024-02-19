@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.appviews.publications;
+package fr.utbm.ciad.labmanager.views.appviews.culture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import jakarta.annotation.security.PermitAll;
 
-/** Enable to edit the publications.
+/** Enable to edit the teaching activities for the user.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -43,17 +43,17 @@ import jakarta.annotation.security.PermitAll;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-@PageTitle("Publications")
-@Route(value = "publications", layout = MainLayout.class)
+@PageTitle("My Scientific Culture Activities")
+@Route(value = "mycultureactions", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class PublicationsView extends Composite<VerticalLayout> {
+public class MyScientificCultureActivitiesView extends Composite<VerticalLayout> {
 
 	private static final long serialVersionUID = 738063190104767506L;
 
 	/** Constructor.
 	 */
-    public PublicationsView() {
+    public MyScientificCultureActivitiesView() {
         final TextField textField = new TextField();
         TextField textField2 = new TextField();
         final ComboBox<?> comboBox = new ComboBox<>();
