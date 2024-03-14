@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.persons;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -32,11 +32,11 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.EmbeddedPersonEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractMultiEntityNameField;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 
-/** Implementation of a field for entering the name of a person, with auto-completion from the person JPA entities.
+/** Implementation of a field for entering the names of persons, with auto-completion from the person JPA entities.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -44,9 +44,9 @@ import org.springframework.data.jpa.domain.Specification;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class SinglePersonNameField extends AbstractSingleEntityNameField<Person> {
+public class MultiPersonNameField extends AbstractMultiEntityNameField<Person> {
 
-	private static final long serialVersionUID = 2759562152618869115L;
+	private static final long serialVersionUID = 7107742910744624635L;
 
 	private final PersonNameParser nameParser;
 
@@ -59,21 +59,43 @@ public class SinglePersonNameField extends AbstractSingleEntityNameField<Person>
 	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new person without using an UI. The first argument is the new person entity.
 	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
 	 *      This second lambda takes the created person.
+	 * @param initializer the initializer of the loaded persons. It may be {@code null}.
 	 */
-	public SinglePersonNameField(PersonService personService, SerializableBiConsumer<Person, Consumer<Person>> creationWithUiCallback,
-			SerializableBiConsumer<Person, Consumer<Person>> creationWithoutUiCallback) {
+	public MultiPersonNameField(PersonService personService, SerializableBiConsumer<Person, Consumer<Person>> creationWithUiCallback,
+			SerializableBiConsumer<Person, Consumer<Person>> creationWithoutUiCallback, Consumer<Person> initializer) {
 		super(
 				combo -> {
 					combo.setRenderer(new ComponentRenderer<>(ComponentFactory::newPersonAvatar));
 					combo.setItemLabelGenerator(it -> it.getFullName());
 				},
 				combo -> {
-					combo.setItems(query -> personService.getAllPersons(
-							VaadinSpringDataHelpers.toSpringPageRequest(query),
-							createPersonFilter(query.getFilter())).stream());
+					if (initializer == null) {
+						combo.setItems(query -> personService.getAllPersons(
+								VaadinSpringDataHelpers.toSpringPageRequest(query),
+								createPersonFilter(query.getFilter())).stream());
+					} else {
+						combo.setItems(query -> personService.getAllPersons(
+								VaadinSpringDataHelpers.toSpringPageRequest(query),
+								createPersonFilter(query.getFilter()), initializer).stream());
+					}
 				},
 				creationWithUiCallback, creationWithoutUiCallback);
 		this.nameParser = personService.getNameParser();
+	}
+
+	/** Constructor.
+	 *
+	 * @param personService the service for accessing the person JPA entities.
+	 * @param creationWithUiCallback a lambda that is invoked for creating a new person using an UI, e.g., an editor. The first argument is the new person entity.
+	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
+	 *      This second lambda takes the created person.
+	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new person without using an UI. The first argument is the new person entity.
+	 *      The second argument is a lambda that must be invoked to inject the new person in the {@code SinglePersonNameField}.
+	 *      This second lambda takes the created person.
+	 */
+	public MultiPersonNameField(PersonService personService, SerializableBiConsumer<Person, Consumer<Person>> creationWithUiCallback,
+			SerializableBiConsumer<Person, Consumer<Person>> creationWithoutUiCallback) {
+		this(personService, creationWithUiCallback, creationWithoutUiCallback, null);
 	}
 
 	/** Constructor.
@@ -83,9 +105,10 @@ public class SinglePersonNameField extends AbstractSingleEntityNameField<Person>
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
+	 * @param initializer the initializer of the loaded persons. It may be {@code null}.
 	 */
-	public SinglePersonNameField(PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
-			String creationTitle, Logger logger) {
+	public MultiPersonNameField(PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
+			String creationTitle, Logger logger, Consumer<Person> initializer) {
 		this(personService,
 				(newPerson, saver) -> {
 					final var personContext = personService.startEditing(newPerson);
@@ -107,7 +130,21 @@ public class SinglePersonNameField extends AbstractSingleEntityNameField<Person>
 							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(personService.getMessageSourceAccessor().getMessage("views.persons.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
-				});
+				},
+				initializer);
+	}
+
+	/** Constructor.
+	 *
+	 * @param personService the service for accessing the person JPA entities.
+	 * @param userService the service for accessing the user JPA entities.
+	 * @param authenticatedUser the user that is currently authenticated.
+	 * @param creationTitle the title of the dialog box for creating the person.
+	 * @param logger the logger for abnormal messages to the lab manager administrator.
+	 */
+	public MultiPersonNameField(PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
+			String creationTitle, Logger logger) {
+		this(personService, userService, authenticatedUser, creationTitle, logger, null);
 	}
 
 	private static Specification<Person> createPersonFilter(Optional<String> filter) {

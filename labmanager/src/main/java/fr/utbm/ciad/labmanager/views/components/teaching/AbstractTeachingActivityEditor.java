@@ -56,14 +56,14 @@ import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorM
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsField;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.NumberPerEnumField;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.SinglePersonNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.LanguageValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.organizations.SingleOrganizationNameField;
+import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 

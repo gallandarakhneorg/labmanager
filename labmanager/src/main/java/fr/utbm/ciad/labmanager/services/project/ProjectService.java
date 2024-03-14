@@ -1305,6 +1305,8 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * This context is usually defined when the entity is associated to
 	 * external resources in the server file system.
 	 * 
+	 * FIXME: Test it
+	 * 
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
 	 * @mavengroupid $GroupId$
@@ -1315,15 +1317,15 @@ public class ProjectService extends AbstractEntityService<Project> {
 		
 		private static final long serialVersionUID = 9099829302259658470L;
 
-		private String pathToLogo;
+		private UploadedFileTracker<Project> pathToLogo;
 
-		private String pathToPpt;
+		private UploadedFileTracker<Project> pathToPpt;
 
-		private String pathToPressDoc;
+		private UploadedFileTracker<Project> pathToPressDoc;
 
-		private String pathToRequirements;
+		private UploadedFileTracker<Project> pathToRequirements;
 
-		private List<String> pathsToImages;
+		private UploadedFilesTracker<Project> pathsToImages;
 
 		/** Constructor.
 		 *
@@ -1331,11 +1333,52 @@ public class ProjectService extends AbstractEntityService<Project> {
 		 */
 		protected EditingContext(Project project) {
 			super(project);
-			this.pathToLogo = project.getPathToLogo();
-			this.pathToPpt = project.getPathToPowerpoint();
-			this.pathToPressDoc = project.getPathToPressDocument();
-			this.pathToRequirements = project.getPathToScientificRequirements();
-			this.pathsToImages = new ArrayList<>(project.getPathsToImages());
+			this.pathToLogo = newUploadedFileTracker(project,
+					Project::getPathToLogo,
+					(id, savedPath) -> {
+						if (!Strings.isNullOrEmpty(savedPath)) {
+							final var ext = FileSystem.extension(savedPath);
+							if (!Strings.isNullOrEmpty(ext)) {
+								ProjectService.this.fileManager.deleteProjectLogo(id.longValue(), ext);
+							}
+						}
+					},
+					null);
+			this.pathToPpt = newUploadedFileTracker(project,
+					Project::getPathToPowerpoint,
+					(id, savedPath) -> {
+						if (!Strings.isNullOrEmpty(savedPath)) {
+							final var ext = FileSystem.extension(savedPath);
+							if (!Strings.isNullOrEmpty(ext)) {
+								ProjectService.this.fileManager.deleteProjectPowerpoint(id.longValue(), ext);
+							}
+						}
+					},
+					null);
+			this.pathToPressDoc = newUploadedFileTracker(project,
+					Project::getPathToPressDocument,
+					(id, savedPath) -> ProjectService.this.fileManager.deleteProjectPressDocument(id.longValue()),
+					null);
+			this.pathToRequirements = newUploadedFileTracker(project,
+					Project::getPathToScientificRequirements,
+					(id, savedPath) -> ProjectService.this.fileManager.deleteProjectScientificRequirements(id.longValue()),
+					null);
+			
+			this.pathsToImages = newUploadedFilesTracker(project,
+					Project::getPathsToImages,
+					(id, savedPaths) -> {
+						if (savedPaths != null && !savedPaths.isEmpty()) {
+							final var numid = id.longValue();
+							for (var i = savedPaths.size() - 1; i >= 0; --i) {
+								final var savedPath = savedPaths.get(i);
+								final var ext = FileSystem.extension(savedPath);
+								if (!Strings.isNullOrEmpty(ext)) {
+									ProjectService.this.fileManager.deleteProjectImage(numid, i, savedPath);
+								}
+							}
+						}
+					},
+					null);
 		}
 
 		@Override
@@ -1343,89 +1386,32 @@ public class ProjectService extends AbstractEntityService<Project> {
 			return ProjectService.this.projectRepository.save(entity);
 		}
 
-		private void deleteLogo(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToLogo)) {
-				final var ext = FileSystem.extension(this.pathToLogo);
-				ProjectService.this.fileManager.deleteProjectLogo(id, ext);
-			}
-		}
-
-		private void deletePpt(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToPpt)) {
-				final var ext = FileSystem.extension(this.pathToPpt);
-				ProjectService.this.fileManager.deleteProjectPowerpoint(id, ext);
-			}
-		}
-
-		private void deletePressDocument(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToPressDoc)) {
-				ProjectService.this.fileManager.deleteProjectPressDocument(id);
-			}
-		}
-
-		private void deleteRequirements(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToRequirements)) {
-				ProjectService.this.fileManager.deleteProjectScientificRequirements(id);
-			}
-		}
-
-		private void deleteImages(long id) {
-			if (!this.pathsToImages.isEmpty()) {
-				for (var i = this.pathsToImages.size() - 1; i >= 0; --i) {
-					final var path = this.pathsToImages.get(i);
-					final var ext = FileSystem.extension(path);
-					ProjectService.this.fileManager.deleteProjectImage(id, i, ext);
-				}
-			}
+		@Override
+		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
+			this.pathToLogo.deleteOrRenameFile(oldId, this.entity);
+			this.pathToPpt.deleteOrRenameFile(oldId, this.entity);
+			this.pathToPressDoc.deleteOrRenameFile(oldId, this.entity);
+			this.pathToRequirements.deleteOrRenameFile(oldId, this.entity);
+			this.pathsToImages.deleteOrRenameFiles(oldId, this.entity);
 		}
 
 		@Override
-		protected void deleteAssociatedFiles(long id) {
-			deleteLogo(id);
-			deletePpt(id);
-			deletePressDocument(id);
-			deleteRequirements(id);
-			deleteImages(id);
-		}
-
-		@Override
-		protected boolean prepareAssociatedFileUpload() {
-			boolean uploaded = false;
-			if (Strings.isNullOrEmpty(this.entity.getPathToLogo())) {
-				deleteLogo(this.entity.getId());
-			} else {
-				uploaded = true;
-			}
-			if (Strings.isNullOrEmpty(this.entity.getPathToPowerpoint())) {
-				deletePpt(this.entity.getId());
-			} else {
-				uploaded = true;
-			}
-			if (Strings.isNullOrEmpty(this.entity.getPathToPressDocument())) {
-				deletePressDocument(this.entity.getId());
-			} else {
-				uploaded = true;
-			}
-			if (Strings.isNullOrEmpty(this.entity.getPathToScientificRequirements())) {
-				deleteRequirements(this.entity.getId());
-			} else {
-				uploaded = true;
-			}
-			if (this.entity.getPathsToImages().isEmpty()) {
-				deleteImages(this.entity.getId());
-			} else {
-				uploaded = true;
-			}
-			return uploaded;
+		protected boolean prepareAssociatedFileUpload() throws IOException {
+			final var uploaded0 = !this.pathToLogo.deleteFile(this.entity);
+			final var uploaded1 = !this.pathToPpt.deleteFile(this.entity);
+			final var uploaded2 = !this.pathToPressDoc.deleteFile(this.entity);
+			final var uploaded3 = !this.pathToRequirements.deleteFile(this.entity);
+			final var uploaded4 = !this.pathsToImages.deleteFiles(this.entity);
+			return uploaded0 || uploaded1 || uploaded2 || uploaded3 || uploaded4;
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToLogo = this.entity.getPathToLogo();
-			this.pathToPpt = this.entity.getPathToPowerpoint();
-			this.pathToPressDoc = this.entity.getPathToPressDocument();
-			this.pathToRequirements = this.entity.getPathToScientificRequirements();
-			this.pathsToImages = new ArrayList<>(this.entity.getPathsToImages());
+			this.pathToLogo.resetPathMemory(this.entity);
+			this.pathToPpt.resetPathMemory(this.entity);
+			this.pathToPressDoc.resetPathMemory(this.entity);
+			this.pathToRequirements.resetPathMemory(this.entity);
+			this.pathsToImages.resetPathMemory(this.entity);
 		}
 
 		@Override

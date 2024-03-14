@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -207,6 +208,23 @@ public class PersonService extends AbstractEntityService<Person> {
 	@Transactional(readOnly = true)
 	public Page<Person> getAllPersons(Pageable pageable, Specification<Person> filter) {
 		return this.personRepository.findAll(filter, pageable);
+	}
+
+	/** Replies the list of all the persons from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of persons.
+	 * @param initializer the initializer for each loaded person.
+	 * @return all the persons.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public Page<Person> getAllPersons(Pageable pageable, Specification<Person> filter, Consumer<Person> initializer) {
+		final var page = this.personRepository.findAll(filter, pageable);
+		if (initializer != null) {
+			page.forEach(initializer);
+		}
+		return page;
 	}
 
 	/** Replies the person with the given identifier.

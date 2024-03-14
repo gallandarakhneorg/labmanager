@@ -73,7 +73,7 @@ public enum PublicationLanguage {
 			return getDefault().getLocale();
 		}
 		@Override
-		public String getLabel() {
+		public String getLabel(Locale displayLocale) {
 			return "?"; //$NON-NLS-1$
 		}
 	};
@@ -125,10 +125,11 @@ public enum PublicationLanguage {
 
 	/** Replies the label of the current language.
 	 *
+	 * @param displayLocale the locale for the display.
 	 * @return the label of the current language.
 	 */
-	public String getLabel() {
-		return getLocale().getDisplayLanguage();
+	public String getLabel(Locale displayLocale) {
+		return getLocale().getDisplayLanguage(displayLocale);
 	}
 
 }

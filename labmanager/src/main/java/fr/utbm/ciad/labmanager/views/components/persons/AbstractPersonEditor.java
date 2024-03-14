@@ -66,6 +66,7 @@ import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
@@ -99,6 +100,8 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	private TextField firstname;
 
 	private ComboBox<Gender> gender;
+
+	private ComboBox<CountryCode> nationality;
 
 	private TextField gravatarId;
 
@@ -365,6 +368,10 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.gender.setValue(Gender.NOT_SPECIFIED);
 		content.add(this.gender, 2);
 
+		this.nationality = ComponentFactory.newCountryComboBox(getLocale());
+		this.nationality.setPrefixComponent(VaadinIcon.GLOBE_WIRE.create());
+		content.add(this.nationality, 2);
+
 		this.gravatarId = ComponentFactory.newClickableIconTextField(Person.GRAVATAR_ROOT_URL, GRAVATAR_ICON);
 		this.gravatarId.setPrefixComponent(VaadinIcon.CAMERA.create());
 		this.gravatarId.setClearButtonVisible(true);
@@ -393,6 +400,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.firstname, this.personalInformationDetails))
 			.bind(Person::getFirstName, Person::setFirstName);
 		getEntityDataBinder().forField(this.gender).bind(Person::getGender, Person::setGender);
+		getEntityDataBinder().forField(this.nationality).bind(Person::getNationality, Person::setNationality);
 		getEntityDataBinder().forField(this.gravatarId)
 			.withConverter(new StringTrimer())
 			.bind(Person::getGravatarId, Person::setGravatarId);
@@ -686,6 +694,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.gender.setLabel(getTranslation("views.persons.gender")); //$NON-NLS-1$
 		this.gender.setHelperText(getTranslation("views.persons.gender.helper")); //$NON-NLS-1$);
 		this.gender.setItemLabelGenerator(this::getGenderLabel);
+		this.nationality.setLabel(getTranslation("views.persons.nationality")); //$NON-NLS-1$
+		this.nationality.setHelperText(getTranslation("views.persons.nationality.helper")); //$NON-NLS-1$);
+		ComponentFactory.updateCountryComboBoxItems(this.nationality, getLocale());
 		this.gravatarId.setLabel(getTranslation("views.persons.gravatar_id")); //$NON-NLS-1$
 		this.gravatarId.setHelperText(getTranslation("views.persons.gravatar_id.helper")); //$NON-NLS-1$
 

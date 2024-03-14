@@ -23,13 +23,19 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
+import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.publications.StandardScientificEditionListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** List all the scientific editions.
@@ -54,12 +60,24 @@ public class ScientificEditionsListView extends StandardScientificEditionListVie
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param publicationService the service for accessing the scientific publications.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param journalService the service for accessing the JPA entities for journal.
+	 * @param conferenceService the service for accessing the JPA entities for conferences.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 */
 	public ScientificEditionsListView(
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PublicationService publicationService) {
-		super(fileManager, authenticatedUser, messages, publicationService, LOGGER);
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired PublicationService publicationService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService,
+			@Autowired JournalService journalService,
+			@Autowired ConferenceService conferenceService,
+			@Autowired ScientificAxisService axisService) {
+		super(fileManager, authenticatedUser, messages, publicationService, personService, userService,
+				journalService, conferenceService, axisService, LOGGER);
 	}
 
 	@Override

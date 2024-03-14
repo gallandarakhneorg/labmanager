@@ -25,7 +25,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.RegexpValidator;
 
-/** A string validator for ISSN numbers.
+/** A string validator for HAL id.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -33,11 +33,11 @@ import com.vaadin.flow.data.validator.RegexpValidator;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class IssnValidator extends RegexpValidator {
+public class HalIdValidator extends RegexpValidator {
 
-	private static final long serialVersionUID = 6634051082387107129L;
+	private static final long serialVersionUID = -1105421273992646458L;
 
-	private static final String PATTERN = "^\\s*[0-9a-zA-Z]{8}\\s*$"; //$NON-NLS-1$
+	private static final String PATTERN = "^\\s*[^\\s.]+\\s*$"; //$NON-NLS-1$
 
 	private final boolean allowEmptyValue;
 
@@ -45,53 +45,25 @@ public class IssnValidator extends RegexpValidator {
 
 	/**
 	 * Creates a validator for checking that a string is a syntactically valid
-	 * ISSN number.
+	 * HAL id.
 	 * <p>
 	 * This constructor creates a validator which does not accept an empty string
-	 * as a valid ISSN number. Use {@link #IssnValidator(String, String, boolean)}
+	 * as a valid HAL id. Use {@link #HalIdValidator(String, String, boolean)}
 	 * constructor with {@code true} as a value for the second argument to
 	 * create a validator which accepts an empty string.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param warningMessage the message to display in case the value does validate but is empty. It could be
 	 *     {@code null} to disable the warning.
-	 * @see #IssnValidator(String, String, boolean)
+	 * @see #HalIdValidator(String, String, boolean)
 	 */
-	public IssnValidator(String errorMessage, String warningMessage) {
+	public HalIdValidator(String errorMessage, String warningMessage) {
 		this(errorMessage, warningMessage, false);
 	}
 
 	/**
 	 * Creates a validator for checking that a string is a syntactically valid
-	 * ISSN number.
-	 * <p>
-	 * This constructor creates a validator which does not accept an empty string
-	 * as a valid ISSN number. Use {@link #IssnValidator(String, String, boolean)}
-	 * constructor with {@code true} as a value for the second argument to
-	 * create a validator which accepts an empty string.
-	 *
-	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
-	 * @see #IssnValidator(String, String, boolean)
-	 */
-	public IssnValidator(String errorMessage) {
-		this(errorMessage, null);
-	}
-
-	/**
-	 * Creates a validator for checking that a string is a syntactically valid
-	 * ISSN number.
-	 *
-	 * @param errorMessage the message to display in case the value does not validate. Must not be {@code null}. Parameter {@code {0}} is replaced by the invalid entity in the message.
-	 * @param allowEmpty if {@code true} then an empty string passes the validation,
-	 *     otherwise the validation fails.
-	 */
-	public IssnValidator(String errorMessage, boolean allowEmpty) {
-		this(errorMessage, null, allowEmpty);
-	}
-
-	/**
-	 * Creates a validator for checking that a string is a syntactically valid
-	 * ISSN number.
+	 * HAL id.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate. Must not be {@code null}. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param warningMessageWhenEmpty the message to display in case the value does validate but is empty. It could be
@@ -99,7 +71,7 @@ public class IssnValidator extends RegexpValidator {
 	 * @param allowEmpty if {@code true} then an empty string passes the validation,
 	 *     otherwise the validation fails.
 	 */
-	public IssnValidator(String errorMessage, String warningMessageWhenEmpty, boolean allowEmpty) {
+	public HalIdValidator(String errorMessage, String warningMessageWhenEmpty, boolean allowEmpty) {
 		super(errorMessage, PATTERN, true);
 		this.allowEmptyValue = allowEmpty;
 		this.warningMessageWhenEmpty = Strings.emptyToNull(warningMessageWhenEmpty);
@@ -110,8 +82,7 @@ public class IssnValidator extends RegexpValidator {
 		if (Strings.isNullOrEmpty(value) || value.isBlank()) {
 			return this.allowEmptyValue;
 		}
-		// Replace the dashes
-		return super.isValid(value.replaceAll("-+", "")); //$NON-NLS-1$ //$NON-NLS-2$
+		return super.isValid(value);
 	}
 
 	@Override

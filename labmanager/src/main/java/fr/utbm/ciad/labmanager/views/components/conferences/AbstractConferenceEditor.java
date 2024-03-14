@@ -108,9 +108,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		createRankingDetails(rootContainer);
 		createPublisherDetails(rootContainer);
 		if (isBaseAdmin()) {
-			createAdministrationComponents(rootContainer,
-					null,
-					it -> it.bind(Conference::isValidated, Conference::setValidated));
+			createAdministrationComponents(rootContainer, it -> it.bind(Conference::isValidated, Conference::setValidated));
 		}
 	}
 

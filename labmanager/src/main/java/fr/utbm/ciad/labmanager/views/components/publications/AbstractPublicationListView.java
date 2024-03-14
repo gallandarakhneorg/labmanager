@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.publications;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -35,16 +37,25 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
+import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -68,7 +79,31 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	
 	private static final long serialVersionUID = 6591553988384909013L;
 
+	private static final String EMPTY = ""; //$NON-NLS-1$
+
 	private final String authorsColumnLabelKey;
+
+	private final String personCreationLabelKey;
+
+	private final String personFieldLabelKey;
+
+	private final String personFieldHelperLabelKey;
+
+	private final String personNullErrorKey;
+
+	private final String personDuplicateErrorKey;
+
+	private final DownloadableFileManager fileManager;
+
+	private final JournalService journalService;
+
+	private final ConferenceService conferenceService;
+
+	private final ScientificAxisService axisService;
+
+	private final PersonService personService;
+
+	private final UserService userService;
 	
 	private PublicationDataProvider dataProvider;
 
@@ -88,33 +123,53 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 	private Column<Publication> validationColumn;
 
-	private final DownloadableFileManager fileManager;
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the filenames for the uploaded files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param publicationService the service for accessing the publications.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param journalService the service for accessing the JPA entities for journal.
+	 * @param conferenceService the service for accessing the JPA entities for conferences.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param logger the logger to use.
 	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
 	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
 	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
 	 * @param deletionErrorMessageKey the key in the localized messages for the messages related to an error of deletion.
 	 * @param authorsColumnLabelKey the key in the localized messages for the messages related to the label of the authors column.
+	 * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
+	 * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
+	 * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
+	 * @param personNullErrorKey the key that is used for retrieving the text of the author/editor null error.
+	 * @param personDuplicateErrorKey the key that is used for retrieving the text of the author/editor duplicate error.
 	 */
 	public AbstractPublicationListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PublicationService publicationService, Logger logger,
+			PublicationService publicationService, PersonService personService, UserService userService,
+			JournalService journalService, ConferenceService conferenceService, ScientificAxisService axisService, Logger logger,
 			String deletionTitleMessageKey, String deletionMessageKey,
 			String deletionSuccessMessageKey, String deletionErrorMessageKey,
-			String authorsColumnLabelKey) {
+			String authorsColumnLabelKey, String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
+			String personNullErrorKey, String personDuplicateErrorKey) {
 		super(Publication.class, authenticatedUser, messages, logger,
 				deletionTitleMessageKey, deletionMessageKey, deletionSuccessMessageKey, deletionErrorMessageKey);
 		this.fileManager = fileManager;
 		this.authorsColumnLabelKey = authorsColumnLabelKey;
+		this.personCreationLabelKey = personCreationLabelKey;
+		this.personFieldLabelKey = personFieldLabelKey;
+		this.personFieldHelperLabelKey = personFieldHelperLabelKey;
+		this.personNullErrorKey = personNullErrorKey;
+		this.personDuplicateErrorKey = personDuplicateErrorKey;
 		this.publicationService = publicationService;
+		this.personService = personService;
+		this.userService = userService;
+		this.journalService = journalService;
+		this.conferenceService = conferenceService;
+		this.axisService = axisService;
 	}
 
 	/** Change the data provider;.
@@ -130,6 +185,14 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @return the types of supported publications.
 	 */
 	protected abstract Stream<PublicationType> getSupportedPublicationTypes(); 
+
+	/** Replies the types of publications that are supported by this view.
+	 *
+	 * @return the types of supported publications.
+	 */
+	protected final PublicationType[] getSupportedPublicationTypeArray() {
+		return getSupportedPublicationTypes().toArray(size -> new PublicationType[size]);
+	}
 
 	/** Create filters that correspond to the supported types.
 	 *
@@ -215,10 +278,12 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		final var authors = publication.getAuthors();
 		final var list = new StringBuilder();
 		for (final var author : authors) {
-			if (list.length() > 0) {
-				list.append(", "); //$NON-NLS-1$
+			if (author != null) {
+				if (list.length() > 0) {
+					list.append(", "); //$NON-NLS-1$
+				}
+				list.append(author.getFullName());
 			}
-			list.append(author.getFullName());
 		}
 		return new Span(list.toString());
 	}
@@ -266,15 +331,20 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 					filters).stream();
 		};
 	}
-
+	
 	@Override
 	protected void addEntity() {
-		//TODO openPublicationEditor(new Publication(), getTranslation("views.publication.add_publication"));
+		final var now = LocalDate.now();
+		final var emptyPublication = this.publicationService.getPrePublicationFactory().createPrePublication(
+				getSupportedPublicationTypes().findFirst().get(),
+				EMPTY, EMPTY, EMPTY, now, now.getYear(), EMPTY, EMPTY,
+				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, PublicationLanguage.getDefault());
+		openPublicationEditor(emptyPublication, getTranslation("views.publication.add_publication")); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(Publication publication) {
-		//TODO openPublicationEditor(publication, getTranslation("views.publication.edit_publication", publication.getTitle()));
+		openPublicationEditor(publication, getTranslation("views.publication.edit_publication", publication.getTitle())); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a publication.
@@ -282,23 +352,26 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param publication the publication to edit.
 	 * @param title the title of the editor.
 	 */
-	protected void openPublicatioEditor(Publication publication, String title) {
-// TODO		final var editor = new EmbeddedProjectEditor(
-//				this.projectService.startEditing(project),
-//				this.fileManager,
-//				getAuthenticatedUser(), getMessageSourceAccessor());
-//		final var newEntity = editor.isNewEntity();
-//		final SerializableBiConsumer<Dialog, Project> refreshAll = (dialog, entity) -> refreshGrid();
-//		final SerializableBiConsumer<Dialog, Project> refreshOne = (dialog, entity) -> refreshItem(entity);
-//		ComponentFactory.openEditionModalDialog(title, editor, false,
-//				// Refresh the "old" item, even if its has been changed in the JPA database
-//				newEntity ? refreshAll : refreshOne,
-//				newEntity ? null : refreshAll);
+	protected void openPublicationEditor(Publication publication, String title) {
+		final var editor = new EmbeddedPublicationEditor(
+				this.publicationService.startEditing(publication),
+				getSupportedPublicationTypeArray(), true,
+				this.fileManager, this.publicationService, this.personService, this.userService, 
+				this.journalService, this.conferenceService, this.axisService,
+				getAuthenticatedUser(), getMessageSourceAccessor(), this.personCreationLabelKey,
+				this.personFieldLabelKey, this.personFieldHelperLabelKey,
+				this.personNullErrorKey, this.personDuplicateErrorKey);
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, Publication> refreshAll = (dialog, entity) -> refreshGrid();
+		ComponentFactory.openEditionModalDialog(title, editor, false,
+				// Refresh the "old" item, even if its has been changed in the JPA database
+				refreshAll,
+				newEntity ? null : refreshAll);
 	}
 
 	@Override
 	protected EntityDeletingContext<Publication> createDeletionContextFor(Set<Publication> entities) {
-		return null; // TODO this.publicationService.startDeletion(entities);
+		return this.publicationService.startDeletion(entities);
 	}
 
 	@Override

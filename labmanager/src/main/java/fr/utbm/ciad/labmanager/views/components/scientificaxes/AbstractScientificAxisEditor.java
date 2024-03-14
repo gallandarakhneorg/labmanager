@@ -82,9 +82,7 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
 		if (isBaseAdmin()) {
-			createAdministrationComponents(rootContainer,
-					null,
-					it -> it.bind(ScientificAxis::isValidated, ScientificAxis::setValidated));
+			createAdministrationComponents(rootContainer, it -> it.bind(ScientificAxis::isValidated, ScientificAxis::setValidated));
 		}
 	}
 

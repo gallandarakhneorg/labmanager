@@ -51,6 +51,7 @@ import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
@@ -390,6 +391,13 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column(nullable = false)
 	private boolean validated;
 
+	/** The country of the organization.
+	 * @since 4.0
+	 */
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private CountryCode nationality = CountryCode.getDefault();
+
 	/** Construct a person with the given values.
 	 *
 	 * @param id the identifier of the person.
@@ -506,6 +514,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (!Strings.isNullOrEmpty(getFullNameWithLastNameFirst())) {
 			consumer.accept("fullNameWithLastNameFirst", getFullNameWithLastNameFirst()); //$NON-NLS-1$
+		}
+		if (getNationality() != null) {
+			consumer.accept("nationality", getNationality()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			consumer.accept("linkedInId", getLinkedInId()); //$NON-NLS-1$
@@ -715,6 +726,47 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		resetWebPageId();
 	}
 
+	/** Replies the name of the nationality of the person.
+	 *
+	 * @return the display name of the nationality.
+	 * @since 4.0
+	 */
+	public String getNationalityDisplayName() {
+		return this.nationality.getDisplayCountry();
+	}
+
+
+	/** Replies the nationality of the person.
+	 *
+	 * @return the nationality.
+	 * @since 4.0
+	 */
+	public CountryCode getNationality() {
+		return this.nationality;
+	}
+
+	/** Change the nationality of the person.
+	 *
+	 * @param nationality the nationality.
+	 * @since 4.0
+	 */
+	public void setNationality(CountryCode nationality) {
+		this.nationality = nationality == null ? CountryCode.getDefault() : nationality;
+	}
+
+	/** Change the nationality of the person.
+	 *
+	 * @param nationality the nationality.
+	 * @since 4.0
+	 */
+	public final void setNationality(String nationality) {
+		if (Strings.isNullOrEmpty(nationality)) {
+			setNationality((CountryCode) null);
+		} else {
+			setNationality(CountryCode.valueOfCaseInsensitive(nationality));
+		}
+	}
+	
 	/** Replies the naming convention for the webpage of the person.
 	 *
 	 * @return the convention.

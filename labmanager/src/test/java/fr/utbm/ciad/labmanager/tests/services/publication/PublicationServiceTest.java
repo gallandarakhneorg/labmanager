@@ -90,6 +90,7 @@ import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.DefaultPersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -197,7 +198,7 @@ public class PublicationServiceTest {
 		this.patentService = mock(PatentService.class);
 		this.reportService = mock(ReportService.class);
 		this.thesisService = mock(ThesisService.class);
-		this.test = new PublicationService(this.messages, new Constants(), this.publicationRepository, this.prePublicationFactory,
+		this.test = new PublicationService(this.messages, new Constants(), mock(SessionFactory.class), this.publicationRepository, this.prePublicationFactory,
 				this.authorshipRepository,
 				this.personService, this.personRepository,
 				this.journalRepository, this.conferenceRepository, this.nameParser, this.bibtex, this.ris, this.html,

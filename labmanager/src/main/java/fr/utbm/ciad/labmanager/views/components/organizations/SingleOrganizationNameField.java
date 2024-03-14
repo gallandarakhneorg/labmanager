@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.organizations;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -27,11 +27,12 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.organizations.EmbeddedOrganizationEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractSingleEntityNameField;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -128,7 +129,7 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 		final var newOrganization = new ResearchOrganization();
 		
 		if (!Strings.isNullOrEmpty(customName)) {
-			final var parts = customName.split("\\s*" + ResearchOrganization.ACRONYM_NAME_SEPARATOR + "\\s*", 2); //$NON-NLS-1$ //$NON-NLS-2$
+			final var parts = customName.split("\\s*" + EntityUtils.ACRONYM_NAME_SEPARATOR + "\\s*", 2); //$NON-NLS-1$ //$NON-NLS-2$
 			if (parts.length > 1) {
 				newOrganization.setAcronym(parts[0]);
 				newOrganization.setName(parts[1]);

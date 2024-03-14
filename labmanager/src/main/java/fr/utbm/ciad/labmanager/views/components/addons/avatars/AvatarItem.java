@@ -112,7 +112,7 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 	 */
 	public void setAvatarBorderColor(Integer index) {
 		if (getContent().getComponentAt(0) instanceof Avatar existing) {
-			// TODO: Bug fix in Vaadin Avatar, that is not supporting null argument in opposite to the API documentation.
+			// Bug fix in Vaadin Avatar, that is not supporting null argument in opposite to the API documentation.
 			if (index == null) {
 				existing.getElement().removeProperty("colorIndex"); //$NON-NLS-1$
 			} else {

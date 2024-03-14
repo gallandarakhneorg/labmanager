@@ -1153,7 +1153,63 @@ public enum MemberStatus {
 			return false;
 		}
 	},
-	/** Master student (internship).
+	/** Master student with contract (alternant in France)
+	 */
+	CONTRACT_MASTER_STUDENT {
+		@Override
+		public int getHierachicalLevel() {
+			return 5;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
+		}
+		@Override
+		public boolean isResearcher() {
+			return false;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return true;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return false;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
+	},
+	/** Master student in internship.
 	 */
 	MASTER_STUDENT {
 		@Override
@@ -1209,7 +1265,63 @@ public enum MemberStatus {
 			return false;
 		}
 	},
-	/** Bachelor student (internship).
+	/** Bachelor student with contract (apprenti in France).
+	 */
+	OTHER_CONTRACT_STUDENT {
+		@Override
+		public int getHierachicalLevel() {
+			return 6;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
+		}
+		@Override
+		public boolean isResearcher() {
+			return false;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return true;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return false;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
+	},
+	/** Bachelor student in internship.
 	 */
 	OTHER_STUDENT {
 		@Override

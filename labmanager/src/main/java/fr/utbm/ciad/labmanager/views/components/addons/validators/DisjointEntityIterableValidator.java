@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.validators;
 
+import java.util.HashSet;
 import java.util.function.Predicate;
 
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -58,6 +59,16 @@ public class DisjointEntityIterableValidator<T extends IdentifiableEntity, I ext
 		this.nullMessageProvider = value -> nullErrorMessage.replace("{0}", String.valueOf(value)); //$NON-NLS-1$
 		this.disjointMessageProvider = value -> disjointErrorMessage.replace("{0}", String.valueOf(value)); //$NON-NLS-1$
 		this.disjointValidator = disjointValidator;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param nullErrorMessage the message to display in case the value does not validate because it is {@code null}. Parameter {@code {0}} is replaced by the invalid entity in the message.
+	 * @param disjointErrorMessage the message to display in case the value does not validate because it is equal to another entity of the same type. Parameter {@code {0}} is replaced by the invalid entity in the message.
+	 */
+	public DisjointEntityIterableValidator(String nullErrorMessage, String disjointErrorMessage) {
+		this(nullErrorMessage, disjointErrorMessage, null);
 	}
 
 	@Override
@@ -129,13 +140,14 @@ public class DisjointEntityIterableValidator<T extends IdentifiableEntity, I ext
 		if (value == null) {
 			return toNullErrorResult(null);
 		}
+		final var found = new HashSet<T>();
 		final var iterator = value.iterator();
 		while (iterator.hasNext()) {
 			final var innerValue = iterator.next();
 			if (isNull(innerValue)) {
 				return toNullErrorResult(innerValue);
 			}
-			if (!isDisjoint(innerValue)) {
+			if (!found.add(innerValue) || !isDisjoint(innerValue)) {
 				return toDisjointErrorResult(innerValue);
 			}
 		}

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -92,6 +93,8 @@ import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
+import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -169,6 +172,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param publicationRepository the publication repository.
 	 * @param prePublicationFactory factory of pre-publications.
 	 * @param authorshipService the service for managing the authorships.
@@ -199,6 +203,7 @@ public class PublicationService extends AbstractPublicationService {
 	public PublicationService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired AuthorshipRepository authorshipRepository,
@@ -223,7 +228,7 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired PatentService patentService,
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.publicationRepository = publicationRepository;
 		this.prePublicationFactory = prePublicationFactory;
 		this.authorshipRepository = authorshipRepository;
@@ -251,6 +256,15 @@ public class PublicationService extends AbstractPublicationService {
 		this.thesisService = thesisService;
 	}
 
+	/** Replies the factory for pre-publications. A pre-publication is a publication in which only the shared properties are set. It does not correspond to a concrete publication instance.
+	 *
+	 * @return the factory.
+	 * @since 4.0
+	 */
+	public PrePublicationFactory getPrePublicationFactory() {
+		return this.prePublicationFactory;
+	}
+	
 	/** Replies all the publications from the database.
 	 *
 	 * @return the publications.
@@ -612,30 +626,44 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	public void save(List<? extends Publication> publications) {
 		for (final var publication : publications) {
-			final var authors = publication.getTemporaryAuthors();
-			publication.setTemporaryAuthors(null);
-			this.publicationRepository.save(publication);
-			if (publication instanceof JournalBasedPublication jpublication) {
-				final var jour = jpublication.getJournal();
-				if (jour != null) {
-					this.journalRepository.save(jour);
-				}
-			} else if (publication instanceof ConferenceBasedPublication cpublication) {
-				final var conf = cpublication.getConference();
-				if (conf != null) {
-					this.conferenceRepository.save(conf);
-				}
+			save(publication);
+		}
+	}
+
+	/** Save the given publication into the database.
+	 * If publication has a temporary list of authors, the corresponding authors are
+	 * explicitly created into the database. However, this function does not manage the update of the author list.
+	 *
+	 * @param publication publication to save in the database.
+	 * @return the instance of the publication after saving. It may differ from the instance that is provided as argument.
+	 * @since 4.0
+	 */
+	public Publication save(Publication publication) {
+		// Remove old authorships
+		final var authors = publication.getTemporaryAuthors();
+		publication.setTemporaryAuthors(null);
+		final var newPublication = this.publicationRepository.save(publication);
+		if (publication instanceof JournalBasedPublication jpublication) {
+			final var jour = jpublication.getJournal();
+			if (jour != null) {
+				this.journalRepository.save(jour);
 			}
-			if (authors != null) {
-				// Create the list of authors from the temporary (not yet saved) list. 
-				var rank = 0;
-				for (final var author : authors) {
-					this.personRepository.save(author);
-					addAuthorship(author.getId(), publication.getId(), rank, false);
-					++rank;
-				}
+		} else if (publication instanceof ConferenceBasedPublication cpublication) {
+			final var conf = cpublication.getConference();
+			if (conf != null) {
+				this.conferenceRepository.save(conf);
 			}
 		}
+		if (authors != null) {
+			// Create the list of authors from the temporary (not yet saved) list. 
+			var rank = 0;
+			for (final var author : authors) {
+				this.personRepository.save(author);
+				addAuthorship(author.getId(), publication.getId(), rank, false);
+				++rank;
+			}
+		}
+		return newPublication;
 	}
 
 	/** Parse the given BibTeX file and extract the publications without adding them in the database.
@@ -1698,6 +1726,518 @@ ay of publications that should be exported.
 	 */
 	public boolean isAuthor(long id) {
 		return !this.publicationRepository.findAllByAuthorshipsPersonId(id).isEmpty();
+	}
+
+	/** Copy the publication to be of the given target type.
+	 *
+	 * @param publication the publication to copy.
+	 * @param target the target type.
+	 * @return the result of the copy.
+	 */
+	public Publication transform(Publication publication, PublicationType target) {
+		final Class<? extends Publication> targetType = target.getInstanceType();
+
+		final String address;
+		final String bookTitle;
+		final String chapterNumber;
+		final Conference conference;
+		final String edition;
+		final String editors;
+		final String howPublished;
+		final String institution;
+		final Journal journal;
+		final String number;
+		final int occurrence;
+		final String organization;
+		final String pages;
+		final String publisher;
+		final String series;
+		final String type;
+		final String volume;
+		
+		if (publication instanceof JournalPaper journalPaper) {
+			address = null;
+			bookTitle = journalPaper.getJournal().getJournalName();
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = journalPaper.getJournal().getJournalName();
+			institution = journalPaper.getJournal().getPublisher();
+			journal = journalPaper.getJournal();
+			number = journalPaper.getNumber();
+			occurrence = 0;
+			organization = journal.getPublisher();
+			pages = journalPaper.getPages();
+			publisher = journal.getPublisher();
+			series = journalPaper.getSeries();
+			type = null;
+			volume = journalPaper.getVolume();
+		} else if (publication instanceof JournalEdition journalEdition) {
+			address = null;
+			bookTitle = journalEdition.getJournal().getJournalName();
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = journalEdition.getJournal().getJournalName();
+			institution = journalEdition.getJournal().getPublisher();
+			journal = journalEdition.getJournal();
+			number = journalEdition.getNumber();
+			occurrence = 0;
+			organization = null;
+			pages = journalEdition.getPages();
+			publisher = journal.getPublisher();
+			series = null;
+			type = null;
+			volume = journalEdition.getVolume();
+		} else if (publication instanceof ConferencePaper conferencePaper) {
+			address = conferencePaper.getAddress();
+			bookTitle = conferencePaper.getConference().getName();
+			chapterNumber = null;
+			conference = conferencePaper.getConference();
+			edition = null;
+			editors = conferencePaper.getEditors();
+			howPublished = conferencePaper.getConference().getName();
+			institution = conferencePaper.getOrganization();
+			journal = null;
+			number = conferencePaper.getNumber();
+			occurrence = conferencePaper.getConferenceOccurrenceNumber();
+			organization = conferencePaper.getOrganization();
+			pages = conferencePaper.getPages();
+			publisher = conference.getPublisher();
+			series = conferencePaper.getSeries();
+			type = null;
+			volume = conferencePaper.getVolume();
+		} else if (publication instanceof KeyNote keynote) {
+			address = keynote.getAddress();
+			bookTitle = keynote.getConference().getName();
+			chapterNumber = null;
+			conference = keynote.getConference();
+			edition = null;
+			editors = keynote.getEditors();
+			howPublished = keynote.getConference().getName();
+			institution = keynote.getOrganization();
+			journal = null;
+			number = null;
+			occurrence = keynote.getConferenceOccurrenceNumber();
+			organization = keynote.getOrganization();
+			pages = null;
+			publisher = conference.getPublisher();
+			series = null;
+			type = null;
+			volume = null;
+		} else if (publication instanceof Book book) {
+			address = book.getAddress();
+			bookTitle = null;
+			chapterNumber = null;
+			conference = null;
+			edition = book.getEdition();
+			editors = book.getEditors();
+			howPublished = book.getPublisher();
+			institution = book.getPublisher();
+			journal = null;
+			number = book.getNumber();
+			occurrence = 0;
+			organization = book.getPublisher();
+			pages = book.getPages();
+			publisher = book.getPublisher();
+			series = book.getSeries();
+			type = null;
+			volume = book.getVolume();
+		} else if (publication instanceof BookChapter chapter) {
+			address = chapter.getAddress();
+			bookTitle = chapter.getBookTitle();
+			chapterNumber = chapter.getChapterNumber();
+			conference = null;
+			edition = chapter.getEdition();
+			editors = chapter.getEditors();
+			howPublished = chapter.getPublisher();
+			institution = chapter.getPublisher();
+			journal = null;
+			number = chapter.getNumber();
+			occurrence = 0;
+			organization = chapter.getPublisher();
+			pages = chapter.getPages();
+			publisher = chapter.getPublisher();
+			series = chapter.getSeries();
+			type = null;
+			volume = chapter.getVolume();
+		} else if (publication instanceof Patent patent) {
+			address = patent.getAddress();
+			bookTitle = null;
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = patent.getInstitution();
+			institution = patent.getInstitution();
+			journal = null;
+			number = patent.getPatentNumber();
+			occurrence = 0;
+			organization = patent.getInstitution();
+			pages = null;
+			publisher = patent.getInstitution();
+			series = patent.getPatentType();
+			type = patent.getPatentType();
+			volume = null;
+		} else if (publication instanceof Report report) {
+			address = report.getAddress();
+			bookTitle = null;
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = report.getInstitution();
+			institution = report.getInstitution();
+			journal = null;
+			number = report.getReportNumber();
+			occurrence = 0;
+			organization = report.getInstitution();
+			pages = null;
+			publisher = report.getInstitution();
+			series = report.getReportType();
+			type = report.getReportType();
+			volume = null;
+		} else if (publication instanceof Thesis thesis) {
+			address = thesis.getAddress();
+			bookTitle = null;
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = thesis.getInstitution();
+			institution = thesis.getInstitution();
+			journal = null;
+			number = null;
+			occurrence = 0;
+			organization = thesis.getInstitution();
+			pages = null;
+			publisher = thesis.getInstitution();
+			series = null;
+			type = null;
+			volume = null;
+		} else if (publication instanceof MiscDocument document) {
+			address = document.getAddress();
+			bookTitle = null;
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = document.getHowPublished();
+			institution = document.getOrganization();
+			journal = null;
+			number = document.getDocumentNumber();
+			occurrence = 0;
+			organization = document.getOrganization();
+			pages = null;
+			publisher = document.getPublisher();
+			series = null;
+			type = document.getDocumentType();
+			volume = null;
+		} else {
+			throw new IllegalArgumentException();
+		}
+
+		final var prePublication = this.prePublicationFactory.createPrePublication(
+				target,
+				publication.getTitle(),
+				publication.getAbstractText(), publication.getKeywords(),
+				publication.getPublicationDate(), publication.getPublicationYear(),
+				publication.getISBN(), publication.getISSN(),
+				publication.getDOI(), publication.getHalId(),
+				publication.getExtraURL(), publication.getVideoURL(),
+				publication.getDblpURL(), publication.getPathToDownloadablePDF(),
+				publication.getPathToDownloadableAwardCertificate(),
+				publication.getMajorLanguage());
+
+		final Publication newPublication;
+		if (JournalPaper.class.equals(targetType)) {
+			newPublication = this.journalPaperService.createJournalPaper(prePublication, volume, number, pages, series, journal, false);
+		} else if (JournalEdition.class.equals(targetType)) {
+			newPublication = this.journalEditionService.createJournalEdition(prePublication, volume, number, pages, journal, false);
+		} else if (ConferencePaper.class.equals(targetType)) {
+			newPublication = this.conferencePaperService.createConferencePaper(prePublication, conference, occurrence, volume, number, pages, editors, series, organization, address, false);
+		} else if (KeyNote.class.equals(targetType)) {
+			newPublication = this.keyNoteService.createKeyNote(prePublication, conference, occurrence, editors, organization, address, false);
+		} else if (Book.class.equals(targetType)) {
+			newPublication = this.bookService.createBook(prePublication, volume, number, pages, edition, editors, series, publisher, address, false);
+		} else if (BookChapter.class.equals(targetType)) {
+			newPublication = this.bookChapterService.createBookChapter(prePublication, bookTitle, chapterNumber, edition, volume, number, pages, editors, series, publisher, address, false);
+		} else if (Patent.class.equals(targetType)) {
+			newPublication = this.patentService.createPatent(prePublication, number, type, institution, address, false);
+		} else if (Report.class.equals(targetType)) {
+			newPublication = this.reportService.createReport(prePublication, number, type, institution, address, false);
+		} else if (Thesis.class.equals(targetType)) {
+			newPublication = this.thesisService.createThesis(prePublication, institution, address, false);
+		} else if (MiscDocument.class.equals(targetType)) {
+			newPublication = this.miscDocumentService.createMiscDocument(prePublication, number, howPublished, type, organization, publisher, address, false);
+		} else {
+			throw new IllegalArgumentException();
+		}
+
+		// Finalize the creation of the new publication
+		newPublication.setTemporaryAuthors(publication.getAuthors());
+		newPublication.setPublicationYear(publication.getPublicationYear());
+		newPublication.setValidated(publication.isValidated());
+		newPublication.setManualValidationForced(publication.getManualValidationForced());
+
+		return newPublication;
+	}
+
+	/** Save a new publication or update an existing publication.
+	 *
+	 * @param changedPublication the publication after changes that should be to be saved.
+	 * @param originalPublication the publication before change that could be removed it is no more needed.
+	 * @return the saved publication in the database.
+	 * @throws IOException error when it is impossible to save or rename the associated files.
+	 */
+	@Transactional
+	public Publication saveOrUpdatePublication(Publication changedPublication, Publication originalPublication) throws IOException {
+		final var typeEnum = changedPublication.getType();
+		if (originalPublication != null && !typeEnum.isCompatibleWith(originalPublication.getType())) {
+			// Save the publication
+			final var savedPublication = save(changedPublication);
+			// Remove the publication without removing the associated files
+			final var oldId = originalPublication.getId();
+			removePublication(oldId, false);
+			// Rename the associated files
+			final var newId = savedPublication.getId();
+			final var associatedFilesChanged = new MutableBoolean(false);
+			this.fileManager.moveFiles(oldId, newId, (key, source, target) -> {
+				switch (key) {
+				case "pdf": //$NON-NLS-1$
+					if (!Strings.isNullOrEmpty(originalPublication.getPathToDownloadablePDF())) {
+						// PDF file was associated and no new one was provided.
+						// Re-associate the previously associated file.
+						savedPublication.setPathToDownloadablePDF(target);
+						associatedFilesChanged.setTrue();
+					}
+					break;
+				case "award": //$NON-NLS-1$
+					if (!Strings.isNullOrEmpty(originalPublication.getPathToDownloadableAwardCertificate())) {
+						// PDF file was associated and no new one was provided.
+						// Re-associate the previously associated file.
+						savedPublication.setPathToDownloadableAwardCertificate(target);
+						associatedFilesChanged.setTrue();
+					}
+					break;
+				default:
+					// silent
+				}
+			});
+			if (associatedFilesChanged.isTrue()) {
+				save(savedPublication);
+			}
+			return savedPublication;
+		}
+
+		// Update of an existing publication
+		
+		// Update the list of authors.
+		final var newAuthors = changedPublication.getTemporaryAuthors();
+		changedPublication.setTemporaryAuthors(null);
+		final Publication savedPublication;
+		if (newAuthors != null) {
+			savedPublication = updateAuthorListAndSave(changedPublication, newAuthors);
+		} else {
+			savedPublication = save(changedPublication);
+		}
+
+		getLogger().info("Publication instance updated: " + savedPublication.getId()); //$NON-NLS-1$
+		
+		return savedPublication;
+	}
+
+	private Publication updateAuthorListAndSave(Publication publication, List<Person> authors) {
+		// Save the publication before changing the authors
+		Publication savedPublication = this.publicationRepository.save(publication);
+
+		// Update the list of authors.
+		Collector<Authorship, ?, Map<Long, Authorship>> col = Collectors.toMap(
+				it -> Long.valueOf(it.getPerson().getId()),
+				it -> it);
+		final var oldIds = new HashMap<>(publication.getAuthorshipsRaw().stream().collect(col));
+		var rank = 0;
+		for (final var author : authors) {
+			assert author != null;
+			oldIds.remove(Long.valueOf(author.getId()));
+			final var fperson = author;
+			final var optAut = publication.getAuthorshipsRaw().stream().filter(it -> it.getPerson().getId() == fperson.getId()).findFirst();
+			if (optAut.isPresent()) {
+				// Author is already present in the authorships
+				final var authorship = optAut.get();
+				authorship.setAuthorRank(rank);
+				this.authorshipRepository.save(authorship);
+				oldIds.remove(Long.valueOf(authorship.getId()));
+				getLogger().info("Author \"" + author.getFullName() + "\" updated for the publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				// Author was not associated yet
+				addAuthorship(author, publication, rank);
+				getLogger().info("Author \"" + author.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			++rank;
+		}
+
+		// Remove the old authorships
+		for (final var oldAutshp : oldIds.values()) {
+			publication.getAuthorshipsRaw().remove(oldAutshp);
+			final var oldAuthor = oldAutshp.getPerson();
+			oldAuthor.getAuthorships().remove(oldAutshp);
+			this.personRepository.save(oldAuthor);
+			savedPublication = this.publicationRepository.save(publication);
+			this.authorshipRepository.deleteById(Long.valueOf(oldAutshp.getId()));
+		}
+		// Save the publication
+		return savedPublication;
+	}
+
+	private Authorship addAuthorship(Person person, Publication publication, int rank) {
+		// No need to add the authorship if the person is already linked to the publication
+		final var currentAuthors = publication.getAuthorshipsRaw();
+		final var ro = currentAuthors.stream().filter(it -> it.getPerson().getId() == person.getId()).findAny();
+		if (ro.isEmpty()) {
+			final var authorship = new Authorship();
+			authorship.setPerson(person);
+			authorship.setPublication(publication);
+			authorship.setAuthorRank(rank);
+
+			currentAuthors.add(authorship);
+			person.getAuthorships().add(authorship);
+
+			this.authorshipRepository.save(authorship);
+			this.personRepository.save(person);
+			this.publicationRepository.save(publication);
+			return authorship;
+		}
+		return null;
+	}
+
+	@Override
+	public EntityEditingContext<Publication> startEditing(Publication publication) {
+		assert publication != null;
+		// Force initialization of the internal properties that are needed for editing
+		if (publication.getId() != 0l) {
+			inSession(session -> {
+				session.load(publication, Long.valueOf(publication.getId()));
+				if (publication instanceof JournalBasedPublication journalPub) {
+					Hibernate.initialize(journalPub.getJournal());
+				}
+				if (publication instanceof ConferenceBasedPublication conferencePub) {
+					Hibernate.initialize(conferencePub.getConference());
+				}
+				Hibernate.initialize(publication.getScientificAxes());
+				// Load all the authorships and the associated person for enabling the list of authors
+				Hibernate.initialize(publication.getAuthorshipsRaw());
+				publication.getAuthorshipsRaw().forEach(it -> {
+					Hibernate.initialize(it.getPerson().getAuthorships());
+				});
+			});
+		}
+		return new EditingContext(publication);
+	}
+
+	@Override
+	public EntityDeletingContext<Publication> startDeletion(Set<Publication> publications) {
+		assert publications != null && !publications.isEmpty();
+		return new DeletingContext(publications);
+	}
+
+	/** Context for editing a {@link Publication}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class EditingContext extends AbstractEntityWithServerFilesEditingContext<Publication> {
+
+		private static final long serialVersionUID = 279291279949905796L;
+
+		private final UploadedFileTracker<Publication> pathToPdfFile;
+
+		private final UploadedFileTracker<Publication> pathToAwardFile;
+
+		/** Constructor.
+		 *
+		 * @param publication the edited publication.
+		 */
+		EditingContext(Publication publication) {
+			super(publication);
+			this.pathToPdfFile = newUploadedFileTracker(publication,
+					Publication::getPathToDownloadablePDF,
+					(id, savedPath) -> PublicationService.this.fileManager.deleteDownloadablePublicationPdfFile(id.longValue()),
+					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), null));
+			this.pathToAwardFile = newUploadedFileTracker(publication,
+					Publication::getPathToDownloadableAwardCertificate,
+					(id, savedPath) -> PublicationService.this.fileManager.deleteDownloadableAwardPdfFile(id.longValue()),
+					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), null));
+		}
+
+		@Override
+		protected Publication writeInJPA(Publication entity, boolean initialSaving) {
+			try {
+				return PublicationService.this.saveOrUpdatePublication(entity, this.entity);
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		@Override
+		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
+			this.pathToPdfFile.deleteOrRenameFile(oldId, this.entity);
+			this.pathToAwardFile.deleteOrRenameFile(oldId, this.entity);
+		}
+
+		@Override
+		protected boolean prepareAssociatedFileUpload() throws IOException {
+			final var doUpload1 = !this.pathToPdfFile.deleteFile(this.entity);
+			final var doUpload2 = !this.pathToAwardFile.deleteFile(this.entity);
+			return doUpload1 || doUpload2;
+		}
+
+		@Override
+		protected void postProcessAssociatedFiles() throws IOException {
+			this.pathToPdfFile.resetPathMemory(this.entity);
+			this.pathToAwardFile.resetPathMemory(this.entity);
+		}
+
+		@Override
+		public EntityDeletingContext<Publication> createDeletionContext() {
+			return PublicationService.this.startDeletion(Collections.singleton(this.entity));
+		}
+
+	}
+
+	/** Context for deleting a {@link Publication}.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected class DeletingContext extends AbstractEntityDeletingContext<Publication> {
+
+		private static final long serialVersionUID = -3369716394627059296L;
+
+		/** Constructor.
+		 *
+		 * @param publications the publications to delete.
+		 */
+		protected DeletingContext(Set<Publication> publications) {
+			super(publications);
+		}
+		
+		@Override
+		protected void deleteEntities() throws Exception {
+			// Do the deletion
+			PublicationService.this.publicationRepository.deleteAllById(getDeletableEntityIdentifiers());
+		}
+
 	}
 
 }

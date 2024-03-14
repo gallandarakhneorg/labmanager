@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.services.publication.AbstractPublicationTypeServi
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -61,6 +62,7 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating the DOI.
 	 * @param halTools the tools for manipulating the HAL ids.
@@ -69,11 +71,12 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	public KeyNoteService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired DoiTools doiTools,
 			@Autowired HalTools halTools,
 			@Autowired KeyNoteRepository repository) {
-		super(messages, constants, downloadableFileManager, doiTools, halTools);
+		super(messages, constants, sessionFactory, downloadableFileManager, doiTools, halTools);
 		this.repository = repository;
 	}
 

@@ -275,7 +275,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void deleteDownloadablePublicationPdfFile(long id) throws Exception {
+	public void deleteDownloadablePublicationPdfFile(long id) throws IOException {
 		var file = makePdfFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
@@ -289,7 +289,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void deleteDownloadableAwardPdfFile(long id) {
+	public void deleteDownloadableAwardPdfFile(long id) throws IOException {
 		var file = makeAwardFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {

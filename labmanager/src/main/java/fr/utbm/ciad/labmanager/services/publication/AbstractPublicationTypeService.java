@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.services.publication;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Base64;
+import java.util.Set;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -33,6 +34,7 @@ import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
+import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Provides tool for the implemenation of a service for a specific type of publication.
@@ -56,6 +58,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the factory of JPA session.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating DOI.
 	 * @param halTools the tools for manipulating HAL identifiers.
@@ -63,10 +66,11 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	public AbstractPublicationTypeService(
 			MessageSourceAccessor messages,
 			Constants constants,
+			SessionFactory sessionFactory,
 			DownloadableFileManager downloadableFileManager,
 			DoiTools doiTools,
 			HalTools halTools) {
-		super(messages, constants);
+		super(messages, constants, sessionFactory);
 		this.downloadableFileManager = downloadableFileManager;
 		this.doiTools = doiTools;
 		this.halTools = halTools;
@@ -103,6 +107,16 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, halId, isbn,
 				issn, dblpUrl.toExternalForm(), extraUrl.toExternalForm(), language, pdfContent, awardContent,
 				pathToVideo.toExternalForm());
+	}
+	
+	@Override
+	public EntityEditingContext<Publication> startEditing(Publication entity) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public EntityDeletingContext<Publication> startDeletion(Set<Publication> entities) {
+		throw new UnsupportedOperationException();
 	}
 
 	/** Check if the given publication instance correspons to the given type.

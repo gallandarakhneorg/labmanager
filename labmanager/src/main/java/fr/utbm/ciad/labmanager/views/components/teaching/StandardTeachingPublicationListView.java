@@ -24,9 +24,14 @@ import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
+import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractPublicationListView;
+import fr.utbm.ciad.labmanager.views.components.publications.AbstractPublicationListView;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -51,6 +56,11 @@ public class StandardTeachingPublicationListView extends AbstractPublicationList
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the filenames for the uploaded files.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param journalService the service for accessing the JPA entities for journal.
+	 * @param conferenceService the service for accessing the JPA entities for conferences.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param publicationService the service for accessing the publications.
@@ -59,13 +69,22 @@ public class StandardTeachingPublicationListView extends AbstractPublicationList
 	public StandardTeachingPublicationListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PublicationService publicationService, Logger logger) {
-		super(fileManager, authenticatedUser, messages, publicationService, logger,
+			PublicationService publicationService, PersonService personService,
+			UserService userService, JournalService journalService,
+			ConferenceService conferenceService,
+			ScientificAxisService axisService, Logger logger) {
+		super(fileManager, authenticatedUser, messages, publicationService, personService,
+				userService, journalService, conferenceService, axisService, logger,
 				"views.teaching_publications.delete.title", //$NON-NLS-1$
 				"views.teaching_publications.delete.message", //$NON-NLS-1$
 				"views.teaching_publications.delete.success_message", //$NON-NLS-1$
 				"views.teaching_publications.delete.error_message", //$NON-NLS-1$
-				"views.authors"); //$NON-NLS-1$
+				"views.authors", //$NON-NLS-1$
+				"views.publication.new_author", //$NON-NLS-1$
+				"views.publication.authors", //$NON-NLS-1$
+				"views.publication.authors.helper", //$NON-NLS-1$
+				"views.publication.authors.error.null", //$NON-NLS-1$
+				"views.publication.authors.error.duplicate"); //$NON-NLS-1$
 		setDataProvider((service, pageRequest, filters) -> {
 			return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
 					this::initializeEntityFromJPA);

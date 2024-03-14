@@ -109,7 +109,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		this.entityType = entityType;
 		this.messages = messages;
 		this.logger = logger;
-		this.entityBinder = new Binder<>(this.entityType);
+		this.entityBinder = createBinder(this.entityType);
 		this.authenticatedUser = authenticatedUser;
 		this.editingContext = editingContext;
 		this.relinkEntityWhenSaving = relinkEntityWhenSaving;
@@ -122,6 +122,15 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 			this.isBaseAdmin = false;
 			this.isAdvancedAdmin = false;
 		}
+	}
+	
+	/** Create the instance of the binder for the provided type.
+	 *
+	 * @param type the type of the entities to be binded.
+	 * @return the binder instance.
+	 */
+	protected Binder<T> createBinder(Class<T> type) {
+		return new Binder<>(type);
 	}
 
 	/** Replies the context that represents the editied entity and the associated files and entities.
@@ -228,10 +237,16 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		getEntityDataBinder().setBean(getEditedEntity());
 	}
 
-	/** Unink the beans to the editor.
+	/** Unlink the beans to the editor.
+	 *
+	 * @param saveInEntity indicates if the field values must be written in the entity.
 	 */
-	protected void unlinkBeans() {
-		getEntityDataBinder().setBean(null);
+	protected void unlinkBeans(boolean saveInEntity) {
+		final var binder = getEntityDataBinder();
+		if (saveInEntity && binder.hasChanges()) {
+			binder.writeBeanAsDraft(binder.getBean(), true);
+		}
+		binder.setBean(null);
 	}
 
 	/** Create the content of the editor.
@@ -242,11 +257,12 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 */
 	protected abstract void createEditorContent(VerticalLayout rootContainer);
 
-	/** Create the components for adminitrator.
+	/** Create the components for administrator.
 	 *
 	 * @param receiver the receiver of the component
 	 * @param builderCallback the callback that is invoked to fill the administration form.
-	 * @param validationBinder invoked to bind the validation attributes of the entity. 
+	 * @param validationBinder invoked to bind the validation attributes of the entity.
+	 * @see #createAdministrationComponents(VerticalLayout, Consumer) 
 	 */
 	protected void createAdministrationComponents(VerticalLayout receiver,
 			Consumer<FormLayout> builderCallback,
@@ -269,6 +285,16 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 			this.administrationDetails.addThemeVariants(DetailsVariant.FILLED);
 			receiver.add(this.administrationDetails);
 		}
+	}
+
+	/** Create the components for administrator with additional component.
+	 *
+	 * @param receiver the receiver of the component
+	 * @param validationBinder invoked to bind the validation attributes of the entity.
+	 * @see #createAdministrationComponents(VerticalLayout, Consumer, Consumer) 
+	 */
+	protected final void createAdministrationComponents(VerticalLayout receiver, Consumer<BindingBuilder<T, Boolean>> validationBinder) {
+		createAdministrationComponents(receiver, null, validationBinder);
 	}
 
 	/** Invoked for validating the entity by an organizational structure manager. This function does not save.
@@ -462,7 +488,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 				doDelete(context);
 				notifyDeleted();
 				// Unlink after notifying for having the capability to get the name of the deleted entity
-				unlinkBeans();
+				unlinkBeans(false);
 				return true;
 			}
 			var ex = context.getDeletionStatus().getException(getMessageSourceAccessor(), getLocale());

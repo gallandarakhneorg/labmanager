@@ -49,10 +49,10 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
+import fr.utbm.ciad.labmanager.views.components.organizations.SingleOrganizationNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -135,9 +135,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		createProjectDetails(rootContainer);
 		createCommunicationDetails(rootContainer);
 		if (isBaseAdmin()) {
-			createAdministrationComponents(rootContainer,
-					null,
-					it -> it.bind(AssociatedStructure::isValidated, AssociatedStructure::setValidated));
+			createAdministrationComponents(rootContainer, it -> it.bind(AssociatedStructure::isValidated, AssociatedStructure::setValidated));
 		}
 	}
 

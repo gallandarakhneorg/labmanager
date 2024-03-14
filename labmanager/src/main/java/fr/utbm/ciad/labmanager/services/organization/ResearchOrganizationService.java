@@ -459,7 +459,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 
 		private static final long serialVersionUID = 23311671802716077L;
 
-		private String pathToLogo;
+		private UploadedFileTracker<ResearchOrganization> pathToLogo;
 
 		private Set<ResearchOrganization> originalSuperOrganizations;
 
@@ -469,7 +469,17 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		 */
 		EditingContext(ResearchOrganization organization) {
 			super(organization);
-			this.pathToLogo = organization.getPathToLogo();
+			this.pathToLogo = newUploadedFileTracker(organization,
+					ResearchOrganization::getPathToLogo,
+					(id, savedPath) -> {
+						if (!Strings.isNullOrEmpty(savedPath)) {
+							final var ext = FileSystem.extension(savedPath);
+							if (!Strings.isNullOrEmpty(ext)) {
+								ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id.longValue(), ext);
+							}
+						}
+					},
+					null);
 			this.originalSuperOrganizations = new HashSet<>(organization.getSuperOrganizations());
 		}
 
@@ -513,32 +523,19 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 			return ResearchOrganizationService.this.organizationRepository.save(this.entity);
 		}
 
-		private void deleteLogo(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToLogo)) {
-				final var ext = FileSystem.extension(this.pathToLogo);
-				if (!Strings.isNullOrEmpty(ext)) {
-					ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id, ext);
-				}
-			}
+		@Override
+		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
+			this.pathToLogo.deleteOrRenameFile(oldId, this.entity);
 		}
 
 		@Override
-		protected void deleteAssociatedFiles(long id) {
-			deleteLogo(id);
-		}
-
-		@Override
-		protected boolean prepareAssociatedFileUpload() {
-			if (Strings.isNullOrEmpty(this.entity.getPathToLogo())) {
-				deleteLogo(this.entity.getId());
-				return false;
-			}
-			return true;
+		protected boolean prepareAssociatedFileUpload() throws IOException {
+			return !this.pathToLogo.deleteFile(this.entity);
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToLogo = this.entity.getPathToLogo();
+			this.pathToLogo.resetPathMemory(this.entity);
 			this.originalSuperOrganizations = new HashSet<>(this.entity.getSuperOrganizations());
 		}
 

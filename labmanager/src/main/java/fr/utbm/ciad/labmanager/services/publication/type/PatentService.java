@@ -34,6 +34,7 @@ import fr.utbm.ciad.labmanager.services.publication.AbstractPublicationTypeServi
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,7 @@ public class PatentService extends AbstractPublicationTypeService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating the DOI.
 	 * @param halTools the tools for manipulating the HAL ids.
@@ -68,11 +70,12 @@ public class PatentService extends AbstractPublicationTypeService {
 	public PatentService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired DoiTools doiTools,
 			@Autowired HalTools halTools,
 			@Autowired PatentRepository repository) {
-		super(messages, constants, downloadableFileManager, doiTools, halTools);
+		super(messages, constants, sessionFactory, downloadableFileManager, doiTools, halTools);
 		this.repository = repository;
 	}
 
@@ -156,8 +159,26 @@ public class PatentService extends AbstractPublicationTypeService {
 	 */
 	public Patent createPatent(Publication publication,
 			String number, String type, String institution, String address) {
+		return createPatent(publication, number, type, institution, address, true);
+	}
+
+	/** Create a patent.
+	 *
+	 * @param publication the publication to copy.
+	 * @param number the number of the patent.
+	 * @param type the type of patent.
+	 * @param institution the name of the institution in which the patent was published.
+	 * @param address the geographical address of the institution. Usually a city and a country.
+	 * @param saveInDb indicates if the entity must be saved inthe JPA database.
+	 * @return the created patent.
+	 * @since 4.0
+	 */
+	public Patent createPatent(Publication publication,
+			String number, String type, String institution, String address, boolean saveInDb) {
 		final var res = new Patent(publication, institution, address, type, number);
-		this.repository.save(res);
+		if (saveInDb) {
+			this.repository.save(res);
+		}
 		return res;
 	}
 

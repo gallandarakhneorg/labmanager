@@ -116,9 +116,7 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		createRankingDetails(rootContainer);
 		createPublisherDetails(rootContainer);
 		if (isBaseAdmin()) {
-			createAdministrationComponents(rootContainer,
-					null,
-					it -> it.bind(Journal::isValidated, Journal::setValidated));
+			createAdministrationComponents(rootContainer, it -> it.bind(Journal::isValidated, Journal::setValidated));
 		}
 	}
 

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.supervisions;
 
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +36,8 @@ import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisorType;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListGridField;
+import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 

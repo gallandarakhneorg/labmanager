@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.memberships;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -36,7 +36,7 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.memberships.EmbeddedMembershipEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractSingleEntityNameField;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 

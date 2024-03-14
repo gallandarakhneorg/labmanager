@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.services.publication.AbstractPublicationTypeServi
 import fr.utbm.ciad.labmanager.utils.doi.DefaultDoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.DefaultHalTools;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -418,6 +419,7 @@ public class AbstractPublicationTypeServiceTest {
 		public PublicationTypeServiceMock() {
 			super(AbstractPublicationTypeServiceTest.this.messages,
 					new Constants(),
+					mock(SessionFactory.class),
 					AbstractPublicationTypeServiceTest.this.downloadableFileManager,
 					new DefaultDoiTools(),
 					new DefaultHalTools());

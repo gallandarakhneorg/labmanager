@@ -162,7 +162,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @since 4.0
 	 */
 	public Page<Conference> getAllConferences(Pageable pageable, Specification<Conference> filter) {
-		return getAllConferences(pageable, filter, null);
+		return this.conferenceRepository.findAll(filter, pageable);
 	}
 
 	/** Replies all the conferences for the database.
@@ -460,7 +460,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	}
 
 	@Override
-	public EditingContext startEditing(Conference conference) {
+	public EntityEditingContext<Conference> startEditing(Conference conference) {
 		assert conference != null;
 		// Force loading of the quality indicators that may be edited at the same time as the rest of the conference properties
 		inSession(session -> {

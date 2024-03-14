@@ -301,7 +301,7 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 
 		private static final long serialVersionUID = -9212082677199758148L;
 
-		private String pathToBackgroundImage;
+		private final UploadedFileTracker<OrganizationAddress> pathToBackgroundImage;
 
 		/** Constructor.
 		 *
@@ -309,7 +309,17 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 		 */
 		EditingContext(OrganizationAddress address) {
 			super(address);
-			this.pathToBackgroundImage = address.getPathToBackgroundImage();
+			this.pathToBackgroundImage = newUploadedFileTracker(address,
+					OrganizationAddress::getPathToBackgroundImage,
+					(id, savedPath) -> {
+						if (!Strings.isNullOrEmpty(savedPath)) {
+							final var ext = FileSystem.extension(savedPath);
+							if (!Strings.isNullOrEmpty(ext)) {
+								OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id.longValue(), ext);
+							}
+						}
+					},
+					null);
 		}
 
 		@Override
@@ -317,32 +327,19 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 			return OrganizationAddressService.this.addressRepository.save(this.entity);
 		}
 
-		private void deleteBackgroundImage(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToBackgroundImage)) {
-				final var ext = FileSystem.extension(this.pathToBackgroundImage);
-				if (!Strings.isNullOrEmpty(ext)) {
-					OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id, ext);
-				}
-			}
+		@Override
+		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
+			this.pathToBackgroundImage.deleteOrRenameFile(oldId, this.entity);
 		}
 
 		@Override
-		protected void deleteAssociatedFiles(long id) {
-			deleteBackgroundImage(id);
-		}
-
-		@Override
-		protected boolean prepareAssociatedFileUpload() {
-			if (Strings.isNullOrEmpty(this.entity.getPathToBackgroundImage())) {
-				deleteBackgroundImage(this.entity.getId());
-				return false;
-			}
-			return true;
+		protected boolean prepareAssociatedFileUpload() throws IOException {
+			return !this.pathToBackgroundImage.deleteFile(this.entity);
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToBackgroundImage = this.entity.getPathToBackgroundImage();
+			this.pathToBackgroundImage.resetPathMemory(this.entity);
 		}
 
 		@Override

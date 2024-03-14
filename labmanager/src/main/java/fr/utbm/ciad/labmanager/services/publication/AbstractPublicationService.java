@@ -31,7 +31,8 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a service for managing the publications.
@@ -42,15 +43,16 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractPublicationService extends AbstractService {
+public abstract class AbstractPublicationService extends AbstractEntityService<Publication> {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param sessionFactory the factory of JPA session.
 	 */
-	public AbstractPublicationService(MessageSourceAccessor messages, Constants constants) {
-		super(messages, constants);
+	public AbstractPublicationService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
+		super(messages, constants, sessionFactory);
 	}
 
 	/** Filter the given publication for returning only those that have authors with an active membership.

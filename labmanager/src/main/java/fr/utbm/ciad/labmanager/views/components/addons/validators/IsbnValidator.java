@@ -47,10 +47,10 @@ public class IsbnValidator extends RegexpValidator {
 	 * Creates a validator for checking that a string is a syntactically valid
 	 * ISSN number.
 	 * <p>
-	 * This constructor creates a validator which does accept an empty string
+	 * This constructor creates a validator which does not accept an empty string
 	 * as a valid ISSN number. Use {@link #IssnValidator(String, String, boolean)}
-	 * constructor with {@code false} as a value for the second argument to
-	 * create a validator which not accepts an empty string.
+	 * constructor with {@code true} as a value for the second argument to
+	 * create a validator which accepts an empty string.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param warningMessage the message to display in case the value does validate but is empty. It could be
@@ -65,10 +65,10 @@ public class IsbnValidator extends RegexpValidator {
 	 * Creates a validator for checking that a string is a syntactically valid
 	 * ISSN number.
 	 * <p>
-	 * This constructor creates a validator which does accept an empty string
+	 * This constructor creates a validator which does not accept an empty string
 	 * as a valid ISSN number. Use {@link #IssnValidator(String, String, boolean)}
-	 * constructor with {@code false} as a value for the second argument to
-	 * create a validator which not accepts an empty string.
+	 * constructor with {@code true} as a value for the second argument to
+	 * create a validator which accepts an empty string.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @see #IssnValidator(String, String, boolean)

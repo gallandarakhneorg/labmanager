@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox.AutoExpandMode;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -85,6 +86,7 @@ public abstract class AbstractMultiEntityNameField<E extends IdentifiableEntity>
 		
 		this.combo = new MultiSelectComboBox<>();
 		this.combo.setAutoOpen(true);
+		this.combo.setAutoExpand(AutoExpandMode.BOTH);
 		this.combo.setSelectedItemsOnTop(false);
 		this.combo.setClearButtonVisible(true);
 		this.combo.setManualValidation(false);
@@ -171,7 +173,9 @@ public abstract class AbstractMultiEntityNameField<E extends IdentifiableEntity>
 	protected void setPresentationValue(List<E> newPresentationValue) {
 		if (Strings.isNullOrEmpty(this.customEntity) || newPresentationValue != null) {
 			this.combo.deselectAll();
-			this.combo.select(newPresentationValue);
+			if (newPresentationValue != null) {
+				this.combo.select(newPresentationValue);
+			}
 		}
 	}
 

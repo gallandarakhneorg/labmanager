@@ -41,16 +41,16 @@ public interface DownloadableFileManager extends FileManager {
 	/** Delete from the server the downloadable PDF file associated to the publication with given identifier.
 	 *
 	 * @param id the identifier of the publication.
-	 * @throws Exception if the file cannot be deleted.
+	 * @throws IOException if the file cannot be deleted.
 	 */
-	void deleteDownloadablePublicationPdfFile(long id) throws Exception;
+	void deleteDownloadablePublicationPdfFile(long id) throws IOException;
 
 	/** Delete from the server the downloadable award's PDF file associated to the publication with given identifier.
 	 *
 	 * @param id the identifier of the publication.
-	 * @throws Exception if the file cannot be deleted.
+	 * @throws IOException if the file cannot be deleted.
 	 */
-	void deleteDownloadableAwardPdfFile(long id) throws Exception;
+	void deleteDownloadableAwardPdfFile(long id) throws IOException;
 
 	/** Delete from the server the address background image associated to the address with given identifier.
 	 *
@@ -346,7 +346,7 @@ public interface DownloadableFileManager extends FileManager {
 	 *
 	 * @param sourceId the identifier of the publication that is currently associated to the uploaded files. 
 	 * @param targetId the identifier of the publication that should be associated to the uploaded files in place of the previous publication.
-	 * @param callback lambda that is invoked each time a file has changed. THe arguments are the id of the file, the old name and the new name. 
+	 * @param callback lambda that is invoked each time a file has changed. The arguments are the id of the file, the old name and the new name. 
 	 * @throws IOException if the files cannot be moved.
 	 */
 	void moveFiles(long sourceId, long targetId, Procedure3<String, String, String> callback) throws IOException;

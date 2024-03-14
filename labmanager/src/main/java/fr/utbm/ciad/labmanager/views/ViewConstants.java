@@ -113,6 +113,22 @@ public final class ViewConstants {
 	 */
 	public static final String FACEBOOK_ICON = "/icons/facebook.svg"; //$NON-NLS-1$
 
+	/** Path to the icon of DOI.
+	 */
+	public static final String DOI_ICON = "/icons/doi.svg"; //$NON-NLS-1$
+
+	/** URL of the DOI portal, with the terminal slash character.
+	 */
+	public static final String DOI_BASE_URL = "https://doi.org/"; //$NON-NLS-1$
+
+	/** Path to the icon of HAL.
+	 */
+	public static final String HAL_ICON = "/icons/hal.svg"; //$NON-NLS-1$
+
+	/** URL of the HAL portal, with the terminal slash character.
+	 */
+	public static final String HAL_BASE_URL = "https://hal.science/"; //$NON-NLS-1$
+
 	/** Default size of a page in the Vaadin grids.
 	 */
 	public static final int GRID_PAGE_SIZE = 100;
@@ -134,6 +150,11 @@ public final class ViewConstants {
 	 * @since 4.0
 	 */
 	public static final String DETAILS_SECTION_OPENING_ROOT = PREFERENCE_ROOT + "details_open."; //$NON-NLS-1$
+
+	/** Default minimal size of a two column form.
+	 * @since 4.0
+	 */
+	public static final String DEFAULT_MINIMAL_WIDTH_FOR_2_COLUMNS_FORM = "500px"; //$NON-NLS-1$
 
 	private ViewConstants() {
 		//

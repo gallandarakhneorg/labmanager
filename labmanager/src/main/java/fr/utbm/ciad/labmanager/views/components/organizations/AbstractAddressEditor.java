@@ -105,9 +105,7 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 		createGeographicInformationDetails(rootContainer);
 		createPresentationDetails(rootContainer);
 		if (isBaseAdmin()) {
-			createAdministrationComponents(rootContainer,
-					null,
-					it -> it.bind(OrganizationAddress::isValidated, OrganizationAddress::setValidated));
+			createAdministrationComponents(rootContainer, it -> it.bind(OrganizationAddress::isValidated, OrganizationAddress::setValidated));
 		}
 	}
 

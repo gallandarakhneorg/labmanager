@@ -73,15 +73,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 @Table(name = "ResearchOrgs")
 public class ResearchOrganization implements Serializable, JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
-	/** Default separator between the acronym and name.
-	 *
-	 * @see #getAcronymAndName()
-	 * @since 4.0
-	 */
-	public static final String ACRONYM_NAME_SEPARATOR = "-"; //$NON-NLS-1$
-
-	private static final String FULL_ACRONYM_NAME_SEPARATOR = new StringBuilder().append(" ").append(ACRONYM_NAME_SEPARATOR).append(" ").toString(); //$NON-NLS-1$ //$NON-NLS-2$
-
 	private static final long serialVersionUID = -450531251083286848L;
 
 	/** Default type for research organizations.
@@ -522,7 +513,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 * @since 4.0
 	 */
 	public String getAcronymAndName() {
-		return getAcronymAndName(FULL_ACRONYM_NAME_SEPARATOR);
+		return getAcronymAndName(EntityUtils.FULL_ACRONYM_NAME_SEPARATOR);
 	}
 
 	/** Replies the acronym and the name of the research organization, if they exist.

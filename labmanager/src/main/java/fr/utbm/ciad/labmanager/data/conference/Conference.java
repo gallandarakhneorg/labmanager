@@ -338,6 +338,38 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		return Strings.isNullOrEmpty(this.name) ? this.acronym: this.name;
 	}
 
+	/** Replies the acronym and the name of the conference, if they exist, with the format {@code "Acronym - Name"}.
+	 *
+	 * @return the acronym and the name, or {@code null} if there is neither acronym nor name.
+	 * @see #getAcronymOrName()
+	 * @see #ACRONYM_NAME_SEPARATOR
+	 * @since 4.0
+	 */
+	public String getAcronymAndName() {
+		return getAcronymAndName(EntityUtils.FULL_ACRONYM_NAME_SEPARATOR);
+	}
+
+	/** Replies the acronym and the name of the conference, if they exist.
+	 *
+	 * @param separator the string to be written between the acronym and the name.
+	 * @return the acronym and the name, or {@code null} if there is neither acronym nor name.
+	 * @see #getAcronymOrName()
+	 * @since 4.0
+	 */
+	public String getAcronymAndName(String separator) {
+		final var buffer = new StringBuilder();
+		if (!Strings.isNullOrEmpty(this.acronym)) {
+			buffer.append(this.acronym);
+		}
+		if (!Strings.isNullOrEmpty(this.name)) {
+			if (buffer.length() > 0 && !Strings.isNullOrEmpty(separator)) {
+				buffer.append(separator);
+			}
+			buffer.append(this.name);
+		}
+		return Strings.emptyToNull(buffer.toString());
+	}
+
 	/** Replies the name of publisher of the journal.
 	 *
 	 * @return the name.

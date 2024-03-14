@@ -442,7 +442,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 
 		private static final long serialVersionUID = -7122364187938515699L;
 		
-		private String pathToSlides;
+		private UploadedFileTracker<TeachingActivity> pathToSlides;
 
 		/** Constructor.
 		 *
@@ -450,7 +450,10 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 		 */
 		protected EditingContext(TeachingActivity activity) {
 			super(activity);
-			this.pathToSlides = activity.getPathToSlides();
+			this.pathToSlides = newUploadedFileTracker(activity,
+					TeachingActivity::getPathToSlides,
+					(id, savedPath) -> TeachingService.this.fileManager.deleteTeachingActivitySlides(id.longValue()),
+					null);
 		}
 
 		@Override
@@ -458,29 +461,19 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 			return TeachingService.this.teachingActivityRepository.save(this.entity);
 		}
 
-		private void deleteSlides(long id) {
-			if (!Strings.isNullOrEmpty(this.pathToSlides)) {
-				TeachingService.this.fileManager.deleteTeachingActivitySlides(id);
-			}
+		@Override
+		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
+			this.pathToSlides.deleteOrRenameFile(oldId, this.entity);
 		}
 
 		@Override
-		protected void deleteAssociatedFiles(long id) {
-			deleteSlides(id);
-		}
-
-		@Override
-		protected boolean prepareAssociatedFileUpload() {
-			if (Strings.isNullOrEmpty(this.entity.getPathToSlides())) {
-				deleteSlides(this.entity.getId());
-				return false;
-			}
-			return true;
+		protected boolean prepareAssociatedFileUpload() throws IOException {
+			return !this.pathToSlides.deleteFile(this.entity);
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToSlides = this.entity.getPathToSlides();
+			this.pathToSlides.resetPathMemory(this.entity);
 		}
 
 		@Override

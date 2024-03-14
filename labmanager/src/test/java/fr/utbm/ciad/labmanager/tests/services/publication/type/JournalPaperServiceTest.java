@@ -45,6 +45,7 @@ import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
 import fr.utbm.ciad.labmanager.utils.doi.DefaultDoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.DefaultHalTools;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -86,7 +87,7 @@ public class JournalPaperServiceTest {
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(JournalPaperRepository.class);
 		this.membershipService = mock(MembershipService.class);
-		this.test = new JournalPaperService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.membershipService);
+		this.test = new JournalPaperService(this.messages, new Constants(), mock(SessionFactory.class), this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.membershipService);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

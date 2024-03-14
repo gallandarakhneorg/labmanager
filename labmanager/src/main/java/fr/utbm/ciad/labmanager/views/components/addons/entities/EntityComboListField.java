@@ -293,8 +293,10 @@ public class EntityComboListField<T> extends CustomField<Set<T>> {
 	 * @param entities the list of items to add to the list of selected items.
 	 */
 	protected void addSelectedEntities(Set<T> entities) {
-		for (var entity : entities) {
-			this.selectedEntities.addEntity(entity);
+		if (entities != null) {
+			for (var entity : entities) {
+				this.selectedEntities.addEntity(entity);
+			}
 		}
 	}
 
@@ -303,8 +305,10 @@ public class EntityComboListField<T> extends CustomField<Set<T>> {
 	 * @param entities the list of items to remove from the list of selected items.
 	 */
 	protected void removeSelectedEntities(Set<T> entities) {
-		for (var item : entities) {
-			this.selectedEntities.removeEntity(item);
+		if (entities != null) {
+			for (var item : entities) {
+				this.selectedEntities.removeEntity(item);
+			}
 		}
 	}
 

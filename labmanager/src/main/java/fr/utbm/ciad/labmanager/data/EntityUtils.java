@@ -74,6 +74,19 @@ public final class EntityUtils {
 	 */
 	public static final int VERY_SMALL_TEXT_SIZE = 32;
 
+	/** Default separator between the acronym and name.
+	 *
+	 * @see #getAcronymAndName()
+	 * @since 4.0
+	 */
+	public static final String ACRONYM_NAME_SEPARATOR = "-"; //$NON-NLS-1$
+
+	/** Default separation string between the acronym and name. This string contains the {@link #ACRONYM_NAME_SEPARATOR} with white spaces before and after it.
+	 *
+	 * @since 4.0
+	 */
+	public static final String FULL_ACRONYM_NAME_SEPARATOR = new StringBuilder().append(" ").append(ACRONYM_NAME_SEPARATOR).append(" ").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+
 	private static PersonComparator PERSON_COMPARATOR; 
 
 	private static PersonListComparator PERSONLIST_COMPARATOR; 

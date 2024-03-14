@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons;
 
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DEFAULT_MINIMAL_WIDTH_FOR_2_COLUMNS_FORM;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOError;
@@ -68,6 +70,8 @@ import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.conference.Conference;
+import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -136,7 +140,7 @@ public final class ComponentFactory {
 		case 2:
 			content.setResponsiveSteps(
 					new FormLayout.ResponsiveStep("0", 1), //$NON-NLS-1$
-					new FormLayout.ResponsiveStep("20em", 2)); //$NON-NLS-1$
+					new FormLayout.ResponsiveStep(DEFAULT_MINIMAL_WIDTH_FOR_2_COLUMNS_FORM, 2));
 			break;
 		default:
 			throw new IllegalArgumentException();
@@ -770,7 +774,7 @@ public final class ComponentFactory {
 	/** Create the standard avatar item for the given organization, without the organization logo.
 	 *
 	 * @param organization the organization to show in the avatar item, never {@code null}.
-	 * @return the avatar item for the person.
+	 * @return the avatar item for the organization.
 	 */
 	public static AvatarItem newOrganizationAvatar(ResearchOrganization organization) {
 		return newOrganizationAvatar(organization, null);
@@ -780,7 +784,7 @@ public final class ComponentFactory {
 	 *
 	 * @param organization the organization to show in the avatar item, never {@code null}.
 	 * @param fileManager the manager of files that may be used for obtaining the organization logo in the avatar item.
-	 * @return the avatar item for the person.
+	 * @return the avatar item for the organization.
 	 */
 	public static AvatarItem newOrganizationAvatar(ResearchOrganization organization, FileManager fileManager) {
 		assert organization != null;
@@ -926,6 +930,80 @@ public final class ComponentFactory {
 		}
 
 		return label.toString();
+	}
+
+	/** Create the standard avatar item for the given conference, without the year.
+	 *
+	 * @param conference the conference to show in the avatar item, never {@code null}.
+	 * @return the avatar item for the conference.
+	 */
+	public static AvatarItem newConferenceAvatar(Conference conference) {
+		return newConferenceAvatar(conference, 0);
+	}
+
+	/** Create the standard avatar item for the given conference.
+	 *
+	 * @param conference the conference to show in the avatar item, never {@code null}.
+	 * @param year the year of the conference.
+	 * @return the avatar item for the conference.
+	 */
+	public static AvatarItem newConferenceAvatar(Conference conference, int year) {
+		assert conference != null;
+
+		final var acronym = conference.getAcronym();
+		final var name = conference.getName();
+
+		final var details = new StringBuilder();
+		if (!Strings.isNullOrEmpty(acronym)) {
+			details.append(acronym);
+		}
+		if (year > 0) {
+			details.append("-").append(Integer.toString(year)); //$NON-NLS-1$
+		}
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(name);
+		if (details.length() > 0) {
+			avatar.setDescription(details.toString());
+		}
+		return avatar;
+	}
+
+	/** Create the standard avatar item for the given journal, without the year.
+	 *
+	 * @param journal the journal to show in the avatar item, never {@code null}.
+	 * @return the avatar item for the journal.
+	 */
+	public static AvatarItem newJournalAvatar(Journal journal) {
+		assert journal != null;
+
+		final var name = journal.getJournalName();
+		final var publisher = journal.getPublisher();
+		final var issn = journal.getISSN();
+		final var isbn = journal.getISBN();
+
+		final var details = new StringBuilder();
+		if (!Strings.isNullOrEmpty(publisher)) {
+			details.append(publisher);
+		}
+		if (!Strings.isNullOrEmpty(issn)) {
+			if (details.length() > 0) {
+				details.append(" - "); //$NON-NLS-1$
+			}
+			details.append(issn);
+		} else if (!Strings.isNullOrEmpty(isbn)) {
+			if (details.length() > 0) {
+				details.append(" - "); //$NON-NLS-1$
+			}
+			details.append(isbn);
+		}
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(name);
+		if (details.length() > 0) {
+			avatar.setDescription(details.toString());
+		}
+		return avatar;
 	}
 
 	private static List<StringBuilder> buildCases(String filter) {

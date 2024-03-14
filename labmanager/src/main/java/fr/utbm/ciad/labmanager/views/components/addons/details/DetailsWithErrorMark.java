@@ -87,6 +87,7 @@ public class DetailsWithErrorMark extends Details {
 
 		setSummary(summary);
 		add(content);
+		setWidthFull();
 	}
 
 	@Override
@@ -145,6 +146,14 @@ public class DetailsWithErrorMark extends Details {
 			message = null;
 		}
 		setError(message);
+	}
+
+	/** Remove the error and warning messages that are displayed as markers of the details section for the given field.
+	 *
+	 * @param field the field that is the source of the status change.
+	 */
+	public void removeStatusFor(Object field) {
+		updateStatus(field, false, false);
 	}
 
 	/** Update the error and warning messages that are displayed as markers of the details section.
