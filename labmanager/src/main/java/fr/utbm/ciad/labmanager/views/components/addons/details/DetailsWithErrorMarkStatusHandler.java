@@ -52,13 +52,14 @@ public class DetailsWithErrorMarkStatusHandler implements BindingValidationStatu
 
 	@Override
 	public void statusChange(BindingValidationStatus<?> statusChange) {
+		final var message = statusChange.getMessage().orElse(""); //$NON-NLS-1$
 		// Use the default displaying of the status message
-		this.field.setErrorMessage(statusChange.getMessage().orElse("")); //$NON-NLS-1$
+		this.field.setErrorMessage(message);
         this.field.setInvalid(statusChange.isError());
 		// Update the section message if needed
 		final var status = statusChange.getStatus();
 		if (status == Status.OK || status == Status.ERROR) {
-			this.section.updateStatus(this.field, status == Status.ERROR, false);
+			this.section.updateStatus(this.field, message, null);
 		}
 	}
 

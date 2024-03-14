@@ -200,7 +200,7 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 
 	@Override
 	public void setErrorMessage(String errorMessage) {
-		super.setErrorMessage(errorMessage);
+		//super.setErrorMessage(errorMessage);
 		this.combo.setErrorMessage(errorMessage);
 	}
 
@@ -217,7 +217,7 @@ public abstract class AbstractSingleEntityNameField<E extends IdentifiableEntity
 
 	@Override
 	public boolean isInvalid() {
-		return this.combo.isInvalid();
+		return super.isInvalid();
 	}
 
 	@Override

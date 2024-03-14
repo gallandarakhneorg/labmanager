@@ -19,7 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.details;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 import com.google.common.base.Strings;
@@ -31,7 +33,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.internal.Pair;
 
 /** A Details with an error marker on the side of the title.
  * 
@@ -46,7 +47,7 @@ public class DetailsWithErrorMark extends Details {
 
 	private static final long serialVersionUID = -7845592866965170183L;
 
-	private final Map<Object, Pair<Boolean, Boolean>> statuses = new WeakHashMap<>();
+	private final Map<Object, IssueDescription> statuses = new WeakHashMap<>();
 
 	private final HorizontalLayout errorBadge;
 
@@ -113,10 +114,10 @@ public class DetailsWithErrorMark extends Details {
 	public void updateErrorMessage() {
 		var nbErrors = 0;
 		var nbWarnings = 0;
-		for (final var pair : this.statuses.values()) {
-			if (pair.getFirst().booleanValue()) {
+		for (final var description : this.statuses.values()) {
+			if (description.getError() != null) {
 				++nbErrors;
-			} else if (pair.getSecond().booleanValue()) {
+			} else if (description.getWarning() != null) {
 				++nbWarnings;
 			}
 		}
@@ -153,51 +154,33 @@ public class DetailsWithErrorMark extends Details {
 	 * @param field the field that is the source of the status change.
 	 */
 	public void removeStatusFor(Object field) {
-		updateStatus(field, false, false);
+		updateStatus(field, null, null);
 	}
 
 	/** Update the error and warning messages that are displayed as markers of the details section.
 	 *
 	 * @param field the field that is the source of the status change.
-	 * @param isError indicates if the new status is for an error.
-	 * @param isWarning indicates if the new status is for a warning.
+	 * @param errorMessage indicates the new error message.
+	 * @param warningMessage indicates the new warning message.
 	 */
-	void updateStatus(Object field, boolean isError, boolean isWarning) {
+	public void updateStatus(Object field, String errorMessage, String warningMessage) {
+		final var errMsg = Strings.emptyToNull(errorMessage);
+		final var wrnMsg = Strings.emptyToNull(warningMessage);
 		// Update the status counters
 		var errorChange = false;
 		var warningChange = false;
-		if (isError || isWarning) {
-			final var counts = this.statuses.get(field);
-			boolean hasError;
-			boolean hasWarning;
-			if (counts == null) {
-				hasError = false;
-				hasWarning = false;
-			} else {
-				hasError = counts.getFirst().booleanValue();
-				hasWarning = counts.getSecond().booleanValue();
-			}
-			if (isError && !hasError) {
-				hasError = true;
-				errorChange = true;
-				if (hasWarning) {
-					hasWarning = false;
-					warningChange = true;
-				}
-			} else if (isWarning && !hasWarning) {
-				hasWarning = true;
-				warningChange = true;
-			}
-			if (errorChange || warningChange) {
-				this.statuses.put(field, new Pair<>(Boolean.valueOf(hasError), Boolean.valueOf(hasWarning)));
-			}
+		if (errMsg != null || wrnMsg != null) {
+			final var description = this.statuses.computeIfAbsent(field, it -> new IssueDescription());
+			errorChange = Objects.equals(errMsg, description.getError());
+			warningChange = Objects.equals(wrnMsg, description.getWarning());
+			description.setMessages(errMsg, wrnMsg);
 		} else {
-			final var removedPair = this.statuses.remove(field);
-			if (removedPair != null) {
-				if (removedPair.getFirst().booleanValue()) {
+			final var removedDescription = this.statuses.remove(field);
+			if (removedDescription != null) {
+				if (removedDescription.getError() != null) {
 					errorChange = true;
 				}
-				if (removedPair.getSecond().booleanValue()) {
+				if (removedDescription.getWarning() != null) {
 					warningChange = true;
 				}
 			}
@@ -206,6 +189,65 @@ public class DetailsWithErrorMark extends Details {
 		if (errorChange || warningChange) {
 			updateErrorMessage();
 		}
+	}
+
+	/** Remove all the error and warnings marks.
+	 */
+	public void removeAllStatuses() {
+		if (!this.statuses.isEmpty()) {
+			this.statuses.clear();
+			updateErrorMessage();
+		}
+	}
+
+	/** A Details with an error marker on the side of the title.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private static class IssueDescription implements Serializable {
+
+		private static final long serialVersionUID = -89177742726006577L;
+
+		private String error;
+		
+		private String warning;
+
+		/** Constructor.
+		 */
+		IssueDescription() {
+			//
+		}
+
+		/** Change the messages.
+		 *
+		 * @param error the error message.
+		 * @param warning the warning message.
+		 */
+		public void setMessages(String error, String warning) {
+			this.error = error;
+			this.warning = warning;
+		}
+
+		/** Replies the error message.
+		 *
+		 * @return the error message or {@code null}.
+		 */
+		public String getError() {
+			return this.error;
+		}
+		
+		/** Replies the warning message.
+		 *
+		 * @return the warning message or {@code null}.
+		 */
+		public String getWarning() {
+			return this.warning;
+		}
+
 	}
 
 }

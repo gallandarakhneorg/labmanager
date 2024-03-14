@@ -148,6 +148,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	private DetailsWithErrorMark generalDetails;
 
+	private FormLayout generalLayout;
+
 	private ComboBox<PublicationType> type;
 
 	private TextField title;
@@ -157,6 +159,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	private DatePicker publicationDate;
 
 	private DetailsWithErrorMark identificationDetails;
+
+	private FormLayout identificationLayout;
 
 	private TextField doi;
 
@@ -285,6 +289,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.fieldBuilder.updateIdentificationDetails(newPublication);
 		this.fieldBuilder.localeChange();
 		linkBeans();
+		getEntityDataBinder().validate();
 	}
 
 	@Override
@@ -350,13 +355,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 * @param rootContainer the container.
 	 */
 	protected void createGeneralDetails(VerticalLayout rootContainer) {
-		final var content = ComponentFactory.newColumnForm(2);
+		this.generalLayout = ComponentFactory.newColumnForm(2);
 
 		this.title = new TextField();
 		this.title.setPrefixComponent(VaadinIcon.HASH.create());
 		this.title.setRequired(true);
 		this.title.setClearButtonVisible(true);
-		content.add(this.title, 2);
+		this.generalLayout.add(this.title, 2);
 
 		this.authors = new MultiPersonNameField(this.personService, this.userService, getAuthenticatedUser(),
 				getTranslation(this.personCreationLabelKey), getLogger(),
@@ -367,33 +372,31 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				});
 		this.authors.setRequiredIndicatorVisible(true);
 		this.authors.setPrefixComponent(VaadinIcon.USERS.create());
-		content.add(this.authors, 2);
+		this.generalLayout.add(this.authors, 2);
 
 		this.publicationDate = new DatePicker();
 		this.publicationDate.setRequiredIndicatorVisible(true);
 		this.publicationDate.setPrefixComponent(VaadinIcon.DATE_INPUT.create());
 		this.publicationDate.setClearButtonVisible(true);
-		content.add(this.publicationDate, 1);
+		this.generalLayout.add(this.publicationDate, 1);
 
-		this.generalDetails = createDetailsWithErrorMark(rootContainer, content, "general"); //$NON-NLS-1$
-
-		this.fieldBuilder.setGeneralDetailsFormLayout(content);
+		this.generalDetails = createDetailsWithErrorMark(rootContainer, this.generalLayout, "general"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.title)
-		.withConverter(new StringTrimer())
-		.withValidator(new NotEmptyStringValidator(getTranslation("views.publication.title.error"))) //$NON-NLS-1$
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.title, this.generalDetails))
-		.bind(Publication::getTitle, Publication::setTitle);
+			.withConverter(new StringTrimer())
+			.withValidator(new NotEmptyStringValidator(getTranslation("views.publication.title.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.title, this.generalDetails))
+			.bind(Publication::getTitle, Publication::setTitle);
 		getEntityDataBinder().forField(this.authors)
-		.withValidator(new DisjointEntityIterableValidator<>(
+			.withValidator(new DisjointEntityIterableValidator<>(
 				getTranslation(this.personNullErrorKey),
 				getTranslation(this.personDuplicateErrorKey)))
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.authors, this.generalDetails))
-		.bind(Publication::getAuthors, Publication::setTemporaryAuthors);
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.authors, this.generalDetails))
+			.bind(Publication::getAuthors, Publication::setTemporaryAuthors);
 		getEntityDataBinder().forField(this.publicationDate)
-		.withValidator(new NotNullDateValidator(getTranslation("views.publication.date.error"))) //$NON-NLS-1$
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.publicationDate, this.generalDetails))
-		.bind(this::getPublicationDate, Publication::setPublicationDate);
+			.withValidator(new NotNullDateValidator(getTranslation("views.publication.date.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.publicationDate, this.generalDetails))
+			.bind(this::getPublicationDate, Publication::setPublicationDate);
 	}
 
 	private LocalDate getPublicationDate(Publication publication) {
@@ -409,72 +412,70 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 * @param rootContainer the container.
 	 */
 	protected void createIdentificationDetails(VerticalLayout rootContainer) {
-		final var content = ComponentFactory.newColumnForm(2);
+		this.identificationLayout = ComponentFactory.newColumnForm(2);
 
 		this.doi = ComponentFactory.newClickableIconTextField(DOI_BASE_URL, DOI_ICON);
 		this.doi.setPrefixComponent(VaadinIcon.HASH.create());
 		this.doi.setClearButtonVisible(true);
-		content.add(this.doi, 2);
+		this.identificationLayout.add(this.doi, 2);
 
 		this.halId = ComponentFactory.newClickableIconTextField(HAL_BASE_URL, HAL_ICON);
 		this.halId.setPrefixComponent(VaadinIcon.HASH.create());
 		this.halId.setClearButtonVisible(true);
-		content.add(this.halId, 2);
+		this.identificationLayout.add(this.halId, 2);
 
 		this.dblpUrl = ComponentFactory.newClickableIconTextField(DBLP_BASE_URL, DBLP_ICON);
 		this.dblpUrl.setPrefixComponent(VaadinIcon.GLOBE_WIRE.create());
 		this.dblpUrl.setClearButtonVisible(true);
-		content.add(this.dblpUrl, 2);
+		this.identificationLayout.add(this.dblpUrl, 2);
 
 		if (isIsbnIssnEnabled()) {
 			this.issn = new TextField();
 			this.issn.setPrefixComponent(VaadinIcon.HASH.create());
 			this.issn.setClearButtonVisible(true);
-			content.add(this.issn, 1);
+			this.identificationLayout.add(this.issn, 1);
 
 			this.isbn = new TextField();
 			this.isbn.setPrefixComponent(VaadinIcon.HASH.create());
 			this.isbn.setClearButtonVisible(true);
-			content.add(this.isbn, 1);
+			this.identificationLayout.add(this.isbn, 1);
 		} else {
 			this.issn = null;
 			this.isbn = null;
 		}
 
-		this.identificationDetails = createDetailsWithErrorMark(rootContainer, content, "identification"); //$NON-NLS-1$
-
-		this.fieldBuilder.setIdentificationDetailsFormLayout(content);
+		this.identificationDetails = createDetailsWithErrorMark(rootContainer, this.identificationLayout, "identification"); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.doi)
-		.withConverter(new StringToDoiConverter())
-		.withValidator(new DoiValidator(getTranslation("views.publication.doi.error"), null, true)) //$NON-NLS-1$
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.doi, this.identificationDetails))
-		.bind(Publication::getDOI, Publication::setDOI);
+			.withConverter(new StringToDoiConverter())
+			.withValidator(new DoiValidator(getTranslation("views.publication.doi.error"), null, true)) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.doi, this.identificationDetails))
+			.bind(Publication::getDOI, Publication::setDOI);
 		getEntityDataBinder().forField(this.halId)
-		.withConverter(new StringTrimer())
-		.withValidator(new HalIdValidator(getTranslation("views.publication.halId.error"), null, true)) //$NON-NLS-1$
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.halId, this.identificationDetails))
-		.bind(Publication::getHalId, Publication::setHalId);
+			.withConverter(new StringTrimer())
+			.withValidator(new HalIdValidator(getTranslation("views.publication.halId.error"), null, true)) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.halId, this.identificationDetails))
+			.bind(Publication::getHalId, Publication::setHalId);
 		getEntityDataBinder().forField(this.dblpUrl)
-		.withConverter(new StringTrimer())
-		.withValidator(new UrlValidator(invalidUrl, true))
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.dblpUrl, this.identificationDetails))
-		.bind(Publication::getDblpURL, Publication::setDblpURL);
+			.withConverter(new StringTrimer())
+			.withValidator(new UrlValidator(invalidUrl, true))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.dblpUrl, this.identificationDetails))
+			.bind(Publication::getDblpURL, Publication::setDblpURL);
 		if (this.issn != null) {
 			getEntityDataBinder().forField(this.issn)
-			.withConverter(new StringTrimer())
-			.withValidator(new IssnValidator(getTranslation("views.publication.issn.error"), true)) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.issn, this.identificationDetails))
-			.bind(Publication::getISSN, Publication::setISSN);
+				.withConverter(new StringTrimer())
+				.withValidator(new IssnValidator(getTranslation("views.publication.issn.error"), true)) //$NON-NLS-1$
+				.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.issn, this.identificationDetails))
+				.bind(Publication::getISSN, Publication::setISSN);
 		}
 		if (this.isbn != null) {
 			getEntityDataBinder().forField(this.isbn)
-			.withConverter(new StringTrimer())
-			.withValidator(new IsbnValidator(getTranslation("views.publication.isbn.error"), true)) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.isbn, this.identificationDetails))
-			.bind(Publication::getISBN, Publication::setISBN);
+				.withConverter(new StringTrimer())
+				.withValidator(new IsbnValidator(getTranslation("views.publication.isbn.error"), true)) //$NON-NLS-1$
+				.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.isbn, this.identificationDetails))
+				.bind(Publication::getISBN, Publication::setISBN);
 		}
 	}
 
@@ -727,8 +728,6 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		private static final long serialVersionUID = 7150863461477794371L;
 
-		private FormLayout generalLayout;
-
 		private SingleJournalNameField journal;
 
 		private SingleConferenceNameField conference;
@@ -760,8 +759,6 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		private TextField organization;
 
 		private TextField address;
-
-		private FormLayout identificationLayout;
 
 		private TextField series;
 
@@ -880,24 +877,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			}
 		}
 
-		/** Change the form layout for the general details.
-		 *
-		 * @param generalDetails the general information section.
-		 * @param content the form.
-		 */
-		public void setGeneralDetailsFormLayout(FormLayout content) {
-			this.generalLayout = content;
-		}
-
 		@SuppressWarnings("synthetic-access")
 		private void unbindGeneralFields(Publication publication) {
 			final var binder = getEntityDataBinder();
 			if (this.journal != null) {
-				AbstractPublicationEditor.this.generalDetails.removeStatusFor(this.journal);
 				binder.removeBinding(this.journal);
 			}
 			if (this.conference != null) {
-				AbstractPublicationEditor.this.generalDetails.removeStatusFor(this.conference);
 				binder.removeBinding(this.conference);
 			}
 			if (this.conferenceOccurrenceNumber != null) {
@@ -932,11 +918,12 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.removeBinding(this.patentType);
 			}
 			if (this.reportNumber != null) {
-				getEntityDataBinder().removeBinding(this.reportNumber);
+				binder.removeBinding(this.reportNumber);
 			}
 			if (this.reportType != null) {
 				binder.removeBinding(this.reportType);
 			}
+			AbstractPublicationEditor.this.generalDetails.removeAllStatuses();
 		}
 
 		private void removeGeneralFields(Publication publication) {
@@ -1028,8 +1015,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 					this.journal.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 					this.journal.setRequiredIndicatorVisible(true);
 
-					this.generalLayout.addComponentAtIndex(2, this.journal);
-					this.generalLayout.setColspan(this.journal, 2);
+					AbstractPublicationEditor.this.generalLayout.addComponentAtIndex(2, this.journal);
+					AbstractPublicationEditor.this.generalLayout.setColspan(this.journal, 2);
 				}
 			} else if (publication instanceof AbstractConferenceBasedPublication conferencePublication) {
 				if (this.conference == null) {
@@ -1038,8 +1025,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 					this.conference.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 					this.conference.setRequiredIndicatorVisible(true);
 
-					this.generalLayout.addComponentAtIndex(2, this.conference);
-					this.generalLayout.setColspan(this.conference, 1);
+					AbstractPublicationEditor.this.generalLayout.addComponentAtIndex(2, this.conference);
+					AbstractPublicationEditor.this.generalLayout.setColspan(this.conference, 1);
 				}
 				if (this.conferenceOccurrenceNumber == null) {
 					this.conferenceOccurrenceNumber = new IntegerField();
@@ -1047,15 +1034,15 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 					this.conferenceOccurrenceNumber.setMin(0);
 					this.conferenceOccurrenceNumber.setMax(1000);
 
-					this.generalLayout.addComponentAtIndex(3, this.conferenceOccurrenceNumber);
-					this.generalLayout.setColspan(this.conferenceOccurrenceNumber, 1);
+					AbstractPublicationEditor.this.generalLayout.addComponentAtIndex(3, this.conferenceOccurrenceNumber);
+					AbstractPublicationEditor.this.generalLayout.setColspan(this.conferenceOccurrenceNumber, 1);
 				}
 			} else if (publication instanceof Book book) {
 				this.publisher = new TextField();
 				this.publisher.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.publisher.setClearButtonVisible(true);
 
-				this.generalLayout.add(this.publisher, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.publisher, 2);
 			} else if (publication instanceof BookChapter chapter) {
 				this.chapterNumber = new TextField();
 				this.chapterNumber.setPrefixComponent(VaadinIcon.HASH.create());
@@ -1070,9 +1057,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.publisher.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.publisher.setClearButtonVisible(true);
 
-				this.generalLayout.add(this.chapterNumber, 1);
-				this.generalLayout.add(this.bookTitle, 1);
-				this.generalLayout.add(this.publisher, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.chapterNumber, 1);
+				AbstractPublicationEditor.this.generalLayout.add(this.bookTitle, 1);
+				AbstractPublicationEditor.this.generalLayout.add(this.publisher, 2);
 			} else if (publication instanceof MiscDocument misc) {
 				this.howPublished = new TextField();
 				this.howPublished.setPrefixComponent(VaadinIcon.BOOK.create());
@@ -1091,10 +1078,10 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.publisher.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.publisher.setClearButtonVisible(true);
 
-				this.generalLayout.add(this.howPublished, 2);
-				this.generalLayout.add(this.documentNumber, 2);
-				this.generalLayout.add(this.documentType, 2);
-				this.generalLayout.add(this.publisher, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.howPublished, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.documentNumber, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.documentType, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.publisher, 2);
 			} else if (publication instanceof Patent patent) {
 				this.institution = new TextField();
 				this.institution.setPrefixComponent(VaadinIcon.INSTITUTION.create());
@@ -1110,9 +1097,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.patentType.setPrefixComponent(VaadinIcon.ALT.create());
 				this.patentType.setClearButtonVisible(true);
 
-				this.generalLayout.add(this.institution, 2);
-				this.generalLayout.add(this.patentNumber, 2);
-				this.generalLayout.add(this.patentType, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.institution, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.patentNumber, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.patentType, 2);
 			} else if (publication instanceof Report report) {
 				this.institution = new TextField();
 				this.institution.setPrefixComponent(VaadinIcon.INSTITUTION.create());
@@ -1127,16 +1114,16 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.reportType.setPrefixComponent(VaadinIcon.ALT.create());
 				this.reportType.setClearButtonVisible(true);
 
-				this.generalLayout.add(this.institution, 2);
-				this.generalLayout.add(this.reportNumber, 2);
-				this.generalLayout.add(this.reportType, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.institution, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.reportNumber, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.reportType, 2);
 			} else if (publication instanceof Thesis thesis) {
 				this.institution = new TextField();
 				this.institution.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 				this.institution.setRequiredIndicatorVisible(true);
 				this.institution.setClearButtonVisible(true);
 
-				this.generalLayout.add(this.institution, 2);
+				AbstractPublicationEditor.this.generalLayout.add(this.institution, 2);
 			}
 		}
 
@@ -1172,7 +1159,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.bookTitle)
 					.withConverter(new StringTrimer())
 					.withValidator(new NotEmptyStringValidator(getTranslation("views.publication.book_chapter.book_title.error"))) //$NON-NLS-1$
-					.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.institution, AbstractPublicationEditor.this.generalDetails))
+					.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.bookTitle, AbstractPublicationEditor.this.generalDetails))
 					.bind(getter(BookChapter.class, BookChapter::getBookTitle), setter(BookChapter.class, BookChapter::setBookTitle));
 				assert this.publisher != null;
 				binder.forField(this.publisher)
@@ -1250,14 +1237,6 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			bindGeneralFields(publication);
 		}
 
-		/** Change the form layout for the identification details.
-		 *
-		 * @param content the form.
-		 */
-		public void setIdentificationDetailsFormLayout(FormLayout content) {
-			this.identificationLayout = content;
-		}
-
 		@SuppressWarnings("synthetic-access")
 		private void unbindIdentificationFields(Publication publication) {
 			final var binder = getEntityDataBinder();
@@ -1282,6 +1261,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			if (this.address != null) {
 				binder.removeBinding(this.address);
 			}
+			AbstractPublicationEditor.this.identificationDetails.removeAllStatuses();
 		}
 
 		private void removeIdentificationFields(Publication publication) {
@@ -1360,12 +1340,12 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.series, 2);
-				this.identificationLayout.add(this.volume, 1);
-				this.identificationLayout.add(this.number, 1);
-				this.identificationLayout.add(this.pages, 2);
-				this.identificationLayout.add(this.organization, 2);
-				this.identificationLayout.add(this.address, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.series, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.organization, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
 			} else if (publication instanceof JournalPaper paper) {
 				this.series = new TextField();
 				this.series.setPrefixComponent(VaadinIcon.BOOK.create());
@@ -1383,10 +1363,10 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.pages.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.pages.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.series, 2);
-				this.identificationLayout.add(this.volume, 1);
-				this.identificationLayout.add(this.number, 1);
-				this.identificationLayout.add(this.pages, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.series, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
 			} else if (publication instanceof JournalEdition edition) {
 				this.volume = new TextField();
 				this.volume.setPrefixComponent(VaadinIcon.HASH.create());
@@ -1400,9 +1380,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.pages.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.pages.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.volume, 1);
-				this.identificationLayout.add(this.number, 1);
-				this.identificationLayout.add(this.pages, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
 			} else if (publication instanceof Book book) {
 				this.editors = new TextField();
 				this.editors.setPrefixComponent(VaadinIcon.USERS.create());
@@ -1428,12 +1408,12 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.pages.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.pages.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.edition, 1);
-				this.identificationLayout.add(this.series, 1);
-				this.identificationLayout.add(this.volume, 1);
-				this.identificationLayout.add(this.number, 1);
-				this.identificationLayout.add(this.pages, 2);
-				this.identificationLayout.add(this.editors, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.edition, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.series, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.editors, 2);
 			} else if (publication instanceof BookChapter chapter) {
 				this.editors = new TextField();
 				this.editors.setPrefixComponent(VaadinIcon.USERS.create());
@@ -1459,12 +1439,12 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.pages.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.pages.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.edition, 1);
-				this.identificationLayout.add(this.series, 1);
-				this.identificationLayout.add(this.volume, 1);
-				this.identificationLayout.add(this.number, 1);
-				this.identificationLayout.add(this.pages, 2);
-				this.identificationLayout.add(this.editors, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.edition, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.series, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
+				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.editors, 2);
 			} else if (publication instanceof KeyNote keynote) {
 				this.editors = new TextField();
 				this.editors.setPrefixComponent(VaadinIcon.USERS.create());
@@ -1478,9 +1458,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.editors, 2);
-				this.identificationLayout.add(this.organization, 2);
-				this.identificationLayout.add(this.address, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.editors, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.organization, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
 			} else if (publication instanceof MiscDocument document) {
 				this.organization = new TextField();
 				this.organization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
@@ -1490,26 +1470,26 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.organization, 2);
-				this.identificationLayout.add(this.address, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.organization, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
 			} else if (publication instanceof Patent patent) {
 				this.address = new TextField();
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.address, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
 			} else if (publication instanceof Report report) {
 				this.address = new TextField();
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.address, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
 			} else if (publication instanceof Thesis thesis) {
 				this.address = new TextField();
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
-				this.identificationLayout.add(this.address, 2);
+				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
 			}
 		}
 

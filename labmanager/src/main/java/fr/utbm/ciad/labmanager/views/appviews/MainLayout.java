@@ -785,7 +785,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			this.teachingActivites.setLabel(getTranslation("views.navitem.teaching_activities")); //$NON-NLS-1$
 		}
 		if (this.teachingPublications != null) {
-			this.teachingPublications.setLabel(getTranslation("views.navitem.publications")); //$NON-NLS-1$
+			this.teachingPublications.setLabel(getTranslation("views.navitem.teaching_documents")); //$NON-NLS-1$
 		}
 
 		if (this.organizationsSection != null) {
