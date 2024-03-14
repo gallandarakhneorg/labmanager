@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <vaadin.version>24.3.3</vaadin.version>
+        <vaadin.version>24.3.7</vaadin.version>
     </properties>
 
     <repositories>
@@ -54,11 +54,6 @@
             <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.parttio</groupId>
-            <artifactId>line-awesome</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
@@ -91,12 +86,21 @@
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbytools</artifactId>
 		</dependency>
+        <dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-stdlib</artifactId>
+        </dependency>
         <!--<dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>-->
+        <dependency>
+            <groupId>org.parttio</groupId>
+            <artifactId>line-awesome</artifactId>
+            <version>2.0.0</version>
+        </dependency>
 		<dependency> 
 		    <groupId>com.opencsv</groupId> 
 		    <artifactId>opencsv</artifactId> 
@@ -122,10 +126,6 @@
             <groupId>ch.difty.kris</groupId>
             <artifactId>kris-io</artifactId>
             <version>0.5.0</version>
-        </dependency>
-        <dependency>
-			<groupId>org.jetbrains.kotlin</groupId>
-			<artifactId>kotlin-stdlib</artifactId>
         </dependency>
         <dependency>
             <groupId>info.debatty</groupId>
@@ -160,7 +160,7 @@
 		<dependency>
 			<groupId>com.microsoft.playwright</groupId>
 			<artifactId>playwright</artifactId>
-			<version>1.41.2</version>
+			<version>1.42.0</version>
 		</dependency>
 		<dependency>
 		    <groupId>com.vladsch.flexmark</groupId>
@@ -293,7 +293,7 @@ project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"
 						<groupId>org.apache.groovy</groupId>
 						<artifactId>groovy-all</artifactId>
 						<type>pom</type> 
-						<version>4.0.18</version>
+						<version>4.0.20</version>
 					</dependency>
 				</dependencies>
 			</plugin>
