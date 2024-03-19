@@ -60,7 +60,8 @@ public class OrganizationsListView extends StandardOrganizationListView implemen
 	 */
 	public OrganizationsListView(
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired OrganizationAddressService addressService) {
 		super(fileManager, authenticatedUser, messages, organizationService, addressService, LOGGER);

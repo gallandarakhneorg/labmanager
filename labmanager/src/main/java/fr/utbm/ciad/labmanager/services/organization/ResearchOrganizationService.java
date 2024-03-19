@@ -154,13 +154,42 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 *
 	 * @param pageable the manager of the pages.
 	 * @param filter the filter of organizations.
-	 * @param initializer icallback function that is invoked for each loaded organization to initialize its properties.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter) {
+		return this.organizationRepository.findAll(filter, pageable);
+	}
+
+	/** Replies all the research organizations.
+	 *
+	 * @param pageable the manager of the pages.
+	 * @param filter the filter of organizations.
+	 * @param initializer callback function that is invoked for each loaded organization to initialize its properties.
 	 * @return the research organizations.
 	 * @since 4.0
 	 */
 	@Transactional
 	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter, Consumer<ResearchOrganization> initializer) {
 		final var page = this.organizationRepository.findAll(filter, pageable);
+		if (initializer != null) {
+			page.forEach(initializer);
+		}
+		return page;
+	}
+
+	/** Replies all the super organizations of the given research organization.
+	 *
+	 * @param subOrganization the sub organization to start from.
+	 * @param pageable the manager of the pages.
+	 * @param filter the filter of organizations.
+	 * @param initializer callback function that is invoked for each loaded organization to initialize its properties.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<ResearchOrganization> getSuperResearchOrganizations(ResearchOrganization subOrganization, Pageable pageable, Specification<ResearchOrganization> filter, Consumer<ResearchOrganization> initializer) {
+		final var page = this.organizationRepository.findSuperOrganizations(subOrganization, pageable, filter);
 		if (initializer != null) {
 			page.forEach(initializer);
 		}

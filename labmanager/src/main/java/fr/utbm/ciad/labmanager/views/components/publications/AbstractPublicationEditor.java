@@ -84,7 +84,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityIterableValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DoiValidator;
@@ -95,6 +94,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyString
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
 import fr.utbm.ciad.labmanager.views.components.conferences.SingleConferenceNameField;
 import fr.utbm.ciad.labmanager.views.components.journals.SingleJournalNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.MultiPersonNameField;
@@ -192,7 +192,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	private DetailsWithErrorMark referencesDetails;
 
-	private EntityComboListField<ScientificAxis> scientificAxes;
+	private ComboListField<ScientificAxis> scientificAxes;
 
 	private Checkbox manualValidationForced;
 
@@ -581,7 +581,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	protected void createReferenceDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.scientificAxes = new EntityComboListField<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
+		this.scientificAxes = new ComboListField<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
 		this.scientificAxes.setEntityRenderers(
 				it -> it.getAcronymAndName(),
 				new ComponentRenderer<>(this::createScientificAxisNameComponent),

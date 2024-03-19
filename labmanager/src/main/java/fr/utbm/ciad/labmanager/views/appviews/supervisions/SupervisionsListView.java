@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.views.components.supervisions.StandardSupervision
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Enable to edit the supervisions for all the persons.
@@ -65,9 +66,16 @@ public class SupervisionsListView extends StandardSupervisionListView implements
 	 * @param addressService the service for accessing the organization address JPA entities.
 	 * @param axisService the service for accessing the scientific axis JPA entities.
 	 */
-	public SupervisionsListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			SupervisionService supervisionService, MembershipService membershipService, PersonService personService, UserService userService,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService, ScientificAxisService axisService) {
+	public SupervisionsListView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired SupervisionService supervisionService,
+			@Autowired MembershipService membershipService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService,
+			@Autowired ScientificAxisService axisService) {
 		super(authenticatedUser, messages, supervisionService, membershipService, personService, userService,
 				organizationService, addressService, axisService, LOGGER);
 	}

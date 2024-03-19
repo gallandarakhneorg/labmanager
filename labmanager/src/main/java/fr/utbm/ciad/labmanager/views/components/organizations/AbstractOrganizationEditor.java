@@ -54,11 +54,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListField;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
+import fr.utbm.ciad.labmanager.views.components.addons.value.LeftRightListsField;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -90,7 +90,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private Details geographyDetails;
 
-	private EntityLeftRightListsField<OrganizationAddress> addresses;
+	private LeftRightListsField<OrganizationAddress> addresses;
 
 	private ComboBox<CountryCode> country;
 
@@ -102,7 +102,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private Details superStructureDetails;
 
-	private EntityComboListField<ResearchOrganization> superStructures;
+	private ComboListField<ResearchOrganization> superStructures;
 
 	private DetailsWithErrorMark communicationDetails;
 
@@ -213,7 +213,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	protected void createGeographicalDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.addresses = new EntityLeftRightListsField<>(ComponentFactory.toSerializableComparator(EntityUtils.getPreferredOrganizationAddressComparator()), this::openAddressEditor);
+		this.addresses = new LeftRightListsField<>(ComponentFactory.toSerializableComparator(EntityUtils.getPreferredOrganizationAddressComparator()), this::openAddressEditor);
 		this.addresses.setEntityLabelGenerator(it -> it.getName());
 		this.addresses.setAvailableEntities(this.addressService.getAllAddresses());
 		content.add(this.addresses, 2);
@@ -280,7 +280,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		final var content = ComponentFactory.newColumnForm(2);
 
 		final var currentId = getEditedEntity().getId();
-		this.superStructures = new EntityComboListField<>(ComponentFactory.toSerializableComparator(new ResearchOrganizationNameComparator()), this::openOrganizationEditor);
+		this.superStructures = new ComboListField<>(ComponentFactory.toSerializableComparator(new ResearchOrganizationNameComparator()), this::openOrganizationEditor);
 		this.superStructures.setEntityRenderers(
 				this::createNameString,
 				new ComponentRenderer<>(this::createNameComponent),

@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,9 +71,11 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -188,6 +191,23 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 */
 	public Page<Project> getAllProjects(Pageable pageable) {
 		return this.projectRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the projects from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of projects.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of projects, never {@code null}.
+	 * @since 4.0
+	 */
+	@Transactional
+	public Page<Project> getAllProjects(Pageable pageable, Specification<Project> filter, Consumer<Project> callback) {
+		final var page =  this.projectRepository.findAll(filter, pageable);
+		if (callback != null) {
+			page.forEach(callback);
+		}
+		return page;
 	}
 
 	/** Replies the list of all the projects from the database.
@@ -1267,6 +1287,24 @@ public class ProjectService extends AbstractEntityService<Project> {
 	@Override
 	public EntityEditingContext<Project> startEditing(Project project) {
 		assert project != null;
+		// Force initialization of the internal properties that are needed for editing
+		if (project.getId() != 0l) {
+			inSession(session -> {
+				session.load(project, Long.valueOf(project.getId()));
+				Hibernate.initialize(project.getCoordinator());
+				Hibernate.initialize(project.getLocalOrganization());
+				Hibernate.initialize(project.getSuperOrganization());
+				Hibernate.initialize(project.getOtherPartnersRaw());
+				Hibernate.initialize(project.getLearOrganization());
+				Hibernate.initialize(project.getScientificAxes());
+				Hibernate.initialize(project.getParticipants());
+				for (final var member : project.getParticipants()) {
+					Hibernate.initialize(member.getPerson());
+				}
+				Hibernate.initialize(project.getBudgets());
+				Hibernate.initialize(project.getVideoURLs());
+			});
+		}
 		return new EditingContext(project);
 	}
 

@@ -130,12 +130,12 @@ public abstract class AbstractUploadableFileImageViewerField<T> extends Abstract
 	}
 
 	@Override
-	protected void uploadSucceeded() {
+	protected void uploadSucceeded(String filename) {
 		updateImage(this.image, this.clearButton);
 	}
 	
 	@Override
-	protected void uploadFailed(Throwable error) {
+	protected void uploadFailed(String filename, Throwable error) {
 		resetProperties();
 		resetUi();
 	}

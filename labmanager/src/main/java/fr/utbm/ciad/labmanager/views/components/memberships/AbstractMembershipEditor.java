@@ -63,11 +63,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityComboListField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
 import fr.utbm.ciad.labmanager.views.components.organizations.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.EmbeddedScientificAxisEditor;
@@ -124,7 +124,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private DetailsWithErrorMark activityDetails;
 
-	private EntityComboListField<ScientificAxis> scientificAxes;
+	private ComboListField<ScientificAxis> scientificAxes;
 
 	private ComboBox<Responsibility> responsibility;
 
@@ -160,8 +160,8 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	public AbstractMembershipEditor(EntityEditingContext<Membership> context, boolean editAssociatedPerson,
 			boolean relinkEntityWhenSaving, PersonService personService, UserService userService,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			Logger logger) {
+			ScientificAxisService axisService, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages, Logger logger) {
 		super(Membership.class, authenticatedUser, messages, logger,
 				"views.membership.administration_details", //$NON-NLS-1$
 				null, context, relinkEntityWhenSaving);
@@ -227,13 +227,13 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		final var content = ComponentFactory.newColumnForm(2);
 
 		this.serviceOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
-				getTranslation("views.membership.new_service"), getLogger(), this::initializeOrgnaizationJPA); //$NON-NLS-1$
+				getTranslation("views.membership.new_service"), getLogger(), this::initializeOrganizationJPA); //$NON-NLS-1$
 		this.serviceOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 		this.serviceOrganization.addValueChangeListener(this::onOrganizationChange);
 		content.add(this.serviceOrganization, 2);
 
 		this.employerOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
-				getTranslation("views.membership.new_organization"), getLogger(), this::initializeOrgnaizationJPA); //$NON-NLS-1$
+				getTranslation("views.membership.new_organization"), getLogger(), this::initializeOrganizationJPA); //$NON-NLS-1$
 		this.employerOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 		this.employerOrganization.addValueChangeListener(this::onOrganizationChange);
 		content.add(this.employerOrganization, 2);
@@ -264,7 +264,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 			.bind(Membership::getOrganizationAddress, Membership::setOrganizationAddress);
 	}
 	
-	private void initializeOrgnaizationJPA(ResearchOrganization organization) {
+	private void initializeOrganizationJPA(ResearchOrganization organization) {
 		Hibernate.initialize(organization.getAddresses());
 	}
 
@@ -444,7 +444,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 			content.add(this.responsibility, 2);
 		}
 
-		this.scientificAxes = new EntityComboListField<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
+		this.scientificAxes = new ComboListField<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
 		this.scientificAxes.setEntityRenderers(
 				it -> it.getAcronymAndName(),
 				new ComponentRenderer<>(this::createScientificAxisNameComponent),

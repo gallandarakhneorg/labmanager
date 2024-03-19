@@ -35,11 +35,11 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractSingleEntityNameField;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractMultiEntityNameField;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
 
-/** Implementation of a field for entering the name of an organization, with auto-completion from the person JPA entities.
+/** Implementation of a field for entering the names of research organizations, with auto-completion from the person JPA entities.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -47,73 +47,72 @@ import org.springframework.data.jpa.domain.Specification;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class SingleOrganizationNameField extends AbstractSingleEntityNameField<ResearchOrganization> {
+public class MultiOrganizationNameField extends AbstractMultiEntityNameField<ResearchOrganization> {
 
-	private static final long serialVersionUID = -4319317824778208340L;
+	private static final long serialVersionUID = -3563272751149407935L;
 
-	/** Constructor for showing all the organizations and enabling or disabling the creation button.
+	/** Constructor.
 	 *
 	 * @param organizationService the service for accessing the organization JPA entities.
 	 * @param creationWithUiCallback a lambda that is invoked for creating a new organization using an UI, e.g., an editor. The first argument is the new organization entity.
-	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code SingleOrganizationNameField}.
+	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code MultiOrganizationNameField}.
 	 *      This second lambda takes the created organization.
 	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new organization without using an UI. The first argument is the new organization entity.
-	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code SingleOrganizationNameField}.
+	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code MultiOrganizationNameField}.
 	 *      This second lambda takes the created organization.
-	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
+	 * @param initializer the initializer of the loaded organizations. It may be {@code null}.
 	 */
-	public SingleOrganizationNameField(ResearchOrganizationService organizationService,
+	public MultiOrganizationNameField(ResearchOrganizationService organizationService,
 			SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithUiCallback,
 			SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithoutUiCallback,
-			Consumer<ResearchOrganization> entityInitializer) {
+			Consumer<ResearchOrganization> initializer) {
 		super(
 				combo -> {
 					combo.setRenderer(new ComponentRenderer<>(createOrganizationRender(organizationService.getFileManager())));
 					combo.setItemLabelGenerator(it -> it.getAcronymAndName());
 				},
 				combo -> {
-					combo.setItems(query -> organizationService.getAllResearchOrganizations(
-							VaadinSpringDataHelpers.toSpringPageRequest(query),
-							createOrganizationFilter(query.getFilter()),
-							entityInitializer).stream());
+					if (initializer == null) {
+						combo.setItems(query -> organizationService.getAllResearchOrganizations(
+								VaadinSpringDataHelpers.toSpringPageRequest(query),
+								createOrganizationFilter(query.getFilter())).stream());
+					} else {
+						combo.setItems(query -> organizationService.getAllResearchOrganizations(
+								VaadinSpringDataHelpers.toSpringPageRequest(query),
+								createOrganizationFilter(query.getFilter()), initializer).stream());
+					}
 				},
 				creationWithUiCallback, creationWithoutUiCallback);
 	}
 
-	/** Constructor for showing only the super organizations of the given organization and disabling the creation button.
+	/** Constructor.
 	 *
 	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param baseOrganization the base organization from which the super organizations are extracted.
-	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
+	 * @param creationWithUiCallback a lambda that is invoked for creating a new organization using an UI, e.g., an editor. The first argument is the new organization entity.
+	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code MultiOrganizationNameField}.
+	 *      This second lambda takes the created organization.
+	 * @param creationWithoutUiCallback a lambda that is invoked for creating a new organization without using an UI. The first argument is the new organization entity.
+	 *      The second argument is a lambda that must be invoked to inject the new organization in the {@code MultiOrganizationNameField}.
+	 *      This second lambda takes the created organization.
 	 */
-	public SingleOrganizationNameField(ResearchOrganizationService organizationService,
-			ResearchOrganization baseOrganization, Consumer<ResearchOrganization> entityInitializer) {
-		super(
-				combo -> {
-					combo.setRenderer(new ComponentRenderer<>(createOrganizationRender(organizationService.getFileManager())));
-					combo.setItemLabelGenerator(it -> it.getAcronymAndName());
-				},
-				combo -> {
-					combo.setItems(query -> organizationService.getSuperResearchOrganizations(
-							baseOrganization,
-							VaadinSpringDataHelpers.toSpringPageRequest(query),
-							createOrganizationFilter(query.getFilter()),
-							entityInitializer).stream());
-				},
-				null, null);
+	public MultiOrganizationNameField(ResearchOrganizationService organizationService,
+			SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithUiCallback,
+			SerializableBiConsumer<ResearchOrganization, Consumer<ResearchOrganization>> creationWithoutUiCallback) {
+		this(organizationService, creationWithUiCallback, creationWithoutUiCallback, null);
 	}
 
-	/** Constructor with the standard creation method based on regular editors.
+	/** Constructor.
 	 *
-	 * @param organizationService the service for accessing the research organization JPA entities.
-	 * @param addressService the service for accessing the organization address JPA entities.
+	 * @param organizationService the service for accessing the organization JPA entities.
+	 * @param addressService the service for accessing the address JPA entities.
 	 * @param authenticatedUser the user that is currently authenticated.
-	 * @param creationTitle the title of the dialog box for creating the person.
+	 * @param creationTitle the title of the dialog box for creating the organization.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
-	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
+	 * @param initializer the initializer of the loaded organizations. It may be {@code null}.
 	 */
-	public SingleOrganizationNameField(ResearchOrganizationService organizationService, OrganizationAddressService addressService, AuthenticatedUser authenticatedUser,
-			String creationTitle, Logger logger, Consumer<ResearchOrganization> entityInitializer) {
+	public MultiOrganizationNameField(ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, AuthenticatedUser authenticatedUser,
+			String creationTitle, Logger logger, Consumer<ResearchOrganization> initializer) {
 		this(organizationService,
 				(newOrganization, saver) -> {
 					final var organizationContext = organizationService.startEditing(newOrganization);
@@ -132,12 +131,26 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating an organization by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
+						logger.warn("Error when creating a organization by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
 							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(organizationService.getMessageSourceAccessor().getMessage("views.organizations.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				},
-				entityInitializer);
+				initializer);
+	}
+
+	/** Constructor.
+	 *
+	 * @param organizationService the service for accessing the person JPA entities.
+	 * @param addressService the service for accessing the address JPA entities.
+	 * @param authenticatedUser the user that is currently authenticated.
+	 * @param creationTitle the title of the dialog box for creating the person.
+	 * @param logger the logger for abnormal messages to the lab manager administrator.
+	 */
+	public MultiOrganizationNameField(ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, AuthenticatedUser authenticatedUser,
+			String creationTitle, Logger logger) {
+		this(organizationService, addressService, authenticatedUser, creationTitle, logger, null);
 	}
 
 	private static SerializableFunction<ResearchOrganization, Component> createOrganizationRender(FileManager fileManager) {

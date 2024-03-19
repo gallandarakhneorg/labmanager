@@ -45,7 +45,6 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
@@ -79,8 +78,6 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	private final ScientificAxisService axisService;
 
-	private final FileManager fileManager;
-
 	private Column<TreeListEntity<Person, Membership>> periodColumn;
 
 	private Column<TreeListEntity<Person, Membership>> serviceColumn;
@@ -97,7 +94,6 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
-	 * @param fileManager the manager of files that is used for obtaining the associated icons to entities.
 	 * @param logger the logger to use.
 	 */
 	public StandardMembershipListView(
@@ -105,7 +101,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 			MembershipService membershipService, PersonService personService,
 			UserService userService, ResearchOrganizationService organizationService,
 			OrganizationAddressService addressService, ScientificAxisService axisService,
-			FileManager fileManager, Logger logger) {
+			Logger logger) {
 		super(Person.class, Membership.class, authenticatedUser, messages, logger,
 				"views.memberships.delete.title", //$NON-NLS-1$
 				"views.memberships.delete.message", //$NON-NLS-1$
@@ -117,7 +113,6 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		this.organizationService = organizationService;
 		this.addressService = addressService;
 		this.axisService = axisService;
-		this.fileManager = fileManager;
 		setHoverMenu(isAdminRole());
 		setRootEntityFetcher(
 				(parentId, pageRequest, filters) -> {
@@ -222,7 +217,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 			if (membership != null) {
 				final var organization = getService(membership);
 				if (organization != null) {
-					return ComponentFactory.newOrganizationAvatar(organization, this.fileManager);
+					return ComponentFactory.newOrganizationAvatar(organization, this.organizationService.getFileManager());
 				}
 			}
 		}
@@ -244,7 +239,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 			if (membership != null) {
 				final var organization = getEmployer(membership);
 				if (organization != null) {
-					return ComponentFactory.newOrganizationAvatar(organization, this.fileManager);
+					return ComponentFactory.newOrganizationAvatar(organization, this.organizationService.getFileManager());
 				}
 			}
 		}

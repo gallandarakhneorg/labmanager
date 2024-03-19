@@ -54,7 +54,8 @@ public class JournalsListView extends StandardJournalListView implements HasDyna
 	 * @param journalService the service for accessing the journals.
 	 */
 	public JournalsListView(
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
 			@Autowired JournalService journalService) {
 		super(authenticatedUser, messages, journalService, LOGGER);
 	}

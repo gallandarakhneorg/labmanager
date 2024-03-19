@@ -72,8 +72,8 @@ public class ServerSideUploadablePowerpointField extends AbstractServerSideUploa
 	}
 
 	@Override
-	protected void uploadSucceeded() {
-		super.uploadSucceeded();
+	protected void uploadSucceeded(String filename) {
+		super.uploadSucceeded(filename);
 		updateValue();
 	}
 

@@ -61,9 +61,13 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param authenticatedUser the connected user.
 	 */
-    public PersonsListView(@Autowired PersonService personService, @Autowired UserService userService,
-    		@Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator membershipComparator,
-    		@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
+    public PersonsListView(
+    		@Autowired PersonService personService,
+    		@Autowired UserService userService,
+    		@Autowired MembershipService membershipService,
+    		@Autowired ChronoMembershipComparator membershipComparator,
+    		@Autowired AuthenticatedUser authenticatedUser,
+    		@Autowired MessageSourceAccessor messages) {
     	super(personService, userService, membershipService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
     			authenticatedUser, messages, LOGGER);

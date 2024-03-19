@@ -29,6 +29,10 @@ package fr.utbm.ciad.labmanager.views;
  */
 public final class ViewConstants {
 
+	/** Default height in pixels of the input list.
+	 */
+	public static final float DEFAULT_LIST_HEIGHT = 150f;
+
 	/** URL of the online manuals.
 	 */
 	public static final String ONLINE_MANUAL_URL = "https://www.ciad-lab.fr/docs/"; //$NON-NLS-1$

@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.views.components.scientificaxes.StandardScientifi
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** List all the scientific axes.
@@ -53,8 +54,10 @@ public class ScientificAxesListView extends StandardScientificAxisListView imple
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param axisService the service for accessing the scientific axes.
 	 */
-	public ScientificAxesListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ScientificAxisService axisService) {
+	public ScientificAxesListView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ScientificAxisService axisService) {
 		super(authenticatedUser, messages, axisService, LOGGER);
 	}
 

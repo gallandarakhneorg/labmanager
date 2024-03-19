@@ -19,32 +19,26 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.uploads.image;
 
-import java.io.File;
-
-import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.AbstractServerSideUploadableFileImageViewerField;
-
-/** A field that enables to upload an image to the server.
- * This field does not assume that the field's data is of a specific type.
- * Subclasses must implement function to handle the upload file data.
+/** Constants for the components to upload images.
  *
- * <p>CAUTION: Data is in memory only until the function {@link #saveUploadedFileOnServer(File)} is invoked.
- *
- * @param <T> the type of the values managed by this field.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractServerSideUploadableImageField<T> extends AbstractServerSideUploadableFileImageViewerField<T>
-		implements ServerSideUploadableImageConstants {
+public interface ServerSideUploadableImageConstants {
 
-	private static final long serialVersionUID = 8918559663409687792L;
-
-	/** Default constructor.
+	/** Default accepted MIME types.
 	 */
-	public AbstractServerSideUploadableImageField() {
-		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
-	}
+	public static final String[] DEFAULT_ACCEPTED_MIME_TYPES = new String[] {
+			".png", //$NON-NLS-1$
+			"image/png", //$NON-NLS-1$
+			".jpg", //$NON-NLS-1$
+			".jpeg", //$NON-NLS-1$
+			"image/jpeg", //$NON-NLS-1$
+			".svg", //$NON-NLS-1$
+			"image/svg+xml" //$NON-NLS-1$
+	};
 
 }

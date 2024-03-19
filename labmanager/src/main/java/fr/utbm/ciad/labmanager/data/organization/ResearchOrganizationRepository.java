@@ -21,8 +21,12 @@ package fr.utbm.ciad.labmanager.data.organization;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA Repository for the research organizations.
  * 
@@ -57,4 +61,14 @@ public interface ResearchOrganizationRepository extends JpaRepository<ResearchOr
 	 */
 	Optional<ResearchOrganization> findDistinctByName(String name);
 
+	/** Replies the super organizations of the given organization.
+	 *
+	 * @param organization the sub organization.
+	 * @param pageable the definition of the page.
+	 * @param filter the filtering criteria.
+	 * @return the page.
+	 */
+	@Query("SELECT DISTINCT o FROM ResearchOrganization o WHERE ?1 MEMBER OF o.subOrganizations ")
+	public Page<ResearchOrganization> findSuperOrganizations(ResearchOrganization organization, Pageable pageable, Specification<ResearchOrganization> filter);
+	
 }

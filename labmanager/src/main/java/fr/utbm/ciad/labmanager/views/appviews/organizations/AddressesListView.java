@@ -58,7 +58,8 @@ public class AddressesListView extends StandardAddressListView implements HasDyn
 	 */
 	public AddressesListView(
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
 			@Autowired OrganizationAddressService addressService) {
 		super(fileManager, authenticatedUser, messages, addressService, LOGGER);
 	}

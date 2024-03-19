@@ -480,6 +480,46 @@ project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"
 				<role>Author of CountryFlag for Vaadin 8</role>
 			</roles>
 		</contributor>
+		<contributor>
+			<name>Jules FERLIN</name>
+			<properties>
+				<id>jferlin</id>
+				<githubId>Seluj</githubId>
+			</properties>
+			<roles>
+				<role>UTBM Student - Contributions to version 4.0</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>&amp;Eacute;milien RENON</name>
+			<properties>
+				<id>erenon</id>
+				<githubId>EmilienRNN</githubId>
+			</properties>
+			<roles>
+				<role>UTBM Student - Contributions to version 4.0</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>C&amp;eacute;liane ALLAIRE</name>
+			<properties>
+				<id>callaire</id>
+				<githubId>Toxcecety</githubId>
+			</properties>
+			<roles>
+				<role>UTBM Student - Contributions to version 4.0</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Pierre SCHNEIDERLIN</name>
+			<properties>
+				<id>pschneiderlin</id>
+				<githubId>Pschne01</githubId>
+			</properties>
+			<roles>
+				<role>UTBM Student - Contributions to version 4.0</role>
+			</roles>
+		</contributor>
 	</contributors>
 
 	<licenses>

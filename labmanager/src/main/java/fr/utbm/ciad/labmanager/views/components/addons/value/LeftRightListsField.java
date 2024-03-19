@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.addons.value;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +41,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializablePredicate;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Component that enables to select a list of entities from a given list of available entities.
@@ -51,13 +52,10 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
- * @see EntityComboListField
  */
-public class EntityLeftRightListsField<T> extends CustomField<Set<T>> {
+public class LeftRightListsField<T> extends CustomField<Set<T>> {
 
 	private static final long serialVersionUID = 7855575001699179094L;
-
-	private static final float LIST_HEIGHT = 250f;
 
 	private static final float CONTROL_WIDTH = 40f;
 
@@ -81,7 +79,7 @@ public class EntityLeftRightListsField<T> extends CustomField<Set<T>> {
 	 *
 	 * @param comparator the comparator to be used for sorting the entities in the list.
 	 */
-	public EntityLeftRightListsField(SerializableComparator<T> comparator) {
+	public LeftRightListsField(SerializableComparator<T> comparator) {
 		this(comparator, null);
 	}
 
@@ -92,7 +90,7 @@ public class EntityLeftRightListsField<T> extends CustomField<Set<T>> {
 	 *     the list of selected entities. Argument is a lambda function that must be invoked for
 	 *     saving the new entity. The argument of this lambda function is the new entity itself.
 	 */
-	public EntityLeftRightListsField(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
+	public LeftRightListsField(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
 		this.availableEntityLabel = new Span(""); //$NON-NLS-1$
 		this.availableEntityLabel.getStyle().set("font-size", "var(--lumo-font-size-xs)"); //$NON-NLS-1$ //$NON-NLS-2$
 		
@@ -443,7 +441,7 @@ public class EntityLeftRightListsField<T> extends CustomField<Set<T>> {
 		 */
 		public Component withScroller() {
 			// Use "height" instead of "max height" or "min height" for enabling the scroller
-			setHeight(LIST_HEIGHT, Unit.PIXELS);
+			setHeight(ViewConstants.DEFAULT_LIST_HEIGHT, Unit.PIXELS);
 			setWidthFull();
 			return this;
 		}

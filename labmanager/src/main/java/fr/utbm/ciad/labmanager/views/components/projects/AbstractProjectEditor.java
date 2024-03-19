@@ -19,13 +19,16 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
+import java.net.URL;
 import java.util.function.Consumer;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,31 +36,54 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.validator.FloatRangeValidator;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.validator.AbstractValidator;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationNameComparator;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
 import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
+import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
+import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisComparator;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatConverter;
+import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatWithPrecisionConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
+import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImagesField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.powerpoint.ServerSideUploadablePowerpointField;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
+import fr.utbm.ciad.labmanager.views.components.addons.value.TextListField;
+import fr.utbm.ciad.labmanager.views.components.organizations.EmbeddedOrganizationEditor;
+import fr.utbm.ciad.labmanager.views.components.organizations.SingleOrganizationNameField;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.EmbeddedScientificAxisEditor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -86,9 +112,25 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 
 	private IntegerField duration;
 
+	private DetailsWithErrorMark consortiumDetails;
+
+	private SingleOrganizationNameField coordinator;
+
+	private SingleOrganizationNameField localOrganization;
+
+	private SingleOrganizationNameField superOrganization;
+
+	private ComboListField<ResearchOrganization> otherPartners;
+
+	private ProjectMemberListGridField participants;
+
 	private DetailsWithErrorMark fundingDetails;
 
 	private NumberField globalBudget;
+
+	private ProjectBudgetListGridField budgets;
+
+	private SingleOrganizationNameField learOrganization;
 
 	private DetailsWithErrorMark innovationDetails;
 
@@ -110,6 +152,8 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 
 	private ServerSideUploadablePowerpointField powerpoint;
 
+	private ComboListField<ScientificAxis> scientificAxes;
+
 	private DetailsWithErrorMark communicationDetails;
 
 	private ServerSideUploadableImageField logo;
@@ -120,30 +164,62 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	
 	private ServerSideUploadablePdfField pressDocument;
 
+	private ServerSideUploadableImagesField pathsToImages;
+
+	private TextListField<String> videosURLs;
+
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+
+	private final PersonService personService;
+
+	private final UserService userService;
+
+	private final ScientificAxisService axisService;
+
 	private final DownloadableFileManager fileManager;
+	
+	private final Constants constants;
 
 	/** Constructor.
 	 *
 	 * @param context the context for editing the project.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param fileManager the manager of the downloadable files.
+	 * @param constants the application constants.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractProjectEditor(EntityEditingContext<Project> context, boolean relinkEntityWhenSaving, DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+	public AbstractProjectEditor(EntityEditingContext<Project> context, boolean relinkEntityWhenSaving,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			PersonService personService, UserService userService, ScientificAxisService axisService,
+			DownloadableFileManager fileManager, Constants constants, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
 				"views.projects.administration_details", //$NON-NLS-1$
 				"views.projects.administration.validated_project", //$NON-NLS-1$
 				context, relinkEntityWhenSaving);
+		this.organizationService = organizationService;
+		this.addressService = addressService;
+		this.personService = personService;
+		this.userService = userService;
+		this.axisService = axisService;
 		this.fileManager = fileManager;
+		this.constants = constants;
 	}
 
 	@Override
 	protected void createEditorContent(VerticalLayout rootContainer) {
 		createDescriptionDetails(rootContainer);
+		createConsortiumDetails(rootContainer);
 		createFundingDetails(rootContainer);
 		createInnovationDetails(rootContainer);
 		createPresentationDetails(rootContainer);
@@ -239,25 +315,168 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		return status.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
+	/** Create the section for editing the consortium of the project.
+	 *
+	 * @param rootContainer the container.
+	 */
+	protected void createConsortiumDetails(VerticalLayout rootContainer) {
+		final var defaultLocalOrganization = this.organizationService.getResearchOrganizationByAcronym(this.constants.getDefaultOrganization());
+		final var defaultSuperOrganization = this.organizationService.getResearchOrganizationByAcronym(this.constants.getDefaultSuperOrganization());
+
+		final var content = ComponentFactory.newColumnForm(2);
+
+		this.coordinator = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
+				getTranslation("views.projects.new_organization"), getLogger(), null); //$NON-NLS-1$
+		this.coordinator.setPrefixComponent(VaadinIcon.USER_STAR.create());
+		this.coordinator.setRequiredIndicatorVisible(true);
+		content.add(this.coordinator, 2);
+
+		// Cannot create an organization from the local organization combo
+		this.localOrganization = new SingleOrganizationNameField(this.organizationService, null, null, null);
+		this.localOrganization.setPrefixComponent(VaadinIcon.OFFICE.create());
+		this.localOrganization.setRequiredIndicatorVisible(true);
+		if (defaultLocalOrganization.isPresent()) {
+			this.localOrganization.setValue(defaultLocalOrganization.get());
+		}
+		this.localOrganization.setReadOnly(true);
+		content.add(this.localOrganization, 1);
+
+		// Cannot create an organization from the super-organization combo
+		this.superOrganization = new SingleOrganizationNameField(this.organizationService, defaultLocalOrganization.orElseGet(null), null);
+		this.superOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
+		this.superOrganization.setRequiredIndicatorVisible(true);
+		if (defaultSuperOrganization.isPresent()) {
+			this.superOrganization.setValue(defaultSuperOrganization.get());
+		}
+		content.add(this.superOrganization, 1);
+
+		this.participants = new ProjectMemberListGridField(this.personService, this.userService, getAuthenticatedUser(), getMessageSourceAccessor(), getLogger());
+		content.add(this.participants, 2);
+
+		this.otherPartners = new ComboListField<>(
+				ComponentFactory.toSerializableComparator(new ResearchOrganizationNameComparator()),
+				this::openOtherPartnerEditor);
+		this.otherPartners.setEntityRenderers(
+				it -> it.getAcronymAndName(),
+				new ComponentRenderer<>(this::createOtherPartnerNameComponent),
+				new ComponentRenderer<>(this::createOtherPartnerNameComponent));
+		this.otherPartners.setAvailableEntities(query -> {
+			return this.organizationService.getAllResearchOrganizations(
+					VaadinSpringDataHelpers.toSpringPageRequest(query),
+					null).stream();
+		});
+		content.add(this.otherPartners, 2);
+
+		this.consortiumDetails = createDetailsWithErrorMark(rootContainer, content, "consortium", false); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.coordinator)
+			.withValidator(new NotNullEntityValidator<>(getTranslation("views.projects.coordinator.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.coordinator, this.consortiumDetails))
+			.bind(Project::getCoordinator, Project::setCoordinator);
+
+		getEntityDataBinder().forField(this.localOrganization)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.projects.local_organization.error.null"), //$NON-NLS-1$
+					getTranslation("views.projects.local_organization.error.disjoint"), //$NON-NLS-1$
+					this::checkLocalOrganizationUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.localOrganization, this.consortiumDetails))
+			.bind(Project::getLocalOrganization, Project::setLocalOrganization);
+
+		getEntityDataBinder().forField(this.superOrganization)
+			.withValidator(new DisjointEntityValidator<>(
+					getTranslation("views.projects.super_organization.error.null"), //$NON-NLS-1$
+					getTranslation("views.projects.super_organization.error.disjoint"), //$NON-NLS-1$
+					this::checkSuperOrganizationUnicity))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.superOrganization, this.consortiumDetails))
+			.bind(Project::getSuperOrganization, Project::setSuperOrganization);
+
+		getEntityDataBinder().forField(this.participants)
+			.withValidator(this.participants.newStandardValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.participants, this.consortiumDetails))
+			.bind(Project::getParticipants, Project::setParticipants);
+
+		getEntityDataBinder().forField(this.otherPartners)
+			.bind(Project::getOtherPartnersRaw, Project::setOtherPartners);
+	}
+
+	private Component createOtherPartnerNameComponent(ResearchOrganization partner) {
+		return new Span(partner.getAcronymAndName());
+	}
+
+	/** Invoked for creating a new research organization for other partners.
+	 *
+	 * @param saver the callback that is invoked when the research organization is saved as JPA entity.
+	 */
+	protected void openOtherPartnerEditor(Consumer<ResearchOrganization> saver) {
+		final var newOrganization = new ResearchOrganization();
+		final var editor = new EmbeddedOrganizationEditor(
+				this.organizationService.startEditing(newOrganization),
+				this.organizationService.getFileManager(),
+				getAuthenticatedUser(), getMessageSourceAccessor(),
+				this.organizationService,
+				this.addressService);
+		ComponentFactory.openEditionModalDialog(
+				getTranslation("views.projects.other_partner.create"), //$NON-NLS-1$
+				editor, false,
+				(dialog, entity) -> saver.accept(entity),
+				null);
+	}
+
+	private boolean checkLocalOrganizationUnicity(ResearchOrganization localOrganization) {
+		assert localOrganization != null;
+		final var superOrganization = getEditedEntity().getSuperOrganization();
+		return !localOrganization.equals(superOrganization);
+	}
+
+	private boolean checkSuperOrganizationUnicity(ResearchOrganization superOrganization) {
+		assert superOrganization != null;
+		final var localOrganization = getEditedEntity().getLocalOrganization();
+		return !superOrganization.equals(localOrganization);
+	}
+
 	/** Create the section for editing the funding of the project.
 	 *
 	 * @param rootContainer the container.
 	 */
 	protected void createFundingDetails(VerticalLayout rootContainer) {
+		final var defaultLearOrganization = this.organizationService.getResearchOrganizationByAcronym(this.constants.getDefaultLearOrganization());
+
 		final var content = ComponentFactory.newColumnForm(2);
+
+		this.budgets = new ProjectBudgetListGridField(getMessageSourceAccessor());
+		content.add(this.budgets, 2);
 
 		this.globalBudget = new NumberField();
 		this.globalBudget.setPrefixComponent(VaadinIcon.EURO.create());
 		this.globalBudget.setClearButtonVisible(true);
 		content.add(this.globalBudget, 2);
 
+		this.learOrganization = new SingleOrganizationNameField(this.organizationService, this.addressService, getAuthenticatedUser(),
+				getTranslation("views.projects.new_organization"), getLogger(), null); //$NON-NLS-1$
+		this.learOrganization.setPrefixComponent(VaadinIcon.COIN_PILES.create());
+		this.learOrganization.setRequiredIndicatorVisible(true);
+		if (defaultLearOrganization.isPresent()) {
+			this.learOrganization.setValue(defaultLearOrganization.get());
+		}
+		content.add(this.learOrganization, 2);
+
 		this.fundingDetails = createDetailsWithErrorMark(rootContainer, content, "funding"); //$NON-NLS-1$
 
+		getEntityDataBinder().forField(this.budgets)
+			.withValidator(this.budgets.newStandardValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.budgets, this.fundingDetails))
+			.bind(Project::getBudgets, Project::setBudgets);
 		getEntityDataBinder().forField(this.globalBudget)
-			.withConverter(new DoubleToFloatConverter())
-			.withValidator(new FloatRangeValidator(getTranslation("views.projects.global_budget.error"), Float.valueOf(0f), null)) //$NON-NLS-1$
+			.withConverter(new DoubleToFloatWithPrecisionConverter(3))
+			.withValidator(new GlobalBudgetValidator(
+					getTranslation("views.projects.global_budget.error.null"), //$NON-NLS-1$
+					getTranslation("views.projects.global_budget.error.too_low"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.globalBudget, this.fundingDetails))
 			.bind(Project::getGlobalBudget, Project::setGlobalBudget);
+		getEntityDataBinder().forField(this.learOrganization)
+			.withValidator(new NotNullEntityValidator<>(getTranslation("views.projects.lear.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.learOrganization, this.fundingDetails))
+			.bind(Project::getLearOrganization, Project::setLearOrganization);
 	}
 
 	/** Create the section for editing the innovation elements of the project.
@@ -354,6 +573,18 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.powerpoint.setClearButtonVisible(true);
 		content.add(this.powerpoint, 1);
 
+		this.scientificAxes = new ComboListField<>(ComponentFactory.toSerializableComparator(new ScientificAxisComparator()), this::openScientificAxisEditor);
+		this.scientificAxes.setEntityRenderers(
+				it -> it.getAcronymAndName(),
+				new ComponentRenderer<>(this::createScientificAxisNameComponent),
+				new ComponentRenderer<>(this::createScientificAxisNameComponent));
+		this.scientificAxes.setAvailableEntities(query -> {
+			return this.axisService.getAllScientificAxes(
+					VaadinSpringDataHelpers.toSpringPageRequest(query),
+					null).stream();
+		});
+		content.add(this.scientificAxes, 2);
+
 		this.presentationDetails = createDetailsWithErrorMark(rootContainer, content, "presentation"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.confidential)
@@ -367,6 +598,28 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		getEntityDataBinder().forField(this.powerpoint)
 			.withConverter(new StringTrimer())
 			.bind(Project::getPathToPowerpoint, Project::setPathToPowerpoint);
+		getEntityDataBinder().forField(this.scientificAxes)
+			.bind(Project::getScientificAxes, Project::setScientificAxes);
+	}
+
+	private Component createScientificAxisNameComponent(ScientificAxis axis) {
+		return new Span(axis.getAcronymAndName());
+	}
+
+	/** Invoked for creating a new scientific axis.
+	 *
+	 * @param saver the callback that is invoked when the scientific axis is saved as JPA entity.
+	 */
+	protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
+		final var newAxis = new ScientificAxis();
+		final var editor = new EmbeddedScientificAxisEditor(
+				this.axisService.startEditing(newAxis),
+				getAuthenticatedUser(), getMessageSourceAccessor());
+		ComponentFactory.openEditionModalDialog(
+				getTranslation("views.projects.scientific_axes.create"), //$NON-NLS-1$
+				editor, false,
+				(dialog, entity) -> saver.accept(entity),
+				null);
 	}
 
 	/** Create the section for editing the communication elements of the project.
@@ -391,6 +644,16 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.pressDocument.setClearButtonVisible(true);
 		content.add(this.pressDocument, 1);
 
+		this.pathsToImages = new ServerSideUploadableImagesField(this.fileManager,
+				(index, ext) -> this.fileManager.makeProjectImageFilename(getEditedEntity().getId(), index.intValue(), ext));
+		content.add(this.pathsToImages, 2);
+		
+		this.videosURLs = new TextListField<>(
+				StringUtils::compare,
+				it -> new URL(it).toExternalForm(),
+				"views.projects.video_urls.error"); //$NON-NLS-1$
+		content.add(this.videosURLs, 2);
+		
 		this.communicationDetails = createDetailsWithErrorMark(rootContainer, content, "communication"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.logo)
@@ -404,11 +667,15 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		getEntityDataBinder().forField(this.pressDocument)
 			.withConverter(new StringTrimer())
 			.bind(Project::getPathToPressDocument, Project::setPathToPressDocument);
+		getEntityDataBinder().forField(this.pathsToImages)
+			.bind(Project::getPathsToImages, Project::setPathsToImages);
+		getEntityDataBinder().forField(this.videosURLs)
+			.bind(Project::getVideoURLs, Project::setVideoURLs);
 	}
 
 	@Override
 	protected void doSave() throws Exception {
-		getEditingContext().save(this.logo, this.pressDocument, this.requirements, this.powerpoint);
+		getEditingContext().save(this.logo, this.pressDocument, this.requirements, this.powerpoint, this.pathsToImages);
 	}
 
 	@Override
@@ -463,9 +730,26 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.duration.setLabel(getTranslation("views.projects.duration")); //$NON-NLS-1$
 		this.duration.setHelperText(getTranslation("views.projects.duration.help")); //$NON-NLS-1$
 
+		this.consortiumDetails.setSummaryText(getTranslation("views.projects.consortium_details")); //$NON-NLS-1$
+		this.coordinator.setLabel(getTranslation("views.projects.coordinator")); //$NON-NLS-1$
+		this.coordinator.setHelperText(getTranslation("views.projects.coordinator.help")); //$NON-NLS-1$
+		this.localOrganization.setLabel(getTranslation("views.projects.local_organization")); //$NON-NLS-1$
+		this.localOrganization.setHelperText(getTranslation("views.projects.local_organization.help")); //$NON-NLS-1$
+		this.superOrganization.setLabel(getTranslation("views.projects.super_organization")); //$NON-NLS-1$
+		this.superOrganization.setHelperText(getTranslation("views.projects.super_organization.help")); //$NON-NLS-1$
+		this.participants.setLabel(getTranslation("views.projects.members")); //$NON-NLS-1$
+		this.otherPartners.setLabel(getTranslation("views.projects.other_partners")); //$NON-NLS-1$
+		this.otherPartners.setAdditionTooltip(getTranslation("views.projects.other_partner.insert")); //$NON-NLS-1$
+		this.otherPartners.setDeletionTooltip(getTranslation("views.projects.other_partner.delete")); //$NON-NLS-1$
+		this.otherPartners.setCreationTooltip(getTranslation("views.projects.other_partner.create")); //$NON-NLS-1$
+
 		this.fundingDetails.setSummaryText(getTranslation("views.projects.funding_details")); //$NON-NLS-1$
+		this.budgets.setLabel(getTranslation("views.projects.budgets")); //$NON-NLS-1$
 		this.globalBudget.setLabel(getTranslation("views.projects.global_budget")); //$NON-NLS-1$
+		this.globalBudget.setSuffixComponent(new Span(getTranslation("views.projects.global_budget.unit"))); //$NON-NLS-1$
 		this.globalBudget.setHelperText(getTranslation("views.projects.global_budget.help")); //$NON-NLS-1$
+		this.learOrganization.setLabel(getTranslation("views.projects.lear")); //$NON-NLS-1$
+		this.learOrganization.setHelperText(getTranslation("views.projects.lear.help")); //$NON-NLS-1$
 
 		this.innovationDetails.setSummaryText(getTranslation("views.projects.innovation_details")); //$NON-NLS-1$
 		this.activityType.setLabel(getTranslation("views.projects.activity_type")); //$NON-NLS-1$
@@ -485,14 +769,62 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.description.setHelperText(getTranslation("views.projects.description.help")); //$NON-NLS-1$
 		this.requirements.setLabel(getTranslation("views.projects.requirements")); //$NON-NLS-1$
 		this.powerpoint.setLabel(getTranslation("views.projects.powerpoint")); //$NON-NLS-1$
+		this.scientificAxes.setLabel(getTranslation("views.projects.scientific_axes")); //$NON-NLS-1$
+		this.scientificAxes.setAdditionTooltip(getTranslation("views.projects.scientific_axes.insert")); //$NON-NLS-1$
+		this.scientificAxes.setDeletionTooltip(getTranslation("views.projects.scientific_axes.delete")); //$NON-NLS-1$
+		this.scientificAxes.setCreationTooltip(getTranslation("views.projects.scientific_axes.create")); //$NON-NLS-1$
 
 		this.communicationDetails.setSummaryText(getTranslation("views.projects.communication_details")); //$NON-NLS-1$
 		this.logo.setLabel(getTranslation("views.projects.logo")); //$NON-NLS-1$
 		this.projectUrl.setLabel(getTranslation("views.projects.url")); //$NON-NLS-1$
 		this.projectUrl.setHelperText(getTranslation("views.projects.url.help")); //$NON-NLS-1$
 		this.pressDocument.setLabel(getTranslation("views.projects.press_document")); //$NON-NLS-1$
+		this.pathsToImages.setLabel(getTranslation("views.projects.images")); //$NON-NLS-1$
+		this.pathsToImages.setHelperText(getTranslation("views.projects.images.help")); //$NON-NLS-1$
+		this.videosURLs.setLabel(getTranslation("views.projects.video_urls")); //$NON-NLS-1$
 
 		this.webpageConvention.setLabel(getTranslation("views.projects.webpage_convention")); //$NON-NLS-1$
 	}
 
+	/** Validator for the global budget of a project.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class GlobalBudgetValidator extends AbstractValidator<Float> {
+
+		private static final long serialVersionUID = 3784974920132263663L;
+
+		private final String invalidValueErrorMessage;
+		
+		/** Constructor.
+		 *
+	     * @param rangeErrorMessage the message to display in case the value does not validate in the given range.
+	     * @param invalidValueErrorMessage the message to display in case the value is lower to the some of local budgets.
+		 */
+		public GlobalBudgetValidator(String rangeErrorMessage, String invalidValueErrorMessage) {
+			super(rangeErrorMessage);
+			this.invalidValueErrorMessage = invalidValueErrorMessage;
+		}
+
+		@Override
+		public ValidationResult apply(Float value, ValueContext context) {
+	        if (value != null) {
+	        	final var floatValue = value.floatValue();
+		        if (floatValue < 0f) {
+		        	return ValidationResult.error(getMessage(value));
+		        }
+		        final var localBudgetValue = getEditedEntity().getTotalLocalOrganizationBudget();
+		        if (floatValue < localBudgetValue) {
+		        	return ValidationResult.error(getTranslation(this.invalidValueErrorMessage, value, Float.valueOf(localBudgetValue)));
+		        }
+	        }
+			return ValidationResult.ok();
+		}
+		
+	}
+	
 }

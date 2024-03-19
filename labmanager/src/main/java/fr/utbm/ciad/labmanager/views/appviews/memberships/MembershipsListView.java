@@ -29,12 +29,12 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.memberships.StandardMembershipListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Enable to edit the memberships for a person.
@@ -63,14 +63,18 @@ public class MembershipsListView extends StandardMembershipListView implements H
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
-	 * @param fileManager the manager of local files for accessing the associated icons to the entities.
 	 */
-	public MembershipsListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			MembershipService membershipService, PersonService personService, UserService userService,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			ScientificAxisService axisService, DownloadableFileManager fileManager) {
+	public MembershipsListView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired MembershipService membershipService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService,
+			@Autowired ScientificAxisService axisService) {
 		super(authenticatedUser, messages, membershipService, personService, userService,
-				organizationService, addressService, axisService, fileManager, LOGGER);
+				organizationService, addressService, axisService, LOGGER);
 	}
 
 	@Override

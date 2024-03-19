@@ -22,8 +22,14 @@ package fr.utbm.ciad.labmanager.views.appviews.projects;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.projects.StandardProjectListView;
@@ -52,15 +58,28 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of filenames for uploaded files.
+	 * @param constants the constants of the application.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param projectService the service for accessing the projects.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 */
 	public ProjectsListView(
 			@Autowired DownloadableFileManager fileManager,
+			@Autowired Constants constants,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
-			@Autowired ProjectService projectService) {
-		super(fileManager, authenticatedUser, messages, projectService, LOGGER);
+			@Autowired ProjectService projectService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService,			
+			@Autowired ScientificAxisService axisService) {
+		super(fileManager, constants, authenticatedUser, messages, projectService, organizationService,
+				addressService, personService, userService, axisService, LOGGER);
 	}
 
 	@Override

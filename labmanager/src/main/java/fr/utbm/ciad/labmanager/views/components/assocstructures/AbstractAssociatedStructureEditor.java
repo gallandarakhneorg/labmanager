@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views.components.assocstructures;
 
+import java.util.List;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -40,6 +42,7 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
@@ -83,7 +86,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private IntegerField creationDuration;
 
-//	holders : Set<AssociatedStructureHolder>
+// FIXME:	holders : Set<AssociatedStructureHolder>
 
 	private DetailsWithErrorMark fundingDetails;
 
@@ -93,7 +96,9 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private DetailsWithErrorMark projectDetails;
 
-	//	projects : List<Project>
+	// FIXME:	projects : List<Project>
+	
+	private List<Project> projects;
 
 	private DetailsWithErrorMark communicationDetails;
 
@@ -104,7 +109,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	private final ResearchOrganizationService organizationService;
 
 	private final OrganizationAddressService addressService;
-	
+
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
@@ -118,7 +123,8 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 */
 	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context, 
 			boolean relinkEntityWhenSaving, ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			OrganizationAddressService addressService, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structure.administration_details", //$NON-NLS-1$
 				"views.associated_structure.administration.validated_structure", //$NON-NLS-1$

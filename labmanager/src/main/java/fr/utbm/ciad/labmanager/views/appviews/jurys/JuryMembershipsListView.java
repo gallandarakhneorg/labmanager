@@ -31,6 +31,7 @@ import fr.utbm.ciad.labmanager.views.components.jurys.StandardJuryMembershipList
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Enable to edit all the jurys in which the persons are involved.
@@ -57,9 +58,12 @@ public class JuryMembershipsListView extends StandardJuryMembershipListView impl
 	 * @param personService the service for accessing the JPA entities for persons.
 	 * @param userService the service for accessing the JPA entities for users.
 	 */
-	public JuryMembershipsListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			JuryMembershipService membershipService, PersonService personService,
-			UserService userService) {
+	public JuryMembershipsListView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired JuryMembershipService membershipService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService) {
 		super(authenticatedUser, messages, membershipService, personService, userService, LOGGER);
 	}
 

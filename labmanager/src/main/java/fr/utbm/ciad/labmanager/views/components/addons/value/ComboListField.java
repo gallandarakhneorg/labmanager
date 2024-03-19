@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.entities;
+package fr.utbm.ciad.labmanager.views.components.addons.value;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +42,7 @@ import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableComparator;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -53,13 +54,10 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
- * @see EntityLeftRightListsField
  */
-public class EntityComboListField<T> extends CustomField<Set<T>> {
+public class ComboListField<T> extends CustomField<Set<T>> {
 
 	private static final long serialVersionUID = -4788430817317673879L;
-
-	private static final float LIST_HEIGHT = 250f;
 
 	private final ComboBox<T> availableEntities;
 
@@ -75,7 +73,7 @@ public class EntityComboListField<T> extends CustomField<Set<T>> {
 	 *
 	 * @param comparator the comparator to be used for sorting the entities in the list.
 	 */
-	public EntityComboListField(SerializableComparator<T> comparator) {
+	public ComboListField(SerializableComparator<T> comparator) {
 		this(comparator, null);
 	}
 
@@ -86,7 +84,7 @@ public class EntityComboListField<T> extends CustomField<Set<T>> {
 	 *     the list of selected entities. Argument is a lambda function that must be invoked for
 	 *     saving the new entity. The argument of this lambda function is the new entity itself.
 	 */
-	public EntityComboListField(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
+	public ComboListField(SerializableComparator<T> comparator, Consumer<Consumer<T>> entityCreationCallback) {
 		this.selectedEntities = new EmptySetMultiSelectListBox<>(comparator);
 
 		this.availableEntities = new ComboBox<>();
@@ -378,7 +376,7 @@ public class EntityComboListField<T> extends CustomField<Set<T>> {
 		 */
 		public Component withScroller() {
 			// Use "height" instead of "max height" or "min height" for enabling the scroller
-			setHeight(LIST_HEIGHT, Unit.PIXELS);
+			setHeight(ViewConstants.DEFAULT_LIST_HEIGHT, Unit.PIXELS);
 			setWidthFull();
 			return this;
 		}

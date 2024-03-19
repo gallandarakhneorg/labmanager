@@ -31,6 +31,7 @@ import fr.utbm.ciad.labmanager.views.components.assocstructures.StandardAssociat
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** List all the associated structures.
@@ -57,9 +58,12 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 */
-	public AssociatedStructuresListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			AssociatedStructureService structureService, ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService) {
+	public AssociatedStructuresListView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired AssociatedStructureService structureService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService) {
 		super(authenticatedUser, messages, structureService, organizationService, addressService, LOGGER);
 	}
 

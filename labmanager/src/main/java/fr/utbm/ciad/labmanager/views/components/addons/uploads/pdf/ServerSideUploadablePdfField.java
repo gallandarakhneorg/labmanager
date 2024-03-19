@@ -72,8 +72,8 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 	}
 
 	@Override
-	protected void uploadSucceeded() {
-		super.uploadSucceeded();
+	protected void uploadSucceeded(String filename) {
+		super.uploadSucceeded(filename);
 		updateValue();
 	}
 

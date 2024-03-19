@@ -33,26 +33,32 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -76,7 +82,11 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	
 	private final ProjectDataProvider dataProvider;
 
-	private ProjectService projectService;
+	private final ProjectService projectService;
+
+	private final PersonService personService;
+
+	private final UserService userService;
 
 	private Column<Project> nameColumn;
 
@@ -86,33 +96,69 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	private Column<Project> fundingColumn;
 
+	private Column<Project> coordinatorColumn;
+
+	private Column<Project> localHeadColumn;
+
 	private Column<Project> stateColumn;
 
 	private Column<Project> validationColumn;
 
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+
+	private final ScientificAxisService axisService;
+
 	private final DownloadableFileManager fileManager;
+
+	private final Constants constants;
 
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the filenames for the uploaded files.
+	 * @param constants the constants of the application.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param projectService the service for accessing the projects.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param logger the logger to use.
 	 */
 	public StandardProjectListView(
-			DownloadableFileManager fileManager,
+			DownloadableFileManager fileManager, Constants constants,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ProjectService projectService, Logger logger) {
+			ProjectService projectService, ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			PersonService personService, UserService userService, ScientificAxisService axisService, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
 				"views.projects.delete.title", //$NON-NLS-1$
 				"views.project.delete.message", //$NON-NLS-1$
 				"views.projects.delete_success", //$NON-NLS-1$
 				"views.projects.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
+		this.constants = constants;
 		this.projectService = projectService;
-		this.dataProvider = (ps, query, filters) -> ps.getAllProjects(query, filters);
+		this.organizationService = organizationService;
+		this.addressService = addressService;
+		this.personService = personService;
+		this.userService = userService;
+		this.axisService = axisService;
+		this.dataProvider = (ps, query, filters) -> ps.getAllProjects(query, filters, this::initializeEntityFromJPA);
 		initializeDataInGrid(getGrid(), getFilters());
+	}
+
+	private void initializeEntityFromJPA(Project entity) {
+		// Force the loaded of the lazy data that is needed for rendering the table
+		Hibernate.initialize(entity.getBudgets());
+		Hibernate.initialize(entity.getCoordinator());
+		Hibernate.initialize(entity.getParticipants());
+		for (final var participant : entity.getParticipants()) {
+			Hibernate.initialize(participant);
+			Hibernate.initialize(participant.getPerson());
+		}
 	}
 
 	@Override
@@ -132,8 +178,11 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 				.setAutoWidth(false)
 				.setSortProperty("projectType", "contractType"); //$NON-NLS-1$ //$NON-NLS-2$
 		this.fundingColumn = grid.addColumn(this::getFundingLabel)
-				.setAutoWidth(true)
-				.setSortProperty("budgets"); //$NON-NLS-1$
+				.setAutoWidth(true);
+		this.coordinatorColumn = grid.addColumn(new ComponentRenderer<>(this::createCoordinatorComponent))
+				.setAutoWidth(true);
+		this.localHeadColumn = grid.addColumn(new ComponentRenderer<>(this::createLocalHeadComponent))
+				.setAutoWidth(true);
 		this.stateColumn = grid.addColumn(new BadgeRenderer<>((data, callback) -> {
 			switch (data.getStatus()) {
 			case EVALUATION:
@@ -177,8 +226,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	}
 	
 	private String getFundingLabel(Project project) {
-		// TODO
-		return "";
+		return project.getMajorFundingScheme().getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
 	private Component createTypeComponent(Project project) {
@@ -229,24 +277,30 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	}
 
 	private Component createNameComponent(Project project) {
-		final var acronym = project.getAcronym();
-		final var logo = project.getPathToLogo();
+		return ComponentFactory.newProjectAvatar(project, this.fileManager);
+	}
 
-		final var avatar = new AvatarItem();
-		avatar.setHeading(acronym);
-		var logoFile = FileSystem.convertStringToFile(logo);
-		var emptyLogo = true;
-		if (logoFile != null) {
-			logoFile = this.fileManager.normalizeForServerSide(logoFile);
-			if (logoFile != null) {
-				avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
-				emptyLogo = false;
+	private Component createCoordinatorComponent(Project project) {
+		final var coordinator = project.getCoordinator();
+		if (coordinator != null) {
+			return ComponentFactory.newOrganizationAvatar(coordinator, this.fileManager);
+		}
+		return new Span("?"); //$NON-NLS-1$
+	}
+
+	private Component createLocalHeadComponent(Project project) {
+		final var heads = project.getParticipants().stream().filter(it -> it.getRole().isHead()).toList();
+		if (!heads.isEmpty()) {
+			final var layout = new VerticalLayout();
+			layout.setSpacing(false);
+			layout.setPadding(false);
+			for (final var head : heads) {
+				layout.add(ComponentFactory.newPersonAvatar(head.getPerson(), null,
+						(login, role) -> role.getLabel(getMessageSourceAccessor(), getLocale())));
 			}
+			return layout;
 		}
-		if (emptyLogo) {
-			avatar.setAvatarResource(ComponentFactory.newEmptyBackgroundStreamImage());
-		}
-		return avatar;
+		return new Span("?"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -282,11 +336,27 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	protected void openProjectEditor(Project project, String title) {
 		final var editor = new EmbeddedProjectEditor(
 				this.projectService.startEditing(project),
-				this.fileManager,
+				this.organizationService, this.addressService,
+				this.personService, this.userService, this.axisService,
+				this.fileManager, this.constants,
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
-		final SerializableBiConsumer<Dialog, Project> refreshAll = (dialog, entity) -> refreshGrid();
-		final SerializableBiConsumer<Dialog, Project> refreshOne = (dialog, entity) -> refreshItem(entity);
+		final SerializableBiConsumer<Dialog, Project> refreshAll = (dialog, entity) -> {
+			// The number of papers should be loaded because it was not loaded before
+			this.projectService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshGrid();
+		};
+		final SerializableBiConsumer<Dialog, Project> refreshOne = (dialog, entity) -> {
+			// The number of papers should be loaded because it was not loaded before
+			this.projectService.inSession(session -> {
+				session.load(entity, Long.valueOf(entity.getId()));
+				initializeEntityFromJPA(entity);
+			});
+			refreshItem(entity);
+		};
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				newEntity ? refreshAll : refreshOne,
@@ -305,6 +375,8 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 		this.dateColumn.setHeader(getTranslation("views.period")); //$NON-NLS-1$
 		this.typeColumn.setHeader(getTranslation("views.type")); //$NON-NLS-1$
 		this.fundingColumn.setHeader(getTranslation("views.fundings")); //$NON-NLS-1$
+		this.coordinatorColumn.setHeader(getTranslation("views.coordinator")); //$NON-NLS-1$
+		this.localHeadColumn.setHeader(getTranslation("views.projects.local_project_head")); //$NON-NLS-1$
 		this.stateColumn.setHeader(getTranslation("views.states")); //$NON-NLS-1$
 		this.validationColumn.setHeader(getTranslation("views.validated")); //$NON-NLS-1$
 		refreshGrid();

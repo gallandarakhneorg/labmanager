@@ -20,8 +20,14 @@
 package fr.utbm.ciad.labmanager.views.components.projects;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +52,24 @@ public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param fileManager the manager of files at the server-side.
+	 * @param constants the application constants.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedProjectEditor(EntityEditingContext<Project> context,
-			DownloadableFileManager fileManager,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			PersonService personService, UserService userService, ScientificAxisService axisService,
+			DownloadableFileManager fileManager, Constants constants,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, fileManager, authenticatedUser, messages, LOGGER);
+		super(context, false, organizationService, addressService, personService,
+				userService, axisService, fileManager, constants, authenticatedUser,
+				messages, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

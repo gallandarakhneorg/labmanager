@@ -109,7 +109,8 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	public StandardSupervisionListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			SupervisionService supervisionService, MembershipService membershipService, PersonService personService, UserService userService,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService, ScientificAxisService axisService, Logger logger) {
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService, ScientificAxisService axisService,
+			Logger logger) {
 		super(Supervision.class, authenticatedUser, messages, logger,
 				"views.supervisions.delete.title", //$NON-NLS-1$
 				"views.supervisions.delete.message", //$NON-NLS-1$

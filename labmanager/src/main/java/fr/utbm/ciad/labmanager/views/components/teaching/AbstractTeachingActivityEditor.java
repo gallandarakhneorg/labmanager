@@ -54,14 +54,14 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityLeftRightListsField;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.NumberPerEnumField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.LanguageValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.value.LeftRightListsField;
+import fr.utbm.ciad.labmanager.views.components.addons.value.NumberPerEnumField;
 import fr.utbm.ciad.labmanager.views.components.organizations.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import org.slf4j.Logger;
@@ -98,7 +98,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private TextArea explanation;
 
-	private EntityLeftRightListsField<PedagogicalPracticeType> pedagogicalPractices;
+	private LeftRightListsField<PedagogicalPracticeType> pedagogicalPractices;
 
 	private DetailsWithErrorMark degreeDetails;
 
@@ -245,7 +245,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.explanation.setClearButtonVisible(true);
 		content.add(this.explanation, 2);
 
-		this.pedagogicalPractices = new EntityLeftRightListsField<>(ComponentFactory.toSerializableComparator(PedagogicalPracticeType.getLabelBasedComparator(getMessageSourceAccessor(), getLocale())));
+		this.pedagogicalPractices = new LeftRightListsField<>(ComponentFactory.toSerializableComparator(PedagogicalPracticeType.getLabelBasedComparator(getMessageSourceAccessor(), getLocale())));
 		this.pedagogicalPractices.setEntityLabelGenerator(this::getPedagogicalPracticeLabel);
 		this.pedagogicalPractices.setAvailableEntities(PedagogicalPracticeType.getAllDisplayTypes(getMessageSourceAccessor(), getLocale()));
 		this.pedagogicalPractices.setListHeight(150, Unit.PIXELS);

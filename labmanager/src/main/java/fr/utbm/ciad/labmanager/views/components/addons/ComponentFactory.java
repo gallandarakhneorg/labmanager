@@ -75,6 +75,7 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
@@ -1006,6 +1007,33 @@ public final class ComponentFactory {
 		return avatar;
 	}
 
+	/** Create the standard avatar item for the given project.
+	 *
+	 * @param project the project to show in the avatar item, never {@code null}.
+	 * @param fileManager the accessor to the files that are stored on the server.
+	 * @return the avatar item for the project.
+	 */
+	public static AvatarItem newProjectAvatar(Project project, FileManager fileManager) {
+		final var acronym = project.getAcronym();
+		final var logo = project.getPathToLogo();
+
+		final var avatar = new AvatarItem();
+		avatar.setHeading(acronym);
+		var logoFile = FileSystem.convertStringToFile(logo);
+		var emptyLogo = true;
+		if (logoFile != null) {
+			logoFile = fileManager.normalizeForServerSide(logoFile);
+			if (logoFile != null) {
+				avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
+				emptyLogo = false;
+			}
+		}
+		if (emptyLogo) {
+			avatar.setAvatarResource(ComponentFactory.newEmptyBackgroundStreamImage());
+		}
+		return avatar;
+	}
+
 	private static List<StringBuilder> buildCases(String filter) {
 		final var allCases = new ArrayList<StringBuilder>();
 		for (final var filterItem : filter.split("[ \n\r\t\f%]+")) { //$NON-NLS-1$
@@ -1131,6 +1159,7 @@ public final class ComponentFactory {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
+	@FunctionalInterface
 	public interface PersonDetailProvider extends Serializable {
 
 		/** Replies the details string.

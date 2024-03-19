@@ -31,6 +31,7 @@ import fr.utbm.ciad.labmanager.views.components.invitations.StandardIncomingInvi
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Enable to list the incoming invitations.
@@ -57,9 +58,12 @@ public class IncomingInvitationsListView extends StandardIncomingInvitationListV
 	 * @param personService the service for accessing the JPA entities for persons.
 	 * @param userService the service for accessing the JPA entities for users.
 	 */
-	public IncomingInvitationsListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PersonInvitationService invitationService, PersonService personService,
-			UserService userService) {
+	public IncomingInvitationsListView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired PersonInvitationService invitationService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService) {
 		super(authenticatedUser, messages, invitationService, personService, userService, LOGGER);
 	}
 

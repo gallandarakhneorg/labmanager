@@ -62,7 +62,8 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 	public EmbeddedMembershipEditor(EntityEditingContext<Membership> context,
 			boolean editAssociatedPerson, PersonService personService, UserService userService,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+			ScientificAxisService axisService, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages) {
 		super(context, editAssociatedPerson, false, personService, userService,
 				organizationService, addressService, axisService, authenticatedUser, messages, LOGGER);
 		createEditorContentAndLinkBeans();

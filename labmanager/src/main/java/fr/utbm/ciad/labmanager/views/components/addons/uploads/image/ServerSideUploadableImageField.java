@@ -89,8 +89,8 @@ public class ServerSideUploadableImageField extends AbstractServerSideUploadable
 	}
 	
 	@Override
-	protected void uploadSucceeded() {
-		super.uploadSucceeded();
+	protected void uploadSucceeded(String filename) {
+		super.uploadSucceeded(filename);
 		updateValue();
 	}
 
