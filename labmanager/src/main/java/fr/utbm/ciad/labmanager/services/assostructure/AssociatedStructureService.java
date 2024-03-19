@@ -369,6 +369,17 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 			if (structure.getId() != 0l) {
 				session.load(structure, Long.valueOf(structure.getId()));
 				Hibernate.initialize(structure.getFundingOrganization());
+				Hibernate.initialize(structure.getHoldersRaw());
+				for (final var holder : structure.getHoldersRaw()) {
+					Hibernate.initialize(holder.getPerson());
+					Hibernate.initialize(holder.getOrganization());
+					Hibernate.initialize(holder.getSuperOrganization());
+				}
+				Hibernate.initialize(structure.getProjects());
+				for (final var project : structure.getProjects()) {
+					Hibernate.initialize(project.getCoordinator());
+					Hibernate.initialize(project.getSuperOrganization());
+				}
 			}
 		});
 		return new EditingContext(structure);

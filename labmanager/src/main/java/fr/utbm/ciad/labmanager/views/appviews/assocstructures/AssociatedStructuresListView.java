@@ -22,10 +22,15 @@ package fr.utbm.ciad.labmanager.views.appviews.assocstructures;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.StandardAssociatedStructureListView;
 import jakarta.annotation.security.RolesAllowed;
@@ -55,16 +60,27 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param structureService the service for accessing the associated structures.
+	 * @param projectService the service for accessing the JPA entities for projects.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
+	 * @param constants the application constants.
 	 */
 	public AssociatedStructuresListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired AssociatedStructureService structureService,
+			@Autowired ProjectService projectService,
 			@Autowired ResearchOrganizationService organizationService,
-			@Autowired OrganizationAddressService addressService) {
-		super(authenticatedUser, messages, structureService, organizationService, addressService, LOGGER);
+			@Autowired OrganizationAddressService addressService,
+			@Autowired PersonService personService,
+			@Autowired UserService userService,
+			@Autowired ScientificAxisService axisService,
+			@Autowired Constants constants) {
+		super(authenticatedUser, messages, structureService, projectService, organizationService, addressService,
+				personService, userService, axisService, constants, LOGGER);
 	}
 
 	@Override

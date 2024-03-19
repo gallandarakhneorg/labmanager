@@ -20,10 +20,15 @@
 package fr.utbm.ciad.labmanager.views.components.assocstructures;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -47,15 +52,23 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 	/** Constructor.
 	 *
 	 * @param context the editing context for the associated structure.
+	 * @param projectService the service for accessing the JPA entities for projects.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
 	 * @param authenticatedUser the connected user.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param messages the accessor to the localized messages (Spring layer).
+	 * @param constants the application constants.
 	 */
 	public EmbeddedAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, organizationService, addressService, authenticatedUser, messages, LOGGER);
+			ProjectService projectService, ResearchOrganizationService organizationService,
+			OrganizationAddressService addressService, PersonService personService,
+			UserService userService, AuthenticatedUser authenticatedUser,
+			ScientificAxisService axisService, MessageSourceAccessor messages, Constants constants) {
+		super(context, false, projectService, organizationService, addressService, personService,
+				userService, authenticatedUser, axisService, messages, constants, LOGGER);
 		createEditorContentAndLinkBeans();
 	}
 

@@ -1010,6 +1010,15 @@ public final class ComponentFactory {
 	/** Create the standard avatar item for the given project.
 	 *
 	 * @param project the project to show in the avatar item, never {@code null}.
+	 * @return the avatar item for the project.
+	 */
+	public static AvatarItem newProjectAvatar(Project project) {
+		return newProjectAvatar(project, null);
+	}
+
+	/** Create the standard avatar item for the given project.
+	 *
+	 * @param project the project to show in the avatar item, never {@code null}.
 	 * @param fileManager the accessor to the files that are stored on the server.
 	 * @return the avatar item for the project.
 	 */
@@ -1019,13 +1028,15 @@ public final class ComponentFactory {
 
 		final var avatar = new AvatarItem();
 		avatar.setHeading(acronym);
-		var logoFile = FileSystem.convertStringToFile(logo);
 		var emptyLogo = true;
-		if (logoFile != null) {
-			logoFile = fileManager.normalizeForServerSide(logoFile);
+		if (fileManager != null) {
+			var logoFile = FileSystem.convertStringToFile(logo);
 			if (logoFile != null) {
-				avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
-				emptyLogo = false;
+				logoFile = fileManager.normalizeForServerSide(logoFile);
+				if (logoFile != null) {
+					avatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
+					emptyLogo = false;
+				}
 			}
 		}
 		if (emptyLogo) {

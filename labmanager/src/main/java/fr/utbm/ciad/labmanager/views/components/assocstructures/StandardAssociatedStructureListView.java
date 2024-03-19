@@ -37,11 +37,16 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -68,11 +73,21 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	private final AssociatedStructureDataProvider dataProvider;
 
-	private AssociatedStructureService structureService;
+	private final AssociatedStructureService structureService;
 
-	private ResearchOrganizationService organizationService;
+	private final ProjectService projectService;
 
-	private OrganizationAddressService addressService;
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+
+	private final PersonService personService;
+
+	private final UserService userService;
+
+	private final ScientificAxisService axisService;
+
+	private final Constants constants;
 
 	private Column<AssociatedStructure> nameColumn;
 
@@ -85,22 +100,34 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param structureService the service for accessing the associated structures.
+	 * @param projectService the service for accessing the JPA entities for projects.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param axisService the service for accessing the JPA entities for scientific axes.
+	 * @param constants the application constants.
 	 * @param logger the logger to use.
 	 */
 	public StandardAssociatedStructureListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			AssociatedStructureService structureService, ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService, Logger logger) {
+			AssociatedStructureService structureService, ProjectService projectService,
+			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			PersonService personService, UserService userService, ScientificAxisService axisService,
+			Constants constants, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structures.delete.title", //$NON-NLS-1$
 				"views.associated_structures.delete.message", //$NON-NLS-1$
 				"views.associated_structure.delete_success", //$NON-NLS-1$
 				"views.associated_structure.delete_error"); //$NON-NLS-1$
 		this.structureService = structureService;
+		this.projectService = projectService;
 		this.organizationService = organizationService;
 		this.addressService = addressService;
+		this.personService = personService;
+		this.userService = userService;
+		this.axisService = axisService;
+		this.constants = constants;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAssociatedStructures(query, filters);
 		initializeDataInGrid(getGrid(), getFilters());
 	}
@@ -182,8 +209,9 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	protected void openStructureEditor(AssociatedStructure structure, String title) {
 		final var editor = new EmbeddedAssociatedStructureEditor(
 				this.structureService.startEditing(structure),
-				this.organizationService, this.addressService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+				this.projectService, this.organizationService, this.addressService,
+				this.personService, this.userService,
+				getAuthenticatedUser(), this.axisService, getMessageSourceAccessor(), this.constants);
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshOne = (dialog, entity) -> refreshItem(entity);

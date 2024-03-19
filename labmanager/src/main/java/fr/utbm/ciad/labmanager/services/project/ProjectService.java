@@ -144,6 +144,15 @@ public class ProjectService extends AbstractEntityService<Project> {
 		this.membershipService = membershipService;
 	}
 
+	/** Replies the file manager used by this service.
+	 *
+	 * @return the file manager.
+	 * @since 4.0
+	 */
+	public DownloadableFileManager getFileManager() {
+		return this.fileManager;
+	}
+
 	/** Replies the list of all the projects from the database.
 	 *
 	 * @return the list of projects, never {@code null}.

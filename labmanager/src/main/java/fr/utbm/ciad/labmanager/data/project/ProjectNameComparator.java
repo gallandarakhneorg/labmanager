@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** Comparator of projects based on local budgets, dates, acronyms, TRL, activity type, scientific title, global budget.
+/** Comparator of projects based on the acronyms, scientific titles and dates.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class ProjectComparator implements Comparator<Project> {
+public class ProjectNameComparator implements Comparator<Project> {
 
 	@Override
 	public int compare(Project o1, Project o2) {
@@ -51,23 +51,7 @@ public class ProjectComparator implements Comparator<Project> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		var cmp = compareBudgets(o1.getBudgets(), o2.getBudgets());
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = compareDate(o1.getStartDate(), o2.getStartDate());
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = StringUtils.compare(o1.getAcronym(), o2.getAcronym());
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = compareTRL(o1.getTRL(), o2.getTRL());
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = compareActivityType(o1.getActivityType(), o2.getActivityType());
+		var cmp = StringUtils.compare(o1.getAcronym(), o2.getAcronym());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -75,7 +59,7 @@ public class ProjectComparator implements Comparator<Project> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		return Float.compare(o1.getGlobalBudget(), o2.getGlobalBudget());
+		return compareDate(o1.getStartDate(), o2.getStartDate());
 	}
 
 	/** Null-safe comparison the two TRLs.
