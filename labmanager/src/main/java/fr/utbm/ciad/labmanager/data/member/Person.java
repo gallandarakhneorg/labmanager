@@ -47,6 +47,7 @@ import fr.utbm.ciad.labmanager.data.PhoneNumberJPAConverter;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
@@ -385,6 +386,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<PersonInvitation> inviterInvitations;
+
+	/** List of projects in which the person is involved.
+	 */
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<ProjectMember> projectParticipations;
 
 	/** Indicates if the address was validated by an authority.
 	 */
@@ -2097,6 +2103,34 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	/** Replies the list of projects in which the person is involved.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	public Set<ProjectMember> getProjectParticipations() {
+		if (this.projectParticipations == null) {
+			this.projectParticipations = new HashSet<>();
+		}
+		return this.projectParticipations;
+	}
+
+	/** Change the list of projects in which the person is involved.
+	 *
+	 * @param list the list of projects.
+	 * @since 4.0
+	 */
+	public void setProjectParticipations(Set<ProjectMember> list) {
+		if (this.projectParticipations != null) {
+			this.projectParticipations.clear();
+		} else {
+			this.projectParticipations = new HashSet<>();
+		}
+		if (list != null) {
+			this.projectParticipations.addAll(list);
+		}
 	}
 
 }

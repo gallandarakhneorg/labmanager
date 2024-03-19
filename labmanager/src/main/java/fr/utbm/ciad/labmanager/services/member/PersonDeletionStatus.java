@@ -65,7 +65,11 @@ public enum PersonDeletionStatus implements DeletionStatus {
 
 	/** Deletion is impossible because the person has linked person invitation as inviter.
 	 */
-	PERSON_INVITER;
+	PERSON_INVITER,
+
+	/** Deletion is impossible because the person has linked membership to a project.
+	 */
+	PROJECT_PARTICPANT;
 
 	private static final String MESSAGE_PREFIX = "personDeletionStatus."; //$NON-NLS-1$
 

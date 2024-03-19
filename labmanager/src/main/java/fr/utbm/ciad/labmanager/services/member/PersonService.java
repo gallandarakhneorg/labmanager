@@ -931,6 +931,9 @@ public class PersonService extends AbstractEntityService<Person> {
 				if (!entity.getInviterInvitations().isEmpty()) {
 					return PersonDeletionStatus.PERSON_INVITER;
 				}
+				if (!entity.getProjectParticipations().isEmpty()) {
+					return PersonDeletionStatus.PROJECT_PARTICPANT;
+				}
 			}
 			return DeletionStatus.OK;
 		}

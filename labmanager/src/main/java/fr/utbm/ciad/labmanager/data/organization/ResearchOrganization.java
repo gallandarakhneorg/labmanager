@@ -40,6 +40,7 @@ import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.member.Membership;
+import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
@@ -200,6 +201,31 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@OneToMany(mappedBy = "superResearchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Membership> superOrganizationMemberships;
 
+	/** List of projects that have the organization as coordinator.
+	 */
+	@OneToMany(mappedBy = "coordinator", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Project> coordinatedProjects;
+
+	/** List of projects that have the organization as LEAR.
+	 */
+	@OneToMany(mappedBy = "learOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Project> learOrganizationProjects;
+
+	/** List of projects that have the organization as local organization.
+	 */
+	@OneToMany(mappedBy = "localOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Project> localOrganizationProjects;
+
+	/** List of projects that have the organization as super organization.
+	 */
+	@OneToMany(mappedBy = "superOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Project> superOrganizationProjects;
+
+	/** List of projects that have the organization as other partner.
+	 */
+	@ManyToMany(mappedBy = "otherPartners", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Project> otherPartnerProjects;
+	
 	/** Construct a research organization from the given values.
 	 * 
 	 * @param id the identifier of the organization.
@@ -1001,6 +1027,146 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (list != null) {
 			this.superOrganizationMemberships.addAll(list);
+		}
+	}
+
+	/** Replies the list of projects that have this organization as coordinator.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	public Set<Project> getCoordinatedProjects() {
+		if (this.coordinatedProjects == null) {
+			this.coordinatedProjects = new HashSet<>();
+		}
+		return this.coordinatedProjects;
+	}
+
+	/** Change the list of projects that have this organization as coordinator.
+	 *
+	 * @param list the list of projects.
+	 * @since 4.0
+	 */
+	public void setCoordinatedProjects(Set<Project> list) {
+		if (this.coordinatedProjects != null) {
+			this.coordinatedProjects.clear();
+		} else {
+			this.coordinatedProjects = new HashSet<>();
+		}
+		if (list != null) {
+			this.coordinatedProjects.addAll(list);
+		}
+	}
+
+	/** Replies the list of projects that have this organization as LEAR.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	public Set<Project> getLearOrganizationProjects() {
+		if (this.learOrganizationProjects == null) {
+			this.learOrganizationProjects = new HashSet<>();
+		}
+		return this.learOrganizationProjects;
+	}
+
+	/** Change the list of projects that have this organization as LEAR.
+	 *
+	 * @param list the list of projects.
+	 * @since 4.0
+	 */
+	public void setLearOrganizationProjects(Set<Project> list) {
+		if (this.learOrganizationProjects != null) {
+			this.learOrganizationProjects.clear();
+		} else {
+			this.learOrganizationProjects = new HashSet<>();
+		}
+		if (list != null) {
+			this.learOrganizationProjects.addAll(list);
+		}
+	}
+
+	/** Replies the list of projects that have this organization as local organization.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	public Set<Project> getLocalOrganizationProjects() {
+		if (this.localOrganizationProjects == null) {
+			this.localOrganizationProjects = new HashSet<>();
+		}
+		return this.localOrganizationProjects;
+	}
+
+	/** Change the list of projects that have this organization as local organization.
+	 *
+	 * @param list the list of projects.
+	 * @since 4.0
+	 */
+	public void setLocalOrganizationProjects(Set<Project> list) {
+		if (this.localOrganizationProjects != null) {
+			this.localOrganizationProjects.clear();
+		} else {
+			this.localOrganizationProjects = new HashSet<>();
+		}
+		if (list != null) {
+			this.localOrganizationProjects.addAll(list);
+		}
+	}
+
+	/** Replies the list of projects that have this organization as super organization.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	public Set<Project> getSuperOrganizationProjects() {
+		if (this.superOrganizationProjects == null) {
+			this.superOrganizationProjects = new HashSet<>();
+		}
+		return this.superOrganizationProjects;
+	}
+
+	/** Change the list of projects that have this organization as super organization.
+	 *
+	 * @param list the list of projects.
+	 * @since 4.0
+	 */
+	public void setSuperOrganizationProjects(Set<Project> list) {
+		if (this.superOrganizationProjects != null) {
+			this.superOrganizationProjects.clear();
+		} else {
+			this.superOrganizationProjects = new HashSet<>();
+		}
+		if (list != null) {
+			this.superOrganizationProjects.addAll(list);
+		}
+	}
+
+	/** Replies the list of projects that have this organization as other partner.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	public Set<Project> getOtherPartnerProjects() {
+		if (this.otherPartnerProjects == null) {
+			this.otherPartnerProjects = new HashSet<>();
+		}
+		return this.otherPartnerProjects;
+	}
+
+	/** Change the list of projects that have this organization as other partner.
+	 *
+	 * @param list the list of projects.
+	 * @since 4.0
+	 */
+	public void setOtherPartnerProjects(Set<Project> list) {
+		if (this.otherPartnerProjects != null) {
+			this.otherPartnerProjects.clear();
+		} else {
+			this.otherPartnerProjects = new HashSet<>();
+		}
+		if (list != null) {
+			this.otherPartnerProjects.addAll(list);
 		}
 	}
 

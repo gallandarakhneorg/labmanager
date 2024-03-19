@@ -613,6 +613,21 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				if (!entity.getSuperOrganizationMemberships().isEmpty()) {
 					return OrganizationDeletionStatus.SUPER_ORGANIZATION_MEMBERSHIP;
 				}
+				if (!entity.getCoordinatedProjects().isEmpty()) {
+					return OrganizationDeletionStatus.PROJECT_COORDINATOR;
+				}
+				if (!entity.getLearOrganizationProjects().isEmpty()) {
+					return OrganizationDeletionStatus.PROJECT_LEAR_ORGANIZATION;
+				}
+				if (!entity.getLocalOrganizationProjects().isEmpty()) {
+					return OrganizationDeletionStatus.PROJECT_LOCAL_ORGANIZATION;
+				}
+				if (!entity.getOtherPartnerProjects().isEmpty()) {
+					return OrganizationDeletionStatus.PROJECT_OTHER_PARTNER_ORGANIZATION;
+				}
+				if (!entity.getSuperOrganizationProjects().isEmpty()) {
+					return OrganizationDeletionStatus.PROJECT_SUPER_ORGANIZATION;
+				}
 			}
 			return DeletionStatus.OK;
 		}

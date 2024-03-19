@@ -53,7 +53,27 @@ public enum OrganizationDeletionStatus implements DeletionStatus {
 
 	/** Deletion is impossible because the organization has linked membership with super organization.
 	 */
-	SUPER_ORGANIZATION_MEMBERSHIP;
+	SUPER_ORGANIZATION_MEMBERSHIP,
+
+	/** Deletion is impossible because the organization has linked project with coordinator position.
+	 */
+	PROJECT_COORDINATOR,
+
+	/** Deletion is impossible because the organization has linked project with LEAR position.
+	 */
+	PROJECT_LEAR_ORGANIZATION,
+
+	/** Deletion is impossible because the organization has linked project with local organization position.
+	 */
+	PROJECT_LOCAL_ORGANIZATION,
+
+	/** Deletion is impossible because the organization has linked project with other partner position.
+	 */
+	PROJECT_OTHER_PARTNER_ORGANIZATION,
+
+	/** Deletion is impossible because the organization has linked project with super organization position.
+	 */
+	PROJECT_SUPER_ORGANIZATION;
 
 	private static final String MESSAGE_PREFIX = "organizationDeletionStatus."; //$NON-NLS-1$
 
