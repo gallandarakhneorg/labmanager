@@ -347,6 +347,20 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column
 	private String gravatarId;
 
+	/** Biography of the person.
+	 *
+	 * @since 4.0
+	 */
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	private String biography;
+
+	/** Indicates if the biography of the person should be private.
+	 *
+	 * @since 4.0
+	 */
+	@Column
+	private boolean privateBiography;
+
 	/** List of research organizations for the person.
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -584,6 +598,10 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (getOfficePhone() != null) {
 			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getBiography())) {
+			consumer.accept("biography", getBiography()); //$NON-NLS-1$
+		}
+		consumer.accept("privateBiography", Boolean.valueOf(getPrivateBiography())); //$NON-NLS-1$
 		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
 	}
 
@@ -1934,6 +1952,51 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setOfficeRoom(String room) {
 		this.officeRoom = Strings.emptyToNull(room);
+	}
+
+	/** Replies the biography of the person.
+	 *
+	 * @return the biography.
+	 * @since 4.0
+	 */
+	public String getBiography() {
+		return this.biography;
+	}
+
+	/** Change the biography of the person.
+	 *
+	 * @param text the biography text.
+	 * @since 4.0
+	 */
+	public void setBiography(String text) {
+		this.biography = Strings.emptyToNull(text);
+	}
+
+	/** Replies the biography of the person should be considered as private.
+	 *
+	 * @return {@code true} if the biography should be private.
+	 * @since 4.0
+	 */
+	public boolean getPrivateBiography() {
+		return this.privateBiography;
+	}
+
+	/** Change the flag that indicates if the biography of the person should be private.
+	 *
+	 * @param privateFlag is {@code true} to make the biography private. If it is {@code null}, then the default value is applied.
+	 * @since 4.0
+	 */
+	public void setPrivateBiography(Boolean privateFlag) {
+		this.privateBiography = privateFlag == null ? false : privateFlag.booleanValue();
+	}
+
+	/** Change the flag that indicates if the biography of the person should be private.
+	 *
+	 * @param privateFlag is {@code true} to make the biography private. If it is {@code null}, then the default value is applied.
+	 * @since 4.0
+	 */
+	public void setPrivateBiography(boolean privateFlag) {
+		this.privateBiography = privateFlag;
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based

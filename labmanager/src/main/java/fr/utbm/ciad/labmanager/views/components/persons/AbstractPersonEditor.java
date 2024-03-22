@@ -38,6 +38,7 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
 
 import java.util.function.Consumer;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -73,6 +74,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.OrcidValidator;
@@ -116,6 +118,12 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	private PhoneNumberField mobilePhone;
 
 	private TextField officeRoom;
+
+	private DetailsWithErrorMark biographyDetails;
+
+	private ToggleButton privateBiography;
+	
+	private MarkdownField biography;
 
 	private DetailsWithErrorMark researcherIdsDetails;
 
@@ -198,6 +206,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		createPersonalInformationComponents(rootContainer);
 		createContactInformationComponents(rootContainer);
 		createResearcherIdsComponents(rootContainer);
+		createBiographyComponents(rootContainer);
 		createIndexesComponents(rootContainer);
 		createSocialLinksComponents(rootContainer);
 		if (isBaseAdmin()) {
@@ -509,6 +518,28 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 			.bind(Person::getGoogleScholarId, Person::setGoogleScholarId);
 	}
 
+	/** Create the components for entering the researcher biography.
+	 *
+	 * @param receiver the receiver of the component
+	 */
+	protected void createBiographyComponents(VerticalLayout receiver) {
+		final var content = ComponentFactory.newColumnForm(2);
+
+		this.privateBiography = new ToggleButton();
+		content.add(this.privateBiography, 2);
+
+		this.biography = new MarkdownField();
+		content.add(this.biography, 2);
+
+		this.biographyDetails = createDetailsWithErrorMark(receiver, content, "biography"); //$NON-NLS-1$
+
+		getEntityDataBinder().forField(this.privateBiography)
+			.bind(Person::getPrivateBiography, Person::setPrivateBiography);
+		getEntityDataBinder().forField(this.biography)
+			.withConverter(new StringTrimer())
+			.bind(Person::getBiography, Person::setBiography);
+	}
+
 	/** Create the components for entering the researcher indicators and indexes.
 	 * The information includes:<ul>
 	 * <li>H-index on Web-of-Science (WoS)</li>
@@ -713,6 +744,10 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.mobilePhone.setDynamicHelperText(helpPhone);
 		this.officeRoom.setLabel(getTranslation("views.persons.officeroom")); //$NON-NLS-1$
 		this.officeRoom.setHelperText(getTranslation("views.persons.officeroom.helper")); //$NON-NLS-1$
+
+		this.biographyDetails.setSummaryText(getTranslation("views.persons.biography_details")); //$NON-NLS-1$
+		this.privateBiography.setLabel(getTranslation("views.persons.biography_private")); //$NON-NLS-1$
+		this.biography.setLabel(getTranslation("views.persons.biography")); //$NON-NLS-1$
 
 		this.researcherIdsDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
 		this.orcid.setLabel(getTranslation("views.persons.orcid")); //$NON-NLS-1$
