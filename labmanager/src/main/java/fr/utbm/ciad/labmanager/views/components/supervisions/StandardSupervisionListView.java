@@ -37,6 +37,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
@@ -49,6 +50,7 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
@@ -138,7 +140,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 
 	@Override
 	protected Filters<Supervision> createFilters() {
-		return new SupervisionFilters(this::refreshGrid);
+		return new SupervisionFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	@Override
@@ -292,26 +294,31 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public SupervisionFilters(Runnable onSearch) {
-			super(onSearch);
+		public SupervisionFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeTypes = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeTypes);
-
-			return options;
 		}
 
 		@Override
 		protected void resetFilters() {
 			this.includeTypes.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<Supervision> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			final var crit1 = criteriaBuilder.equal(root.get("supervisedPerson").get("person"), user); //$NON-NLS-1$ //$NON-NLS-2$
+			final var crit2 = criteriaBuilder.equal(root.get("supervisors").get("supervisor"), user); //$NON-NLS-1$ //$NON-NLS-2$
+			return criteriaBuilder.or(crit1, crit2);
 		}
 
 		@Override

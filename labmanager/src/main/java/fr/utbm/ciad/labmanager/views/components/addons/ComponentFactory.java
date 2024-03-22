@@ -761,7 +761,7 @@ public final class ComponentFactory {
 		if (!Strings.isNullOrEmpty(contactDetails)) {
 			avatar.setDescription(contactDetails);
 		} else if (detailsProvider != null) {
-			avatar.setDescription(detailsProvider.getPersonDetails(person.getEmail()));
+			avatar.setDescription(Strings.emptyToNull(detailsProvider.getPersonDetails(person.getEmail())));
 		} else {
 			avatar.setDescription(Strings.emptyToNull(person.getEmail()));
 		}

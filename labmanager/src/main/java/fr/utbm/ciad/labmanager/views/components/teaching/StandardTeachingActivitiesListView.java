@@ -39,6 +39,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -52,6 +53,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -140,7 +142,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 	@Override
 	protected Filters<TeachingActivity> createFilters() {
-		return new TeachingActivityFilters(this::refreshGrid);
+		return new TeachingActivityFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	private Component createNameComponent(TeachingActivity activity) {
@@ -168,7 +170,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		}
 		return avatar;
 	}
-	
+
 	private String getLevelStudentTypeDegree(TeachingActivity activity) {
 		final var level = activity.getLevel();
 		final var studentType = activity.getStudentType();
@@ -247,10 +249,10 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 			if (country != null) {
 				final var name = new Span(country.getDisplayCountry(getLocale()));
 				name.getStyle().set("margin-left", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
-				
+
 				final var flag = new CountryFlag(country);
 				flag.setSizeFromHeight(1, Unit.REM);
-				
+
 				final var layout = new HorizontalLayout(flag, name);
 				layout.setSpacing(false);
 				layout.setAlignItems(Alignment.CENTER);
@@ -316,7 +318,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		ComponentFactory.openEditionModalDialog(title, editor, false,
 				// Refresh the "old" item, even if its has been changed in the JPA database
 				newEntity ? refreshAll : refreshOne,
-				newEntity ? null : refreshAll);
+						newEntity ? null : refreshAll);
 	}
 
 	@Override
@@ -359,26 +361,23 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public TeachingActivityFilters(Runnable onSearch) {
-			super(onSearch);
+		public TeachingActivityFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeCodesTitles = new Checkbox(true);
 			this.includeDegreesLevelsStudentTypes = new Checkbox(true);
 			this.includeUniversities = new Checkbox(true);
 			this.includePeriods = new Checkbox(true);
 			this.includePersons = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeCodesTitles, this.includeDegreesLevelsStudentTypes, 
 					this.includeUniversities, this.includePeriods, this.includePersons);
-
-			return options;
 		}
 
 		@Override
@@ -388,6 +387,12 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 			this.includeUniversities.setValue(Boolean.TRUE);
 			this.includePeriods.setValue(Boolean.TRUE);
 			this.includePersons.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<TeachingActivity> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return criteriaBuilder.equal(root.get("person"), user); //$NON-NLS-1$
 		}
 
 		@Override

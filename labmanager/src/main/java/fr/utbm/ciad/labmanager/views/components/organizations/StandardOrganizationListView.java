@@ -32,12 +32,14 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
@@ -49,6 +51,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
@@ -136,10 +139,10 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		this.countryColumn = grid.addColumn(new ComponentRenderer<>(this::createCountryComponent))
 				.setAutoWidth(true)
 				.setSortProperty("country"); //$NON-NLS-1$
-		this.superStructureColumn = grid.addColumn(this::createSuperStructureNames)
+		this.superStructureColumn = grid.addColumn(new ComponentRenderer<>(this::createSuperStructureNames))
 				.setAutoWidth(true)
 				.setSortProperty("superOrganizations"); //$NON-NLS-1$
-		this.subStructureColumn = grid.addColumn(this::createSubStructureNames)
+		this.subStructureColumn = grid.addColumn(new ComponentRenderer<>(this::createSubStructureNames))
 				.setAutoWidth(true)
 				.setSortProperty("subOrganizations"); //$NON-NLS-1$
 
@@ -158,26 +161,31 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		return isAdminRole();
 	}
 
-	private String createSuperStructureNames(ResearchOrganization organization) {
-		final var buffer = new StringBuilder();
-		for (final var structure : organization.getSuperOrganizations()) {
-			if (buffer.length() > 0) {
-				buffer.append("; "); //$NON-NLS-1$
-			}
-			buffer.append(structure.getAcronymOrName());
+	private Component createStructureList(Iterable<ResearchOrganization> list) {
+		final var iterator = list.iterator();
+		if (!iterator.hasNext()) {
+			return new Span();
 		}
-		return buffer.toString();
+		final var first = ComponentFactory.newOrganizationAvatar(iterator.next(), this.fileManager);
+		if (!iterator.hasNext()) {
+			return first;
+		}
+		final var layout = new VerticalLayout();
+		layout.setSpacing(false);
+		layout.setPadding(false);
+		layout.add(first);
+		while (iterator.hasNext()) {
+			layout.add(ComponentFactory.newOrganizationAvatar(iterator.next(), this.fileManager));
+		}
+		return layout;
+	}
+
+	private Component createSuperStructureNames(ResearchOrganization organization) {
+		return createStructureList(organization.getSuperOrganizations());
 	}
 	
-	private String createSubStructureNames(ResearchOrganization organization) {
-		final var buffer = new StringBuilder();
-		for (final var structure : organization.getSubOrganizations()) {
-			if (buffer.length() > 0) {
-				buffer.append("; "); //$NON-NLS-1$
-			}
-			buffer.append(structure.getAcronymOrName());
-		}
-		return buffer.toString();
+	private Component createSubStructureNames(ResearchOrganization organization) {
+		return createStructureList(organization.getSubOrganizations());
 	}
 
 	private Component createCountryComponent(ResearchOrganization organization) {
@@ -283,25 +291,21 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param onSearch the callback function for running the filtering.
 		 */
 		public OrganizationFilters(Runnable onSearch) {
-			super(onSearch);
+			super(null, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeNames = new Checkbox(true);
 			this.includeTypes = new Checkbox(true);
 			this.includeCountries = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeNames);
 			options.add(this.includeTypes);
 			options.add(this.includeCountries);
-
-			return options;
 		}
 
 		@Override
@@ -309,6 +313,12 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includeTypes.setValue(Boolean.TRUE);
 			this.includeCountries.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<ResearchOrganization> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return null;
 		}
 
 		@Override

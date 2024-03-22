@@ -41,6 +41,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -49,6 +50,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
@@ -120,7 +122,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 
 	@Override
 	protected Filters<PersonInvitation> createFilters() {
-		return new IncomingInvitationFilters(this::refreshGrid);
+		return new IncomingInvitationFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	@Override
@@ -299,23 +301,20 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public IncomingInvitationFilters(Runnable onSearch) {
-			super(onSearch);
+		public IncomingInvitationFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeInviters = new Checkbox(true);
 			this.includeUniversities = new Checkbox(true);
 			this.includeGuests = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeInviters, this.includeUniversities, this.includeGuests);
-
-			return options;
 		}
 
 		@Override
@@ -323,6 +322,12 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 			this.includeInviters.setValue(Boolean.TRUE);
 			this.includeUniversities.setValue(Boolean.TRUE);
 			this.includeGuests.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<PersonInvitation> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return criteriaBuilder.equal(root.get("inviter"), user); //$NON-NLS-1$
 		}
 
 		@Override

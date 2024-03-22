@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.flow.component.Component;
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -47,13 +47,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -547,27 +550,61 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 		private static final long serialVersionUID = -7453493729641988299L;
 
+		private static final boolean DEFAULT_AUTHENTICATED_USER_FILTERING = true;
+
+		private final Person user;
+	
 		private final TextField keywords;
+
+		private ToggleButton restrictToUser;
 
 		private final Button resetButton;
 
 		private final Button searchButton;
 
+		private AvatarItem authenticatedUserAvatar;
+
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public Filters(Runnable onSearch) {
+		public Filters(AuthenticatedUser user, Runnable onSearch) {
+			Person pers = null;
+			if (user != null) {
+				final var optionalUser = user.get();
+				if (optionalUser.isPresent()) {
+					final var usr = optionalUser.get();
+					if (usr != null) {
+						pers = usr.getPerson();
+					}
+				}
+			}
+			this.user = pers;
+
 			setWidthFull();
 			addClassName("filter-layout"); //$NON-NLS-1$
 			addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM, LumoUtility.BoxSizing.BORDER);
 
 			this.keywords = new TextField();
-
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
-
-			// Action buttons
+			
+			if (this.user != null) {
+				final var session = VaadinService.getCurrentRequest().getWrappedSession();
+				final var attr = session.getAttribute(buildPreferenceSectionKeyForAuthenticatedUserFiltering());
+				var checked = DEFAULT_AUTHENTICATED_USER_FILTERING;
+				if (attr != null) {
+					if (attr instanceof Boolean bvalue) {
+						checked = bvalue.booleanValue();
+					} else if (attr instanceof String svalue) {
+						checked = Boolean.parseBoolean(svalue);
+					}
+				}
+				this.restrictToUser = new ToggleButton(checked);
+				updateAuthenticatedUserToggleButton(this.restrictToUser, this.user);
+				this.restrictToUser.addValueChangeListener(it -> onAuthenticatedUserFilteringChange(it.getValue() == null ? DEFAULT_AUTHENTICATED_USER_FILTERING : it.getValue().booleanValue(), onSearch));
+			} else {
+				this.restrictToUser = null;
+			}
 
 			this.resetButton = new Button();
 			this.resetButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -591,14 +628,59 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			actions.addClassName(LumoUtility.Gap.SMALL);
 			actions.addClassName("actions"); //$NON-NLS-1$
 
-			add(this.keywords, getOptionsComponent(), actions);
+			final var options = new HorizontalLayout();
+			options.setSpacing(false);
+			buildOptionsComponent(options);
+
+			if (this.restrictToUser != null) {
+				add(this.restrictToUser, this.keywords, options, actions);
+			} else {
+				add(this.keywords, options, actions);
+			}
+		}
+
+		/** Invoked to update the toggle button for enabling or disabling the filtering dedicated to the authenticated user.
+		 * The change listener for the button's value will be automatically added.
+		 *
+		 * @param button the button to update.
+		 * @param person the authenticated user.
+		 */
+		protected void updateAuthenticatedUserToggleButton(ToggleButton button, Person person) {
+			assert button != null;
+			assert person != null;
+
+			this.authenticatedUserAvatar = new AvatarItem();
+
+			final var photo = person.getPhotoURL();
+			if (photo != null) {
+				this.authenticatedUserAvatar.setAvatarURL(photo.toExternalForm());
+			}
+
+			button.setLabelComponent(this.authenticatedUserAvatar);
+		}
+
+		private String buildPreferenceSectionKeyForAuthenticatedUserFiltering() {
+			return new StringBuilder().append(ViewConstants.AUTHENTICATED_USER_FILTER_ROOT).append(getClass().getName()).toString();
+		}
+
+		/** Invoques whne the filtering on the authenticated person has changed.
+		 *
+		 * @param enablePersonFilter indicates if the filtering is enable or disable.
+		 * @param onSearch the callback function for running the filtering.
+		 */
+		protected void onAuthenticatedUserFilteringChange(boolean enablePersonFilter, Runnable onSearch) {
+			final var session0 = VaadinService.getCurrentRequest().getWrappedSession();
+			session0.setAttribute(buildPreferenceSectionKeyForAuthenticatedUserFiltering(), Boolean.valueOf(enablePersonFilter));
+			if (onSearch != null) {
+				onSearch.run();
+			}
 		}
 
 		/** Build the component for filtering options.
 		 *
-		 * @return the component, or {@code null}.
+		 * @param options the component that should receive the options, never {@code null}.
 		 */
-		protected abstract Component getOptionsComponent();
+		protected abstract void buildOptionsComponent(HorizontalLayout options);
 		
 		/** Reset the filters.
 		 */
@@ -614,9 +696,42 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		 */
 		protected abstract void buildQueryFor(String keywords, List<Predicate> predicates, Root<T> root, CriteriaBuilder criteriaBuilder);
 
+		private boolean isRestrictedToAuthenticatedUser() {
+			if (this.restrictToUser != null) {
+				final var bvalue = this.restrictToUser.getValue();
+				if (bvalue == null) {
+					return DEFAULT_AUTHENTICATED_USER_FILTERING;
+				}
+				return bvalue.booleanValue();
+			}
+			return false;
+		}
+		
+		/** Build the predicate for filtering the JPE entities that corresponds to the authenticated user with
+		 * the given identifier.
+		 * 
+		 * @param root the root element to filter.
+		 * @param query the top-level query.
+		 * @param criteriaBuilder the tool for building a filtering criteria.
+		 * @param user the user in the JPA database.
+		 * @return the predicate or {@code null} if there is no need for this predicate.
+		 */
+		protected abstract Predicate buildPredicateForAuthenticatedUser(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder, Person user);
+
 		@Override
 		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			return ComponentFactory.newPredicateContainsOneOf(this.keywords.getValue(), root, query, criteriaBuilder, this::buildQueryFor);
+			final var keywordFilter = ComponentFactory.newPredicateContainsOneOf(this.keywords.getValue(), root, query,
+					criteriaBuilder, this::buildQueryFor);
+			if (this.user != null && isRestrictedToAuthenticatedUser()) {
+				final var userPredicate = buildPredicateForAuthenticatedUser(root, query, criteriaBuilder, this.user);
+				if (userPredicate != null) {
+					if (keywordFilter != null) {
+						return criteriaBuilder.and(userPredicate, keywordFilter);
+					}
+					return userPredicate;
+				}
+			}
+			return keywordFilter;
 		}
 
 		@Override
@@ -624,6 +739,9 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			this.keywords.setLabel(getTranslation("views.filters.keywords")); //$NON-NLS-1$
 			this.resetButton.setText(getTranslation("views.filters.reset")); //$NON-NLS-1$
 			this.searchButton.setText(getTranslation("views.filters.apply")); //$NON-NLS-1$
+			if (this.authenticatedUserAvatar != null) {
+				this.authenticatedUserAvatar.setHeading(getTranslation("views.filters.authenticated_user_filter")); //$NON-NLS-1$
+			}
 		}
 
 	}

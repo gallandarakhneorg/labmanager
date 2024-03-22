@@ -40,6 +40,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
@@ -48,6 +49,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -316,25 +318,27 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		 * @param onSearch
 		 */
 		public JournalFilters(Runnable onSearch) {
-			super(onSearch);
+			super(null, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeNames = new Checkbox(true);
 			this.includePublishers = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeNames, this.includePublishers);
-
-			return options;
 		}
 
 		@Override
 		protected void resetFilters() {
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includePublishers.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<Journal> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return null;
 		}
 
 		@Override

@@ -56,6 +56,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -311,23 +312,19 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param onSearch the callback function for running the filtering.
 		 */
 		public PersonFilters(Runnable onSearch) {
-			super(onSearch);
+			super(null, onSearch);
 		}
 		
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeNames = new Checkbox(true);
 			this.includeOrcids = new Checkbox(true);
 			this.includeOrganizations = new Checkbox(false);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeNames, this.includeOrcids, this.includeOrganizations);
-			
-			return options;
 		}
 		
 		@Override
@@ -335,6 +332,12 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includeOrcids.setValue(Boolean.TRUE);
 			this.includeOrganizations.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<Person> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return null;
 		}
 
 		@Override

@@ -41,6 +41,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -208,7 +209,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 	@Override
 	protected Filters<Publication> createFilters() {
-		return new PublicationFilters(this::refreshGrid);
+		return new PublicationFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	/** Initialize the given JPA entity for being displayed in the list.
@@ -405,28 +406,31 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public PublicationFilters(Runnable onSearch) {
-			super(onSearch);
+		public PublicationFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeTitles = new Checkbox(true);
 			this.includeYears = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeTitles, this.includeYears);
-
-			return options;
 		}
 
 		@Override
 		protected void resetFilters() {
 			this.includeTitles.setValue(Boolean.TRUE);
 			this.includeYears.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<Publication> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return criteriaBuilder.equal(root.get("authorships").get("person"), user); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override

@@ -49,6 +49,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -308,26 +309,28 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param onSearch the callback function for running the filtering.
 		 */
 		public MembershipFilters(Runnable onSearch) {
-			super(onSearch);
+			super(null, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeTypes = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeTypes);
-
-			return options;
 		}
 
 		@Override
 		protected void resetFilters() {
 			this.includeTypes.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<Membership> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return null;
 		}
 
 		@Override

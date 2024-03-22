@@ -30,8 +30,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -41,6 +41,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.member.Gender;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -49,6 +50,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
@@ -124,7 +126,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 
 	@Override
 	protected Filters<JuryMembership> createFilters() {
-		return new JuryMembershipFilters(this::refreshGrid);
+		return new JuryMembershipFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	@Override
@@ -308,24 +310,21 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public JuryMembershipFilters(Runnable onSearch) {
-			super(onSearch);
+		public JuryMembershipFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeCandidates = new Checkbox(true);
 			this.includeUniversities = new Checkbox(true);
 			this.includeParticipants = new Checkbox(true);
 			this.includeRoles = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeCandidates, this.includeUniversities, this.includeParticipants, this.includeRoles);
-
-			return options;
 		}
 
 		@Override
@@ -334,6 +333,14 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 			this.includeUniversities.setValue(Boolean.TRUE);
 			this.includeParticipants.setValue(Boolean.TRUE);
 			this.includeRoles.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<JuryMembership> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			final var crit1 = criteriaBuilder.equal(root.get("person"), user); //$NON-NLS-1$
+			final var crit2 = criteriaBuilder.equal(root.get("candidate"), user); //$NON-NLS-1$
+			return criteriaBuilder.or(crit1, crit2);
 		}
 
 		@Override

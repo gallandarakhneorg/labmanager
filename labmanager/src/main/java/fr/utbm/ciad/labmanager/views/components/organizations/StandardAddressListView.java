@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -34,6 +33,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
@@ -43,6 +43,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -207,26 +208,22 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param onSearch the callback function for running the filtering.
 		 */
 		public AddressFilters(Runnable onSearch) {
-			super(onSearch);
+			super(null, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeNames = new Checkbox(true);
 			this.includeComplements = new Checkbox(true);
 			this.includeStreets = new Checkbox(true);
 			this.includeZipCodes = new Checkbox(true);
 			this.includeCities = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeNames, this.includeComplements, this.includeStreets,
 					this.includeZipCodes, this.includeCities);
-
-			return options;
 		}
 
 		@Override
@@ -236,6 +233,12 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 			this.includeStreets.setValue(Boolean.TRUE);
 			this.includeZipCodes.setValue(Boolean.TRUE);
 			this.includeCities.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<OrganizationAddress> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return null;
 		}
 
 		@Override

@@ -160,6 +160,11 @@ public final class ViewConstants {
 	 */
 	public static final String DEFAULT_MINIMAL_WIDTH_FOR_2_COLUMNS_FORM = "500px"; //$NON-NLS-1$
 
+	/** Root attribute name for the filter checkbox for the authenticated user.
+	 * @since 4.0
+	 */
+	public static final String AUTHENTICATED_USER_FILTER_ROOT = PREFERENCE_ROOT + "authenticated_user_filter."; //$NON-NLS-1$
+
 	private ViewConstants() {
 		//
 	}

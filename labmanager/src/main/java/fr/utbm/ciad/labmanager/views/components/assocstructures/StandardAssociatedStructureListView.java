@@ -39,6 +39,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -52,6 +53,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -134,7 +136,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	@Override
 	protected Filters<AssociatedStructure> createFilters() {
-		return new StructureFilters(this::refreshGrid);
+		return new StructureFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	@Override
@@ -250,26 +252,29 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public StructureFilters(Runnable onSearch) {
-			super(onSearch);
+		public StructureFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeNames = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeNames);
-
-			return options;
 		}
 
 		@Override
 		protected void resetFilters() {
 			this.includeNames.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<AssociatedStructure> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return criteriaBuilder.equal(root.get("holders").get("person"), user); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override

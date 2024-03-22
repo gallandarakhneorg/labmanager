@@ -38,6 +38,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
@@ -46,6 +47,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -220,23 +222,19 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param onSearch the callback function for running the filtering.
 		 */
 		public AxisFilters(Runnable onSearch) {
-			super(onSearch);
+			super(null, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeAcronyms = new Checkbox(true);
 			this.includeNames = new Checkbox(true);
 			this.includeDates = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeAcronyms, this.includeNames, this.includeDates);
-
-			return options;
 		}
 
 		@Override
@@ -244,6 +242,12 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 			this.includeAcronyms.setValue(Boolean.TRUE);
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includeDates.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<ScientificAxis> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return null;
 		}
 
 		@Override

@@ -41,6 +41,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
@@ -56,6 +57,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
@@ -163,7 +165,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	@Override
 	protected Filters<Project> createFilters() {
-		return new ProjectFilters(this::refreshGrid);
+		return new ProjectFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
 	@Override
@@ -406,22 +408,21 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 		/** Constructor.
 		 *
-		 * @param onSearch
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
 		 */
-		public ProjectFilters(Runnable onSearch) {
-			super(onSearch);
+		public ProjectFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(user, onSearch);
 		}
 
 		@Override
-		protected Component getOptionsComponent() {
+		protected void buildOptionsComponent(HorizontalLayout options) {
 			this.includeNames = new Checkbox(true);
 			this.includeDates = new Checkbox(false);
 			this.includeTypes = new Checkbox(true);
 			this.includeFundings = new Checkbox(false);
 			this.includeStates = new Checkbox(true);
 
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
 			options.add(this.includeNames);
 			options.add(this.includeDates);
 			options.add(this.includeTypes);
@@ -429,8 +430,6 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 			options.add(this.includeStates);
 			
 			this.includeFundings.setEnabled(false);
-
-			return options;
 		}
 
 		@Override
@@ -440,6 +439,12 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 			this.includeTypes.setValue(Boolean.TRUE);
 			this.includeFundings.setValue(Boolean.FALSE);
 			this.includeStates.setValue(Boolean.TRUE);
+		}
+
+		@Override
+		protected Predicate buildPredicateForAuthenticatedUser(Root<Project> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, Person user) {
+			return criteriaBuilder.equal(root.get("participants").get("person"), user); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override
