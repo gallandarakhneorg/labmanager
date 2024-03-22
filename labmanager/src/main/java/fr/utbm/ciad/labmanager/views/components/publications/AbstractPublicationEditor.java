@@ -497,6 +497,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		this.abstractText = new TextArea();
 		this.abstractText.setPrefixComponent(VaadinIcon.TEXT_INPUT.create());
+		this.abstractText.setRequiredIndicatorVisible(true);
 		this.abstractText.setClearButtonVisible(true);
 		content.add(this.abstractText, 2);
 
@@ -515,11 +516,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.contentDetails = createDetailsWithErrorMark(rootContainer, content, "content"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.abstractText)
-		.withConverter(new StringTrimer())
-		.bind(Publication::getAbstractText, Publication::setAbstractText);
+			.withConverter(new StringTrimer())
+			.withValidator(new NotEmptyStringValidator("views.publication.abstract_text.error")) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.abstractText, this.contentDetails))
+			.bind(Publication::getAbstractText, Publication::setAbstractText);
 		getEntityDataBinder().forField(this.keywords)
-		.withConverter(new StringToKeywordsConverter())
-		.bind(Publication::getKeywords, Publication::setKeywords);
+			.withConverter(new StringToKeywordsConverter())
+			.bind(Publication::getKeywords, Publication::setKeywords);
 		getEntityDataBinder().forField(this.language).bind(Publication::getMajorLanguage, Publication::setMajorLanguage);
 	}
 
@@ -557,21 +560,21 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.uploadPdf)
-		.withConverter(new StringTrimer())
-		.bind(Publication::getPathToDownloadablePDF, Publication::setPathToDownloadablePDF);
+			.withConverter(new StringTrimer())
+			.bind(Publication::getPathToDownloadablePDF, Publication::setPathToDownloadablePDF);
 		getEntityDataBinder().forField(this.videoUrl)
-		.withConverter(new StringTrimer())
-		.withValidator(new UrlValidator(invalidUrl, true))
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.videoUrl, this.resourcesDetails))
-		.bind(Publication::getVideoURL, Publication::setVideoURL);
+			.withConverter(new StringTrimer())
+			.withValidator(new UrlValidator(invalidUrl, true))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.videoUrl, this.resourcesDetails))
+			.bind(Publication::getVideoURL, Publication::setVideoURL);
 		getEntityDataBinder().forField(this.uploadAward)
-		.withConverter(new StringTrimer())
-		.bind(Publication::getPathToDownloadableAwardCertificate, Publication::setPathToDownloadableAwardCertificate);
+			.withConverter(new StringTrimer())
+			.bind(Publication::getPathToDownloadableAwardCertificate, Publication::setPathToDownloadableAwardCertificate);
 		getEntityDataBinder().forField(this.extraUrl)
-		.withConverter(new StringTrimer())
-		.withValidator(new UrlValidator(invalidUrl, true))
-		.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.extraUrl, this.resourcesDetails))
-		.bind(Publication::getExtraURL, Publication::setExtraURL);
+			.withConverter(new StringTrimer())
+			.withValidator(new UrlValidator(invalidUrl, true))
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.extraUrl, this.resourcesDetails))
+			.bind(Publication::getExtraURL, Publication::setExtraURL);
 	}
 
 	/** Create the section for editing the reference details.
