@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.supervisions;
 
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -93,9 +93,9 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 
 	private TextField fundingDetails;
 
-	private Checkbox jointPosition;
+	private ToggleButton jointPosition;
 
-	private Checkbox entrepreneur;
+	private ToggleButton entrepreneur;
 
 	private DetailsWithErrorMark defenseDetails;
 
@@ -103,7 +103,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	
 	private DetailsWithErrorMark afterDefenseDetails;
 
-	private Checkbox abandonment;
+	private ToggleButton abandonment;
 
 	private TextField positionAfterSupervision;
 
@@ -218,10 +218,10 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 		this.fundingDetails.setPrefixComponent(VaadinIcon.INFO.create());
 		content.add(this.fundingDetails, 1);
 
-		this.jointPosition = new Checkbox();
+		this.jointPosition = new ToggleButton();
 		content.add(this.jointPosition, 1);
 
-		this.entrepreneur = new Checkbox();
+		this.entrepreneur = new ToggleButton();
 		content.add(this.entrepreneur, 1);
 
 		this.fundDetails = createDetailsWithErrorMark(rootContainer, content, "fund"); //$NON-NLS-1$
@@ -273,7 +273,7 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	protected void createAfterDefenseDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 		
-		this.abandonment = new Checkbox();
+		this.abandonment = new ToggleButton();
 		content.add(this.abandonment, 2);
 
 		this.positionAfterSupervision = new TextField();

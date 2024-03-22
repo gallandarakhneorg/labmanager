@@ -22,8 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.projects;
 import java.net.URL;
 import java.util.function.Consumer;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -134,7 +134,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 
 	private DetailsWithErrorMark innovationDetails;
 
-	private Checkbox openSource;
+	private ToggleButton openSource;
 
 	private ComboBox<ProjectActivityType> activityType;
 
@@ -144,7 +144,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 
 	private DetailsWithErrorMark presentationDetails;
 
-	private Checkbox confidential;
+	private ToggleButton confidential;
 
 	private TextArea description;
 
@@ -507,7 +507,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.trl.setPrefixComponent(VaadinIcon.LIST_OL.create());
 		content.add(this.trl, 2);
 
-		this.openSource = new Checkbox();
+		this.openSource = new ToggleButton();
 		content.add(this.openSource, 2);
 
 		this.innovationDetails = createDetailsWithErrorMark(rootContainer, content, "innovation"); //$NON-NLS-1$
@@ -556,7 +556,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	protected void createPresentationDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.confidential = new Checkbox();
+		this.confidential = new ToggleButton();
 		content.add(this.confidential, 2);
 
 		this.description = new TextArea();

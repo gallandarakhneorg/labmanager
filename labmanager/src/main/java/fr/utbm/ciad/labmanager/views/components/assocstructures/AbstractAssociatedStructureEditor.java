@@ -22,8 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.assocstructures;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -116,7 +116,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private DetailsWithErrorMark communicationDetails;
 
-	private Checkbox confidential;
+	private ToggleButton confidential;
 
 	private TextArea description;
 
@@ -391,7 +391,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	protected void createCommunicationDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.confidential = new Checkbox();
+		this.confidential = new ToggleButton();
 		content.add(this.confidential, 2);
 
 		this.description = new TextArea();

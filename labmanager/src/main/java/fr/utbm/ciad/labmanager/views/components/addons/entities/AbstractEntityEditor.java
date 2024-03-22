@@ -21,11 +21,11 @@ package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
 import java.util.function.Consumer;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -71,7 +71,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 
 	private Details administrationDetails;
 
-	private Checkbox validatedEntity;
+	private ToggleButton validatedEntity;
 	
 	private final boolean isBaseAdmin;
 
@@ -274,7 +274,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		}
 
 		if (validationBinder != null) {
-			this.validatedEntity = new Checkbox();
+			this.validatedEntity = new ToggleButton();
 			content.add(this.validatedEntity);
 			validationBinder.accept(this.entityBinder.forField(this.validatedEntity));
 		}

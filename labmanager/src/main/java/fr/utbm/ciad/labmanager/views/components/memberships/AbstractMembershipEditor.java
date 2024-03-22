@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -112,7 +112,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private DatePicker to;
 
-	private Checkbox permanentPosition; 
+	private ToggleButton permanentPosition; 
 
 	private DetailsWithErrorMark sectionDetails;
 
@@ -128,7 +128,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 
 	private ComboBox<Responsibility> responsibility;
 
-	private Checkbox publicPosition; 
+	private ToggleButton publicPosition; 
 
 	private final PersonService personService;
 
@@ -183,7 +183,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					content -> {
-						this.publicPosition = new Checkbox(); 
+						this.publicPosition = new ToggleButton(); 
 						content.add(this.publicPosition, 2);
 						getEntityDataBinder().forField(this.publicPosition)
 							.bind(Membership::isMainPosition, Membership::setMainPosition);
@@ -336,7 +336,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 		this.to.setClearButtonVisible(true);
 		content.add(this.to, 1);
 
-		this.permanentPosition = new Checkbox(); 
+		this.permanentPosition = new ToggleButton(); 
 		content.add(this.to, 2);
 
 		this.positionDetails = createDetailsWithErrorMark(rootContainer, content, "position"); //$NON-NLS-1$

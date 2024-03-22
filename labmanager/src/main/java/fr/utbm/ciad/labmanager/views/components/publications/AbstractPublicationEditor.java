@@ -30,8 +30,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -194,7 +194,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	private ComboListField<ScientificAxis> scientificAxes;
 
-	private Checkbox manualValidationForced;
+	private ToggleButton manualValidationForced;
 
 	/** Constructor.
 	 *
@@ -303,7 +303,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					content -> {
-						this.manualValidationForced = new Checkbox(); 
+						this.manualValidationForced = new ToggleButton(); 
 						content.add(this.manualValidationForced, 2);
 						getEntityDataBinder().forField(this.manualValidationForced)
 						.bind(Publication::getManualValidationForced, Publication::setManualValidationForced);

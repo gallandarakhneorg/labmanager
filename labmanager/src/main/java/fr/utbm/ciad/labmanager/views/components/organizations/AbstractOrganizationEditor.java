@@ -25,8 +25,8 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
 import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
@@ -112,7 +112,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private ServerSideUploadableImageField logo;
 
-	private Checkbox majorOrganization;
+	private ToggleButton majorOrganization;
 
 	private final DownloadableFileManager fileManager;
 
@@ -155,7 +155,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		if (isBaseAdmin()) {
 			createAdministrationComponents(rootContainer,
 					content -> {
-						this.majorOrganization = new Checkbox();
+						this.majorOrganization = new ToggleButton();
 						content.add(this.majorOrganization, 1);
 
 						getEntityDataBinder().forField(this.majorOrganization)

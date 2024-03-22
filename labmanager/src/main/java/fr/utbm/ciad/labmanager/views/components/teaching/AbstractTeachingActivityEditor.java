@@ -21,9 +21,9 @@ package fr.utbm.ciad.labmanager.views.components.teaching;
 
 import java.util.Arrays;
 
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -120,7 +120,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private ComboBox<TeacherRole> teacherRole;
 	
-	private Checkbox labworkTutorialEtpDifference;
+	private ToggleButton labworkTutorialEtpDifference;
 
 	private DetailsWithErrorMark documentsDetails;
 
@@ -355,7 +355,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		this.teacherRole.setPrefixComponent(VaadinIcon.FORM.create());
 		content.add(this.teacherRole, 2);
 
-		this.labworkTutorialEtpDifference = new Checkbox();
+		this.labworkTutorialEtpDifference = new ToggleButton();
 		content.add(this.labworkTutorialEtpDifference, 2);
 		
 		final ItemLabelGenerator<TeachingActivityType> renderer = it -> it.getLabel(getMessageSourceAccessor(), getLocale());
