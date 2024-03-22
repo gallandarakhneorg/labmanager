@@ -40,7 +40,6 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
@@ -49,7 +48,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -108,6 +106,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		// The reference year cannot be the current year because ranking of journals is not done
 		this.referenceYear = LocalDate.now().getYear() - 1;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJournals(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -119,7 +118,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	}
 
 	@Override
-	protected Filters<Journal> createFilters() {
+	protected AbstractFilters<Journal> createFilters() {
 		return new JournalFilters(this::refreshGrid);
 	}
 
@@ -229,7 +228,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	}
 
 	@Override
-	protected FetchCallback<Journal, Void> getFetchCallback(Filters<Journal> filters) {
+	protected FetchCallback<Journal, Void> getFetchCallback(AbstractFilters<Journal> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.journalService,
@@ -305,7 +304,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class JournalFilters extends Filters<Journal> {
+	protected static class JournalFilters extends AbstractFilters<Journal> {
 
 		private static final long serialVersionUID = -2926094704107561306L;
 
@@ -318,7 +317,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		 * @param onSearch
 		 */
 		public JournalFilters(Runnable onSearch) {
-			super(null, onSearch);
+			super(onSearch);
 		}
 
 		@Override
@@ -333,12 +332,6 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		protected void resetFilters() {
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includePublishers.setValue(Boolean.TRUE);
-		}
-
-		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<Journal> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
 		}
 
 		@Override
@@ -380,7 +373,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<Journal> fetch(JournalService journalService, PageRequest pageRequest, Filters<Journal> filters);
+		Page<Journal> fetch(JournalService journalService, PageRequest pageRequest, AbstractFilters<Journal> filters);
 
 	}
 

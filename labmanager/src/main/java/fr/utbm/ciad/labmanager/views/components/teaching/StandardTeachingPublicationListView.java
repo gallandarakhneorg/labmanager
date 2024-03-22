@@ -89,6 +89,7 @@ public class StandardTeachingPublicationListView extends AbstractPublicationList
 			return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
 					this::initializeEntityFromJPA);
 		});
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 	

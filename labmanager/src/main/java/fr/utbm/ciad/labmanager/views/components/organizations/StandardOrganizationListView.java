@@ -39,7 +39,6 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
@@ -51,7 +50,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
@@ -120,11 +118,12 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 				it -> {
 					Hibernate.initialize(it.getSubOrganizations());
 				});
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override
-	protected Filters<ResearchOrganization> createFilters() {
+	protected AbstractFilters<ResearchOrganization> createFilters() {
 		return new OrganizationFilters(this::refreshGrid);
 	}
 
@@ -214,7 +213,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	}
 
 	@Override
-	protected FetchCallback<ResearchOrganization, Void> getFetchCallback(Filters<ResearchOrganization> filters) {
+	protected FetchCallback<ResearchOrganization, Void> getFetchCallback(AbstractFilters<ResearchOrganization> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.organizationService,
@@ -279,7 +278,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class OrganizationFilters extends Filters<ResearchOrganization> {
+	protected static class OrganizationFilters extends AbstractFilters<ResearchOrganization> {
 
 		private static final long serialVersionUID = 5584210266375969212L;
 
@@ -294,7 +293,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		 * @param onSearch the callback function for running the filtering.
 		 */
 		public OrganizationFilters(Runnable onSearch) {
-			super(null, onSearch);
+			super(onSearch);
 		}
 
 		@Override
@@ -313,12 +312,6 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includeTypes.setValue(Boolean.TRUE);
 			this.includeCountries.setValue(Boolean.TRUE);
-		}
-
-		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<ResearchOrganization> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
 		}
 
 		@Override
@@ -365,7 +358,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<ResearchOrganization> fetch(ResearchOrganizationService organizationService, PageRequest pageRequest, Filters<ResearchOrganization> filters);
+		Page<ResearchOrganization> fetch(ResearchOrganizationService organizationService, PageRequest pageRequest, AbstractFilters<ResearchOrganization> filters);
 
 	}
 

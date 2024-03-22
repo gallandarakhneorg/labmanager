@@ -111,6 +111,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 		this.personService = personService;
 		this.userService = userService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllIncomingInvitations(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -121,7 +122,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	}
 
 	@Override
-	protected Filters<PersonInvitation> createFilters() {
+	protected AbstractFilters<PersonInvitation> createFilters() {
 		return new IncomingInvitationFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -214,7 +215,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	}
 
 	@Override
-	protected FetchCallback<PersonInvitation, Void> getFetchCallback(Filters<PersonInvitation> filters) {
+	protected FetchCallback<PersonInvitation, Void> getFetchCallback(AbstractFilters<PersonInvitation> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.invitationService,
@@ -289,7 +290,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class IncomingInvitationFilters extends Filters<PersonInvitation> {
+	protected static class IncomingInvitationFilters extends AbstractAuthenticatedUserDataFilters<PersonInvitation> {
 
 		private static final long serialVersionUID = -9189492887286082033L;
 
@@ -372,7 +373,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<PersonInvitation> fetch(PersonInvitationService invitationService, PageRequest pageRequest, Filters<PersonInvitation> filters);
+		Page<PersonInvitation> fetch(PersonInvitationService invitationService, PageRequest pageRequest, AbstractFilters<PersonInvitation> filters);
 
 	}
 

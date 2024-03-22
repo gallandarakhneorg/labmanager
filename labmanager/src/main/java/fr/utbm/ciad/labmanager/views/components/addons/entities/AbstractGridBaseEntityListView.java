@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
+import com.google.common.base.Strings;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
@@ -53,7 +55,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
@@ -61,6 +65,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
@@ -103,7 +108,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 	private G grid;
 
-	private Filters<F> filters;
+	private AbstractFilters<F> filters;
 
 	private MenuItem addButton;
 
@@ -211,7 +216,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 *
 	 * @return the filters
 	 */
-	protected abstract Filters<F> createFilters();
+	protected abstract AbstractFilters<F> createFilters();
 
 	/** Replies the column to be used for the initial sorting.
 	 *
@@ -259,11 +264,22 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		return this.grid;
 	}
 
+	/** Invoked to post-initialize the filters after all the associated components have been added.
+	 * By default, this function initialize the filters if it is of type {@link AbstractDefaultOrganizationDataFilters}.
+	 * Otherwise, it does nothing.
+	 */
+	protected void postInitializeFilters() {
+		final var filters = getFilters();
+		if (filters instanceof AbstractDefaultOrganizationDataFilters organizationFilters) {
+			organizationFilters.updateDefaultOrganizationIconInToggleButton();
+		}
+	}
+
 	/** Replies the filters.
 	 *
 	 * @return the filters.
 	 */
-	protected Filters<F> getFilters() {
+	protected AbstractFilters<F> getFilters() {
 		return this.filters;
 	}
 	
@@ -480,7 +496,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @param grid the grid to fill up.
 	 * @param filters the filters to be used in the grid.
 	 */
-	protected abstract void initializeDataInGrid(G grid, Filters<F> filters);
+	protected abstract void initializeDataInGrid(G grid, AbstractFilters<F> filters);
 
 	/** Invoked for computing the identifier of an entity. This identifier is used by the Vaadin grid
 	 * for comparing the items and detecting their equality.
@@ -546,66 +562,27 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static abstract class Filters<T> extends Div implements Specification<T>, LocaleChangeObserver {
+	protected static abstract class AbstractFilters<T> extends Div implements Specification<T>, LocaleChangeObserver {
 
-		private static final long serialVersionUID = -7453493729641988299L;
+		private static final long serialVersionUID = 1052687254355760397L;
 
-		private static final boolean DEFAULT_AUTHENTICATED_USER_FILTERING = true;
-
-		private final Person user;
-	
 		private final TextField keywords;
-
-		private ToggleButton restrictToUser;
 
 		private final Button resetButton;
 
 		private final Button searchButton;
 
-		private AvatarItem authenticatedUserAvatar;
-
 		/** Constructor.
 		 *
-		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
 		 * @param onSearch the callback function for running the filtering.
 		 */
-		public Filters(AuthenticatedUser user, Runnable onSearch) {
-			Person pers = null;
-			if (user != null) {
-				final var optionalUser = user.get();
-				if (optionalUser.isPresent()) {
-					final var usr = optionalUser.get();
-					if (usr != null) {
-						pers = usr.getPerson();
-					}
-				}
-			}
-			this.user = pers;
-
+		public AbstractFilters(Runnable onSearch) {
 			setWidthFull();
 			addClassName("filter-layout"); //$NON-NLS-1$
 			addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM, LumoUtility.BoxSizing.BORDER);
 
 			this.keywords = new TextField();
 			
-			if (this.user != null) {
-				final var session = VaadinService.getCurrentRequest().getWrappedSession();
-				final var attr = session.getAttribute(buildPreferenceSectionKeyForAuthenticatedUserFiltering());
-				var checked = DEFAULT_AUTHENTICATED_USER_FILTERING;
-				if (attr != null) {
-					if (attr instanceof Boolean bvalue) {
-						checked = bvalue.booleanValue();
-					} else if (attr instanceof String svalue) {
-						checked = Boolean.parseBoolean(svalue);
-					}
-				}
-				this.restrictToUser = new ToggleButton(checked);
-				updateAuthenticatedUserToggleButton(this.restrictToUser, this.user);
-				this.restrictToUser.addValueChangeListener(it -> onAuthenticatedUserFilteringChange(it.getValue() == null ? DEFAULT_AUTHENTICATED_USER_FILTERING : it.getValue().booleanValue(), onSearch));
-			} else {
-				this.restrictToUser = null;
-			}
-
 			this.resetButton = new Button();
 			this.resetButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 			this.resetButton.addClickListener(event -> {
@@ -632,10 +609,105 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			options.setSpacing(false);
 			buildOptionsComponent(options);
 
-			if (this.restrictToUser != null) {
-				add(this.restrictToUser, this.keywords, options, actions);
+			add(this.keywords, options, actions);
+		}
+
+		/** Build the component for filtering options.
+		 *
+		 * @param options the component that should receive the options, never {@code null}.
+		 */
+		protected abstract void buildOptionsComponent(HorizontalLayout options);
+		
+		/** Reset the filters.
+		 */
+		protected abstract void resetFilters();
+
+		/** Build the HQL query for the filtering.
+		 * 
+		 * @param keywords the keywords to search for.
+		 * @param predicates the list of filtering criteria with "or" semantic, being filled by this function.
+		 * @param root the root not for the search.
+		 * @param criteriaBuilder the criteria builder. It is the Hibernate version in order to
+		 *     have access to extra functions, e.g. {@code collate}.
+		 */
+		protected abstract void buildQueryFor(String keywords, List<Predicate> predicates, Root<T> root, CriteriaBuilder criteriaBuilder);
+
+		@Override
+		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			return ComponentFactory.newPredicateContainsOneOf(this.keywords.getValue(), root, query,
+					criteriaBuilder, this::buildQueryFor);
+		}
+
+		@Override
+		public void localeChange(LocaleChangeEvent event) {
+			this.keywords.setLabel(getTranslation("views.filters.keywords")); //$NON-NLS-1$
+			this.resetButton.setText(getTranslation("views.filters.reset")); //$NON-NLS-1$
+			this.searchButton.setText(getTranslation("views.filters.apply")); //$NON-NLS-1$
+		}
+
+	}
+
+	/** Authenticated user filtering inside the standard JPA filters for {@link AbstractGridBaseEntityListView}.
+	 * This filter panel adds the toggle button for enabling or disabling the filtering of data for the authenticated user.
+	 * 
+	 * @param <T> the type of the entities to be filtered.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected static abstract class AbstractAuthenticatedUserDataFilters<T> extends AbstractFilters<T> {
+
+		private static final long serialVersionUID = 7953654886013901370L;
+
+		private static final boolean DEFAULT_AUTHENTICATED_USER_FILTERING = true;
+
+		private final Person user;
+	
+		private ToggleButton restrictToUser;
+
+		private AvatarItem authenticatedUserAvatar;
+
+		/** Constructor.
+		 *
+		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
+		 * @param onSearch the callback function for running the filtering.
+		 */
+		public AbstractAuthenticatedUserDataFilters(AuthenticatedUser user, Runnable onSearch) {
+			super(onSearch);
+			Person pers = null;
+			if (user != null) {
+				final var optionalUser = user.get();
+				if (optionalUser.isPresent()) {
+					final var usr = optionalUser.get();
+					if (usr != null) {
+						pers = usr.getPerson();
+					}
+				}
+			}
+			this.user = pers;
+
+			if (this.user != null) {
+				final var session = VaadinService.getCurrentRequest().getWrappedSession();
+				final var attr = session.getAttribute(buildPreferenceSectionKeyForAuthenticatedUserFiltering());
+				var checked = DEFAULT_AUTHENTICATED_USER_FILTERING;
+				if (attr != null) {
+					if (attr instanceof Boolean bvalue) {
+						checked = bvalue.booleanValue();
+					} else if (attr instanceof String svalue) {
+						checked = Boolean.parseBoolean(svalue);
+					}
+				}
+				this.restrictToUser = new ToggleButton(checked);
+				updateAuthenticatedUserToggleButton(this.restrictToUser, this.user);
+				this.restrictToUser.addValueChangeListener(it -> onAuthenticatedUserFilteringChange(it.getValue() == null ? DEFAULT_AUTHENTICATED_USER_FILTERING : it.getValue().booleanValue(), onSearch));
 			} else {
-				add(this.keywords, options, actions);
+				this.restrictToUser = null;
+			}
+
+			if (this.restrictToUser != null) {
+				addComponentAsFirst(this.restrictToUser);
 			}
 		}
 
@@ -663,7 +735,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			return new StringBuilder().append(ViewConstants.AUTHENTICATED_USER_FILTER_ROOT).append(getClass().getName()).toString();
 		}
 
-		/** Invoques whne the filtering on the authenticated person has changed.
+		/** Invoked when the filtering on the authenticated person has changed.
 		 *
 		 * @param enablePersonFilter indicates if the filtering is enable or disable.
 		 * @param onSearch the callback function for running the filtering.
@@ -675,26 +747,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 				onSearch.run();
 			}
 		}
-
-		/** Build the component for filtering options.
-		 *
-		 * @param options the component that should receive the options, never {@code null}.
-		 */
-		protected abstract void buildOptionsComponent(HorizontalLayout options);
-		
-		/** Reset the filters.
-		 */
-		protected abstract void resetFilters();
-
-		/** Build the HQL query for the filtering.
-		 * 
-		 * @param keywords the keywords to search for.
-		 * @param predicates the list of filtering criteria with "or" semantic, being filled by this function.
-		 * @param root the root not for the search.
-		 * @param criteriaBuilder the criteria builder. It is the Hibernate version in order to
-		 *     have access to extra functions, e.g. {@code collate}.
-		 */
-		protected abstract void buildQueryFor(String keywords, List<Predicate> predicates, Root<T> root, CriteriaBuilder criteriaBuilder);
 
 		private boolean isRestrictedToAuthenticatedUser() {
 			if (this.restrictToUser != null) {
@@ -720,8 +772,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 		@Override
 		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			final var keywordFilter = ComponentFactory.newPredicateContainsOneOf(this.keywords.getValue(), root, query,
-					criteriaBuilder, this::buildQueryFor);
+			final var keywordFilter = super.toPredicate(root, query, criteriaBuilder);
 			if (this.user != null && isRestrictedToAuthenticatedUser()) {
 				final var userPredicate = buildPredicateForAuthenticatedUser(root, query, criteriaBuilder, this.user);
 				if (userPredicate != null) {
@@ -736,12 +787,154 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 		@Override
 		public void localeChange(LocaleChangeEvent event) {
-			this.keywords.setLabel(getTranslation("views.filters.keywords")); //$NON-NLS-1$
-			this.resetButton.setText(getTranslation("views.filters.reset")); //$NON-NLS-1$
-			this.searchButton.setText(getTranslation("views.filters.apply")); //$NON-NLS-1$
+			super.localeChange(event);
 			if (this.authenticatedUserAvatar != null) {
 				this.authenticatedUserAvatar.setHeading(getTranslation("views.filters.authenticated_user_filter")); //$NON-NLS-1$
 			}
+		}
+
+	}
+
+	/** Default organization filtering inside the standard JPA filters for {@link AbstractGridBaseEntityListView}.
+	 * This filter panel adds the toggle button for enabling or disabling the filtering of data for the default organization.
+	 * 
+	 * @param <T> the type of the entities to be filtered.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected static abstract class AbstractDefaultOrganizationDataFilters<T> extends AbstractFilters<T> {
+
+		private static final long serialVersionUID = 7953654886013901370L;
+
+		private static final boolean DEFAULT_ORGANIZATION_FILTERING = true;
+
+		private final Supplier<ResearchOrganization> defaultOrganization;
+
+		private final Supplier<FileManager> fileManager;
+
+		private ToggleButton restrictToOrganization;
+
+		private AvatarItem defaultOrganizationAvatar;
+
+
+		/** Constructor.
+		 *
+		 * @param defaultOrganizationSupplier the provider of the default organization.
+		 * @param fileManager the manager of files on the server.
+		 * @param onSearch the callback function for running the filtering.
+		 */
+		public AbstractDefaultOrganizationDataFilters(Supplier<ResearchOrganization> defaultOrganizationSupplier, Supplier<FileManager> fileManager, Runnable onSearch) {
+			super(onSearch);
+			
+			this.defaultOrganization = defaultOrganizationSupplier;
+			this.fileManager = fileManager;
+
+			final var session = VaadinService.getCurrentRequest().getWrappedSession();
+			final var attr = session.getAttribute(buildPreferenceSectionKeyForDefaultOrganizationFiltering());
+			var checked = DEFAULT_ORGANIZATION_FILTERING;
+			if (attr != null) {
+				if (attr instanceof Boolean bvalue) {
+					checked = bvalue.booleanValue();
+				} else if (attr instanceof String svalue) {
+					checked = Boolean.parseBoolean(svalue);
+				}
+			}
+			this.restrictToOrganization = new ToggleButton(checked);
+
+			this.defaultOrganizationAvatar = new AvatarItem();
+			this.restrictToOrganization.setLabelComponent(this.defaultOrganizationAvatar);
+			this.restrictToOrganization.addValueChangeListener(it -> onDefaultOrganizationFilteringChange(it.getValue() == null ? DEFAULT_ORGANIZATION_FILTERING : it.getValue().booleanValue(), onSearch));
+
+			addComponentAsFirst(this.restrictToOrganization);
+		}
+
+		/** Invoked to update the icon of the organization in the toggle button.
+		 */
+		final void updateDefaultOrganizationIconInToggleButton() {
+			updateDefaultOrganizationIconInToggleButton(this.defaultOrganizationAvatar, this.defaultOrganization.get(), this.fileManager.get());
+		}
+
+		/** Invoked to update the icon of the organization in the toggle button.
+		 *
+		 * @param organizationAvatar the avatar of the research organization.
+		 * @param defaultOrganization the default organization to be considered.
+		 * @param fileManager the manager of files on the server.
+		 */
+		@SuppressWarnings("static-method")
+		protected void updateDefaultOrganizationIconInToggleButton(AvatarItem organizationAvatar, ResearchOrganization defaultOrganization, FileManager fileManager) {
+			final var logo = defaultOrganization.getPathToLogo();
+			if (!Strings.isNullOrEmpty(logo)) {
+				var logoFile = FileSystem.convertStringToFile(logo);
+				if (logoFile != null) {
+					logoFile = fileManager.normalizeForServerSide(logoFile);
+					if (logoFile != null) {
+						organizationAvatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
+					}
+				}
+			}
+		}
+
+		private String buildPreferenceSectionKeyForDefaultOrganizationFiltering() {
+			return new StringBuilder().append(ViewConstants.DEFAULT_ORGANIZATION_FILTER_ROOT).append(getClass().getName()).toString();
+		}
+
+		/** Invoked when the filtering on the default organization has changed.
+		 *
+		 * @param enableOrganizationFilter indicates if the filtering is enable or disable.
+		 * @param onSearch the callback function for running the filtering.
+		 */
+		protected void onDefaultOrganizationFilteringChange(boolean enableOrganizationFilter, Runnable onSearch) {
+			final var session0 = VaadinService.getCurrentRequest().getWrappedSession();
+			session0.setAttribute(buildPreferenceSectionKeyForDefaultOrganizationFiltering(), Boolean.valueOf(enableOrganizationFilter));
+			if (onSearch != null) {
+				onSearch.run();
+			}
+		}
+
+		private boolean isRestrictedToDefaultOrganization() {
+			if (this.restrictToOrganization != null) {
+				final var bvalue = this.restrictToOrganization.getValue();
+				if (bvalue == null) {
+					return DEFAULT_ORGANIZATION_FILTERING;
+				}
+				return bvalue.booleanValue();
+			}
+			return false;
+		}
+		
+		/** Build the predicate for filtering the JPE entities that corresponds to the default organization with
+		 * the given identifier.
+		 * 
+		 * @param root the root element to filter.
+		 * @param query the top-level query.
+		 * @param criteriaBuilder the tool for building a filtering criteria.
+		 * @param defaultOrganization the default organization.
+		 * @return the predicate or {@code null} if there is no need for this predicate.
+		 */
+		protected abstract Predicate buildPredicateForDefaultOrganization(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization);
+
+		@Override
+		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			final var keywordFilter = super.toPredicate(root, query, criteriaBuilder);
+			if (isRestrictedToDefaultOrganization()) {
+				final var organizationPredicate = buildPredicateForDefaultOrganization(root, query, criteriaBuilder, this.defaultOrganization.get());
+				if (organizationPredicate != null) {
+					if (keywordFilter != null) {
+						return criteriaBuilder.and(organizationPredicate, keywordFilter);
+					}
+					return organizationPredicate;
+				}
+			}
+			return keywordFilter;
+		}
+
+		@Override
+		public void localeChange(LocaleChangeEvent event) {
+			super.localeChange(event);
+			this.defaultOrganizationAvatar.setHeading(getTranslation("views.filters.default_organization_filter")); //$NON-NLS-1$
 		}
 
 	}

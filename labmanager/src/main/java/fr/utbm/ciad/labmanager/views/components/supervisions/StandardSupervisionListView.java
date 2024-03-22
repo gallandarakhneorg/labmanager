@@ -126,6 +126,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 		this.addressService = addressService;
 		this.axisService = axisService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllSupervisions(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -139,7 +140,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	}
 
 	@Override
-	protected Filters<Supervision> createFilters() {
+	protected AbstractFilters<Supervision> createFilters() {
 		return new SupervisionFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -211,7 +212,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	}
 
 	@Override
-	protected FetchCallback<Supervision, Void> getFetchCallback(Filters<Supervision> filters) {
+	protected FetchCallback<Supervision, Void> getFetchCallback(AbstractFilters<Supervision> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.supervisionService,
@@ -286,7 +287,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class SupervisionFilters extends Filters<Supervision> {
+	protected static class SupervisionFilters extends AbstractAuthenticatedUserDataFilters<Supervision> {
 
 		private static final long serialVersionUID = 829919544629910175L;
 
@@ -355,7 +356,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<Supervision> fetch(SupervisionService supervisionService, PageRequest pageRequest, Filters<Supervision> filters);
+		Page<Supervision> fetch(SupervisionService supervisionService, PageRequest pageRequest, AbstractFilters<Supervision> filters);
 
 	}
 

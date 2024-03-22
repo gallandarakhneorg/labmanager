@@ -38,7 +38,6 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -48,7 +47,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.AbstractAnnualRankingField;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -103,6 +101,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		// The reference year cannot be the current year because ranking of journals is not done
 		this.referenceYear = AbstractAnnualRankingField.getDefaultReferenceYear();
 		this.dataProvider = (ps, query, filters) -> ps.getAllConferences(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -113,7 +112,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	}
 
 	@Override
-	protected Filters<Conference> createFilters() {
+	protected AbstractFilters<Conference> createFilters() {
 		return new ConferenceFilters(this::refreshGrid);
 	}
 
@@ -177,7 +176,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	}
 
 	@Override
-	protected FetchCallback<Conference, Void> getFetchCallback(Filters<Conference> filters) {
+	protected FetchCallback<Conference, Void> getFetchCallback(AbstractFilters<Conference> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.conferenceService,
@@ -251,7 +250,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class ConferenceFilters extends Filters<Conference> {
+	protected static class ConferenceFilters extends AbstractFilters<Conference> {
 
 		private static final long serialVersionUID = -5029775320994118621L;
 
@@ -264,7 +263,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		 * @param onSearch
 		 */
 		public ConferenceFilters(Runnable onSearch) {
-			super(null, onSearch);
+			super(onSearch);
 		}
 
 		@Override
@@ -279,12 +278,6 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		protected void resetFilters() {
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includePublishers.setValue(Boolean.TRUE);
-		}
-
-		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<Conference> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
 		}
 
 		@Override
@@ -326,7 +319,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<Conference> fetch(ConferenceService conferenceService, PageRequest pageRequest, Filters<Conference> filters);
+		Page<Conference> fetch(ConferenceService conferenceService, PageRequest pageRequest, AbstractFilters<Conference> filters);
 
 	}
 

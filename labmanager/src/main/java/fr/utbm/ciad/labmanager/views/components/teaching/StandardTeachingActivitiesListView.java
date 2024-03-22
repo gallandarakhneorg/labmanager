@@ -131,6 +131,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		this.organizationService = organizationService;
 		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -141,7 +142,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	}
 
 	@Override
-	protected Filters<TeachingActivity> createFilters() {
+	protected AbstractFilters<TeachingActivity> createFilters() {
 		return new TeachingActivityFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -269,7 +270,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	}
 
 	@Override
-	protected FetchCallback<TeachingActivity, Void> getFetchCallback(Filters<TeachingActivity> filters) {
+	protected FetchCallback<TeachingActivity, Void> getFetchCallback(AbstractFilters<TeachingActivity> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.teachingService,
@@ -345,7 +346,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class TeachingActivityFilters extends Filters<TeachingActivity> {
+	protected static class TeachingActivityFilters extends AbstractAuthenticatedUserDataFilters<TeachingActivity> {
 
 		private static final long serialVersionUID = -8070684808016589969L;
 
@@ -450,7 +451,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<TeachingActivity> fetch(TeachingService teachingService, PageRequest pageRequest, Filters<TeachingActivity> filters);
+		Page<TeachingActivity> fetch(TeachingService teachingService, PageRequest pageRequest, AbstractFilters<TeachingActivity> filters);
 
 	}
 

@@ -242,7 +242,7 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	protected abstract Component createChildEntityComponent(C entity);
 
 	@Override
-	protected final void initializeDataInGrid(TreeGrid<TreeListEntity<R, C>> grid, Filters<C> filters) {
+	protected final void initializeDataInGrid(TreeGrid<TreeListEntity<R, C>> grid, AbstractFilters<C> filters) {
 		grid.setDataProvider(new LazyDataProvider(filters));
 	}
 
@@ -255,17 +255,17 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	 * @since 4.0
 	 * @see #AbstractEntityListView
 	 */
-	protected final class LazyDataProvider extends AbstractBackEndHierarchicalDataProvider<TreeListEntity<R, C>, Filters<C>> {
+	protected final class LazyDataProvider extends AbstractBackEndHierarchicalDataProvider<TreeListEntity<R, C>, AbstractFilters<C>> {
 
 		private static final long serialVersionUID = -2633658073424798368L;
 
-		private final Filters<C> filters;
+		private final AbstractFilters<C> filters;
 
 		/** Constructor.
 		 *
 		 * @param filters the filters of the entities.
 		 */
-		public LazyDataProvider(Filters<C> filters) {
+		public LazyDataProvider(AbstractFilters<C> filters) {
 			this.filters = filters;
 		}
 
@@ -275,7 +275,7 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 		}
 
 		@Override
-		public int getChildCount(HierarchicalQuery<TreeListEntity<R, C>, Filters<C>> query) {
+		public int getChildCount(HierarchicalQuery<TreeListEntity<R, C>, AbstractFilters<C>> query) {
 			final var parent = query.getParent();
 			if (parent != null) {
 				if (parent.isRootEntity()) {
@@ -288,7 +288,7 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 
 
 		@Override
-		protected Stream<TreeListEntity<R, C>> fetchChildrenFromBackEnd(HierarchicalQuery<TreeListEntity<R, C>, Filters<C>> query) {
+		protected Stream<TreeListEntity<R, C>> fetchChildrenFromBackEnd(HierarchicalQuery<TreeListEntity<R, C>, AbstractFilters<C>> query) {
 			if (query.getParent() == null) {
 				final var originalStream = AbstractTwoLevelTreeListView.this.rootEntityFetcher.fetch(
 						0,

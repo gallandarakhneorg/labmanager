@@ -165,6 +165,11 @@ public final class ViewConstants {
 	 */
 	public static final String AUTHENTICATED_USER_FILTER_ROOT = PREFERENCE_ROOT + "authenticated_user_filter."; //$NON-NLS-1$
 
+	/** Root attribute name for the filter checkbox for the default organization.
+	 * @since 4.0
+	 */
+	public static final String DEFAULT_ORGANIZATION_FILTER_ROOT = PREFERENCE_ROOT + "default_organization_filter."; //$NON-NLS-1$
+
 	private ViewConstants() {
 		//
 	}

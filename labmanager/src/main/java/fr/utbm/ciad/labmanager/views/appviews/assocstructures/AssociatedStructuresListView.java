@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.appviews.assocstructures;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -77,10 +76,9 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 			@Autowired OrganizationAddressService addressService,
 			@Autowired PersonService personService,
 			@Autowired UserService userService,
-			@Autowired ScientificAxisService axisService,
-			@Autowired Constants constants) {
+			@Autowired ScientificAxisService axisService) {
 		super(authenticatedUser, messages, structureService, projectService, organizationService, addressService,
-				personService, userService, axisService, constants, LOGGER);
+				personService, userService, axisService, LOGGER);
 	}
 
 	@Override

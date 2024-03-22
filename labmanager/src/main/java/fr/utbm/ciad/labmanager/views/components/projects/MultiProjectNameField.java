@@ -29,7 +29,6 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -117,7 +116,6 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param axisService the service for accessing the scientific axis JPA entities.
 	 * @param creationTitle the title of the dialog box for creating the project.
-	 * @param constants the constants of the application.
 	 * @param messages the accessor to the localized messages.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 * @param initializer the initializer of the loaded projects. It may be {@code null}.
@@ -125,7 +123,7 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 	public MultiProjectNameField(ProjectService projectService,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
-			ScientificAxisService axisService, String creationTitle, Constants constants,
+			ScientificAxisService axisService, String creationTitle,
 			MessageSourceAccessor messages, Logger logger, Consumer<Project> initializer) {
 		this(projectService,
 				(newProject, saver) -> {
@@ -133,7 +131,7 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 					final var editor = new EmbeddedProjectEditor(
 							projectContext, organizationService, addressService,
 							personService, userService, axisService,
-							projectService.getFileManager(), constants,
+							projectService.getFileManager(),
 							authenticatedUser, messages);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
@@ -163,18 +161,16 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param axisService the service for accessing the scientific axis JPA entities.
 	 * @param creationTitle the title of the dialog box for creating the project.
-	 * @param constants the constants of the application.
 	 * @param messages the accessor to the localized messages.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 */
 	public MultiProjectNameField(ProjectService projectService,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			PersonService personService, UserService userService, AuthenticatedUser authenticatedUser,
-			ScientificAxisService axisService, String creationTitle, Constants constants,
+			ScientificAxisService axisService, String creationTitle,
 			MessageSourceAccessor messages, Logger logger) {
 		this(projectService, organizationService, addressService, personService, userService,
-				authenticatedUser, axisService, creationTitle, constants,
-				messages, logger, null);
+				authenticatedUser, axisService, creationTitle, messages, logger, null);
 	}
 
 	private static SerializableFunction<Project, Component> createProjectRender(FileManager fileManager) {

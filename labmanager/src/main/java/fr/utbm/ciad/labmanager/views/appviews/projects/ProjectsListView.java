@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.appviews.projects;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
@@ -58,7 +57,6 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of filenames for uploaded files.
-	 * @param constants the constants of the application.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param projectService the service for accessing the projects.
@@ -70,7 +68,6 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 	 */
 	public ProjectsListView(
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired Constants constants,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
 			@Autowired ProjectService projectService,
 			@Autowired ResearchOrganizationService organizationService,
@@ -78,7 +75,7 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 			@Autowired PersonService personService,
 			@Autowired UserService userService,			
 			@Autowired ScientificAxisService axisService) {
-		super(fileManager, constants, authenticatedUser, messages, projectService, organizationService,
+		super(fileManager, authenticatedUser, messages, projectService, organizationService,
 				addressService, personService, userService, axisService, LOGGER);
 	}
 

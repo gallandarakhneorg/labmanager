@@ -37,7 +37,6 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
@@ -89,8 +88,6 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	private final ScientificAxisService axisService;
 
-	private final Constants constants;
-
 	private Column<AssociatedStructure> nameColumn;
 
 	private Column<AssociatedStructure> dateColumn;
@@ -108,7 +105,6 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	 * @param personService the service for accessing the JPA entities for persons.
 	 * @param userService the service for accessing the JPA entities for users.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
-	 * @param constants the application constants.
 	 * @param logger the logger to use.
 	 */
 	public StandardAssociatedStructureListView(
@@ -116,7 +112,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 			AssociatedStructureService structureService, ProjectService projectService,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			PersonService personService, UserService userService, ScientificAxisService axisService,
-			Constants constants, Logger logger) {
+			Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structures.delete.title", //$NON-NLS-1$
 				"views.associated_structures.delete.message", //$NON-NLS-1$
@@ -129,13 +125,13 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 		this.personService = personService;
 		this.userService = userService;
 		this.axisService = axisService;
-		this.constants = constants;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAssociatedStructures(query, filters);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override
-	protected Filters<AssociatedStructure> createFilters() {
+	protected AbstractFilters<AssociatedStructure> createFilters() {
 		return new StructureFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -184,7 +180,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	}
 
 	@Override
-	protected FetchCallback<AssociatedStructure, Void> getFetchCallback(Filters<AssociatedStructure> filters) {
+	protected FetchCallback<AssociatedStructure, Void> getFetchCallback(AbstractFilters<AssociatedStructure> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.structureService,
@@ -213,7 +209,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 				this.structureService.startEditing(structure),
 				this.projectService, this.organizationService, this.addressService,
 				this.personService, this.userService,
-				getAuthenticatedUser(), this.axisService, getMessageSourceAccessor(), this.constants);
+				getAuthenticatedUser(), this.axisService, getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshOne = (dialog, entity) -> refreshItem(entity);
@@ -244,7 +240,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class StructureFilters extends Filters<AssociatedStructure> {
+	protected static class StructureFilters extends AbstractAuthenticatedUserDataFilters<AssociatedStructure> {
 
 		private static final long serialVersionUID = 520337561490106907L;
 
@@ -311,7 +307,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<AssociatedStructure> fetch(AssociatedStructureService structureService, PageRequest pageRequest, Filters<AssociatedStructure> filters);
+		Page<AssociatedStructure> fetch(AssociatedStructureService structureService, PageRequest pageRequest, AbstractFilters<AssociatedStructure> filters);
 
 	}
 

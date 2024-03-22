@@ -38,7 +38,6 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
@@ -47,7 +46,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -96,11 +94,12 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 				"views.scientific_axes.delete_error"); //$NON-NLS-1$
 		this.axisService = axisService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllScientificAxes(query, filters);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override
-	protected Filters<ScientificAxis> createFilters() {
+	protected AbstractFilters<ScientificAxis> createFilters() {
 		return new AxisFilters(this::refreshGrid);
 	}
 
@@ -151,7 +150,7 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 	}
 
 	@Override
-	protected FetchCallback<ScientificAxis, Void> getFetchCallback(Filters<ScientificAxis> filters) {
+	protected FetchCallback<ScientificAxis, Void> getFetchCallback(AbstractFilters<ScientificAxis> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.axisService,
@@ -210,7 +209,7 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class AxisFilters extends Filters<ScientificAxis> {
+	protected static class AxisFilters extends AbstractFilters<ScientificAxis> {
 
 		private static final long serialVersionUID = 7590936731361248312L;
 
@@ -225,7 +224,7 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 		 * @param onSearch the callback function for running the filtering.
 		 */
 		public AxisFilters(Runnable onSearch) {
-			super(null, onSearch);
+			super(onSearch);
 		}
 
 		@Override
@@ -242,12 +241,6 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 			this.includeAcronyms.setValue(Boolean.TRUE);
 			this.includeNames.setValue(Boolean.TRUE);
 			this.includeDates.setValue(Boolean.TRUE);
-		}
-
-		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<ScientificAxis> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
 		}
 
 		@Override
@@ -293,7 +286,7 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<ScientificAxis> fetch(ScientificAxisService axisService, PageRequest pageRequest, Filters<ScientificAxis> filters);
+		Page<ScientificAxis> fetch(ScientificAxisService axisService, PageRequest pageRequest, AbstractFilters<ScientificAxis> filters);
 
 	}
 

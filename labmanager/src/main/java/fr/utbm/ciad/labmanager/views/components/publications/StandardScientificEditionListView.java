@@ -90,6 +90,7 @@ public class StandardScientificEditionListView extends AbstractPublicationListVi
 			return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
 					this::initializeEntityFromJPA);
 		});
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 	

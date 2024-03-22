@@ -102,6 +102,7 @@ public class StandardScientificPublicationListView extends AbstractPublicationLi
 			return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
 					this::initializeEntityFromJPA);
 		});
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 	

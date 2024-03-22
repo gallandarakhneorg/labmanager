@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.memberships;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -45,6 +46,7 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
@@ -142,8 +144,8 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	}
 
 	@Override
-	protected Filters<Membership> createFilters() {
-		return new MembershipFilters(this::refreshGrid);
+	protected AbstractFilters<Membership> createFilters() {
+		return new MembershipFilters(() -> this.organizationService.getDefaultOrganization(), () -> this.organizationService.getFileManager() , this::refreshGrid);
 	}
 
 	@Override
@@ -301,7 +303,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class MembershipFilters extends Filters<Membership> {
+	protected static class MembershipFilters extends AbstractDefaultOrganizationDataFilters<Membership> {
 
 		private static final long serialVersionUID = -7866307628748739653L;
 
@@ -309,10 +311,12 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 		/** Constructor.
 		 *
+		 * @param defaultOrganizationSupplier the provider of the default organization.
+		 * @param fileManager the manager of files on the server.
 		 * @param onSearch the callback function for running the filtering.
 		 */
-		public MembershipFilters(Runnable onSearch) {
-			super(null, onSearch);
+		public MembershipFilters(Supplier<ResearchOrganization> defaultOrganizationSupplier, Supplier<FileManager> fileManager, Runnable onSearch) {
+			super(defaultOrganizationSupplier, fileManager, onSearch);
 		}
 
 		@Override
@@ -326,11 +330,11 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		protected void resetFilters() {
 			this.includeTypes.setValue(Boolean.TRUE);
 		}
-
+		
 		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<Membership> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
+		protected Predicate buildPredicateForDefaultOrganization(Root<Membership> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization) {
+			return criteriaBuilder.equal(root.get("researchOrganization"), defaultOrganization); //$NON-NLS-1$
 		}
 
 		@Override

@@ -214,6 +214,36 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		return this.organizationRepository.findDistinctByAcronym(acronym);
 	}
 
+	/** Replies the default research organization. This function gets the acronym of the default organization from the application configuration.
+	 *
+	 * @return the default research organization, or {@code null} if it is not defined.
+	 * @see Constants#getDefaultOrganization()
+	 * @since 4.0
+	 */
+	public ResearchOrganization getDefaultOrganization() {
+		return getResearchOrganizationByAcronymOrName(this.constants.getDefaultOrganization()).get();
+	}
+
+	/** Replies the default research super organization. This function gets the acronym of the default organization from the application configuration.
+	 *
+	 * @return the default super organization, or {@code null} if it is not defined.
+	 * @see Constants#getDefaultSuperOrganization()
+	 * @since 4.0
+	 */
+	public ResearchOrganization getDefaultSuperOrganization() {
+		return getResearchOrganizationByAcronymOrName(this.constants.getDefaultSuperOrganization()).get();
+	}
+
+	/** Replies the default LEAR organization. This function gets the acronym of the default organization from the application configuration.
+	 *
+	 * @return the default LEAR organization, or {@code null} if it is not defined.
+	 * @see Constants#getDefaultLearOrganization()
+	 * @since 4.0
+	 */
+	public ResearchOrganization getDefaultLearOrganization() {
+		return getResearchOrganizationByAcronymOrName(this.constants.getDefaultLearOrganization()).get();
+	}
+
 	/** Replies the research organization with the given name.
 	 *
 	 * @param name the name to search for.

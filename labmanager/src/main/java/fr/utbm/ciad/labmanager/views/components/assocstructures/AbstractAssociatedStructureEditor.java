@@ -44,7 +44,6 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -132,8 +131,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private final ScientificAxisService axisService;
 
-	private final Constants constants;
-
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
@@ -147,7 +144,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 * @param authenticatedUser the connected user.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param constants the application constants.
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context, 
@@ -156,7 +152,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 			OrganizationAddressService addressService, PersonService personService,
 			UserService userService, AuthenticatedUser authenticatedUser,
 			ScientificAxisService axisService, MessageSourceAccessor messages,
-			Constants constants, Logger logger) {
+			Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structure.administration_details", //$NON-NLS-1$ 
 				"views.associated_structure.administration.validated_structure", //$NON-NLS-1$
@@ -167,7 +163,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.personService = personService;
 		this.userService = userService;
 		this.axisService = axisService;
-		this.constants = constants;
 	}
 
 	@Override
@@ -375,7 +370,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 				this.projectService.startEditing(newProject),
 				this.organizationService, this.addressService,
 				this.personService, this.userService, this.axisService,
-				this.projectService.getFileManager(), this.constants,
+				this.projectService.getFileManager(),
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.associated_structure.projects.create"), //$NON-NLS-1$

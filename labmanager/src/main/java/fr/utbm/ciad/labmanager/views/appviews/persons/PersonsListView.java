@@ -26,6 +26,7 @@ import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.StandardPersonListView;
@@ -55,6 +56,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	 *
 	 * @param personService the service for accessing the person JPA.
 	 * @param userService the service for accessing the user JPA.
+	 * @param organizationService the service for accessing to the research organizations.
 	 * @param membershipService the service for accessing the membership JPA.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
@@ -65,10 +67,11 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
     		@Autowired PersonService personService,
     		@Autowired UserService userService,
     		@Autowired MembershipService membershipService,
+    		@Autowired ResearchOrganizationService organizationService,
     		@Autowired ChronoMembershipComparator membershipComparator,
     		@Autowired AuthenticatedUser authenticatedUser,
     		@Autowired MessageSourceAccessor messages) {
-    	super(personService, userService, membershipService, membershipComparator,
+    	super(personService, userService, membershipService, organizationService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
     			authenticatedUser, messages, LOGGER);
     }

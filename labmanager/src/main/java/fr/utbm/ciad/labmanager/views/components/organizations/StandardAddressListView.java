@@ -33,7 +33,6 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
@@ -43,7 +42,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
@@ -95,11 +93,12 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 		this.fileManager = fileManager;
 		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAddresses(query, filters);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
 	@Override
-	protected Filters<OrganizationAddress> createFilters() {
+	protected AbstractFilters<OrganizationAddress> createFilters() {
 		return new AddressFilters(this::refreshGrid);
 	}
 
@@ -133,7 +132,7 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 	}
 
 	@Override
-	protected FetchCallback<OrganizationAddress, Void> getFetchCallback(Filters<OrganizationAddress> filters) {
+	protected FetchCallback<OrganizationAddress, Void> getFetchCallback(AbstractFilters<OrganizationAddress> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.addressService,
@@ -192,7 +191,7 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class AddressFilters extends Filters<OrganizationAddress> {
+	protected static class AddressFilters extends AbstractFilters<OrganizationAddress> {
 
 		private static final long serialVersionUID = -2735598855241668806L;
 
@@ -211,7 +210,7 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 		 * @param onSearch the callback function for running the filtering.
 		 */
 		public AddressFilters(Runnable onSearch) {
-			super(null, onSearch);
+			super(onSearch);
 		}
 
 		@Override
@@ -233,12 +232,6 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 			this.includeStreets.setValue(Boolean.TRUE);
 			this.includeZipCodes.setValue(Boolean.TRUE);
 			this.includeCities.setValue(Boolean.TRUE);
-		}
-
-		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<OrganizationAddress> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
 		}
 
 		@Override
@@ -292,7 +285,7 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<OrganizationAddress> fetch(OrganizationAddressService addressService, PageRequest pageRequest, Filters<OrganizationAddress> filters);
+		Page<OrganizationAddress> fetch(OrganizationAddressService addressService, PageRequest pageRequest, AbstractFilters<OrganizationAddress> filters);
 
 	}
 

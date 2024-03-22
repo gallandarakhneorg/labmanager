@@ -64,7 +64,7 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	}
 
 	@Override
-	protected final void initializeDataInGrid(Grid<T> grid, Filters<T> filters) {
+	protected final void initializeDataInGrid(Grid<T> grid, AbstractFilters<T> filters) {
 		final var dataView = grid.setItems(getFetchCallback(filters));
 		dataView.setItemCountEstimate(ViewConstants.GRID_PAGE_SIZE * 10);
 		dataView.setItemCountEstimateIncrease(ViewConstants.GRID_PAGE_SIZE);
@@ -75,6 +75,6 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	 * @param filters the filtering object to provide to the JPA service.
 	 * @return the callback
 	 */
-	protected abstract FetchCallback<T, Void> getFetchCallback(Filters<T> filters);
+	protected abstract FetchCallback<T, Void> getFetchCallback(AbstractFilters<T> filters);
 
 }

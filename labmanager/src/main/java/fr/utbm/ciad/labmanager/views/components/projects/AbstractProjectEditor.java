@@ -44,7 +44,6 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationNameComparator;
 import fr.utbm.ciad.labmanager.data.project.Project;
@@ -179,8 +178,6 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	private final ScientificAxisService axisService;
 
 	private final DownloadableFileManager fileManager;
-	
-	private final Constants constants;
 
 	/** Constructor.
 	 *
@@ -193,7 +190,6 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 * @param userService the service for accessing the JPA entities for users.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param fileManager the manager of the downloadable files.
-	 * @param constants the application constants.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
@@ -201,7 +197,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	public AbstractProjectEditor(EntityEditingContext<Project> context, boolean relinkEntityWhenSaving,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			PersonService personService, UserService userService, ScientificAxisService axisService,
-			DownloadableFileManager fileManager, Constants constants, AuthenticatedUser authenticatedUser,
+			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
 				"views.projects.administration_details", //$NON-NLS-1$
@@ -213,7 +209,6 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.userService = userService;
 		this.axisService = axisService;
 		this.fileManager = fileManager;
-		this.constants = constants;
 	}
 
 	@Override
@@ -320,8 +315,8 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 * @param rootContainer the container.
 	 */
 	protected void createConsortiumDetails(VerticalLayout rootContainer) {
-		final var defaultLocalOrganization = this.organizationService.getResearchOrganizationByAcronym(this.constants.getDefaultOrganization());
-		final var defaultSuperOrganization = this.organizationService.getResearchOrganizationByAcronym(this.constants.getDefaultSuperOrganization());
+		final var defaultLocalOrganization = this.organizationService.getDefaultOrganization();
+		final var defaultSuperOrganization = this.organizationService.getDefaultSuperOrganization();
 
 		final var content = ComponentFactory.newColumnForm(2);
 
@@ -335,18 +330,18 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.localOrganization = new SingleOrganizationNameField(this.organizationService, null, null, null);
 		this.localOrganization.setPrefixComponent(VaadinIcon.OFFICE.create());
 		this.localOrganization.setRequiredIndicatorVisible(true);
-		if (defaultLocalOrganization.isPresent()) {
-			this.localOrganization.setValue(defaultLocalOrganization.get());
+		if (defaultLocalOrganization != null) {
+			this.localOrganization.setValue(defaultLocalOrganization);
 		}
 		this.localOrganization.setReadOnly(true);
 		content.add(this.localOrganization, 1);
 
 		// Cannot create an organization from the super-organization combo
-		this.superOrganization = new SingleOrganizationNameField(this.organizationService, defaultLocalOrganization.orElseGet(null), null);
+		this.superOrganization = new SingleOrganizationNameField(this.organizationService, defaultLocalOrganization, null);
 		this.superOrganization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 		this.superOrganization.setRequiredIndicatorVisible(true);
-		if (defaultSuperOrganization.isPresent()) {
-			this.superOrganization.setValue(defaultSuperOrganization.get());
+		if (defaultSuperOrganization != null) {
+			this.superOrganization.setValue(defaultSuperOrganization);
 		}
 		content.add(this.superOrganization, 1);
 
@@ -439,7 +434,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 * @param rootContainer the container.
 	 */
 	protected void createFundingDetails(VerticalLayout rootContainer) {
-		final var defaultLearOrganization = this.organizationService.getResearchOrganizationByAcronym(this.constants.getDefaultLearOrganization());
+		final var defaultLearOrganization = this.organizationService.getDefaultLearOrganization();
 
 		final var content = ComponentFactory.newColumnForm(2);
 
@@ -455,8 +450,8 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 				getTranslation("views.projects.new_organization"), getLogger(), null); //$NON-NLS-1$
 		this.learOrganization.setPrefixComponent(VaadinIcon.COIN_PILES.create());
 		this.learOrganization.setRequiredIndicatorVisible(true);
-		if (defaultLearOrganization.isPresent()) {
-			this.learOrganization.setValue(defaultLearOrganization.get());
+		if (defaultLearOrganization != null) {
+			this.learOrganization.setValue(defaultLearOrganization);
 		}
 		content.add(this.learOrganization, 2);
 

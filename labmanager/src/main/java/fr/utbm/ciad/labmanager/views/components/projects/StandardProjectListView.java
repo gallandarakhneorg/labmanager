@@ -40,7 +40,6 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
@@ -114,12 +113,9 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	private final DownloadableFileManager fileManager;
 
-	private final Constants constants;
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the filenames for the uploaded files.
-	 * @param constants the constants of the application.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param projectService the service for accessing the projects.
@@ -131,8 +127,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	 * @param logger the logger to use.
 	 */
 	public StandardProjectListView(
-			DownloadableFileManager fileManager, Constants constants,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ProjectService projectService, ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			PersonService personService, UserService userService, ScientificAxisService axisService, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
@@ -141,7 +136,6 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 				"views.projects.delete_success", //$NON-NLS-1$
 				"views.projects.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
-		this.constants = constants;
 		this.projectService = projectService;
 		this.organizationService = organizationService;
 		this.addressService = addressService;
@@ -149,6 +143,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 		this.userService = userService;
 		this.axisService = axisService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllProjects(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -164,7 +159,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	}
 
 	@Override
-	protected Filters<Project> createFilters() {
+	protected AbstractFilters<Project> createFilters() {
 		return new ProjectFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -311,7 +306,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	}
 
 	@Override
-	protected FetchCallback<Project, Void> getFetchCallback(Filters<Project> filters) {
+	protected FetchCallback<Project, Void> getFetchCallback(AbstractFilters<Project> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.projectService,
@@ -340,7 +335,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 				this.projectService.startEditing(project),
 				this.organizationService, this.addressService,
 				this.personService, this.userService, this.axisService,
-				this.fileManager, this.constants,
+				this.fileManager,
 				getAuthenticatedUser(), getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Project> refreshAll = (dialog, entity) -> {
@@ -392,7 +387,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class ProjectFilters extends Filters<Project> {
+	protected static class ProjectFilters extends AbstractAuthenticatedUserDataFilters<Project> {
 
 		private static final long serialVersionUID = 7079030666137901350L;
 
@@ -500,7 +495,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<Project> fetch(ProjectService projectService, PageRequest pageRequest, Filters<Project> filters);
+		Page<Project> fetch(ProjectService projectService, PageRequest pageRequest, AbstractFilters<Project> filters);
 
 	}
 

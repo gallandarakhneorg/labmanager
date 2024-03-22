@@ -208,7 +208,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	}
 
 	@Override
-	protected Filters<Publication> createFilters() {
+	protected AbstractFilters<Publication> createFilters() {
 		return new PublicationFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -324,7 +324,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	}
 
 	@Override
-	protected FetchCallback<Publication, Void> getFetchCallback(Filters<Publication> filters) {
+	protected FetchCallback<Publication, Void> getFetchCallback(AbstractFilters<Publication> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.publicationService,
@@ -396,7 +396,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class PublicationFilters extends Filters<Publication> {
+	protected static class PublicationFilters extends AbstractAuthenticatedUserDataFilters<Publication> {
 
 		private static final long serialVersionUID = -9105749553511198435L;
 
@@ -493,7 +493,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<Publication> fetch(PublicationService publicationService, PageRequest pageRequest, Filters<Publication> filters);
+		Page<Publication> fetch(PublicationService publicationService, PageRequest pageRequest, AbstractFilters<Publication> filters);
 
 	}
 

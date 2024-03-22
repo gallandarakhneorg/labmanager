@@ -89,6 +89,7 @@ public class StandardScientificTalkListView extends AbstractPublicationListView 
 			return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
 					this::initializeEntityFromJPA);
 		});
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 	

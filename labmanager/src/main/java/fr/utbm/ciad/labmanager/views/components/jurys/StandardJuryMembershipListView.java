@@ -115,6 +115,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		this.personService = personService;
 		this.userService = userService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters, this::initializeEntityFromJPA);
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -125,7 +126,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	}
 
 	@Override
-	protected Filters<JuryMembership> createFilters() {
+	protected AbstractFilters<JuryMembership> createFilters() {
 		return new JuryMembershipFilters(getAuthenticatedUser(), this::refreshGrid);
 	}
 
@@ -219,7 +220,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	}
 
 	@Override
-	protected FetchCallback<JuryMembership, Void> getFetchCallback(Filters<JuryMembership> filters) {
+	protected FetchCallback<JuryMembership, Void> getFetchCallback(AbstractFilters<JuryMembership> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.membershipService,
@@ -296,7 +297,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class JuryMembershipFilters extends Filters<JuryMembership> {
+	protected static class JuryMembershipFilters extends AbstractAuthenticatedUserDataFilters<JuryMembership> {
 
 		private static final long serialVersionUID = 5727620980092385680L;
 
@@ -390,7 +391,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<JuryMembership> fetch(JuryMembershipService membershipService, PageRequest pageRequest, Filters<JuryMembership> filters);
+		Page<JuryMembership> fetch(JuryMembershipService membershipService, PageRequest pageRequest, AbstractFilters<JuryMembership> filters);
 
 	}
 

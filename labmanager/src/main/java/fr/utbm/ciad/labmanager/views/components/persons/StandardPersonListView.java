@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -46,11 +47,14 @@ import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -81,6 +85,8 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 
 	private final UserService userService;
 
+	private final ResearchOrganizationService organizationService;
+
 	private final MembershipService membershipService;
 
 	private final ChronoMembershipComparator membershipComparator;
@@ -101,6 +107,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	 *
 	 * @param personService the service for accessing to the persons.
 	 * @param userService the service for accessing to the users.
+	 * @param organizationService the service for accessing to the research organizations.
 	 * @param membershipService the service for accessing to the memberships.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
@@ -111,8 +118,9 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	 */
 	public StandardPersonListView(
 			PersonService personService, UserService userService, MembershipService membershipService,
-			ChronoMembershipComparator membershipComparator, PersonDataProvider dataProvider,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			ResearchOrganizationService organizationService, ChronoMembershipComparator membershipComparator,
+			PersonDataProvider dataProvider, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			Logger logger) {
 		super(Person.class, authenticatedUser, messages, logger,
 				"views.persons.delete.title", //$NON-NLS-1$
 				"views.persons.delete.message", //$NON-NLS-1$
@@ -120,16 +128,18 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 				"views.persons.delete_error"); //$NON-NLS-1$
 		this.personService = personService;
 		this.userService = userService;
+		this.organizationService = organizationService;
 		this.membershipService = membershipService;
 		this.membershipComparator = membershipComparator;
 		this.dataProvider = dataProvider;
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 		refreshUsers();
 	}
 
 	@Override
-	protected Filters<Person> createFilters() {
-		return new PersonFilters(this::refreshGrid);
+	protected AbstractFilters<Person> createFilters() {
+		return new PersonFilters(() -> this.organizationService.getDefaultOrganization(), () -> this.organizationService.getFileManager(), this::refreshGrid);
 	}
 
 	@SuppressWarnings("static-method")
@@ -233,7 +243,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	}
 	
 	@Override
-	protected FetchCallback<Person, Void> getFetchCallback(Filters<Person> filters) {
+	protected FetchCallback<Person, Void> getFetchCallback(AbstractFilters<Person> filters) {
 		return query -> {
 			return this.dataProvider.fetch(
 					this.personService,
@@ -300,7 +310,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class PersonFilters extends Filters<Person> {
+	protected static class PersonFilters extends AbstractDefaultOrganizationDataFilters<Person> {
 
 		private static final long serialVersionUID = -127264050870541315L;
 
@@ -312,10 +322,12 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 
 		/** Constructor.
 		 *
+		 * @param defaultOrganizationSupplier the provider of the default organization.
+		 * @param fileManager the manager of files on the server.
 		 * @param onSearch the callback function for running the filtering.
 		 */
-		public PersonFilters(Runnable onSearch) {
-			super(null, onSearch);
+		public PersonFilters(Supplier<ResearchOrganization> defaultOrganizationSupplier, Supplier<FileManager> fileManager, Runnable onSearch) {
+			super(defaultOrganizationSupplier, fileManager, onSearch);
 		}
 		
 		@Override
@@ -333,11 +345,11 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 			this.includeOrcids.setValue(Boolean.TRUE);
 			this.includeOrganizations.setValue(Boolean.TRUE);
 		}
-
+		
 		@Override
-		protected Predicate buildPredicateForAuthenticatedUser(Root<Person> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, Person user) {
-			return null;
+		protected Predicate buildPredicateForDefaultOrganization(Root<Person> root, CriteriaQuery<?> query,
+				CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization) {
+			return criteriaBuilder.equal(root.get("memberships").get("researchOrganization"), defaultOrganization); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		@Override
@@ -398,7 +410,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 		 * @param filters the filters to apply for selecting the data.
 		 * @return the lazy data page.
 		 */
-		Page<Person> fetch(PersonService personService, PageRequest pageRequest, Filters<Person> filters);
+		Page<Person> fetch(PersonService personService, PageRequest pageRequest, AbstractFilters<Person> filters);
 
 	}
 
