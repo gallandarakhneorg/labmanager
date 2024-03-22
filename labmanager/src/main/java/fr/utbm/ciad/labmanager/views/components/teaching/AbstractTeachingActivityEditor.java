@@ -31,7 +31,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -54,6 +53,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.LanguageValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -96,7 +96,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 
 	private DetailsWithErrorMark contentDetails;
 
-	private TextArea explanation;
+	private MarkdownField explanation;
 
 	private LeftRightListsField<PedagogicalPracticeType> pedagogicalPractices;
 
@@ -240,9 +240,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	protected void createContentDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.explanation = new TextArea();
-		this.explanation.setPrefixComponent(VaadinIcon.TEXT_INPUT.create());
-		this.explanation.setClearButtonVisible(true);
+		this.explanation = new MarkdownField();
 		content.add(this.explanation, 2);
 
 		this.pedagogicalPractices = new LeftRightListsField<>(ComponentFactory.toSerializableComparator(PedagogicalPracticeType.getLabelBasedComparator(getMessageSourceAccessor(), getLocale())));

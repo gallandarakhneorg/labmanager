@@ -33,6 +33,10 @@ public final class ViewConstants {
 	 */
 	public static final float DEFAULT_LIST_HEIGHT = 150f;
 
+	/** Default height in pixels of the text area.
+	 */
+	public static final float DEFAULT_TEXT_AREA_HEIGHT = 200f;
+
 	/** URL of the online manuals.
 	 */
 	public static final String ONLINE_MANUAL_URL = "https://www.ciad-lab.fr/docs/"; //$NON-NLS-1$

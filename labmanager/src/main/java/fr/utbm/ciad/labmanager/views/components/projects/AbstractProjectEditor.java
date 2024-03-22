@@ -34,7 +34,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
@@ -67,6 +66,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImagesField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
@@ -145,7 +145,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 
 	private ToggleButton confidential;
 
-	private TextArea description;
+	private MarkdownField description;
 
 	private ServerSideUploadablePdfField requirements;
 
@@ -554,8 +554,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		this.confidential = new ToggleButton();
 		content.add(this.confidential, 2);
 
-		this.description = new TextArea();
-		this.description.setPrefixComponent(VaadinIcon.TEXT_INPUT.create());
+		this.description = new MarkdownField();
 		content.add(this.description, 2);
 
 		this.requirements = new ServerSideUploadablePdfField(this.fileManager,

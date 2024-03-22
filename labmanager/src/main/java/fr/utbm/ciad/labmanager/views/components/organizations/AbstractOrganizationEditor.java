@@ -33,7 +33,6 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -54,6 +53,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
@@ -108,7 +108,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private TextField organizationUrl;
 
-	private TextArea description;
+	private MarkdownField description;
 
 	private ServerSideUploadableImageField logo;
 
@@ -350,9 +350,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.organizationUrl.setPrefixComponent(VaadinIcon.EXTERNAL_LINK.create());
 		content.add(this.organizationUrl, 2);
 
-		this.description = new TextArea();
-		this.description.setClearButtonVisible(true);
-		this.description.setPrefixComponent(VaadinIcon.INFO_CIRCLE_O.create());
+		this.description = new MarkdownField();
 		content.add(this.description, 2);
 
 		this.logo = new ServerSideUploadableImageField(this.fileManager,
