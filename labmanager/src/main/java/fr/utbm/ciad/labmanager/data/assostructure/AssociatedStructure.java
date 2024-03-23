@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.data.assostructure;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +55,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -147,8 +146,8 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 
 	/** List of projects that may be associated to this structure.
 	 */
-	@OneToMany(fetch = FetchType.LAZY)
-	private List<Project> projects;
+	@ManyToMany(fetch = FetchType.LAZY)
+	private Set<Project> projects;
 
 	/**
 	 * Construct an empty project.
@@ -623,9 +622,9 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 	 *
 	 * @return the list of associated projects, never {@code null}.
 	 */
-	public List<Project> getProjects() {
+	public Set<Project> getProjects() {
 		if (this.projects == null) {
-			this.projects = new ArrayList<>();
+			this.projects = new HashSet<>();
 		}
 		return this.projects;
 	}
@@ -634,9 +633,9 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 	 *
 	 * @param projects the list of associated projects, never {@code null}.
 	 */
-	public void setProjects(List<? extends Project> projects) {
+	public void setProjects(Collection<? extends Project> projects) {
 		if (this.projects == null) {
-			this.projects = new ArrayList<>();
+			this.projects = new HashSet<>();
 		} else {
 			this.projects.clear();
 		}

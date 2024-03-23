@@ -221,7 +221,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @since 4.0
 	 */
 	public ResearchOrganization getDefaultOrganization() {
-		return getResearchOrganizationByAcronymOrName(this.constants.getDefaultOrganization()).get();
+		return getResearchOrganizationByAcronymOrName(getApplicationConstants().getDefaultOrganization()).get();
 	}
 
 	/** Replies the default research super organization. This function gets the acronym of the default organization from the application configuration.
@@ -231,7 +231,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @since 4.0
 	 */
 	public ResearchOrganization getDefaultSuperOrganization() {
-		return getResearchOrganizationByAcronymOrName(this.constants.getDefaultSuperOrganization()).get();
+		return getResearchOrganizationByAcronymOrName(getApplicationConstants().getDefaultSuperOrganization()).get();
 	}
 
 	/** Replies the default LEAR organization. This function gets the acronym of the default organization from the application configuration.
@@ -241,7 +241,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @since 4.0
 	 */
 	public ResearchOrganization getDefaultLearOrganization() {
-		return getResearchOrganizationByAcronymOrName(this.constants.getDefaultLearOrganization()).get();
+		return getResearchOrganizationByAcronymOrName(getApplicationConstants().getDefaultLearOrganization()).get();
 	}
 
 	/** Replies the research organization with the given name.
@@ -624,7 +624,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		protected DeletingContext(Set<ResearchOrganization> organizations) {
 			super(organizations);
 		}
-		
+
 		@Override
 		protected DeletionStatus computeDeletionStatus() {
 			for(final var entity : getEntities()) {
@@ -636,6 +636,12 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				}
 				if (!entity.getFundedAssociatedStructures().isEmpty()) {
 					return OrganizationDeletionStatus.FUNDED_ASSOCIATED_STRUCTURE;
+				}
+				if (!entity.getMainOrganizationAssociatedStructuresHolders().isEmpty()) {
+					return OrganizationDeletionStatus.MAIN_ORGANIZATION_ASSOCIATED_STRUCTURE_HOLDER;
+				}
+				if (!entity.getSuperOrganizationAssociatedStructuresHolders().isEmpty()) {
+					return OrganizationDeletionStatus.SUPER_ORGANIZATION_ASSOCIATED_STRUCTURE_HOLDER;
 				}
 				if (!entity.getDirectOrganizationMemberships().isEmpty()) {
 					return OrganizationDeletionStatus.DIRECT_ORGANIZATION_MEMBERSHIP;

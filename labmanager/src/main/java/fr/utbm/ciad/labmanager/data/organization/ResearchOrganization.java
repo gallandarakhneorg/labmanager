@@ -39,6 +39,7 @@ import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
@@ -190,6 +191,16 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	@OneToMany(mappedBy = "fundingOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<AssociatedStructure> fundedAssociatedStructures;
+
+	/** List of associated structures' holders that have been linked to the organization as main organization.
+	 */
+	@OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<AssociatedStructureHolder> associatedStructureHolderOrganization;
+
+	/** List of associated structures' holders that have been linked to the organization as super organization.
+	 */
+	@OneToMany(mappedBy = "superOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<AssociatedStructureHolder> associatedStructureHolderSuperOrganization;
 
 	/** List of memberships that have the organization as direct organization.
 	 */
@@ -971,6 +982,62 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (list != null) {
 			this.fundedAssociatedStructures.addAll(list);
+		}
+	}
+
+	/** Replies the list of associated structures' holders that have been linked to this organization as main organization.
+	 *
+	 * @return the list of associated structures' holders.
+	 * @since 4.0
+	 */
+	public Set<AssociatedStructureHolder> getMainOrganizationAssociatedStructuresHolders() {
+		if (this.associatedStructureHolderOrganization == null) {
+			this.associatedStructureHolderOrganization = new HashSet<>();
+		}
+		return this.associatedStructureHolderOrganization;
+	}
+
+	/** Change the list of associated structures' holders that have been linked to this organization as main organization.
+	 *
+	 * @param list the list of associated structures' holders.
+	 * @since 4.0
+	 */
+	public void setMainOrganizationAssociatedStructuresHolders(Set<AssociatedStructureHolder> list) {
+		if (this.associatedStructureHolderOrganization != null) {
+			this.associatedStructureHolderOrganization.clear();
+		} else {
+			this.associatedStructureHolderOrganization = new HashSet<>();
+		}
+		if (list != null) {
+			this.associatedStructureHolderOrganization.addAll(list);
+		}
+	}
+
+	/** Replies the list of associated structures' holders that have been linked to this organization as super organization.
+	 *
+	 * @return the list of associated structures' holders.
+	 * @since 4.0
+	 */
+	public Set<AssociatedStructureHolder> getSuperOrganizationAssociatedStructuresHolders() {
+		if (this.associatedStructureHolderSuperOrganization == null) {
+			this.associatedStructureHolderSuperOrganization = new HashSet<>();
+		}
+		return this.associatedStructureHolderSuperOrganization;
+	}
+
+	/** Change the list of associated structures' holders that have been linked to this organization as super organization.
+	 *
+	 * @param list the list of associated structures' holders.
+	 * @since 4.0
+	 */
+	public void setSuperOrganizationAssociatedStructuresHolders(Set<AssociatedStructureHolder> list) {
+		if (this.associatedStructureHolderSuperOrganization != null) {
+			this.associatedStructureHolderSuperOrganization.clear();
+		} else {
+			this.associatedStructureHolderSuperOrganization = new HashSet<>();
+		}
+		if (list != null) {
+			this.associatedStructureHolderSuperOrganization.addAll(list);
 		}
 	}
 

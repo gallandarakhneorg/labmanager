@@ -379,7 +379,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		msg.append(AuthenticatedUser.getUserName(this.authenticatedUser));
 		msg.append(": "); //$NON-NLS-1$
 		msg.append(error.getLocalizedMessage());
-		this.logger.info(msg.toString(), error);
+		this.logger.warn(msg.toString(), error);
 		ComponentFactory.showErrorNotification(getTranslation(messageKey, error.getLocalizedMessage()));
 	}
 

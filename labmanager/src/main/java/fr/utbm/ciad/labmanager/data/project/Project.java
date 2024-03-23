@@ -45,6 +45,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
@@ -270,6 +271,11 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	@ManyToMany(fetch = FetchType.LAZY)
 	private Set<ScientificAxis> scientificAxes = new HashSet<>();
+
+	/** List of associated structures that have the project linked.
+	 */
+	@ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
+	private Set<AssociatedStructure> associatedStructures;
 
 	/**
 	 * Construct an empty project.
@@ -1544,6 +1550,36 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	/** Replies the associated axes that are associated to this project.
+	 *
+	 * @return the associated axes.
+	 * @since 3.5
+	 */
+	public Set<AssociatedStructure> getAssociatedStructures() {
+		if (this.associatedStructures == null) {
+			this.associatedStructures = new HashSet<>();
+		}
+		return this.associatedStructures;
+	}
+
+	/** Change the associated structures that are associated to this project.
+	 * This function updates the relationship from the structure to the project AND
+	 * from the project to the structure.
+	 *
+	 * @param structures the associated structures associated to this project.
+	 * @since 3.5
+	 */
+	public void setAssociatedStructures(Collection<AssociatedStructure> structures) {
+		if (this.associatedStructures == null) {
+			this.associatedStructures = new HashSet<>();
+		} else {
+			this.associatedStructures.clear();
+		}
+		if (structures != null && !structures.isEmpty()) {
+			this.associatedStructures.addAll(structures);
+		}
 	}
 
 }

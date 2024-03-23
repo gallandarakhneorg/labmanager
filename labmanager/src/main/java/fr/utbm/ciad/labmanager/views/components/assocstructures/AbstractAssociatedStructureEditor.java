@@ -57,7 +57,6 @@ import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatConverter;
-import fr.utbm.ciad.labmanager.views.components.addons.converters.SetToListConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
@@ -319,7 +318,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.projectDetails = createDetailsWithErrorMark(rootContainer, content, "project"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.projects)
-			.withConverter(new SetToListConverter<>())
 			.bind(AssociatedStructure::getProjects, AssociatedStructure::setProjects);
 	}
 
@@ -453,7 +451,9 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 		this.creationDuration.setLabel(getTranslation("views.associated_structure.creation_duration")); //$NON-NLS-1$
 		this.creationDuration.setHelperText(getTranslation("views.associated_structure.creation_duration.help")); //$NON-NLS-1$
 		this.holders.setLabel(getTranslation("views.associated_structure.holders")); //$NON-NLS-1$
-		this.holders.setHelperText(getTranslation("views.associated_structure.holders.help")); //$NON-NLS-1$
+		this.holders.setHelperText(getTranslation("views.associated_structure.holders.help", //$NON-NLS-1$
+				this.organizationService.getApplicationConstants().getDefaultOrganization(),
+				this.organizationService.getApplicationConstants().getDefaultSuperOrganization()));
 
 		this.fundingDetails.setSummaryText(getTranslation("views.associated_structure.funding_informations")); //$NON-NLS-1$
 		this.budget.setLabel(getTranslation("views.associated_structure.budget")); //$NON-NLS-1$

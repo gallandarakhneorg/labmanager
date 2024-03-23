@@ -61,6 +61,7 @@ import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
 import fr.utbm.ciad.labmanager.data.project.Role;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
@@ -1320,6 +1321,15 @@ public class ProjectService extends AbstractEntityService<Project> {
 	@Override
 	public EntityDeletingContext<Project> startDeletion(Set<Project> projects) {
 		assert projects != null && !projects.isEmpty();
+		// Force loading of the associated structures
+		inSession(session -> {
+			for (final var project : projects) {
+				if (project.getId() != 0l) {
+					session.load(project, Long.valueOf(project.getId()));
+					Hibernate.initialize(project.getAssociatedStructures());
+				}
+			}
+		});
 		return new DeletingContext(projects);
 	}
 
@@ -1486,6 +1496,16 @@ public class ProjectService extends AbstractEntityService<Project> {
 		 */
 		protected DeletingContext(Set<Project> projects) {
 			super(projects);
+		}
+
+		@Override
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getAssociatedStructures().isEmpty()) {
+					return ProjectDeletionStatus.ASSOCIATED_STRUCTURE;
+				}
+			}
+			return DeletionStatus.OK;
 		}
 
 		@Override

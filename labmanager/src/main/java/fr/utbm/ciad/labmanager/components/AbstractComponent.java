@@ -70,7 +70,7 @@ public abstract class AbstractComponent {
 
 	/** Constants of the application.
 	 */
-	protected Constants constants;
+	private Constants constants;
 
 	private MessageSourceAccessor messages;
 
@@ -364,8 +364,9 @@ public abstract class AbstractComponent {
 	/** Replies the constants associated to this application.
 	 *
 	 * @return the constants.
+	 * @since 4.0
 	 */
-	protected Constants getApplicationConstants() {
+	public Constants getApplicationConstants() {
 		if (this.constants == null) {
 			this.constants = new Constants();
 		}

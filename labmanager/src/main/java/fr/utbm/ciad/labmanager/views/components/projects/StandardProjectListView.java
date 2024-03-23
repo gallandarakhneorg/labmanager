@@ -132,7 +132,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 			PersonService personService, UserService userService, ScientificAxisService axisService, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
 				"views.projects.delete.title", //$NON-NLS-1$
-				"views.project.delete.message", //$NON-NLS-1$
+				"views.projects.delete.message", //$NON-NLS-1$
 				"views.projects.delete_success", //$NON-NLS-1$
 				"views.projects.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;

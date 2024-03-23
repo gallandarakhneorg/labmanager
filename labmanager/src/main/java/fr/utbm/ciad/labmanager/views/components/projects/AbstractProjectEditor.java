@@ -375,7 +375,14 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 					getTranslation("views.projects.local_organization.error.disjoint"), //$NON-NLS-1$
 					this::checkLocalOrganizationUnicity))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.localOrganization, this.consortiumDetails))
-			.bind(Project::getLocalOrganization, Project::setLocalOrganization);
+			.bind(it -> {
+				// If the project has no local organization, assumes it is the default local organization
+				var value = it.getLocalOrganization();
+				if (value == null) {
+					value = defaultLocalOrganization;
+				}
+				return value;
+			}, Project::setLocalOrganization);
 
 		getEntityDataBinder().forField(this.superOrganization)
 			.withValidator(new DisjointEntityValidator<>(
@@ -655,7 +662,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 			.bind(Project::getPathToLogo, Project::setPathToLogo);
 		getEntityDataBinder().forField(this.projectUrl)
 			.withConverter(new StringTrimer())
-			.withValidator(new UrlValidator(getTranslation("views.projects.url.error"))) //$NON-NLS-1$
+			.withValidator(new UrlValidator(getTranslation("views.projects.url.error"), true)) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.projectUrl, this.communicationDetails))
 			.bind(Project::getProjectURL, Project::setProjectURL);
 		getEntityDataBinder().forField(this.pressDocument)

@@ -396,7 +396,7 @@ public class AssociatedStructureTest {
 		
 		this.test.setProjects(projects);
 
-		List<Project> actual = this.test.getProjects();
+		Set<Project> actual = this.test.getProjects();
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(p0));
 		assertTrue(actual.contains(p1));

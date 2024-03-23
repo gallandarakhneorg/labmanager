@@ -114,8 +114,8 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 			PersonService personService, UserService userService, ScientificAxisService axisService,
 			Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
-				"views.associated_structures.delete.title", //$NON-NLS-1$
-				"views.associated_structures.delete.message", //$NON-NLS-1$
+				"views.associated_structure.delete.title", //$NON-NLS-1$
+				"views.associated_structure.delete.message", //$NON-NLS-1$
 				"views.associated_structure.delete_success", //$NON-NLS-1$
 				"views.associated_structure.delete_error"); //$NON-NLS-1$
 		this.structureService = structureService;

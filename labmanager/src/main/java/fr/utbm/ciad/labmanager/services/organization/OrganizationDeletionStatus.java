@@ -47,6 +47,14 @@ public enum OrganizationDeletionStatus implements DeletionStatus {
 	 */
 	FUNDED_ASSOCIATED_STRUCTURE,
 
+	/** Deletion is impossible because the organization has linked associated structures holder as main organization.
+	 */
+	MAIN_ORGANIZATION_ASSOCIATED_STRUCTURE_HOLDER,
+
+	/** Deletion is impossible because the organization has linked associated structures holder as super organization.
+	 */
+	SUPER_ORGANIZATION_ASSOCIATED_STRUCTURE_HOLDER,
+
 	/** Deletion is impossible because the organization has linked membership with direct organization.
 	 */
 	DIRECT_ORGANIZATION_MEMBERSHIP,
