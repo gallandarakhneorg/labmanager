@@ -69,7 +69,7 @@ public class JuryMembershipsListView extends StandardJuryMembershipListView impl
 
 	@Override
 	public String getPageTitle() {
-		return getTranslation("views.jury_memberships.memberships.list"); //$NON-NLS-1$
+		return getTranslation("views.jury_membership.memberships.list"); //$NON-NLS-1$
 	}
 
 }

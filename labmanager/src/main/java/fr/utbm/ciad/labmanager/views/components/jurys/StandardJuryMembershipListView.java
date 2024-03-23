@@ -109,8 +109,8 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 		super(JuryMembership.class, authenticatedUser, messages, logger,
 				"views.jury_membership.delete.title", //$NON-NLS-1$
 				"views.jury_membership.delete.message", //$NON-NLS-1$
-				"views.jury_memberships.delete_success", //$NON-NLS-1$
-				"views.jury_memberships.delete_error"); //$NON-NLS-1$
+				"views.jury_membership.delete_success", //$NON-NLS-1$
+				"views.jury_membership.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
 		this.personService = personService;
 		this.userService = userService;
