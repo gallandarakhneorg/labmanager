@@ -256,6 +256,40 @@ public class PublicationService extends AbstractPublicationService {
 		this.thesisService = thesisService;
 	}
 
+	/** Load the components of the given publications in a JPA session. The loaded components are the authors, the quality indicators for journals or conferences.
+	 *
+	 * @param publications the publications to load.
+	 * @since 4.0
+	 */
+	@Transactional
+	public void loadPublicationsInMemory(Set<Publication> publications) {
+		inSession(session -> {
+			for (final var publication : publications) {
+				if (publication.getId() != 0l) {
+					session.load(publication, Long.valueOf(publication.getId()));
+
+					Hibernate.initialize(publication.getAuthorshipsRaw());
+					for (final var authorship : publication.getAuthorshipsRaw()) {
+						Hibernate.initialize(authorship.getPerson());
+						Hibernate.initialize(authorship.getPerson().getMemberships());
+					}
+
+					if (publication instanceof JournalBasedPublication paper) {
+						Hibernate.initialize(paper.getJournal());
+						Hibernate.initialize(paper.getJournal().getQualityIndicators());
+					} else if (publication instanceof ConferenceBasedPublication paper) {
+						var conf = paper.getConference();
+						while (conf != null) {
+							Hibernate.initialize(conf);
+							Hibernate.initialize(conf.getQualityIndicators());
+							conf = conf.getEnclosingConference();
+						}
+					}
+				}
+			}
+		});
+	}
+
 	/** Replies the factory for pre-publications. A pre-publication is a publication in which only the shared properties are set. It does not correspond to a concrete publication instance.
 	 *
 	 * @return the factory.
@@ -552,12 +586,12 @@ public class PublicationService extends AbstractPublicationService {
 			this.publicationRepository.deleteById(id);
 			if (removeAssociatedFiles) {
 				try {
-					this.fileManager.deleteDownloadablePublicationPdfFile(identifier);
+					this.fileManager.deletePublicationPdfFile(identifier);
 				} catch (Throwable ex) {
 					// Silent
 				}
 				try {
-					this.fileManager.deleteDownloadableAwardPdfFile(identifier);
+					this.fileManager.deletePublicationAwardPdfFile(identifier);
 				} catch (Throwable ex) {
 					// Silent
 				}
@@ -571,6 +605,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param removeAssociatedFiles indicates if the associated files (PDF, Award...) should be also deleted.
 	 * @since 2.4
 	 */
+	@Transactional
 	public void removePublications(Collection<Long> identifiers, boolean removeAssociatedFiles) {
 		final var publications = this.publicationRepository.findAllByIdIn(identifiers);
 		if (!publications.isEmpty()) {
@@ -594,16 +629,47 @@ public class PublicationService extends AbstractPublicationService {
 				this.publicationRepository.deleteById(Long.valueOf(id));
 				if (removeAssociatedFiles) {
 					try {
-						this.fileManager.deleteDownloadablePublicationPdfFile(id);
+						this.fileManager.deletePublicationPdfFile(id);
 					} catch (Throwable ex) {
 						// Silent
 					}
 					try {
-						this.fileManager.deleteDownloadableAwardPdfFile(id);
+						this.fileManager.deletePublicationAwardPdfFile(id);
 					} catch (Throwable ex) {
 						// Silent
 					}
 				}
+			}
+		}
+	}
+
+	/** Remove the publications with the given identifiers.
+	 *
+	 * @param identifiers the identifiers of the publications to remove.
+	 * @since 4.0
+	 */
+	@Transactional
+	public void removePublications(Collection<Long> identifiers) {
+		final var publications = this.publicationRepository.findAllByIdIn(identifiers);
+		if (!publications.isEmpty()) {
+			for (final var publication : publications) {
+				final var id = publication.getId();
+				final var iterator = publication.getAuthorships().iterator();
+				while (iterator.hasNext()) {
+					final var autship = iterator.next();
+					final var person = autship.getPerson();
+					if (person != null) {
+						person.getAuthorships().remove(autship);
+						autship.setPerson(null);
+						this.personRepository.save(person);
+					}
+					autship.setPublication(null);
+					iterator.remove();
+					this.authorshipRepository.save(autship);
+				}
+				publication.getAuthorshipsRaw().clear();
+				publication.setScientificAxes(null);
+				this.publicationRepository.deleteById(Long.valueOf(id));
 			}
 		}
 	}
@@ -916,9 +982,7 @@ public class PublicationService extends AbstractPublicationService {
 	/**
 	 * Export function for BibTeX using a list of publication identifiers.
 	 *
-	 * @param publications the arr	 * @param publications the array of publications that should be exported.
 	 * @param publications the array of publications that should be exported.
-ay of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @return the BibTeX description of the publications with the given identifiers.
 	 */
@@ -1581,7 +1645,7 @@ ay of publications that should be exported.
 		final var expliteRemove0 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadablePDF"); //$NON-NLS-1$
 		if (expliteRemove0) {
 			try {
-				this.fileManager.deleteDownloadablePublicationPdfFile(publication.getId());
+				this.fileManager.deletePublicationPdfFile(publication.getId());
 			} catch (Throwable ex) {
 				// Silent
 			}
@@ -1599,7 +1663,7 @@ ay of publications that should be exported.
 		final boolean expliteRemove1 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 		if (expliteRemove1) {
 			try {
-				this.fileManager.deleteDownloadableAwardPdfFile(publication.getId());
+				this.fileManager.deletePublicationAwardPdfFile(publication.getId());
 			} catch (Throwable ex) {
 				// Silent
 			}
@@ -1935,6 +1999,24 @@ ay of publications that should be exported.
 			series = null;
 			type = document.getDocumentType();
 			volume = null;
+		} else if (publication instanceof PrePublication) {
+			address = null;
+			bookTitle = null;
+			chapterNumber = null;
+			conference = null;
+			edition = null;
+			editors = null;
+			howPublished = null;
+			institution = null;
+			journal = null;
+			number = null;
+			occurrence = 0;
+			organization = null;
+			pages = null;
+			publisher = null;
+			series = null;
+			type = null;
+			volume = null;
 		} else {
 			throw new IllegalArgumentException();
 		}
@@ -2140,6 +2222,20 @@ ay of publications that should be exported.
 	@Override
 	public EntityDeletingContext<Publication> startDeletion(Set<Publication> publications) {
 		assert publications != null && !publications.isEmpty();
+		// Force loading of the linked entities
+		inSession(session -> {
+			for (final var publication : publications) {
+				if (publication.getId() != 0l) {
+					session.load(publication, Long.valueOf(publication.getId()));
+					Hibernate.initialize(publication.getAuthorships());
+					for (final var authorship : publication.getAuthorships()) {
+						Hibernate.initialize(authorship.getPerson());
+						Hibernate.initialize(authorship.getPerson().getAuthorships());
+					}
+					Hibernate.initialize(publication.getScientificAxes());
+				}
+			}
+		});
 		return new DeletingContext(publications);
 	}
 
@@ -2169,11 +2265,11 @@ ay of publications that should be exported.
 			super(publication);
 			this.pathToPdfFile = newUploadedFileTracker(publication,
 					Publication::getPathToDownloadablePDF,
-					(id, savedPath) -> PublicationService.this.fileManager.deleteDownloadablePublicationPdfFile(id.longValue()),
+					(id, savedPath) -> PublicationService.this.fileManager.deletePublicationPdfFile(id.longValue()),
 					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), null));
 			this.pathToAwardFile = newUploadedFileTracker(publication,
 					Publication::getPathToDownloadableAwardCertificate,
-					(id, savedPath) -> PublicationService.this.fileManager.deleteDownloadableAwardPdfFile(id.longValue()),
+					(id, savedPath) -> PublicationService.this.fileManager.deletePublicationAwardPdfFile(id.longValue()),
 					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), null));
 		}
 
@@ -2233,9 +2329,35 @@ ay of publications that should be exported.
 		}
 		
 		@Override
-		protected void deleteEntities() throws Exception {
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			// Do the deletion
-			PublicationService.this.publicationRepository.deleteAllById(getDeletableEntityIdentifiers());
+			for (final var publication : getEntities()) {
+				// Unlink the authorships and author related entities
+				final var id = publication.getId();
+				final var iterator = publication.getAuthorships().iterator();
+				while (iterator.hasNext()) {
+					final var autship = iterator.next();
+					final var person = autship.getPerson();
+					if (person != null) {
+						person.getAuthorships().remove(autship);
+						autship.setPerson(null);
+						PublicationService.this.personRepository.save(person);
+					}
+					autship.setPublication(null);
+					iterator.remove();
+					PublicationService.this.authorshipRepository.save(autship);
+				}
+				publication.getAuthorshipsRaw().clear();
+				publication.setScientificAxes(null);
+
+				// Save the entity
+				PublicationService.this.publicationRepository.deleteById(Long.valueOf(id));
+				
+				// Delete file managers
+				final var pubid = publication.getId();
+				PublicationService.this.fileManager.deletePublicationPdfFile(pubid);
+				PublicationService.this.fileManager.deletePublicationAwardPdfFile(pubid);
+			}
 		}
 
 	}

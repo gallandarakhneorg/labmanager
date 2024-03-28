@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -227,7 +228,7 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 				private static final long serialVersionUID = 2393794876950796791L;
 
 				@Override
-				protected void deleteEntities() throws Exception {
+				protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 					// Nothing to do because the entity was not saved in the JPA infrastructure.
 				}
 				
@@ -628,7 +629,7 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		 *
 		 * @return the list of identifiers for deletable entities.
 		 */
-		protected Iterable<Long> getDeletableEntityIdentifiers() {
+		protected List<Long> getDeletableEntityIdentifiers() {
 			return this.entities.stream().map(it -> Long.valueOf(it.getId())).toList();
 		}
 
@@ -665,15 +666,16 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 			if (!isDeletionPossible()) {
 				throw new IllegalStateException();
 			}
-			deleteEntities();
+			final var identifiers = getDeletableEntityIdentifiers();
+			deleteEntities(identifiers);
 		}
 
 		/** Do the deletion of the entities.
 		 *
-		 * @param components list of components to update if the service detects an inconsistent value.
+		 * @param identifiers the identifiers of the entities to be deleted.
 		 * @throws Exception if organization or associated files cannot be deleted from the server.
 		 */
-		protected abstract void deleteEntities() throws Exception;
+		protected abstract void deleteEntities(Collection<Long> identifiers) throws Exception;
 
 	}
 

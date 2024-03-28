@@ -145,11 +145,6 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String organizationUrl;
 
-	/** Members of the organization.
-	 */
-	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Set<Membership> memberships = new HashSet<>();
-
 	/** Reference to the sub organizations.
 	 */
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -237,34 +232,6 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@ManyToMany(mappedBy = "otherPartners", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Project> otherPartnerProjects;
 	
-	/** Construct a research organization from the given values.
-	 * 
-	 * @param id the identifier of the organization.
-	 * @param members the members of the organization.
-	 * @param subOrgas the references to the sub organizations.
-	 * @param superOrgas the references to the super organizations.
-	 * @param acronym the acronym of the organization.
-	 * @param name the name of the organization.
-	 * @param description the textual description of the organization.
-	 */
-	public ResearchOrganization(int id, Set<Membership> members, Set<ResearchOrganization> subOrgas,
-			Set<ResearchOrganization> superOrgas, String acronym, String name, String description) {
-		this.id = id;
-		if (members == null) {
-			this.memberships = new HashSet<>();
-		} else {
-			this.memberships = members;
-		}
-		if (superOrgas == null) {
-			this.superOrganizations = new HashSet<>();
-		} else {
-			this.superOrganizations = superOrgas;
-		}
-		this.acronym = acronym;
-		this.name = name;
-		this.description = description;
-	}
-
 	/** Construct an empty research organization.
 	 */
 	public ResearchOrganization() {
@@ -386,7 +353,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
-		for (final var membership : getMemberships()) {
+		for (final var membership : getDirectOrganizationMemberships()) {
 			generator.writeStartObject();
 			membership.forEachAttribute((attrName, attrValue) -> {
 				JsonUtils.writeField(generator, attrName, attrValue);
@@ -418,26 +385,6 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	/** Replies the members of the organization.
-	 *
-	 * @return the members.
-	 */
-	public Set<Membership> getMemberships() {
-		return this.memberships;
-	}
-
-	/** Change the members of the organization.
-	 *
-	 * @param members the members.
-	 */
-	public void setMemberships(Set<Membership> members) {
-		if (members == null) {
-			this.memberships = new HashSet<>();
-		} else {
-			this.memberships = members;
-		}
 	}
 
 	/** Replies the super organizations.

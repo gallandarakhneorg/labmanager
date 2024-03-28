@@ -64,7 +64,7 @@ public class EngineerCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final var engineers = organization.getMemberships().parallelStream().filter(
+		final var engineers = organization.getDirectOrganizationMemberships().parallelStream().filter(
 				it -> it.isActive() && it.getMemberStatus().isTechnicalStaff()).collect(Collectors.toList());
 		final var nb = engineers.size();
 		setComputationDetails(engineers, it -> it.getPerson().getFullNameWithLastNameFirst());

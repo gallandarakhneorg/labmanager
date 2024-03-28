@@ -77,7 +77,7 @@ public class ResearchOrganizationTest {
 
 	@Test
 	public void getMemberships() {
-		assertTrue(this.test.getMemberships().isEmpty());
+		assertTrue(this.test.getDirectOrganizationMemberships().isEmpty());
 	}
 
 	@Test
@@ -87,11 +87,11 @@ public class ResearchOrganizationTest {
 		members.add(mock(Membership.class));
 		members.add(mock(Membership.class));
 		//
-		this.test.setMemberships(members);
-		assertSame(members, this.test.getMemberships());
+		this.test.setDirectOrganizationMemberships(members);
+		assertSame(members, this.test.getDirectOrganizationMemberships());
 		//
-		this.test.setMemberships(null);
-		assertTrue(this.test.getMemberships().isEmpty());
+		this.test.setDirectOrganizationMemberships(null);
+		assertTrue(this.test.getDirectOrganizationMemberships().isEmpty());
 	}
 
 	@Test

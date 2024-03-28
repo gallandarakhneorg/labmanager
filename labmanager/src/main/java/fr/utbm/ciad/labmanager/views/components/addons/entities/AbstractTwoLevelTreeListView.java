@@ -64,7 +64,7 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 
 	private boolean hasHoverMenu;
 
-	private EntityFecther<R, R> rootEntityFetcher;
+	private EntityFecther<R, C> rootEntityFetcher;
 
 	private EntityFecther<C, C> childEntityFetcher;
 
@@ -138,7 +138,7 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	 * @param rootEntityFetcher the tool for fetching the root entities from the JPA database.
 	 * @param rootEntityChildCount the tool for obtaining the number of child entities from a given root entity.
 	 */
-	protected final void setRootEntityFetcher(EntityFecther<R, R> rootEntityFetcher,
+	protected final void setRootEntityFetcher(EntityFecther<R, C> rootEntityFetcher,
 			ChildEntityCounter<R> rootEntityChildCount) {
 		this.rootEntityFetcher = rootEntityFetcher;
 		this.rootEntityChildCount = rootEntityChildCount;

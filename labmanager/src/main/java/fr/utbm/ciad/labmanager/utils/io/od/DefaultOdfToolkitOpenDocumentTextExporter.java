@@ -71,9 +71,10 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (configurator.isColoredTitle()) {
 			odtSpan.setProperty(StyleTextPropertiesElement.Color, OpenDocumentConstants.CIAD_GREEN.toString());
 		}
-		odtSpan.newTextNode(getLeftQuotes(configurator.getLocale()));
+		final var currentLocale = configurator.getLocaleOrLanguageLocale(null);
+		odtSpan.newTextNode(getLeftQuotes(currentLocale));
 		odtSpan.newTextNode(title);
-		odtSpan.newTextNode(getRightQuotes(configurator.getLocale()));
+		odtSpan.newTextNode(getRightQuotes(currentLocale));
 		odtSpan.newTextNode("."); //$NON-NLS-1$
 		odtText.newTextNode(" "); //$NON-NLS-1$
 	}

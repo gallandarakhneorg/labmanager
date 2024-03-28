@@ -121,7 +121,7 @@ public class ConferencePaper extends AbstractConferenceBasedPublication {
 
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
-		super.forEachAttribute(consumer);
+		super.forEachAttribute(messages, locale, consumer);
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			consumer.accept("volume", getVolume()); //$NON-NLS-1$
 		}

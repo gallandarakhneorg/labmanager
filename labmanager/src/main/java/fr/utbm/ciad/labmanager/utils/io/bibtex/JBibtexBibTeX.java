@@ -855,7 +855,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	protected BibTeXDatabase createDatabase(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
 		final var db = new BibTeXDatabase();
 		for (final var publication : publications) {
-			addPublication(db, publication, configurator.getLocale());
+			addPublication(db, publication, configurator.getLocaleOrLanguageLocale(publication.getMajorLanguage()));
 		}
 		return db;
 	}

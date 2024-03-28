@@ -88,7 +88,7 @@ public class KeyNote extends AbstractConferenceBasedPublication {
 
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
-		super.forEachAttribute(consumer);
+		super.forEachAttribute(messages, locale, consumer);
 		if (!Strings.isNullOrEmpty(getEditors())) {
 			consumer.accept("editors", getEditors()); //$NON-NLS-1$
 		}

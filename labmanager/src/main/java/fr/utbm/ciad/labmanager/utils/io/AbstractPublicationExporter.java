@@ -111,10 +111,11 @@ public abstract class AbstractPublicationExporter {
 			Consumer<String> subsection,
 			Consumer<List<Publication>> list) throws Exception {
 		if (configurator.isGroupedByCategory() || configurator.isGroupedByYear()) {
+			final var currentLocale = configurator.getLocaleOrLanguageLocale(null);
 			if (configurator.isGroupedByCategory() && configurator.isGroupedByYear()) {
 				final var groupedPublications = groupByCategoryAndYear(publications);
 				for (final var entry0 : groupedPublications.entrySet()) {
-					section.accept(getCategoryLabel(configurator.getLocale(), entry0.getKey()));
+					section.accept(getCategoryLabel(currentLocale, entry0.getKey()));
 					for (final var entry1 : entry0.getValue().entrySet()) {
 						subsection.accept(getYearLabel(entry1.getKey()));
 						list.accept(entry1.getValue());
@@ -123,7 +124,7 @@ public abstract class AbstractPublicationExporter {
 			} else if (configurator.isGroupedByCategory()) {
 				final var groupedPublications = groupByCategory(publications);
 				for (final var entry : groupedPublications.entrySet()) {
-					section.accept(getCategoryLabel(configurator.getLocale(), entry.getKey()));
+					section.accept(getCategoryLabel(currentLocale, entry.getKey()));
 					list.accept(entry.getValue());
 				}
 			} else {

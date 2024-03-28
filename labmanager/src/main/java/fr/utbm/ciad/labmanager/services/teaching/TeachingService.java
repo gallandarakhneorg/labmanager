@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.services.teaching;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -504,8 +505,12 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			TeachingService.this.teachingActivityRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			TeachingService.this.teachingActivityRepository.deleteAllById(identifiers);
+
+			for (final var id : identifiers) {
+				TeachingService.this.fileManager.deleteTeachingActivitySlides(id.longValue());
+			}
 		}
 
 	}

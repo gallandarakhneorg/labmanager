@@ -207,7 +207,7 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 
-		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadablePublicationPdfFile(123);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationPdfFile(123);
 	}
 
 	@Test
@@ -237,7 +237,7 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 
-		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadableAwardPdfFile(123);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationAwardPdfFile(123);
 	}
 
 	@Test
@@ -375,7 +375,7 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 
-		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadablePublicationPdfFile(123);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationPdfFile(123);
 	}
 
 	@Test
@@ -404,7 +404,7 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 
-		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadableAwardPdfFile(123);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationAwardPdfFile(123);
 	}
 
 	/** Mock for {@link AbstractPublicationTypeService}.

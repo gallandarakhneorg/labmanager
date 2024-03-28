@@ -67,7 +67,7 @@ public class ResearcherCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final var researchers = organization.getMemberships().parallelStream().filter(
+		final var researchers = organization.getDirectOrganizationMemberships().parallelStream().filter(
 				it -> {
 					if (it.isActive()) {
 						final var status = it.getMemberStatus();

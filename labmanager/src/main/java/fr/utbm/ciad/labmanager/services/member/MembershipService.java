@@ -208,18 +208,18 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 *
 	 * @param pageable the manager of pages.
 	 * @param filter the filter of the memberships.
+	 * @param callback the initializer for all the loaded persons.
 	 * @return the list of all the memberships.
 	 * @since 4.0
 	 */
-	@Transactional(readOnly = true)
-	public Page<Person> getAllPersonsWithMemberships(Pageable pageable, Specification<Person> filter) {
-		final var criteria = new PersonWithMembershipSpecification();
-		final Specification<Person> filter0 = filter == null ? criteria : criteria.and(filter);
-		final Page<Person> persons = this.personRepository.findAll(filter0, pageable);
-		// Force the loading of the lazy collection of memberships
-		persons.forEach(it -> {
-			Hibernate.initialize(it.getMemberships());
-		});
+	@Transactional
+	public Page<Person> getAllPersonsWithMemberships(Pageable pageable, Specification<Membership> filter, Consumer<Person> callback) {
+		final var persons = this.membershipRepository.findDistinctPerson(pageable, filter);
+		if (callback != null) {
+			for (final var person : persons) {
+				callback.accept(person);
+			}
+		}
 		return persons;
 	}
 
@@ -249,7 +249,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	public List<Membership> getOrganizationMembers(ResearchOrganization organization, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
 		if (organization != null) {
-			var stream = organization.getMemberships().stream();
+			var stream = organization.getDirectOrganizationMemberships().stream();
 			if (memberFilter != null) {
 				switch (memberFilter) {
 				case ACTIVES:
@@ -541,7 +541,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		}
 		final var organization = mbr.getDirectResearchOrganization();
 		if (organization != null) {
-			organization.getMemberships().remove(mbr);
+			organization.getDirectOrganizationMemberships().remove(mbr);
 			mbr.setDirectResearchOrganization(null);
 		}
 		mbr.setScientificAxes(null);
@@ -753,8 +753,8 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			MembershipService.this.membershipRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			MembershipService.this.membershipRepository.deleteAllById(identifiers);
 		}
 
 	}
@@ -788,33 +788,6 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		}
 
 	}
-
-	/** Specification that is validating a person with membership.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 4.0
-	 */
-	private static class PersonWithMembershipSpecification implements Specification<Person> {
-		
-		private static final long serialVersionUID = -378151342567725916L;
-
-		/** Constructor.
-		 */
-		PersonWithMembershipSpecification() {
-			//
-		}
-
-		@Override
-		public jakarta.persistence.criteria.Predicate toPredicate(Root<Person> root,
-				CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			return criteriaBuilder.isNotEmpty(root.get("memberships")); //$NON-NLS-1$
-		}
-
-	}
-
 
 	/** Specification that is validating a supervisable membership.
 	 * 

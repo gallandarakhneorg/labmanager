@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.invitation;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -463,8 +464,8 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			PersonInvitationService.this.invitationRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			PersonInvitationService.this.invitationRepository.deleteAllById(identifiers);
 		}
 
 	}

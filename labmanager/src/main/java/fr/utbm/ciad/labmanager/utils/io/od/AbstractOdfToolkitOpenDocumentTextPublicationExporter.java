@@ -384,27 +384,29 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 
 		final var publicationClass = publication.getType().getInstanceType();
 		assert publicationClass != null;
+		
+		final var currentLocale = configurator.getLocaleOrLanguageLocale(publication.getMajorLanguage());
 
 		if (publicationClass.equals(Book.class)) {
-			exportDescription(odtText, (Book) publication, configurator.getLocale());
+			exportDescription(odtText, (Book) publication, currentLocale);
 		} else if (publicationClass.equals(BookChapter.class)) {
-			exportDescription(odtText, (BookChapter) publication, configurator.getLocale());
+			exportDescription(odtText, (BookChapter) publication, currentLocale);
 		} else if (publicationClass.equals(ConferencePaper.class)) {
-			exportDescription(odtText, (ConferencePaper) publication, configurator.getLocale());
+			exportDescription(odtText, (ConferencePaper) publication, currentLocale);
 		} else if (publicationClass.equals(JournalEdition.class)) {
-			exportDescription(odtText, (JournalEdition) publication, configurator.getLocale());
+			exportDescription(odtText, (JournalEdition) publication, currentLocale);
 		} else if (publicationClass.equals(JournalPaper.class)) {
-			exportDescription(odtText, (JournalPaper) publication, configurator.getLocale());
+			exportDescription(odtText, (JournalPaper) publication, currentLocale);
 		} else if (publicationClass.equals(KeyNote.class)) {
-			exportDescription(odtText, (KeyNote) publication, configurator.getLocale());
+			exportDescription(odtText, (KeyNote) publication, currentLocale);
 		} else if (publicationClass.equals(Report.class)) {
-			exportDescription(odtText, (Report) publication, configurator.getLocale());
+			exportDescription(odtText, (Report) publication, currentLocale);
 		} else if (publicationClass.equals(Thesis.class)) {
-			exportDescription(odtText, (Thesis) publication, configurator.getLocale());
+			exportDescription(odtText, (Thesis) publication, currentLocale);
 		} else if (publicationClass.equals(Patent.class)) {
-			exportDescription(odtText, (Patent) publication, configurator.getLocale());
+			exportDescription(odtText, (Patent) publication, currentLocale);
 		} else if (publicationClass.equals(MiscDocument.class)) {
-			exportDescription(odtText, (MiscDocument) publication, configurator.getLocale());
+			exportDescription(odtText, (MiscDocument) publication, currentLocale);
 		} else {
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}

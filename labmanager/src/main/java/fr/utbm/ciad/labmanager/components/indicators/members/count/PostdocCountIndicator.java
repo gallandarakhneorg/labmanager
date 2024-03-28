@@ -65,7 +65,7 @@ public class PostdocCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final var postdocs = organization.getMemberships().parallelStream().filter(
+		final var postdocs = organization.getDirectOrganizationMemberships().parallelStream().filter(
 				it -> it.isActive() && it.getMemberStatus() == MemberStatus.POSTDOC)
 				.collect(Collectors.toList());
 		final var nb = postdocs.size();

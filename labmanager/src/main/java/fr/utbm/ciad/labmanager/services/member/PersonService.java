@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.member;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -663,7 +664,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			Progression progression,
 			BiConsumer<Person, Map<String, Object>> callback) throws Exception {
 		final var treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
-		final var memberships = organization.getMemberships();
+		final var memberships = organization.getDirectOrganizationMemberships();
 		final var progress = progression == null ? new DefaultProgression() : progression;
 		progress.setProperties(0, 0, memberships.size(), false);
 		for (final var membership : memberships) {
@@ -842,8 +843,10 @@ public class PersonService extends AbstractEntityService<Person> {
 					Hibernate.initialize(person.getTeachingActivities());
 					Hibernate.initialize(person.getParticipationJurys());
 					Hibernate.initialize(person.getCandidateJurys());
+					Hibernate.initialize(person.getPromoterJurys());
 					Hibernate.initialize(person.getGuestInvitations());
 					Hibernate.initialize(person.getInviterInvitations());
+					Hibernate.initialize(person.getProjectParticipations());
 				}
 			}
 		});
@@ -939,8 +942,8 @@ public class PersonService extends AbstractEntityService<Person> {
 		}
 		
 		@Override
-		protected void deleteEntities() throws Exception {
-			PersonService.this.personRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			PersonService.this.personRepository.deleteAllById(identifiers);
 		}
 
 	}

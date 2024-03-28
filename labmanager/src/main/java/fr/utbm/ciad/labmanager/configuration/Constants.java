@@ -35,12 +35,6 @@ import org.springframework.stereotype.Component;
 public class Constants {
 
 	// FIXME Remove unnecessary constants
-	
-	/** URL path of the icons with terminal slash.
-	 *
-	 * @since 3.8
-	 */
-	public static final String ICON_URL_PATH = "images/icon/"; //$NON-NLS-1$
 
 	/** Default time out for the SSE requests.
 	 *
@@ -66,37 +60,9 @@ public class Constants {
 	 */
 	public static final String EXPORT_JSON_ENDPOINT = "exportJson"; //$NON-NLS-1$
 
-	/** Path of the black icon for exporting to JSON.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_JSON_WHITE_ICON
-	 */
-	public static final String EXPORT_JSON_BLACK_ICON = ICON_URL_PATH + "json_file.svg"; //$NON-NLS-1$
-
-	/** Path of the white icon for exporting to JSON.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_JSON_BLACK_ICON
-	 */
-	public static final String EXPORT_JSON_WHITE_ICON = ICON_URL_PATH + "json_w_file.svg"; //$NON-NLS-1$
-
 	/** Name of the endpoint for exporting to BibTeX.
 	 */
 	public static final String EXPORT_BIBTEX_ENDPOINT = "exportBibTeX"; //$NON-NLS-1$
-
-	/** Path of the black icon for exporting to BibTeX.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_BIBTEX_WHITE_ICON
-	 */
-	public static final String EXPORT_BIBTEX_BLACK_ICON = ICON_URL_PATH + "bibtex_file.svg"; //$NON-NLS-1$
-
-	/** Path of the white icon for exporting to BibTeX.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_BIBTEX_BLACK_ICON
-	 */
-	public static final String EXPORT_BIBTEX_WHITE_ICON = ICON_URL_PATH + "bibtex_w_file.svg"; //$NON-NLS-1$
 
 	/** Name of the endpoint for exporting to RIS.
 	 *
@@ -104,55 +70,13 @@ public class Constants {
 	 */
 	public static final String EXPORT_RIS_ENDPOINT = "exportRIS"; //$NON-NLS-1$
 
-	/** Path of the black icon for exporting to RIS.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_RIS_WHITE_ICON
-	 */
-	public static final String EXPORT_RIS_BLACK_ICON = ICON_URL_PATH + "ris_file.svg"; //$NON-NLS-1$
-
-	/** Path of the white icon for exporting to RIS.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_RIS_BLACK_ICON
-	 */
-	public static final String EXPORT_RIS_WHITE_ICON = ICON_URL_PATH + "ris_w_file.svg"; //$NON-NLS-1$
-
 	/** Name of the endpoint for exporting to OpenDocument Text.
 	 */
 	public static final String EXPORT_ODT_ENDPOINT = "exportOdt"; //$NON-NLS-1$
 
-	/** Path of the black icon for exporting to OpenDocument Text.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_ODT_WHITE_ICON
-	 */
-	public static final String EXPORT_ODT_BLACK_ICON = ICON_URL_PATH + "odt_file.svg"; //$NON-NLS-1$
-
-	/** Path of the white icon for exporting to OpenDocument Text.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_ODT_BLACK_ICON
-	 */
-	public static final String EXPORT_ODT_WHITE_ICON = ICON_URL_PATH + "odt_w_file.svg"; //$NON-NLS-1$
-
 	/** Name of the endpoint for exporting to HTML document.
 	 */
 	public static final String EXPORT_HTML_ENDPOINT = "exportHtml"; //$NON-NLS-1$
-
-	/** Path of the black icon for exporting to HTML document.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_HTML_WHITE_ICON
-	 */
-	public static final String EXPORT_HTML_BLACK_ICON = ICON_URL_PATH + "html_file.svg"; //$NON-NLS-1$
-
-	/** Path of the white icon for exporting to HTML document.
-	 *
-	 * @since 3.8
-	 * @see #EXPORT_HTML_BLACK_ICON
-	 */
-	public static final String EXPORT_HTML_WHITE_ICON = ICON_URL_PATH + "html_w_file.svg"; //$NON-NLS-1$
 
 	/** Name of the endpoint parameter "id".
 	 */

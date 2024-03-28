@@ -71,7 +71,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	public JsonNode exportPublicationsAsTreeWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
 		final var mapper = JsonUtils.createMapper();
-		final var node = exportPublicationsAsTree(publications, configurator, callback, mapper, configurator.getLocale());
+		final var node = exportPublicationsAsTree(publications, configurator, callback, mapper, configurator.getLocaleOrLanguageLocale(null));
 		var root = node;
 		if (rootKeys != null) {
 			for (var i = rootKeys.length - 1; i >= 0; --i) {

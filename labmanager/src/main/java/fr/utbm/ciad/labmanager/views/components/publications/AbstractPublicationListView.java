@@ -19,20 +19,30 @@
 
 package fr.utbm.ciad.labmanager.views.components.publications;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
+import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
@@ -52,10 +62,13 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
+import fr.utbm.ciad.labmanager.views.components.addons.download.LazyDownloadExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -67,6 +80,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Abstract implementation of a list all the publications whatever the type of publication.
  * 
@@ -79,6 +93,16 @@ import org.springframework.data.jpa.domain.Specification;
 public abstract class AbstractPublicationListView extends AbstractEntityListView<Publication> {
 	
 	private static final long serialVersionUID = 6591553988384909013L;
+
+	private static final String BIBTEX_FILENAME = "publication.bib"; //$NON-NLS-1$
+
+	private static final String RIS_FILENAME = "publication.ris"; //$NON-NLS-1$
+
+	private static final String ODT_FILENAME = "publication.odt"; //$NON-NLS-1$
+
+	private static final String HTML_FILENAME = "publication.html"; //$NON-NLS-1$
+
+	private static final String JSON_FILENAME = "publication.json"; //$NON-NLS-1$
 
 	private static final String EMPTY = ""; //$NON-NLS-1$
 
@@ -123,6 +147,20 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	private Column<Publication> fileColumn;
 
 	private Column<Publication> validationColumn;
+
+	private MenuItem exportButton;
+
+	private MenuItem exportBibTeXButton;
+
+	private MenuItem exportRisButton;
+
+	private MenuItem exportOdtButton;
+
+	private MenuItem exportHtmlButton;
+
+	private MenuItem exportHalButton;
+
+	private MenuItem exportJsonButton;
 
 	/** Constructor.
 	 *
@@ -179,6 +217,241 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 */
 	protected void setDataProvider(PublicationDataProvider dataProvider) {
 		this.dataProvider = dataProvider;
+	}
+
+	@Override
+	protected void createHoverMenuBar(Publication entity, MenuBar menuBar) {
+		super.createHoverMenuBar(entity, menuBar);
+
+		final var bibTexImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_BIBTEX_BLACK_ICON);
+		final var bibtexExporter = ComponentFactory.addIconItem(menuBar, bibTexImageResource, null, getTranslation("views.publication.export.bibtex"), null); //$NON-NLS-1$
+		bindBibTeXExporter(bibtexExporter, entity);
+
+		final var odtImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_ODT_BLACK_ICON);
+		final var odtExporter = ComponentFactory.addIconItem(menuBar, odtImageResource, null, getTranslation("views.publication.export.odt"), null); //$NON-NLS-1$
+		bindBibTeXExporter(odtExporter, entity);
+	}
+
+	/** Notify the user that the an error was encountered during exporting action.
+	 *
+	 * @param error the error.
+	 */
+	protected void notifyExportError(Throwable error) {
+		final var message = getTranslation("views.publication.export.error", error.getLocalizedMessage()); //$NON-NLS-1$
+		getLogger().error(message, error);
+		ComponentFactory.showErrorNotification(message);
+	}
+
+	@Override
+	protected MenuBar createMenuBar() {
+		var menu = super.createMenuBar();
+		if (menu == null) {
+			menu = new MenuBar(); 
+			menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
+		}
+		
+		this.exportButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SAVE_SOLID, null, null, null);
+		this.exportButton.setEnabled(false);
+		final var exportSubMenu = this.exportButton.getSubMenu();
+		
+		final var bibTexImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_BIBTEX_BLACK_ICON);
+		this.exportBibTeXButton = ComponentFactory.addIconItem(exportSubMenu, bibTexImageResource, null, null, null);
+		bindBibTeXExporter(this.exportBibTeXButton, null);
+
+		final var risImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_RIS_BLACK_ICON);
+		this.exportRisButton = ComponentFactory.addIconItem(exportSubMenu, risImageResource, null, null, null);
+		bindRISExporter(this.exportRisButton, null);
+
+		final var odtImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_ODT_BLACK_ICON);
+		this.exportOdtButton = ComponentFactory.addIconItem(exportSubMenu, odtImageResource, null, null, null);
+		bindODTExporter(this.exportOdtButton, null);
+
+		final var htmlImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_HTML_BLACK_ICON);
+		this.exportHtmlButton = ComponentFactory.addIconItem(exportSubMenu, htmlImageResource, null, null, null);
+		bindHtmlExporter(this.exportHtmlButton, null);
+
+		final var halImageResource = ComponentFactory.newStreamImage(ViewConstants.HAL_ICON);
+		this.exportHalButton = ComponentFactory.addIconItem(exportSubMenu, halImageResource, null, null, null);
+		this.exportHalButton.setEnabled(false);
+
+		final var jsonImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON);
+		this.exportJsonButton = ComponentFactory.addIconItem(exportSubMenu, jsonImageResource, null, null, null);
+		bindJsonExporter(this.exportJsonButton, null);
+
+		return menu;
+	}
+
+	/** Replies the default configurator for exporters.
+	 *
+	 * @return the configurator.
+	 */
+	protected ExporterConfigurator createExportConfigurator() {
+		return new ExporterConfigurator(this.journalService, Locale.US);
+	}
+
+	/** Extend the given item with the exporter for BibTeX.
+	 * 
+	 * @param item the component to be extended.
+	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
+	 */
+	protected void bindBibTeXExporter(MenuItem item, Publication entity) {
+		LazyDownloadExtension.extend(item)
+			.withAnchorReceiver(it -> Optional.of(getContent()))
+			.withFilename(() -> BIBTEX_FILENAME)
+			.withErrorNotifier(this::notifyExportError)
+			.withInputStreamFactory(() -> exportBibTeX(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
+			.bind();
+	}
+	
+	/** Export the given publications in a BibTeX file.
+	 *
+	 * @param publications the publications to export.
+	 * @return the input stream that contains the BibTeX data.
+	 */
+	protected InputStream exportBibTeX(Set<Publication> publications) {
+		if (publications == null || publications.isEmpty()) {
+			notifyNotEntity();
+			return null; 
+		}
+		// Force the loading of all the information about each publication
+		this.publicationService.loadPublicationsInMemory(publications);
+		final var configuration = createExportConfigurator();
+		final var content = this.publicationService.exportBibTeX(publications, configuration);
+		return new StringInputStream(content, Charset.defaultCharset());
+	}
+
+	/** Extend the given item with the exporter for RIS.
+	 * 
+	 * @param item the component to be extended.
+	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
+	 */
+	protected void bindRISExporter(MenuItem item, Publication entity) {
+		LazyDownloadExtension.extend(item)
+			.withAnchorReceiver(it -> Optional.of(getContent()))
+			.withFilename(() -> RIS_FILENAME)
+			.withErrorNotifier(this::notifyExportError)
+			.withInputStreamFactory(() -> exportRIS(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
+			.bind();
+	}
+
+	/** Export the given publications in a RIS file.
+	 *
+	 * @param publications the publications to export.
+	 * @return the input stream that contains the RIS data.
+	 */
+	protected InputStream exportRIS(Set<Publication> publications) {
+		if (publications == null || publications.isEmpty()) {
+			notifyNotEntity();
+			return null; 
+		}
+		// Force the loading of all the information about each publication
+		this.publicationService.loadPublicationsInMemory(publications);
+		final var configuration = createExportConfigurator();
+		final var content = this.publicationService.exportRIS(publications, configuration);
+		return new StringInputStream(content, Charset.defaultCharset());
+	}
+
+	/** Extend the given item with the exporter for ODT.
+	 * 
+	 * @param item the component to be extended.
+	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
+	 */
+	protected void bindODTExporter(MenuItem item, Publication entity) {
+		LazyDownloadExtension.extend(item)
+			.withAnchorReceiver(it -> Optional.of(getContent()))
+			.withFilename(() -> ODT_FILENAME)
+			.withErrorNotifier(this::notifyExportError)
+			.withInputStreamFactory(() -> exportODT(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
+			.bind();
+	}
+	
+	/** Export the given publications in a ODT file.
+	 *
+	 * @param publications the publications to export.
+	 * @return the input stream that contains the ODT data.
+	 * @throws Exception if the ODT data cannot be generated.
+	 */
+	protected InputStream exportODT(Set<Publication> publications) throws Exception {
+		if (publications == null || publications.isEmpty()) {
+			notifyNotEntity();
+			return null; 
+		}
+		// Force the loading of all the information about each publication
+		this.publicationService.loadPublicationsInMemory(publications);
+		final var configuration = createExportConfigurator();
+		final var content = this.publicationService.exportOdt(publications, configuration);
+		return new ByteArrayInputStream(content);
+	}
+
+	/** Extend the given item with the exporter for HTML.
+	 * 
+	 * @param item the component to be extended.
+	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
+	 */
+	protected void bindHtmlExporter(MenuItem item, Publication entity) {
+		LazyDownloadExtension.extend(item)
+			.withAnchorReceiver(it -> Optional.of(getContent()))
+			.withFilename(() -> HTML_FILENAME)
+			.withErrorNotifier(this::notifyExportError)
+			.withInputStreamFactory(() -> exportHTML(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
+			.bind();
+	}
+
+	/** Export the given publications in an HTML file.
+	 *
+	 * @param publications the publications to export.
+	 * @return the input stream that contains the HTML data.
+	 * @throws Exception if the HTML data cannot be generated.
+	 */
+	protected InputStream exportHTML(Set<Publication> publications) throws Exception {
+		if (publications == null || publications.isEmpty()) {
+			notifyNotEntity();
+			return null; 
+		}
+		// Force the loading of all the information about each publication
+		this.publicationService.loadPublicationsInMemory(publications);
+		final var configuration = createExportConfigurator();
+		final var content = this.publicationService.exportHtml(publications, configuration);
+		return new StringInputStream(content, Charset.defaultCharset());
+	}
+
+	/** Extend the given item with the exporter for JSON.
+	 * 
+	 * @param item the component to be extended.
+	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
+	 */
+	protected void bindJsonExporter(MenuItem item, Publication entity) {
+		LazyDownloadExtension.extend(item)
+			.withAnchorReceiver(it -> Optional.of(getContent()))
+			.withFilename(() -> JSON_FILENAME)
+			.withErrorNotifier(this::notifyExportError)
+			.withInputStreamFactory(() -> exportJSON(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
+			.bind();
+	}
+
+	/** Export the given publications in a JSON file.
+	 *
+	 * @param publications the publications to export.
+	 * @return the input stream that contains the JSON data.
+	 * @throws Exception if the JSON data cannot be generated.
+	 */
+	protected InputStream exportJSON(Set<Publication> publications) throws Exception {
+		if (publications == null || publications.isEmpty()) {
+			notifyNotEntity();
+			return null; 
+		}
+		// Force the loading of all the information about each publication
+		this.publicationService.loadPublicationsInMemory(publications);
+		final var configuration = createExportConfigurator();
+		final var content = this.publicationService.exportJson(publications, configuration);
+		return new StringInputStream(content, Charset.defaultCharset());
+	}
+
+	@Override
+	protected void onSelectionChange(Set<?> selection) {
+		super.onSelectionChange(selection);
+		final int size = selection.size();
+		this.exportButton.setEnabled(size >= 1);
 	}
 
 	/** Replies the types of publications that are supported by this view.
@@ -385,6 +658,27 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		this.yearColumn.setHeader(getTranslation("views.year")); //$NON-NLS-1$
 		this.fileColumn.setHeader(getTranslation("views.files")); //$NON-NLS-1$
 		this.validationColumn.setHeader(getTranslation("views.validated")); //$NON-NLS-1$
+		if (this.exportButton != null) {
+			ComponentFactory.setIconItemText(this.exportButton, getTranslation("views.export")); //$NON-NLS-1$
+		}
+		if (this.exportBibTeXButton != null) {
+			ComponentFactory.setIconItemText(this.exportBibTeXButton, getTranslation("views.publication.export.bibtex")); //$NON-NLS-1$
+		}
+		if (this.exportRisButton != null) {
+			ComponentFactory.setIconItemText(this.exportRisButton, getTranslation("views.publication.export.ris")); //$NON-NLS-1$
+		}
+		if (this.exportOdtButton != null) {
+			ComponentFactory.setIconItemText(this.exportOdtButton, getTranslation("views.publication.export.odt")); //$NON-NLS-1$
+		}
+		if (this.exportHtmlButton != null) {
+			ComponentFactory.setIconItemText(this.exportHtmlButton, getTranslation("views.publication.export.html")); //$NON-NLS-1$
+		}
+		if (this.exportHalButton != null) {
+			ComponentFactory.setIconItemText(this.exportHalButton, getTranslation("views.publication.export.hal")); //$NON-NLS-1$
+		}
+		if (this.exportJsonButton != null) {
+			ComponentFactory.setIconItemText(this.exportJsonButton, getTranslation("views.publication.export.json")); //$NON-NLS-1$
+		}
 		refreshGrid();
 	}
 

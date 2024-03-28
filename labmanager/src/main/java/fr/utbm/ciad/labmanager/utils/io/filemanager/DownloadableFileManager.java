@@ -43,14 +43,14 @@ public interface DownloadableFileManager extends FileManager {
 	 * @param id the identifier of the publication.
 	 * @throws IOException if the file cannot be deleted.
 	 */
-	void deleteDownloadablePublicationPdfFile(long id) throws IOException;
+	void deletePublicationPdfFile(long id) throws IOException;
 
 	/** Delete from the server the downloadable award's PDF file associated to the publication with given identifier.
 	 *
 	 * @param id the identifier of the publication.
 	 * @throws IOException if the file cannot be deleted.
 	 */
-	void deleteDownloadableAwardPdfFile(long id) throws IOException;
+	void deletePublicationAwardPdfFile(long id) throws IOException;
 
 	/** Delete from the server the address background image associated to the address with given identifier.
 	 *
@@ -59,6 +59,14 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 */
 	void deleteAddressBackgroundImage(long id, String fileExtension);
+
+	/** Delete from the server the address background image associated to the address with given identifier.
+	 *
+	 * @param id the identifier of the address.
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 4.0
+	 */
+	void deleteAddressBackgroundImage(long id);
 
 	/** Delete from the server the logo image associated to the project with given identifier.
 	 *
@@ -69,6 +77,14 @@ public interface DownloadableFileManager extends FileManager {
 	 */
 	void deleteProjectLogo(long id, String fileExtension);
 
+	/** Delete from the server the logo image associated to the project with given identifier.
+	 *
+	 * @param id the identifier of the project.
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 4.0
+	 */
+	void deleteProjectLogo(long id);
+
 	/** Delete from the server the image at the given index and associated to the project with given identifier.
 	 *
 	 * @param id the identifier of the project.
@@ -78,6 +94,14 @@ public interface DownloadableFileManager extends FileManager {
 	 * @since 3.0
 	 */
 	void deleteProjectImage(long id, int imageIndex, String fileExtension);
+
+	/** Delete from the server the image at the given index and associated to the project with given identifier.
+	 *
+	 * @param id the identifier of the project.
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 4.0
+	 */
+	void deleteProjectImage(long id);
 
 	/** Delete from the server the scientific requirements associated to the project with given identifier.
 	 *
@@ -95,6 +119,14 @@ public interface DownloadableFileManager extends FileManager {
 	 * @since 3.0
 	 */
 	void deleteProjectPowerpoint(long id, String fileExtension);
+
+	/** Delete from the server the Powerpoint associated to the project with given identifier.
+	 *
+	 * @param id the identifier of the project.
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 3.0
+	 */
+	void deleteProjectPowerpoint(long id);
 
 	/** Delete from the server the press document associated to the project with given identifier.
 	 *
@@ -390,6 +422,14 @@ public interface DownloadableFileManager extends FileManager {
 	 * @since 3.2
 	 */
 	void deleteOrganizationLogo(long id, String fileExtension);
+
+	/** Delete from the server the logo image associated to the organization with given identifier.
+	 *
+	 * @param id the identifier of the organization.
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 4.0
+	 */
+	void deleteOrganizationLogo(long id);
 
 	/** Replies the path to the root folder for organization logos.
 	 *

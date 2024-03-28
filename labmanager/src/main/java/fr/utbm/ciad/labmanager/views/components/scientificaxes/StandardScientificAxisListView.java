@@ -88,8 +88,8 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ScientificAxisService axisService, Logger logger) {
 		super(ScientificAxis.class, authenticatedUser, messages, logger,
-				"views.addresses.delete.title", //$NON-NLS-1$
-				"views.addresses.delete.message", //$NON-NLS-1$
+				"views.scientific_axes.delete.title", //$NON-NLS-1$
+				"views.scientific_axes.delete.message", //$NON-NLS-1$
 				"views.scientific_axes.delete_success", //$NON-NLS-1$
 				"views.scientific_axes.delete_error"); //$NON-NLS-1$
 		this.axisService = axisService;

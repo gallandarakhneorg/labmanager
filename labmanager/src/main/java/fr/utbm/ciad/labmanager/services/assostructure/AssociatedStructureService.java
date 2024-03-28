@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.services.assostructure;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -446,8 +447,8 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			AssociatedStructureService.this.structureRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			AssociatedStructureService.this.structureRepository.deleteAllById(identifiers);
 		}
 
 	}

@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import org.springframework.web.util.UriBuilder;
 
@@ -96,8 +97,29 @@ public class ExporterConfigurator {
 	 *
 	 * @return the locale.
 	 */
-	public Locale getLocale() {
+	public Locale getLocale_() {
 		return this.locale;
+	}
+
+	/** Replies the locale to be used if it is defined in this configuration, or the locale that corresponds to the given language, or the default system locale.
+	 *
+	 * @param language the publication's language.
+	 * @return the locale.
+	 * @since 4.0
+	 */
+	public Locale getLocaleOrLanguageLocale(PublicationLanguage language) {
+		var loc = this.locale;
+		if (loc == null) {
+			if (language != null) {
+				loc = language.getLocale();
+				if (loc == null) {
+					loc = Locale.getDefault();
+				}
+			} else {
+				loc = Locale.getDefault();
+			}
+		}
+		return loc;
 	}
 
 	/** Replies if the publications must be grouped by year.

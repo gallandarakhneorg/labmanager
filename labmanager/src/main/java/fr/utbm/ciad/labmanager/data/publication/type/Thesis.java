@@ -107,7 +107,7 @@ public class Thesis extends Publication {
 
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
-		super.forEachAttribute(consumer);
+		super.forEachAttribute(messages, locale, consumer);
 		if (!Strings.isNullOrEmpty(getInstitution())) {
 			consumer.accept("institution", getInstitution()); //$NON-NLS-1$
 		}

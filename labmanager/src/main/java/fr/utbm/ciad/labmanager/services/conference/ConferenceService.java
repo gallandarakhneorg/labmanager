@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.services.conference;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -553,7 +554,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			// Remove the quality indicators
 			final List<Conference> updatedConferences = new ArrayList<>();
 			for (final var conference : getEntities())  {
@@ -566,7 +567,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 				ConferenceService.this.conferenceRepository.saveAllAndFlush(updatedConferences);
 			}
 			//
-			ConferenceService.this.conferenceRepository.deleteAllById(getDeletableEntityIdentifiers());
+			ConferenceService.this.conferenceRepository.deleteAllById(identifiers);
 		}
 
 	}

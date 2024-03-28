@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.scientificaxis;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,9 @@ import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -314,6 +317,17 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	@Override
 	public EntityDeletingContext<ScientificAxis> startDeletion(Set<ScientificAxis> axes) {
 		assert axes != null && !axes.isEmpty();
+		// Force loading of the linked entities
+		inSession(session -> {
+			for (final var axis : axes) {
+				if (axis.getId() != 0l) {
+					session.load(axis, Long.valueOf(axis.getId()));
+					Hibernate.initialize(axis.getMemberships());
+					Hibernate.initialize(axis.getProjects());
+					Hibernate.initialize(axis.getPublications());
+				}
+			}
+		});
 		return new DeletingContext(axes);
 	}
 
@@ -372,8 +386,24 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			ScientificAxisService.this.scientificAxisRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getPublications().isEmpty()) {
+					return ScientificAxisDeletionStatus.PUBLICATION;
+				}
+				if (!entity.getProjects().isEmpty()) {
+					return ScientificAxisDeletionStatus.PROJECT;
+				}
+				if (!entity.getMemberships().isEmpty()) {
+					return ScientificAxisDeletionStatus.MEMBERSHIP;
+				}
+			}
+			return DeletionStatus.OK;
+		}
+
+		@Override
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			ScientificAxisService.this.scientificAxisRepository.deleteAllById(identifiers);
 		}
 
 	}

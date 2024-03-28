@@ -41,7 +41,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -84,6 +83,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityIterableValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DoiValidator;
@@ -174,7 +174,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	private DetailsWithErrorMark contentDetails;
 
-	private TextArea abstractText;
+	private MarkdownField abstractText;
 
 	private TextField keywords;
 
@@ -247,6 +247,16 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.journalService = journalService;
 		this.conferenceService = conferenceService;
 		this.axisService = axisService;
+
+		// Special case when the publication is a PrePublication (or fake publication)
+		final var currentEntity = getEditingContext().getEntity();
+		if (currentEntity.isFakeEntity()) {
+			assert this.supportedTypes.length > 0;
+			final var type = this.supportedTypes[0];
+			final var newPublication = this.publicationService.transform(currentEntity, type);
+			getEditingContext().setEntity(newPublication);
+		}
+
 		// Must be the latest initialization for ensuring that all the class's fields are initialized before creating the dynamic field builder
 		this.fieldBuilder = createDynamicFieldBuilder();
 	}
@@ -390,7 +400,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		getEntityDataBinder().forField(this.authors)
 			.withValidator(new DisjointEntityIterableValidator<>(
 				getTranslation(this.personNullErrorKey),
-				getTranslation(this.personDuplicateErrorKey)))
+				getTranslation(this.personDuplicateErrorKey),
+				true))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.authors, this.generalDetails))
 			.bind(Publication::getAuthors, Publication::setTemporaryAuthors);
 		getEntityDataBinder().forField(this.publicationDate)
@@ -495,10 +506,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	protected void createContentDetails(VerticalLayout rootContainer) {
 		final var content = ComponentFactory.newColumnForm(2);
 
-		this.abstractText = new TextArea();
-		this.abstractText.setPrefixComponent(VaadinIcon.TEXT_INPUT.create());
+		this.abstractText = new MarkdownField();
 		this.abstractText.setRequiredIndicatorVisible(true);
-		this.abstractText.setClearButtonVisible(true);
 		content.add(this.abstractText, 2);
 
 		this.keywords = new TextField();
@@ -517,7 +526,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		getEntityDataBinder().forField(this.abstractText)
 			.withConverter(new StringTrimer())
-			.withValidator(new NotEmptyStringValidator("views.publication.abstract_text.error")) //$NON-NLS-1$
+			.withValidator(new NotEmptyStringValidator(getTranslation("views.publication.abstract_text.error"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.abstractText, this.contentDetails))
 			.bind(Publication::getAbstractText, Publication::setAbstractText);
 		getEntityDataBinder().forField(this.keywords)

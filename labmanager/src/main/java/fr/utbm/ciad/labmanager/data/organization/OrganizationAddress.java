@@ -23,8 +23,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -34,13 +37,16 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -109,6 +115,11 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 */
 	@Column(nullable = false)
 	private boolean validated;
+
+	/** Persons who are associated to the address.
+	 */
+	@ManyToMany(mappedBy = "organizationAddress", fetch = FetchType.LAZY)
+	private Set<Membership> memberships = new HashSet<>();
 
 	/** Construct an organization address from the given values.
 	 * 
@@ -451,6 +462,32 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	/** Replies the memberships that are associated to this organization address.
+	 *
+	 * @return the memberships.
+	 */
+	public Set<Membership> getMemberships() {
+		if (this.memberships == null) {
+			this.memberships = new HashSet<>();
+		}
+		return this.memberships;
+	}
+
+	/** Change the memberships that are associated to this organization address.
+	 *
+	 * @param memberships the memberships associated to this address.
+	 */
+	public void setMemberships(Collection<Membership> memberships) {
+		if (this.memberships == null) {
+			this.memberships = new HashSet<>();
+		} else {
+			this.memberships.clear();
+		}
+		if (memberships != null && !memberships.isEmpty()) {
+			this.memberships.addAll(memberships);
+		}
 	}
 
 }

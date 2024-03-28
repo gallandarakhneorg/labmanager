@@ -48,17 +48,21 @@ public class DisjointEntityIterableValidator<T extends IdentifiableEntity, I ext
 
 	private final Predicate<T> disjointValidator;
 
+	private final boolean emptyListIsNullError;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param nullErrorMessage the message to display in case the value does not validate because it is {@code null}. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param disjointErrorMessage the message to display in case the value does not validate because it is equal to another entity of the same type. Parameter {@code {0}} is replaced by the invalid entity in the message.
+	 * @param emptyListIsNullError indicates if the empty list is assimilated to the null error.
 	 * @param disjointValidator dynamic function that replies if the given value is disjoint with other reference values.
 	 */
-	public DisjointEntityIterableValidator(String nullErrorMessage, String disjointErrorMessage, Predicate<T> disjointValidator) {
+	public DisjointEntityIterableValidator(String nullErrorMessage, String disjointErrorMessage, boolean emptyListIsNullError, Predicate<T> disjointValidator) {
 		this.nullMessageProvider = value -> nullErrorMessage.replace("{0}", String.valueOf(value)); //$NON-NLS-1$
 		this.disjointMessageProvider = value -> disjointErrorMessage.replace("{0}", String.valueOf(value)); //$NON-NLS-1$
 		this.disjointValidator = disjointValidator;
+		this.emptyListIsNullError = emptyListIsNullError;
 	}
 
 	/**
@@ -66,9 +70,10 @@ public class DisjointEntityIterableValidator<T extends IdentifiableEntity, I ext
 	 *
 	 * @param nullErrorMessage the message to display in case the value does not validate because it is {@code null}. Parameter {@code {0}} is replaced by the invalid entity in the message.
 	 * @param disjointErrorMessage the message to display in case the value does not validate because it is equal to another entity of the same type. Parameter {@code {0}} is replaced by the invalid entity in the message.
+	 * @param emptyListIsNullError indicates if the empty list is assimilated to the null error.
 	 */
-	public DisjointEntityIterableValidator(String nullErrorMessage, String disjointErrorMessage) {
-		this(nullErrorMessage, disjointErrorMessage, null);
+	public DisjointEntityIterableValidator(String nullErrorMessage, String disjointErrorMessage, boolean emptyListIsNullError) {
+		this(nullErrorMessage, disjointErrorMessage, emptyListIsNullError, null);
 	}
 
 	@Override
@@ -140,8 +145,11 @@ public class DisjointEntityIterableValidator<T extends IdentifiableEntity, I ext
 		if (value == null) {
 			return toNullErrorResult(null);
 		}
-		final var found = new HashSet<T>();
 		final var iterator = value.iterator();
+		if (this.emptyListIsNullError && !iterator.hasNext()) {
+			return toNullErrorResult(null);
+		}
+		final var found = new HashSet<T>();
 		while (iterator.hasNext()) {
 			final var innerValue = iterator.next();
 			if (isNull(innerValue)) {

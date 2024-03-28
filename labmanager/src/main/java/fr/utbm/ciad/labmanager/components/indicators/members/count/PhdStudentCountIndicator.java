@@ -65,7 +65,7 @@ public class PhdStudentCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final var students = organization.getMemberships().parallelStream().filter(
+		final var students = organization.getDirectOrganizationMemberships().parallelStream().filter(
 				it -> it.isActive() && it.getMemberStatus() == MemberStatus.PHD_STUDENT)
 				.collect(Collectors.toList());
 		final var nb = students.size();

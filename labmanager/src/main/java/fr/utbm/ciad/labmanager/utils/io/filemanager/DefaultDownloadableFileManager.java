@@ -21,11 +21,13 @@ package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -62,7 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @Primary
 public class DefaultDownloadableFileManager extends AbstractFileManager implements DownloadableFileManager {
-
+	
 	private static final int JPEG_RESOLUTION = 50;
 
 	private static final float JPEG_RESOLUTION_F = .5f;
@@ -214,30 +216,46 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	@Override
 	public File makeAddressBackgroundImage(long addressId, String fileExtension) {
 		return FileSystem.addExtension(
-				FileSystem.join(getAddressBackgroundRootFile(), ADDRESS_BACKGROUND_FILE_PREFIX + Long.valueOf(addressId)),
+				makeAddressBackgroundImage(addressId),
 				fileExtension);
+	}
+
+	private File makeAddressBackgroundImage(long addressId) {
+		return FileSystem.join(getAddressBackgroundRootFile(), ADDRESS_BACKGROUND_FILE_PREFIX + Long.valueOf(addressId));
 	}
 
 	@Override
 	public File makeOrganizationLogoFilename(long organizationId, String fileExtension) {
 		return FileSystem.addExtension(
-				FileSystem.join(getOrganizationLogoRootFile(), ORGANIZATION_LOGO_FILE_PREFIX + Long.valueOf(organizationId)),
+				makeOrganizationLogoFilename(organizationId),
 				fileExtension);
+	}
+
+	private File makeOrganizationLogoFilename(long organizationId) {
+		return FileSystem.join(getOrganizationLogoRootFile(), ORGANIZATION_LOGO_FILE_PREFIX + Long.valueOf(organizationId));
 	}
 
 	@Override
 	public File makeProjectLogoFilename(long projectId, String fileExtension) {
 		return FileSystem.addExtension(
-				FileSystem.join(getProjectLogoRootFile(), PROJECT_LOGO_FILE_PREFIX + Long.valueOf(projectId)),
+				makeProjectLogoFilename(projectId),
 				fileExtension);
+	}
+
+	private File makeProjectLogoFilename(long projectId) {
+		return FileSystem.join(getProjectLogoRootFile(), PROJECT_LOGO_FILE_PREFIX + Long.valueOf(projectId));
 	}
 
 	@Override
 	public File makeProjectImageFilename(long projectId, int imageIndex, String fileExtension) {
+		final var f = makeProjectImageFilename(projectId);
 		return FileSystem.addExtension(
-				FileSystem.join(getProjectImageRootFile(), PROJECT_IMAGE_FILE_PREFIX + Long.valueOf(projectId)
-					+ "_" + Integer.toString(imageIndex)), //$NON-NLS-1$
+				new File(f.getParentFile(), f.getName() + "_" + Integer.toString(imageIndex)), //$NON-NLS-1$
 				fileExtension);
+	}
+
+	private File makeProjectImageFilename(long projectId) {
+		return FileSystem.join(getProjectImageRootFile(), PROJECT_IMAGE_FILE_PREFIX + Long.valueOf(projectId));
 	}
 
 	@Override
@@ -253,8 +271,12 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	@Override
 	public File makeProjectPowerpointFilename(long projectId, String fileExtension) {
 		return FileSystem.addExtension(
-				FileSystem.join(getProjectPowerpointRootFile(), PROJECT_POWERPOINT_FILE_PREFIX + Long.valueOf(projectId)),
+				makeProjectPowerpointFilename(projectId),
 				fileExtension);
+	}
+
+	private File makeProjectPowerpointFilename(long projectId) {
+		return FileSystem.join(getProjectPowerpointRootFile(), PROJECT_POWERPOINT_FILE_PREFIX + Long.valueOf(projectId));
 	}
 
 	@Override
@@ -275,7 +297,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void deleteDownloadablePublicationPdfFile(long id) throws IOException {
+	public void deletePublicationPdfFile(long id) throws IOException {
 		var file = makePdfFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
@@ -289,7 +311,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void deleteDownloadableAwardPdfFile(long id) throws IOException {
+	public void deletePublicationAwardPdfFile(long id) throws IOException {
 		var file = makeAwardFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
@@ -311,6 +333,20 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		}
 	}
 
+	private void deleteFiles(File reference) {
+		final var absFile = normalizeForServerSide(reference);
+		for (final var deletableFile : absFile.getParentFile().listFiles(new BasenameFilter(reference.getName()))) {
+			if (deletableFile.exists()) {
+				deletableFile.delete();
+			}
+		}
+	}
+
+	@Override
+	public void deleteAddressBackgroundImage(long id) {
+		deleteFiles(makeAddressBackgroundImage(id));
+	}
+
 	@Override
 	public void deleteOrganizationLogo(long id, String fileExtension) {
 		final var file = makeOrganizationLogoFilename(id, fileExtension);
@@ -318,6 +354,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		if (absFile.exists()) {
 			absFile.delete();
 		}
+	}
+
+	@Override
+	public void deleteOrganizationLogo(long id) {
+		deleteFiles(makeOrganizationLogoFilename(id));
 	}
 
 	@Override
@@ -330,12 +371,22 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
+	public void deleteProjectLogo(long id) {
+		deleteFiles(makeProjectLogoFilename(id));
+	}
+
+	@Override
 	public void deleteProjectImage(long id, int imageIndex, String fileExtension) {
 		final var file = makeProjectImageFilename(id, imageIndex, fileExtension);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
+	}
+
+	@Override
+	public void deleteProjectImage(long id) {
+		deleteFiles(makeProjectImageFilename(id));
 	}
 
 	@Override
@@ -354,16 +405,26 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteProjectPowerpoint(long id, String fileExtension) {
-		var file = makeProjectPowerpointFilename(id, fileExtension);
-		var absFile = normalizeForServerSide(file);
+		final var file = makeProjectPowerpointFilename(id, fileExtension);
+		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
-		file = makeProjectPowerpointPictureFilename(id);
-		absFile = normalizeForServerSide(file);
+		deleteProjectPowerpointThumbnail(id);
+	}
+
+	private void deleteProjectPowerpointThumbnail(long id) {
+		final var file = makeProjectPowerpointPictureFilename(id);
+		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
+	}
+
+	@Override
+	public void deleteProjectPowerpoint(long id) {
+		deleteFiles(makeProjectPowerpointFilename(id));
+		deleteProjectPowerpointThumbnail(id);
 	}
 
 	@Override
@@ -719,6 +780,35 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			return this.index;
 		}
 		
+	}
+
+	/** Sized iterator on files.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.2
+	 */
+	private static class BasenameFilter implements FileFilter, Serializable {
+
+		private static final long serialVersionUID = 973524364322175521L;
+
+		private final String basename;
+		
+		/** Constructor.
+		 *
+		 * @param basename the basename.
+		 */
+		BasenameFilter(String basename) {
+			this.basename = basename;
+		}
+		
+		@Override
+		public boolean accept(File pathname) {
+			return pathname != null && pathname.getName().startsWith(this.basename);
+		}
+
 	}
 
 }

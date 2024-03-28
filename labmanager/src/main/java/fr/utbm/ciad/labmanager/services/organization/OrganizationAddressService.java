@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.organization;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +31,10 @@ import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -284,6 +287,15 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	@Override
 	public EntityDeletingContext<OrganizationAddress> startDeletion(Set<OrganizationAddress> addresses) {
 		assert addresses != null && !addresses.isEmpty();
+		// Force loading of the linked entities
+		inSession(session -> {
+			for (final var address : addresses) {
+				if (address.getId() != 0l) {
+					session.load(address, Long.valueOf(address.getId()));
+					Hibernate.initialize(address.getMemberships());
+				}
+			}
+		});
 		return new DeletingContext(addresses);
 	}
 
@@ -370,8 +382,21 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			OrganizationAddressService.this.addressRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected DeletionStatus computeDeletionStatus() {
+			for(final var entity : getEntities()) {
+				if (!entity.getMemberships().isEmpty()) {
+					return OrganizationAddressDeletionStatus.MEMBERSHIP;
+				}
+			}
+			return DeletionStatus.OK;
+		}
+
+		@Override
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			OrganizationAddressService.this.addressRepository.deleteAllById(identifiers);
+			for (final Long id : identifiers) {
+				OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id.longValue());
+			}
 		}
 
 	}

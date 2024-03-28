@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.services.supervision;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -443,8 +444,8 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			SupervisionService.this.supervisionRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			SupervisionService.this.supervisionRepository.deleteAllById(identifiers);
 		}
 
 	}

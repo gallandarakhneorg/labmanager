@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.organization;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -488,7 +489,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	@Override
 	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> organizations) {
 		assert organizations != null && !organizations.isEmpty();
-		// Force loading of the super and suborganizations
+		// Force loading of the linked entities
 		inSession(session -> {
 			for (final var organization : organizations) {
 				if (organization.getId() != 0l) {
@@ -496,8 +497,17 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 					Hibernate.initialize(organization.getAddresses());
 					Hibernate.initialize(organization.getSuperOrganizations());
 					Hibernate.initialize(organization.getSubOrganizations());
-					Hibernate.initialize(organization.getMemberships());
+					Hibernate.initialize(organization.getDirectOrganizationMemberships());
+					Hibernate.initialize(organization.getSuperOrganizationMemberships());
 					Hibernate.initialize(organization.getTeachingActivities());
+					Hibernate.initialize(organization.getFundedAssociatedStructures());
+					Hibernate.initialize(organization.getMainOrganizationAssociatedStructuresHolders());
+					Hibernate.initialize(organization.getSuperOrganizationAssociatedStructuresHolders());
+					Hibernate.initialize(organization.getCoordinatedProjects());
+					Hibernate.initialize(organization.getLearOrganizationProjects());
+					Hibernate.initialize(organization.getLocalOrganizationProjects());
+					Hibernate.initialize(organization.getOtherPartnerProjects());
+					Hibernate.initialize(organization.getSuperOrganizationProjects());
 				}
 			}
 		});
@@ -628,9 +638,6 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		@Override
 		protected DeletionStatus computeDeletionStatus() {
 			for(final var entity : getEntities()) {
-				if (!entity.getMemberships().isEmpty()) {
-					return OrganizationDeletionStatus.MEMBERSHIP;
-				}
 				if (!entity.getTeachingActivities().isEmpty()) {
 					return OrganizationDeletionStatus.TEACHING_ACTIVITY;
 				}
@@ -669,7 +676,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			// Unlink super and suborganizations
 			final var updatedEntities = new ArrayList<ResearchOrganization>();
 			for (final var orga : getEntities()) {
@@ -689,6 +696,10 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 
 			// Do the deletion
 			ResearchOrganizationService.this.organizationRepository.deleteAllById(getDeletableEntityIdentifiers());
+
+			for (final var id : identifiers) {
+				ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id.longValue());
+			}
 		}
 
 	}

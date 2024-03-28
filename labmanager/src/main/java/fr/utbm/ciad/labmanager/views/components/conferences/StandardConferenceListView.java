@@ -98,7 +98,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 				"views.conferences.delete_success", //$NON-NLS-1$
 				"views.conferences.delete_error"); //$NON-NLS-1$
 		this.conferenceService = conferenceService;
-		// The reference year cannot be the current year because ranking of journals is not done
+		// The reference year cannot be the current year because ranking of conferences is not done
 		this.referenceYear = AbstractAnnualRankingField.getDefaultReferenceYear();
 		this.dataProvider = (ps, query, filters) -> ps.getAllConferences(query, filters, this::initializeEntityFromJPA);
 		postInitializeFilters();
@@ -197,7 +197,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 
 	/** Show the editor of a conference.
 	 *
-	 * @param journal the conference to edit.
+	 * @param conference the conference to edit.
 	 * @param title the title of the editor.
 	 */
 	protected void openConferenceEditor(Conference conference, String title) {
@@ -284,7 +284,8 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		protected void buildQueryFor(String keywords, List<Predicate> predicates, Root<Conference> root,
 				CriteriaBuilder criteriaBuilder) {
 			if (this.includeNames.getValue() == Boolean.TRUE) {
-				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("journalName")), keywords)); //$NON-NLS-1$
+				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("acronym")), keywords)); //$NON-NLS-1$
+				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), keywords)); //$NON-NLS-1$
 			}
 			if (this.includePublishers.getValue() == Boolean.TRUE) {
 				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("publisher")), keywords)); //$NON-NLS-1$

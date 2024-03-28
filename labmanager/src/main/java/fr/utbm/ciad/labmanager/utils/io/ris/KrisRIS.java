@@ -176,7 +176,7 @@ public class KrisRIS extends AbstractRIS {
 		final var iterator = publications.iterator();
 		while (iterator.hasNext()) {
 			final var publication = iterator.next();
-			exportPublication(configurator.getLocale(), publication, records);
+			exportPublication(configurator.getLocaleOrLanguageLocale(publication.getMajorLanguage()), publication, records);
 		}
 		KRisIO.export(records, output);
 	}

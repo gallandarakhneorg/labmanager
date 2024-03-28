@@ -64,7 +64,7 @@ public class ActiveMemberCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final var members = organization.getMemberships().parallelStream().filter(
+		final var members = organization.getDirectOrganizationMemberships().parallelStream().filter(
 				it -> it.isActive() && !it.getMemberStatus().isExternalPosition()).collect(Collectors.toList());
 		final var nb = members.size();
 		setComputationDetails(members, it -> it.getPerson().getFullNameWithLastNameFirst());

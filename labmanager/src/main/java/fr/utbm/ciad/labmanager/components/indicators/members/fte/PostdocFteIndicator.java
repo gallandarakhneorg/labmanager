@@ -86,7 +86,7 @@ public class PostdocFteIndicator extends AbstractAnnualIndicator {
 		final var startDate = LocalDate.of(startYear, 1, 1);
 		final var endDate = LocalDate.of(endYear, 12, 31);
 		final var values = new ConcurrentHashMap<Integer, Number>();
-		organization.getMemberships()
+		organization.getDirectOrganizationMemberships()
 			.parallelStream()
 			.filter(it -> isPostdoc(it, startDate, endDate))
 			.forEach(it -> {

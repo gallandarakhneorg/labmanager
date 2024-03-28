@@ -238,6 +238,7 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 			.withValidator(new DisjointEntityIterableValidator<>(
 					getTranslation("views.jury_membership.promoters.error.null"), //$NON-NLS-1$
 					getTranslation("views.jury_membership.promoters.error.disjoint"), //$NON-NLS-1$
+					false,
 					this::checkPromoterUnicity))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.promoters, this.juryDetails))
 			.bind(JuryMembership::getPromoters, JuryMembership::setPromoters);

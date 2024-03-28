@@ -125,7 +125,7 @@ public class MiscDocument extends Publication {
 
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
-		super.forEachAttribute(consumer);
+		super.forEachAttribute(messages, locale, consumer);
 		if (!Strings.isNullOrEmpty(getOrganization())) {
 			consumer.accept("organization", getOrganization()); //$NON-NLS-1$
 		}

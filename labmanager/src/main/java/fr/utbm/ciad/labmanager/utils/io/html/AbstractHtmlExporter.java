@@ -464,27 +464,29 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 
 		final var publicationClass = publication.getType().getInstanceType();
 		assert publicationClass != null;
+		
+		final var curentLocale = configurator.getLocaleOrLanguageLocale(publication.getMajorLanguage());
 
 		if (publicationClass.equals(Book.class)) {
-			exportDescription(html, (Book) publication, configurator.getLocale());
+			exportDescription(html, (Book) publication, curentLocale);
 		} else if (publicationClass.equals(BookChapter.class)) {
-			exportDescription(html, (BookChapter) publication, configurator.getLocale());
+			exportDescription(html, (BookChapter) publication, curentLocale);
 		} else if (publicationClass.equals(ConferencePaper.class)) {
-			exportDescription(html, (ConferencePaper) publication, configurator.getLocale());
+			exportDescription(html, (ConferencePaper) publication, curentLocale);
 		} else if (publicationClass.equals(JournalEdition.class)) {
-			exportDescription(html, (JournalEdition) publication, configurator.getLocale());
+			exportDescription(html, (JournalEdition) publication, curentLocale);
 		} else if (publicationClass.equals(JournalPaper.class)) {
-			exportDescription(html, (JournalPaper) publication, configurator.getLocale());
+			exportDescription(html, (JournalPaper) publication, curentLocale);
 		} else if (publicationClass.equals(KeyNote.class)) {
-			exportDescription(html, (KeyNote) publication, configurator.getLocale());
+			exportDescription(html, (KeyNote) publication, curentLocale);
 		} else if (publicationClass.equals(Report.class)) {
-			exportDescription(html, (Report) publication, configurator.getLocale());
+			exportDescription(html, (Report) publication, curentLocale);
 		} else if (publicationClass.equals(Thesis.class)) {
-			exportDescription(html, (Thesis) publication, configurator.getLocale());
+			exportDescription(html, (Thesis) publication, curentLocale);
 		} else if (publicationClass.equals(Patent.class)) {
-			exportDescription(html, (Patent) publication, configurator.getLocale());
+			exportDescription(html, (Patent) publication, curentLocale);
 		} else if (publicationClass.equals(MiscDocument.class)) {
-			exportDescription(html, (MiscDocument) publication, configurator.getLocale());
+			exportDescription(html, (MiscDocument) publication, curentLocale);
 		} else {
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}

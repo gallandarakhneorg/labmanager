@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -808,7 +809,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			// Remove the quality indicators
 			final List<Journal> updatedJournals = new ArrayList<>();
 			for (final var journal : getEntities())  {
@@ -821,7 +822,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 				JournalService.this.journalRepository.saveAllAndFlush(updatedJournals);
 			}
 			//
-			JournalService.this.journalRepository.deleteAllById(getDeletableEntityIdentifiers());
+			JournalService.this.journalRepository.deleteAllById(identifiers);
 		}
 
 	}

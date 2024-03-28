@@ -187,7 +187,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 			publication.setPathToDownloadablePDF(null);
 			try {
 				// Force delete in case the file is still here
-				this.downloadableFileManager.deleteDownloadablePublicationPdfFile(publication.getId());
+				this.downloadableFileManager.deletePublicationPdfFile(publication.getId());
 			} catch (Exception ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 			}
@@ -199,7 +199,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 			publication.setPathToDownloadableAwardCertificate(null);
 			try {
 				// Force delete in case the file is still here
-				this.downloadableFileManager.deleteDownloadableAwardPdfFile(publication.getId());
+				this.downloadableFileManager.deletePublicationAwardPdfFile(publication.getId());
 			} catch (Exception ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 			}

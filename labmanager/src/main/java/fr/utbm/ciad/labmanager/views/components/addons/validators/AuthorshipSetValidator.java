@@ -62,7 +62,7 @@ public class AuthorshipSetValidator extends DisjointEntityIterableValidator<Auth
 	 * @param disjointValidator dynamic function that replies if the given value is disjoint with other reference values.
 	 */
 	public AuthorshipSetValidator(String nullErrorMessage, String disjointErrorMessage, String rankErrorMessage, Predicate<Authorship> disjointValidator) {
-		super(nullErrorMessage, disjointErrorMessage, disjointValidator);
+		super(nullErrorMessage, disjointErrorMessage, true, disjointValidator);
 		this.rankMessageProvider = value -> disjointErrorMessage.replace("{0}", String.valueOf(value)); //$NON-NLS-1$
 	}
 

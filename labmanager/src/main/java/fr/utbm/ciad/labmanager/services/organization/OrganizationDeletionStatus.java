@@ -35,10 +35,6 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public enum OrganizationDeletionStatus implements DeletionStatus {
 
-	/** Deletion is impossible because the organization has linked memberships.
-	 */
-	MEMBERSHIP,
-
 	/** Deletion is impossible because the organization has linked teaching activities.
 	 */
 	TEACHING_ACTIVITY,

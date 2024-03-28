@@ -412,8 +412,8 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getOrganizationMembers_ResearchOrganizationMemberFilteringPredicate() {
-		when(this.o1.getMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
-		when(this.o2.getMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
+		when(this.o1.getDirectOrganizationMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
+		when(this.o2.getDirectOrganizationMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
 
 		final List<Membership> mbrs0 = this.test.getOrganizationMembers(null, null, null);
 		assertTrue(mbrs0.isEmpty());
@@ -455,8 +455,8 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getOrganizationMembers_IntMemberFilteringPredicate() {
-		when(this.o1.getMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
-		when(this.o2.getMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
+		when(this.o1.getDirectOrganizationMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
+		when(this.o2.getDirectOrganizationMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
 
 		final List<Membership> mbrs0 = this.test.getOrganizationMembers(0l, null, null);
 		assertTrue(mbrs0.isEmpty());

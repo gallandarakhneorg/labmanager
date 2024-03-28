@@ -472,9 +472,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		if (isAdminRole()) {
 			grid.addSelectionListener(it -> {
 				final Set<?> selection = it.getAllSelectedItems();
-				final int size = selection.size();
-				this.editButton.setEnabled(size == 1);
-				this.deleteButton.setEnabled(size > 0);
+				onSelectionChange(selection);
 			});
 		}
 
@@ -489,6 +487,16 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		});
 
 		return grid;
+	}
+
+	/** Invoked when the selection has changed in the list.
+	 *
+	 * @param selection the selected items.
+	 */
+	protected void onSelectionChange(Set<?> selection) {
+		final int size = selection.size();
+		this.editButton.setEnabled(size == 1);
+		this.deleteButton.setEnabled(size > 0);
 	}
 
 	/** Initialize the data in the grid, preferably by using lay loading.

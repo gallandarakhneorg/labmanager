@@ -114,8 +114,8 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService, ScientificAxisService axisService,
 			Logger logger) {
 		super(Supervision.class, authenticatedUser, messages, logger,
-				"views.supervisions.delete.title", //$NON-NLS-1$
-				"views.supervisions.delete.message", //$NON-NLS-1$
+				"views.supervision.delete.title", //$NON-NLS-1$
+				"views.supervision.delete.message", //$NON-NLS-1$
 				"views.supervision.delete_success", //$NON-NLS-1$
 				"views.supervision.delete_error"); //$NON-NLS-1$
 		this.supervisionService = supervisionService;

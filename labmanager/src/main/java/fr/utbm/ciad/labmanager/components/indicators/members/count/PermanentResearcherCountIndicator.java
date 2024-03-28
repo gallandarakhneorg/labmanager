@@ -69,7 +69,7 @@ public class PermanentResearcherCountIndicator extends AbstractInstantIndicator 
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final var researchers = organization.getMemberships()
+		final var researchers = organization.getDirectOrganizationMemberships()
 				.parallelStream()
 				.filter(PermanentResearcherCountIndicator::isPermanentResearcher)
 				.collect(Collectors.toList());

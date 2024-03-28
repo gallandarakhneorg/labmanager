@@ -23,8 +23,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA repository for the membership relations.
  *
@@ -73,5 +77,15 @@ public interface MembershipRepository extends JpaRepository<Membership, Long>, J
 	 * @since 3.2
 	 */
 	List<Membership> findDistinctByResearchOrganizationId(long organizationId);
+
+	/** Replies the persons that have memberships fitting the given filter.
+	 *
+	 * @param pageable the tool for building query pages.
+	 * @param filter the query filter.
+	 * @return the result of the query by page.
+	 * @since 4.0
+	 */
+	@Query("SELECT DISTINCT p FROM Membership m, Person p WHERE m.person.id = p.id")
+	Page<Person> findDistinctPerson(Pageable pageable, Specification<Membership> filter);
 
 }

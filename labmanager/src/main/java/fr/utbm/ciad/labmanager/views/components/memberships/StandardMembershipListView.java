@@ -54,6 +54,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -119,7 +120,8 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		setHoverMenu(isAdminRole());
 		setRootEntityFetcher(
 				(parentId, pageRequest, filters) -> {
-					return this.membershipService.getAllPersonsWithMemberships(pageRequest, filters);
+					return this.membershipService.getAllPersonsWithMemberships(pageRequest, filters,
+							it -> Hibernate.initialize(it.getMemberships()));
 				},
 				(rootEntity) -> {
 					return rootEntity.getMemberships().size();
@@ -334,7 +336,9 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		@Override
 		protected Predicate buildPredicateForDefaultOrganization(Root<Membership> root, CriteriaQuery<?> query,
 				CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization) {
-			return criteriaBuilder.equal(root.get("researchOrganization"), defaultOrganization); //$NON-NLS-1$
+			final var crit1 = criteriaBuilder.equal(root.get("researchOrganization"), defaultOrganization); //$NON-NLS-1$
+			final var crit2 = criteriaBuilder.equal(root.get("superResearchOrganization"), defaultOrganization); //$NON-NLS-1$
+			return criteriaBuilder.or(crit1, crit2);
 		}
 
 		@Override

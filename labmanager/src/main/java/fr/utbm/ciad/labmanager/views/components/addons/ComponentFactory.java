@@ -51,6 +51,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog.ConfirmEvent;
 import com.vaadin.flow.component.contextmenu.HasMenuItems;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -62,7 +63,6 @@ import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializableBiConsumer;
@@ -80,6 +80,7 @@ import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -117,10 +118,6 @@ public final class ComponentFactory {
 	private static final Pattern PATTERN = Pattern.compile(".[\\p{M}]"); //$NON-NLS-1$
 
 	private static final String FOR_ONE = "_"; //$NON-NLS-1$
-
-	private static final int DEFAULT_POPUP_DURATION = 5000;
-
-	private static final Position DEFAULT_POPUP_POSITION = Position.BOTTOM_START;
 
 	private ComponentFactory() {
 		//
@@ -259,6 +256,70 @@ public final class ComponentFactory {
 
 	/** Create a menu item with an icon and text and add it into the given receiver.
 	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(SubMenu menu, IconFactory icon, String label, String ariaLabel,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		return addIconItem(menu, icon, label, ariaLabel, false, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(SubMenu menu, IconFactory icon, String label, String ariaLabel) {
+		return addIconItem(menu, icon, label, ariaLabel, false, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(SubMenu menu, StreamResource icon, String label, String ariaLabel,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		return addIconItem(menu, icon, label, ariaLabel, false, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(SubMenu menu, StreamResource icon, String label, String ariaLabel) {
+		return addIconItem(menu, icon, label, ariaLabel, false, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
 	 * @param receiver the receiver of the new item.
 	 * @param icon the icon of the item, never {@code null}.
 	 * @param label the label of the item. It may be {@code null} for creating an item without text.
@@ -359,7 +420,92 @@ public final class ComponentFactory {
 		return addIconItem(receiver, icon.create(), label, ariaLabel, isChild, clickListener);
 	}
 
-	private static <T extends com.vaadin.flow.component.Component & HasStyle> MenuItem addIconItem(
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(MenuBar menu, StreamResource icon, String label, String ariaLabel,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		return addIconItem(menu, icon, label, ariaLabel, false, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(MenuBar menu, StreamResource icon, String label, String ariaLabel) {
+		return addIconItem(menu, icon, label, ariaLabel, false, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param icon the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(HasMenuItems receiver, StreamResource  icon, String label, String ariaLabel, boolean isChild) {
+		return addIconItem(receiver, icon, label, ariaLabel, isChild, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param icon the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @since 4.0
+	 */
+	public static MenuItem addIconItem(HasMenuItems receiver, StreamResource icon, String label, String ariaLabel, boolean isChild,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		assert icon != null;
+		final var image = new Image(icon, label);
+		image.setMinWidth(ViewConstants.ICON_SIZE, Unit.PIXELS);
+		image.setMinHeight(ViewConstants.ICON_SIZE, Unit.PIXELS);
+		image.setMaxWidth(ViewConstants.MAX_ICON_SIZE, Unit.PIXELS);
+		image.setMaxHeight(ViewConstants.MAX_ICON_SIZE, Unit.PIXELS);
+		return addIconItem(receiver, image, label, ariaLabel, isChild, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param iconInstance the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static <T extends com.vaadin.flow.component.Component & HasStyle> MenuItem addIconItem(
 			HasMenuItems receiver, T iconInstance, String label, String ariaLabel, boolean isChild,
 			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
 		assert iconInstance != null; 
@@ -368,7 +514,7 @@ public final class ComponentFactory {
 			iconInstance.getStyle().setHeight("var(--lumo-icon-size-s)"); //$NON-NLS-1$
 			iconInstance.getStyle().set("marginRight", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		var item = receiver.addItem(iconInstance, clickListener);
+		final var item = receiver.addItem(iconInstance, clickListener);
 		if (!Strings.isNullOrEmpty(ariaLabel)) {
 			item.setAriaLabel(ariaLabel);
 		}
@@ -1097,7 +1243,7 @@ public final class ComponentFactory {
 	 * @return the notification object.
 	 */
 	public static Notification showErrorNotification(String message) {
-		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		final var notification = new Notification(message, ViewConstants.DEFAULT_POPUP_DURATION, ViewConstants.DEFAULT_POPUP_POSITION);
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 		notification.open();
 		return notification;
@@ -1109,7 +1255,7 @@ public final class ComponentFactory {
 	 * @return the notification object.
 	 */
 	public static Notification showWarningNotification(String message) {
-		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		final var notification = new Notification(message, ViewConstants.DEFAULT_POPUP_DURATION, ViewConstants.DEFAULT_POPUP_POSITION);
 		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
 		notification.open();
 		return notification;
@@ -1121,7 +1267,7 @@ public final class ComponentFactory {
 	 * @return the notification object.
 	 */
 	public static Notification showSuccessNotification(String message) {
-		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		final var notification = new Notification(message, ViewConstants.DEFAULT_POPUP_DURATION, ViewConstants.DEFAULT_POPUP_POSITION);
 		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		notification.open();
 		return notification;
@@ -1133,7 +1279,7 @@ public final class ComponentFactory {
 	 * @return the notification object.
 	 */
 	public static Notification showInfoNotification(String message) {
-		final var notification = new Notification(message, DEFAULT_POPUP_DURATION, DEFAULT_POPUP_POSITION);
+		final var notification = new Notification(message, ViewConstants.DEFAULT_POPUP_DURATION, ViewConstants.DEFAULT_POPUP_POSITION);
 		notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
 		notification.open();
 		return notification;

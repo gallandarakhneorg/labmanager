@@ -1509,8 +1509,16 @@ public class ProjectService extends AbstractEntityService<Project> {
 		}
 
 		@Override
-		protected void deleteEntities() throws Exception {
-			ProjectService.this.projectRepository.deleteAllById(getDeletableEntityIdentifiers());
+		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			ProjectService.this.projectRepository.deleteAllById(identifiers);
+			for (final var id : identifiers) {
+				final var idl = id.longValue();
+				ProjectService.this.fileManager.deleteProjectImage(idl);
+				ProjectService.this.fileManager.deleteProjectLogo(idl);
+				ProjectService.this.fileManager.deleteProjectPowerpoint(idl);
+				ProjectService.this.fileManager.deleteProjectPressDocument(idl);
+				ProjectService.this.fileManager.deleteProjectScientificRequirements(idl);
+			}
 		}
 
 	}

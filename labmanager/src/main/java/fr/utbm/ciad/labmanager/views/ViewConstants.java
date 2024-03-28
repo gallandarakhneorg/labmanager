@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views;
 
+import com.vaadin.flow.component.notification.Notification.Position;
+
 /** Constants for the views.
  * 
  * @author $Author: sgalland$
@@ -28,6 +30,14 @@ package fr.utbm.ciad.labmanager.views;
  * @since 4.0
  */
 public final class ViewConstants {
+
+	/** Duration of the pop-up notification in milliseconds.
+	 */
+	public static final int DEFAULT_POPUP_DURATION = 20000;
+
+	/** Position of the pop-up notification.
+	 */
+	public static final Position DEFAULT_POPUP_POSITION = Position.BOTTOM_START;
 
 	/** Default height in pixels of the input list.
 	 */
@@ -41,25 +51,29 @@ public final class ViewConstants {
 	 */
 	public static final String ONLINE_MANUAL_URL = "https://www.ciad-lab.fr/docs/"; //$NON-NLS-1$
 	
+	/** URL path of the icons with terminal slash.
+	 */
+	public static final String ICON_URL_PATH = "/icons/"; //$NON-NLS-1$
+
 	/** Path to the icon of Gravatar.
 	 */
-	public static final String GRAVATAR_ICON = "/icons/gravatar.svg"; //$NON-NLS-1$
+	public static final String GRAVATAR_ICON = ICON_URL_PATH + "gravatar.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of ORCID.
 	 */
-	public static final String ORCID_ICON = "/icons/orcid.svg"; //$NON-NLS-1$
+	public static final String ORCID_ICON = ICON_URL_PATH + "orcid.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of Scopus.
 	 */
-	public static final String SCOPUS_ICON = "/icons/scopus.svg"; //$NON-NLS-1$
+	public static final String SCOPUS_ICON = ICON_URL_PATH + "scopus.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of Web-of-Science.
 	 */
-	public static final String WOS_ICON = "/icons/wos.svg"; //$NON-NLS-1$
+	public static final String WOS_ICON = ICON_URL_PATH + "wos.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of Scimago.
 	 */
-	public static final String SCIMAGO_ICON = "/icons/scimago.svg"; //$NON-NLS-1$
+	public static final String SCIMAGO_ICON = ICON_URL_PATH + "scimago.svg"; //$NON-NLS-1$
 
 	/** URL of the Scimago platform, with the terminal slash character.
 	 */
@@ -67,7 +81,7 @@ public final class ViewConstants {
 
 	/** Path to the icon of CORE Portal.
 	 */
-	public static final String CORE_PORTAL_ICON = "/icons/coreportal.svg"; //$NON-NLS-1$
+	public static final String CORE_PORTAL_ICON = ICON_URL_PATH + "coreportal.svg"; //$NON-NLS-1$
 
 	/** URL of the CORE portal, with the terminal slash character.
 	 */
@@ -75,19 +89,19 @@ public final class ViewConstants {
 
 	/** Path to the icon of Google Scholar.
 	 */
-	public static final String GSCHOLAR_ICON = "/icons/googlescholar.svg"; //$NON-NLS-1$
+	public static final String GSCHOLAR_ICON = ICON_URL_PATH + "googlescholar.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of ResearchGate.
 	 */
-	public static final String RESEARCHGATE_ICON = "/icons/researchgate.svg"; //$NON-NLS-1$
+	public static final String RESEARCHGATE_ICON = ICON_URL_PATH + "researchgate.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of AD Scientific Index.
 	 */
-	public static final String ADSCIENTIFICINDEX_ICON = "/icons/adscientificindex.svg"; //$NON-NLS-1$
+	public static final String ADSCIENTIFICINDEX_ICON = ICON_URL_PATH + "adscientificindex.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of DBLP.
 	 */
-	public static final String DBLP_ICON = "/icons/dblp.svg"; //$NON-NLS-1$
+	public static final String DBLP_ICON = ICON_URL_PATH + "dblp.svg"; //$NON-NLS-1$
 
 	/** URL of DBLP, with the terminal slash character.
 	 */
@@ -95,7 +109,7 @@ public final class ViewConstants {
 
 	/** Path to the icon of Academia.edu.
 	 */
-	public static final String ACADEMIA_EDU_ICON = "/icons/academia-edu.svg"; //$NON-NLS-1$
+	public static final String ACADEMIA_EDU_ICON = ICON_URL_PATH + "academia-edu.svg"; //$NON-NLS-1$
 
 	/** URL of Academia.edu, with the terminal slash character.
 	 */
@@ -103,7 +117,7 @@ public final class ViewConstants {
 
 	/** Path to the icon of EU CORDIS.
 	 */
-	public static final String EU_CORDIS_ICON = "/icons/europe.svg"; //$NON-NLS-1$
+	public static final String EU_CORDIS_ICON = ICON_URL_PATH + "europe.svg"; //$NON-NLS-1$
 
 	/** URL of EU CORDIS, with the terminal slash character.
 	 */
@@ -111,19 +125,19 @@ public final class ViewConstants {
 
 	/** Path to the icon of LinkedIn.
 	 */
-	public static final String LINKEDIN_ICON = "/icons/linkedin.svg"; //$NON-NLS-1$
+	public static final String LINKEDIN_ICON = ICON_URL_PATH + "linkedin.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of GitHub.
 	 */
-	public static final String GITHUB_ICON = "/icons/github.svg"; //$NON-NLS-1$
+	public static final String GITHUB_ICON = ICON_URL_PATH + "github.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of GitFacebook.
 	 */
-	public static final String FACEBOOK_ICON = "/icons/facebook.svg"; //$NON-NLS-1$
+	public static final String FACEBOOK_ICON = ICON_URL_PATH + "facebook.svg"; //$NON-NLS-1$
 
 	/** Path to the icon of DOI.
 	 */
-	public static final String DOI_ICON = "/icons/doi.svg"; //$NON-NLS-1$
+	public static final String DOI_ICON = ICON_URL_PATH + "doi.svg"; //$NON-NLS-1$
 
 	/** URL of the DOI portal, with the terminal slash character.
 	 */
@@ -131,11 +145,71 @@ public final class ViewConstants {
 
 	/** Path to the icon of HAL.
 	 */
-	public static final String HAL_ICON = "/icons/hal.svg"; //$NON-NLS-1$
+	public static final String HAL_ICON = ICON_URL_PATH + "hal.svg"; //$NON-NLS-1$
 
 	/** URL of the HAL portal, with the terminal slash character.
 	 */
 	public static final String HAL_BASE_URL = "https://hal.science/"; //$NON-NLS-1$
+
+	/** Path of the black icon for exporting to JSON.
+	 *
+	 * @see #EXPORT_JSON_WHITE_ICON
+	 */
+	public static final String EXPORT_JSON_BLACK_ICON = ICON_URL_PATH + "json_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for exporting to JSON.
+	 *
+	 * @see #EXPORT_JSON_BLACK_ICON
+	 */
+	public static final String EXPORT_JSON_WHITE_ICON = ICON_URL_PATH + "json_w_file.svg"; //$NON-NLS-1$
+
+	/** Path of the black icon for exporting to BibTeX.
+	 *
+	 * @see #EXPORT_BIBTEX_WHITE_ICON
+	 */
+	public static final String EXPORT_BIBTEX_BLACK_ICON = ICON_URL_PATH + "bibtex_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for exporting to BibTeX.
+	 *
+	 * @see #EXPORT_BIBTEX_BLACK_ICON
+	 */
+	public static final String EXPORT_BIBTEX_WHITE_ICON = ICON_URL_PATH + "bibtex_w_file.svg"; //$NON-NLS-1$
+
+	/** Path of the black icon for exporting to RIS.
+	 *
+	 * @see #EXPORT_RIS_WHITE_ICON
+	 */
+	public static final String EXPORT_RIS_BLACK_ICON = ICON_URL_PATH + "ris_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for exporting to RIS.
+	 *
+	 * @see #EXPORT_RIS_BLACK_ICON
+	 */
+	public static final String EXPORT_RIS_WHITE_ICON = ICON_URL_PATH + "ris_w_file.svg"; //$NON-NLS-1$
+
+	/** Path of the black icon for exporting to OpenDocument Text.
+	 *
+	 * @see #EXPORT_ODT_WHITE_ICON
+	 */
+	public static final String EXPORT_ODT_BLACK_ICON = ICON_URL_PATH + "odt_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for exporting to OpenDocument Text.
+	 *
+	 * @see #EXPORT_ODT_BLACK_ICON
+	 */
+	public static final String EXPORT_ODT_WHITE_ICON = ICON_URL_PATH + "odt_w_file.svg"; //$NON-NLS-1$
+
+	/** Path of the black icon for exporting to HTML document.
+	 *
+	 * @see #EXPORT_HTML_WHITE_ICON
+	 */
+	public static final String EXPORT_HTML_BLACK_ICON = ICON_URL_PATH + "html_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for exporting to HTML document.
+	 *
+	 * @see #EXPORT_HTML_BLACK_ICON
+	 */
+	public static final String EXPORT_HTML_WHITE_ICON = ICON_URL_PATH + "html_w_file.svg"; //$NON-NLS-1$
 
 	/** Default size of a page in the Vaadin grids.
 	 */
@@ -144,6 +218,10 @@ public final class ViewConstants {
 	/** Default size of an icon in pixels.
 	 */
 	public static final int ICON_SIZE = 16;
+
+	/** Default maximum size of an icon in pixels.
+	 */
+	public static final int MAX_ICON_SIZE = 16;
 
 	/** Default size of an photo in pixels.
 	 */
