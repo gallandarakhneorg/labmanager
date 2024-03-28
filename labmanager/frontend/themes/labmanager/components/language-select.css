@@ -1,0 +1,11 @@
+/*:host {
+	background-color: lemonchiffon;
+}
+
+:host([theme~="flags-only"]) {
+	background-color: mediumvioletred;
+}
+
+:host([theme~="names-only"]) {
+	background-color: lightskyblue;
+}*/

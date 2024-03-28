@@ -1,0 +1,11 @@
+html {
+	--grid-hover-actions-display: none;
+}
+
+.hoverGridHlHide {
+    display: var(--grid-hover-actions-display, flex);
+    position: fixed;
+    top: 0px;
+    right: 8px;
+    background-color: var(--lumo-contrast-5pct);
+}

@@ -1,0 +1,107 @@
+# This configuration is activated if you active the "dev" profile:
+#   -Dspring.profiles.active=dev
+
+logging:
+  level:
+    fr.ciadlab: DEBUG
+    org.atmosphere: WARN
+    root: INFO
+    org.springframework.web: INFO
+    com.zaxxer.hikari: ERROR
+    org.hibernate:
+      SQL: ERROR
+      type:
+        descriptor:
+          sql: ERROR
+  file:
+    path: /tmp/labmanager-tmp
+
+spring:
+  sql:
+    init:
+      mode: always
+      platform: derby
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    # The following line is used for displaying the SQL queries on the log
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.DerbyDialect
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.StandardJtaPlatformResolver
+        format-sql: true
+        auto-quote-keyword: true
+
+  mustache:
+    check-template-location: false
+
+  datasource:
+    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+    url: jdbc:derby:directory:/tmp/labmanager-tmp/db;create=true
+    generate-unique-name: false
+    username: sa
+    password:
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  jackson:
+    serialization:
+      indent-output: true
+
+server:
+  servlet:
+    context-path: /LabManager
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+management:
+  endpoint:
+    logfile:
+      enabled: true
+      external-file: /tmp/labmanager-tmp/LabManager.log
+  endpoints:
+    enabled-by-default: true
+    web:
+      base-path: /management
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+    roles: ROLE_ADMIN
+
+vaadin:
+  # Launch the default browser when starting the application in development mode
+  launch-browser: false
+  # To improve the performance during development.
+  # For more information https://vaadin.com/docs/flow/spring/tutorial-spring-configuration.html#special-configuration-parameters
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application
+
+labmanager:
+  application-name: CIAD Lab Manager
+  application-image: /images/ciadpicture.svg
+  application-copyright: Copyright CIAD Laboratory, Université de Technologie de Belfort Montbéliard 2019-2024. This program is under the terms of the GNU Affero General Public License.
+  default-organization: CIAD
+  default-super-organization: UTBM
+  default-lear-organization: UTBM
+  init:
+    enable: true
+    data-source: /tmp/labmanager-tmp
+  file:
+    upload-directory: /tmp/labmanager-tmp
+    temp-directory: /tmp/labmanager-tmp/tmp
+  web:
+    server-side-resources: /tmp/labmanager-tmp/Downloadables/
+    client-side-resources: /Downloadables/
+    help-url: https://www.ciad-lab.fr/docs/
