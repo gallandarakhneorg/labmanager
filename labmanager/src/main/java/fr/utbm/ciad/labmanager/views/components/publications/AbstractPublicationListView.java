@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -40,6 +39,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -51,6 +51,7 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
@@ -63,17 +64,21 @@ import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
+import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeXConstants;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentConstants;
+import fr.utbm.ciad.labmanager.utils.io.ris.RISConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
-import fr.utbm.ciad.labmanager.views.components.addons.download.LazyDownloadExtension;
+import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -237,9 +242,14 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param error the error.
 	 */
 	protected void notifyExportError(Throwable error) {
-		final var message = getTranslation("views.publication.export.error", error.getLocalizedMessage()); //$NON-NLS-1$
-		getLogger().error(message, error);
-		ComponentFactory.showErrorNotification(message);
+		final var ui = getUI().orElseThrow();
+		if (ui != null) {
+			ui.access(() -> {
+				final var message = getTranslation("views.publication.export.error", error.getLocalizedMessage()); //$NON-NLS-1$
+				getLogger().error(message, error);
+				ComponentFactory.showErrorNotification(message);
+			});
+		}
 	}
 
 	@Override
@@ -270,13 +280,13 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		this.exportHtmlButton = ComponentFactory.addIconItem(exportSubMenu, htmlImageResource, null, null, null);
 		bindHtmlExporter(this.exportHtmlButton, null);
 
-		final var halImageResource = ComponentFactory.newStreamImage(ViewConstants.HAL_ICON);
-		this.exportHalButton = ComponentFactory.addIconItem(exportSubMenu, halImageResource, null, null, null);
-		this.exportHalButton.setEnabled(false);
-
 		final var jsonImageResource = ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON);
 		this.exportJsonButton = ComponentFactory.addIconItem(exportSubMenu, jsonImageResource, null, null, null);
 		bindJsonExporter(this.exportJsonButton, null);
+
+		final var halImageResource = ComponentFactory.newStreamImage(ViewConstants.HAL_ICON);
+		this.exportHalButton = ComponentFactory.addIconItem(exportSubMenu, halImageResource, null, null, null);
+		this.exportHalButton.setEnabled(false);
 
 		return menu;
 	}
@@ -295,28 +305,32 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
 	 */
 	protected void bindBibTeXExporter(MenuItem item, Publication entity) {
-		LazyDownloadExtension.extend(item)
-			.withAnchorReceiver(it -> Optional.of(getContent()))
-			.withFilename(() -> BIBTEX_FILENAME)
-			.withErrorNotifier(this::notifyExportError)
-			.withInputStreamFactory(() -> exportBibTeX(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
-			.bind();
+		final var icon = ComponentFactory.newStreamImage(ViewConstants.EXPORT_BIBTEX_BLACK_ICON);
+        DownloadExtension.extend(item)
+	    	.withProgressIcon(new Image(icon, "")) //$NON-NLS-1$
+	    	.withProgressTitle(getTranslation("views.publication.export.bibtex")) //$NON-NLS-1$
+        	.withFilename(() -> BIBTEX_FILENAME)
+        	.withMimeType(() -> BibTeXConstants.MIME_TYPE_UTF8_VALUE)
+	    	.withFailureListener(this::notifyExportError)
+        	.withInputStreamFactory(progress -> exportBibTeX(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity), progress));
 	}
 	
 	/** Export the given publications in a BibTeX file.
 	 *
 	 * @param publications the publications to export.
+	 * @param progression the progression indicator to be used.
 	 * @return the input stream that contains the BibTeX data.
 	 */
-	protected InputStream exportBibTeX(Set<Publication> publications) {
+	protected InputStream exportBibTeX(Set<Publication> publications, Progression progression) {
 		if (publications == null || publications.isEmpty()) {
+			progression.end();
 			notifyNotEntity();
 			return null; 
 		}
 		// Force the loading of all the information about each publication
 		this.publicationService.loadPublicationsInMemory(publications);
 		final var configuration = createExportConfigurator();
-		final var content = this.publicationService.exportBibTeX(publications, configuration);
+		final var content = this.publicationService.exportBibTeX(publications, configuration, progression);
 		return new StringInputStream(content, Charset.defaultCharset());
 	}
 
@@ -326,28 +340,32 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
 	 */
 	protected void bindRISExporter(MenuItem item, Publication entity) {
-		LazyDownloadExtension.extend(item)
-			.withAnchorReceiver(it -> Optional.of(getContent()))
-			.withFilename(() -> RIS_FILENAME)
-			.withErrorNotifier(this::notifyExportError)
-			.withInputStreamFactory(() -> exportRIS(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
-			.bind();
+		final var icon = ComponentFactory.newStreamImage(ViewConstants.EXPORT_RIS_BLACK_ICON);
+        DownloadExtension.extend(item)
+	    	.withProgressIcon(new Image(icon, "")) //$NON-NLS-1$
+	    	.withProgressTitle(getTranslation("views.publication.export.ris")) //$NON-NLS-1$
+        	.withFilename(() -> RIS_FILENAME)
+        	.withMimeType(() -> RISConstants.MIME_TYPE_UTF8_VALUE)
+	    	.withFailureListener(this::notifyExportError)
+        	.withInputStreamFactory(progress -> exportRIS(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity), progress));
 	}
 
 	/** Export the given publications in a RIS file.
 	 *
 	 * @param publications the publications to export.
+	 * @param progression the progression indicator to be used.
 	 * @return the input stream that contains the RIS data.
 	 */
-	protected InputStream exportRIS(Set<Publication> publications) {
+	protected InputStream exportRIS(Set<Publication> publications, Progression progression) {
 		if (publications == null || publications.isEmpty()) {
+			progression.end();
 			notifyNotEntity();
 			return null; 
 		}
 		// Force the loading of all the information about each publication
 		this.publicationService.loadPublicationsInMemory(publications);
 		final var configuration = createExportConfigurator();
-		final var content = this.publicationService.exportRIS(publications, configuration);
+		final var content = this.publicationService.exportRIS(publications, configuration, progression);
 		return new StringInputStream(content, Charset.defaultCharset());
 	}
 
@@ -357,29 +375,33 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
 	 */
 	protected void bindODTExporter(MenuItem item, Publication entity) {
-		LazyDownloadExtension.extend(item)
-			.withAnchorReceiver(it -> Optional.of(getContent()))
-			.withFilename(() -> ODT_FILENAME)
-			.withErrorNotifier(this::notifyExportError)
-			.withInputStreamFactory(() -> exportODT(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
-			.bind();
+		final var icon = ComponentFactory.newStreamImage(ViewConstants.EXPORT_ODT_BLACK_ICON);
+        DownloadExtension.extend(item)
+	    	.withProgressIcon(new Image(icon, "")) //$NON-NLS-1$
+	    	.withProgressTitle(getTranslation("views.publication.export.odt")) //$NON-NLS-1$
+        	.withFilename(() -> ODT_FILENAME)
+        	.withMimeType(() -> OpenDocumentConstants.ODT_MIME_TYPE_VALUE)
+	    	.withFailureListener(this::notifyExportError)
+        	.withInputStreamFactory(progress -> exportODT(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity), progress));
 	}
 	
 	/** Export the given publications in a ODT file.
 	 *
 	 * @param publications the publications to export.
+	 * @param progression the progression indicator to be used.
 	 * @return the input stream that contains the ODT data.
 	 * @throws Exception if the ODT data cannot be generated.
 	 */
-	protected InputStream exportODT(Set<Publication> publications) throws Exception {
+	protected InputStream exportODT(Set<Publication> publications, Progression progression) throws Exception {
 		if (publications == null || publications.isEmpty()) {
+			progression.end();
 			notifyNotEntity();
 			return null; 
 		}
 		// Force the loading of all the information about each publication
 		this.publicationService.loadPublicationsInMemory(publications);
 		final var configuration = createExportConfigurator();
-		final var content = this.publicationService.exportOdt(publications, configuration);
+		final var content = this.publicationService.exportOdt(publications, configuration, progression);
 		return new ByteArrayInputStream(content);
 	}
 
@@ -389,29 +411,33 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
 	 */
 	protected void bindHtmlExporter(MenuItem item, Publication entity) {
-		LazyDownloadExtension.extend(item)
-			.withAnchorReceiver(it -> Optional.of(getContent()))
-			.withFilename(() -> HTML_FILENAME)
-			.withErrorNotifier(this::notifyExportError)
-			.withInputStreamFactory(() -> exportHTML(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
-			.bind();
+		final var icon = ComponentFactory.newStreamImage(ViewConstants.EXPORT_HTML_BLACK_ICON);
+        DownloadExtension.extend(item)
+	    	.withProgressIcon(new Image(icon, "")) //$NON-NLS-1$
+	    	.withProgressTitle(getTranslation("views.publication.export.html")) //$NON-NLS-1$
+        	.withFilename(() -> HTML_FILENAME)
+        	.withMimeType(() -> "text/html") //$NON-NLS-1$
+	    	.withFailureListener(this::notifyExportError)
+        	.withInputStreamFactory(progress -> exportHTML(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity), progress));
 	}
 
 	/** Export the given publications in an HTML file.
 	 *
 	 * @param publications the publications to export.
+	 * @param progression the progression indicator to be used.
 	 * @return the input stream that contains the HTML data.
 	 * @throws Exception if the HTML data cannot be generated.
 	 */
-	protected InputStream exportHTML(Set<Publication> publications) throws Exception {
+	protected InputStream exportHTML(Set<Publication> publications, Progression progression) throws Exception {
 		if (publications == null || publications.isEmpty()) {
+			progression.end();
 			notifyNotEntity();
 			return null; 
 		}
 		// Force the loading of all the information about each publication
 		this.publicationService.loadPublicationsInMemory(publications);
 		final var configuration = createExportConfigurator();
-		final var content = this.publicationService.exportHtml(publications, configuration);
+		final var content = this.publicationService.exportHtml(publications, configuration, progression);
 		return new StringInputStream(content, Charset.defaultCharset());
 	}
 
@@ -421,21 +447,24 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param entity the entity to export or {@code null} if the current grid selection must be used.
 	 */
 	protected void bindJsonExporter(MenuItem item, Publication entity) {
-		LazyDownloadExtension.extend(item)
-			.withAnchorReceiver(it -> Optional.of(getContent()))
-			.withFilename(() -> JSON_FILENAME)
-			.withErrorNotifier(this::notifyExportError)
-			.withInputStreamFactory(() -> exportJSON(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity)))
-			.bind();
+		final var icon = ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON);
+        DownloadExtension.extend(item)
+	    	.withProgressIcon(new Image(icon, "")) //$NON-NLS-1$
+	    	.withProgressTitle(getTranslation("views.publication.export.json")) //$NON-NLS-1$
+        	.withFilename(() -> JSON_FILENAME)
+        	.withMimeType(() -> Constants.JSON_MIME)
+	    	.withFailureListener(this::notifyExportError)
+        	.withInputStreamFactory(progress -> exportJSON(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity), progress));
 	}
 
 	/** Export the given publications in a JSON file.
 	 *
 	 * @param publications the publications to export.
+	 * @param progression the progression indicator to be used.
 	 * @return the input stream that contains the JSON data.
 	 * @throws Exception if the JSON data cannot be generated.
 	 */
-	protected InputStream exportJSON(Set<Publication> publications) throws Exception {
+	protected InputStream exportJSON(Set<Publication> publications, Progression progression) throws Exception {
 		if (publications == null || publications.isEmpty()) {
 			notifyNotEntity();
 			return null; 
@@ -443,7 +472,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		// Force the loading of all the information about each publication
 		this.publicationService.loadPublicationsInMemory(publications);
 		final var configuration = createExportConfigurator();
-		final var content = this.publicationService.exportJson(publications, configuration);
+		final var content = this.publicationService.exportJson(publications, configuration, progression);
 		return new StringInputStream(content, Charset.defaultCharset());
 	}
 

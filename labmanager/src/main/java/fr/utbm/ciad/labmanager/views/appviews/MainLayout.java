@@ -57,6 +57,7 @@ import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
 import fr.utbm.ciad.labmanager.views.appviews.assocstructures.AssociatedStructuresListView;
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferencesListView;
 import fr.utbm.ciad.labmanager.views.appviews.culture.ScientificCultureActionsListView;
+import fr.utbm.ciad.labmanager.views.appviews.database.DatabaseInputOutputView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.IncomingInvitationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.OutgoingInvitationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.journals.JournalsListView;
@@ -183,6 +184,10 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private SideNavItem addresses;
 	
+	private SideNavItem databaseSection;
+
+	private SideNavItem databaseInputOutput;
+
 	private SideNavItem documentationSection;
 
 	private SideNavItem documentation;
@@ -420,6 +425,19 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 	}
 
+	/** Create the database management items in the navigation panel.
+	 *
+	 * @param nav the navigation panel.
+	 */
+	protected void createDatabaseNavigation(SideNav nav) {
+		if (this.accessChecker.hasAccess(DatabaseInputOutputView.class)) {
+			this.databaseSection = new SideNavItem(""); //$NON-NLS-1$
+			this.databaseInputOutput = new SideNavItem("", DatabaseInputOutputView.class, LineAwesomeIcon.DATABASE_SOLID.create()); //$NON-NLS-1$
+			this.databaseSection.addItem(this.databaseInputOutput);
+			nav.addItem(this.databaseSection);
+		}
+	}
+
 	/** Create the documentation items in the navigation panel.
 	 *
 	 * @param nav the navigation panel.
@@ -447,6 +465,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		createScientificCultureNavigation(nav);
 		createTeachingNavigation(nav);
 		createStructureManagementNavigation(nav);
+		createDatabaseNavigation(nav);
 		createDocumentationNavigation(nav);
 		return nav;
 	}
@@ -745,12 +764,20 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			this.addresses.setLabel(getTranslation("views.navitem.addresses")); //$NON-NLS-1$
 		}
 
+		if (this.databaseSection != null) {
+			this.databaseSection.setLabel(getTranslation("views.navitem.database")); //$NON-NLS-1$
+		}
+		if (this.databaseInputOutput != null) {
+			this.databaseInputOutput.setLabel(getTranslation("views.navitem.database_io")); //$NON-NLS-1$
+		}
+
 		if (this.documentationSection != null) {
 			this.documentationSection.setLabel(getTranslation("views.navitem.documentations")); //$NON-NLS-1$
 		}
 		if (this.documentation != null) {
 			this.documentation.setLabel(getTranslation("views.navitem.online_manuals")); //$NON-NLS-1$
 		}
+
 		if (this.about != null) {
 			this.about.setLabel(getTranslation("views.navitem.about_app")); //$NON-NLS-1$
 		}
