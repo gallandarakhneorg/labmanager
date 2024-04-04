@@ -20,10 +20,12 @@
 package fr.utbm.ciad.labmanager;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * The entry point of the Spring Boot application.
@@ -38,6 +40,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 4.0
  */
 @SpringBootApplication
+@Async
+@Push
 @Theme(value = "labmanager")
 public class LabManagerApplication implements AppShellConfigurator {
 

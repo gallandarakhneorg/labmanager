@@ -18,13 +18,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.download;
+package fr.utbm.ciad.labmanager.views.components.addons;
 
-import java.io.InputStream;
 import java.io.Serializable;
 
-/** Definition of a factory for building an input stream. This interface allows the factory method to throw an exception.
+/** Function that is serializable and may throw an exception.
  *
+ * @param <I> the type of input argument.
+ * @param <O> the type of returned value.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -32,14 +33,14 @@ import java.io.Serializable;
  * @since 4.0
  */
 @FunctionalInterface
-public interface InputStreamFactory2 extends Serializable {
+public interface SerializableExceptionFunction<I, O> extends Serializable {
 
-    /**
-     * Produce {@link InputStream} instance to read resource data.
-     *
-     * @return data input stream. May not be null.
-     * @throws Exception when the input stream cannot be created.
-     */
-    InputStream createInputStream() throws Exception;
-
+	/** Run the function.
+	 *
+	 * @param input the input argument.
+	 * @return the output value.
+	 * @throws Exception if there is some error inside.
+	 */
+	O apply(I input) throws Exception;
+	
 }

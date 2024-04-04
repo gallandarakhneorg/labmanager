@@ -28,9 +28,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.SelectVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoIcon;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import jakarta.annotation.security.PermitAll;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.springframework.util.FastByteArrayOutputStream;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** The default view of the labmanager application.
  * 
@@ -73,5 +78,35 @@ public class WelcomeView extends Composite<VerticalLayout> {
         LanguageSelect select1 = LanguageSelect.newFlagOnlyLanguageSelect(getLocale());
         select1.addThemeVariants(SelectVariant.LUMO_SMALL);
         layoutColumn2.add(select1);
+
+        final var saveIcon = LineAwesomeIcon.SAVE_SOLID.create();
+    	Button taskButton = new Button();
+    	taskButton.setIcon(saveIcon);
+    	taskButton.setText("Test async task progress");
+    	taskButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_CONTRAST);
+        layoutColumn2.add(taskButton);
+        ProgressExtension.extend(taskButton)
+        	.withAsyncTask(progress -> {
+    			final var pg = new DefaultProgression(0, 12);
+    			pg.addProgressionListener(progress);
+   				for (var i = 0; i < 12; i++) {
+           			try {
+       					Thread.sleep(1000);
+					} catch (InterruptedException ex) {
+						throw new RuntimeException(ex);
+       				}
+           			pg.increment("Step " + (i+1) + "/12");
+				}
+   				pg.end();
+       			return "Hello";
+        	})
+        	.withProgressIcon(LineAwesomeIcon.SAVE_SOLID.create())
+        	.withProgressTitle("Do an async task")
+        	.withSuccessListener(it -> {
+        		System.err.println("RES:" + it);
+        	})
+        	.withFailureListener(it -> {
+        		System.err.println("ERR:" + it);
+        	});
 	}
 }
