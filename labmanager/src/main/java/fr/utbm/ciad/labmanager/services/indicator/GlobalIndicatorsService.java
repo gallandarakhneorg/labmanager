@@ -34,6 +34,7 @@ import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -60,17 +61,19 @@ public class GlobalIndicatorsService extends AbstractService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
 	 * @param indicatorRepository the global indicator repository.
 	 * @param allIndicators the list of all the indicators that were install in the app.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the factory of JPA session.
 	 */
 	public GlobalIndicatorsService(
+			@Autowired GlobalIndicatorsRepository indicatorRepository,
+			@Autowired List<? extends Indicator> allIndicators,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired GlobalIndicatorsRepository indicatorRepository,
-			@Autowired List<? extends Indicator> allIndicators) {
-		super(messages, constants);
+			@Autowired SessionFactory sessionFactory) {
+		super(messages, constants, sessionFactory);
 		this.indicatorRepository = indicatorRepository;
 		this.allIndicators = allIndicators;
 		this.allIndicatorsPerKey = this.allIndicators.stream().collect(

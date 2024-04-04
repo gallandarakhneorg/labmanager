@@ -122,8 +122,9 @@ public class JournalServiceTest {
 		this.scimago = mock(ScimagoPlatform.class);
 		this.wos = mock(WebOfSciencePlatform.class);
 		this.netConnection = mock(NetConnection.class);
-		this.test = new JournalService(this.messages, new Constants(), this.sessionFactory, this.journalRepository,
-				this.indicatorRepository, this.publicationRepository, this.scimago, this.wos, this.netConnection);
+		this.test = new JournalService(this.journalRepository,
+				this.indicatorRepository, this.publicationRepository, this.scimago, this.wos, this.netConnection,
+				this.messages, new Constants(), this.sessionFactory);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -662,8 +663,9 @@ public class JournalServiceTest {
 		// Force the connection to Internet
 		this.scimago = new OnlineScimagoPlatform();
 		this.netConnection = new DirectNetConnection();
-		this.test = new JournalService(this.messages, new Constants(), this.sessionFactory, this.journalRepository, this.indicatorRepository,
-				this.publicationRepository, this.scimago, this.wos, this.netConnection);
+		this.test = new JournalService(this.journalRepository, this.indicatorRepository,
+				this.publicationRepository, this.scimago, this.wos, this.netConnection,
+				this.messages, new Constants(), this.sessionFactory);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");

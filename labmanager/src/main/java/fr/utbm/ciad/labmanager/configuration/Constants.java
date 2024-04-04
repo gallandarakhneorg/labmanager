@@ -36,6 +36,48 @@ public class Constants {
 
 	// FIXME Remove unnecessary constants
 
+	/** MIME for JSON file.
+	 *
+	 * @since 4.0
+	 */
+	public static final String JSON_MIME = "application/json"; //$NON-NLS-1$
+
+	/** Filename extension for JSON file.
+	 *
+	 * @since 4.0
+	 */
+	public static final String JSON_FILENAME_EXTENSION = ".json"; //$NON-NLS-1$
+
+	/** MIME for ZIP file.
+	 *
+	 * @since 4.0
+	 */
+	public static final String ZIP_MIME = "application/zip"; //$NON-NLS-1$
+
+	/** Filename extension for ZIP file.
+	 *
+	 * @since 4.0
+	 */
+	public static final String ZIP_FILENAME_EXTENSION = ".zip"; //$NON-NLS-1$
+
+	/** Basename of the data file that could be used for initialization.
+	 *
+	 * @since 4.0
+	 */
+	public static final String INITIALIZATION_BASENAME = "data"; //$NON-NLS-1$
+
+	/** Name of the Json data file that could be used for initialization.
+	 *
+	 * @since 4.0
+	 */
+	public static final String INITIALIZATION_JSON_DATA_FILENAME = INITIALIZATION_BASENAME + JSON_FILENAME_EXTENSION;
+
+	/** Name of the ZIP data file that could be used for initialization.
+	 *
+	 * @since 4.0
+	 */
+	public static final String INITIALIZATION_ZIP_DATA_FILENAME = INITIALIZATION_BASENAME + ZIP_FILENAME_EXTENSION;
+
 	/** Default time out for the SSE requests.
 	 *
 	 * @since 3.6

@@ -19,30 +19,52 @@
 
 package fr.utbm.ciad.labmanager.utils.io;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.io.OutputStream;
 
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import org.arakhne.afc.progress.Progression;
-
-/** Exporter of publications.
+/** An output stream that ignore the closing requests.
  * 
- * @param <T> the type of the replied value after exporting.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface PublicationExporter<T> {
+public class UnclosableStream extends OutputStream {
 
-	/** Export publications. The content of the exported flow depends on the sub-interfaces.
-	 *
-	 * @param publications the publications to export.
-	 * @param configurator the configurator for the export, never {@code null}.
-	 * @param progression the progression indicator to be used.
-	 * @return the representation of the publications.
-	 * @throws Exception if the publication cannot be converted.
+	private final OutputStream source;
+
+	/** Constructor.
+	 * 
+	 * @param source the source stream.
 	 */
-	T exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception;
+	public UnclosableStream(OutputStream source) {
+		this.source = source;
+	}
 
+	@Override
+	public void close() throws IOException {
+		//
+	}
+
+	@Override
+	public void flush() throws IOException {
+		this.source.flush();
+	}
+
+	@Override
+	public void write(int b) throws IOException {
+		this.source.write(b);
+	}
+
+	@Override
+	public void write(byte[] b) throws IOException {
+		this.source.write(b);
+	}
+
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		this.source.write(b, off, len);
+	}
+	
 }

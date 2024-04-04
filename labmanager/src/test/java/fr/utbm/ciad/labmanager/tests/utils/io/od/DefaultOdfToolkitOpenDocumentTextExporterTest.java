@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.od.DefaultOdfToolkitOpenDocumentTextExporter;
 import fr.utbm.ciad.labmanager.utils.io.od.OdfTextDocumentHelper;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.DefaultProgression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +78,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US)));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US), new DefaultProgression()));
 	}
 
 	@Test
@@ -168,7 +169,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 		ExporterConfigurator configurator = new ExporterConfigurator(null, Locale.US);
 
-		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator);
+		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator, new DefaultProgression());
 
 		assertNotNull(content);
 

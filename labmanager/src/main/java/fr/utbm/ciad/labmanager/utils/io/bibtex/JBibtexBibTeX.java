@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -97,6 +98,7 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.Progression;
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.BibTeXFormatter;
@@ -840,23 +842,30 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	@Override
-	public void exportPublications(Writer output, Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws IOException {
-		final var database = createDatabase(publications, configurator);
+	public void exportPublications(Writer output, Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression) throws IOException {
+		progression.setProperties(0, 0, 100, false);
+		final var database = createDatabase(publications, configurator, progression.subTask(95));
 		final var bibtexFormatter = new BibTeXFormatter();
 		bibtexFormatter.format(database, output);
+		progression.end();
 	}
 
 	/** Create a JBibTeX database with the given list of publications.
 	 *
 	 * @param publications the publications to put into the database.
 	 * @param configurator the configurator of the export.
+	 * @param progression the progression indicator.
 	 * @return the JBibTeX database.
 	 */
-	protected BibTeXDatabase createDatabase(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	protected BibTeXDatabase createDatabase(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
+		progression.setProperties(0, 0, publications.size(), false);
 		final var db = new BibTeXDatabase();
 		for (final var publication : publications) {
 			addPublication(db, publication, configurator.getLocaleOrLanguageLocale(publication.getMajorLanguage()));
+			progression.increment();
 		}
+		progression.end();
 		return db;
 	}
 

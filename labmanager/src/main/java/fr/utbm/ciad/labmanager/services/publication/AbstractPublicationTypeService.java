@@ -56,20 +56,20 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the factory of JPA session.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating DOI.
 	 * @param halTools the tools for manipulating HAL identifiers.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the factory of JPA session.
 	 */
 	public AbstractPublicationTypeService(
-			MessageSourceAccessor messages,
-			Constants constants,
-			SessionFactory sessionFactory,
 			DownloadableFileManager downloadableFileManager,
 			DoiTools doiTools,
-			HalTools halTools) {
+			HalTools halTools,
+			MessageSourceAccessor messages,
+			Constants constants,
+			SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.downloadableFileManager = downloadableFileManager;
 		this.doiTools = doiTools;

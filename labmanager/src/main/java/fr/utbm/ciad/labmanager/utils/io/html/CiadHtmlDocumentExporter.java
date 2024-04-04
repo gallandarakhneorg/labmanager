@@ -19,11 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
+import java.util.Collection;
+
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
+import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -54,17 +57,17 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	}
 
 	@Override
-	public String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
 		assert configurator != null;
 		if (publications == null) {
 			return null;
 		}
 		final var html = new StringBuilder();
 		html.append("<html><body>"); //$NON-NLS-1$
-		exportPublicationsWithGroupingCriteria(publications, configurator,
+		exportPublicationsWithGroupingCriteria(publications, configurator, progression,
 				it -> html.append("<h1>").append(it).append("</h1>"), //$NON-NLS-1$ //$NON-NLS-2$
 				it -> html.append("<h2>").append(it).append("</h2>"), //$NON-NLS-1$ //$NON-NLS-2$
-				it -> exportFlatList(html, it, configurator));
+				(it, progress) -> exportFlatList(html, it, configurator, progress));
 		html.append("</html></body>"); //$NON-NLS-1$
 		return html.toString();
 	}
@@ -74,11 +77,14 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	 * @param html the receiver of the HTML code.
 	 * @param publications the publications to export.
 	 * @param configurator the exporter configurator.
+	 * @param progression the progression indicator.
 	 */
-	protected void exportFlatList(StringBuilder html, Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	protected void exportFlatList(StringBuilder html, Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression) {
 		html.append("<ul>"); //$NON-NLS-1$
 		for (final var publication : publications) {
 			exportPublication(html, publication, configurator);
+			progression.increment();
 		}
 		html.append("</ul>"); //$NON-NLS-1$
 	}

@@ -57,6 +57,7 @@ import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.utils.names.DefaultPersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.names.SorensenDicePersonNameComparator;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,6 +76,8 @@ import org.springframework.context.support.MessageSourceAccessor;
 public class PersonMergingServiceTest {
 
 	private MessageSourceAccessor messages;
+
+	private SessionFactory sessionFactory;
 
 	private PersonRepository personRepository;
 
@@ -102,6 +105,7 @@ public class PersonMergingServiceTest {
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.personRepository = mock(PersonRepository.class);
+		this.sessionFactory = mock(SessionFactory.class);
 		this.personService = mock(PersonService.class);
 		this.organizationMembershipService = mock(MembershipService.class);
 		this.organizationMembershipRepository = mock(MembershipRepository.class);
@@ -112,10 +116,11 @@ public class PersonMergingServiceTest {
 		this.structureHolderRepository = mock(AssociatedStructureHolderRepository.class);
 		this.nameComparator = new SorensenDicePersonNameComparator(new DefaultPersonNameParser());
 
-		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService,
+		this.test = new PersonMergingService(this.personRepository, this.personService,
 				this.organizationMembershipService, this.organizationMembershipRepository,
 				this.juryMembershipService, this.supervisionService, this.invitationService,
-				this.projectMemberRepository,this.structureHolderRepository, this.nameComparator);
+				this.projectMemberRepository,this.structureHolderRepository, this.nameComparator,
+				this.messages, new Constants(), this.sessionFactory);
 	}
 
 	@Test

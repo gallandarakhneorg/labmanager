@@ -127,15 +127,15 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
 	public ProjectService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired ProjectMemberRepository projectMemberRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired MembershipService membershipService,
-			@Autowired DownloadableFileManager fileManager) {
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;

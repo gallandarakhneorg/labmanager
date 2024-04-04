@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -57,6 +58,8 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.tuple.Pair;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -164,11 +167,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	/** Run the exporter.
 	 *
+	 * @param locale the locale to use for the messages. 
+	 * @param progression the progression indicator. 
 	 * @return the JSON content or {@code null} if empty.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	public Map<String, Object> exportFromDatabase() throws Exception {
-		return exportFromDatabase(null, null);
+	public Map<String, Object> exportFromDatabase(Locale locale, Progression progression) throws Exception {
+		return exportFromDatabase(null, null, locale, progression);
 	}
 
 	/** Run the exporter.
@@ -178,28 +183,38 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
 	 * @param extraPublicationProvider this provider gives publications that must be exported into the JSON that are
 	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported. 
+	 * @param locale the locale to use for the messages. 
+	 * @param progression the progression indicator. 
 	 * @return the JSON content or {@code null} if empty.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> exportFromDatabase(SimilarPublicationProvider similarPublicationProvider,
-			ExtraPublicationProvider extraPublicationProvider) throws Exception {
+			ExtraPublicationProvider extraPublicationProvider, Locale locale, Progression progression) throws Exception {
+		final var progressionInstance = progression == null ? new DefaultProgression() : progression;
+		progressionInstance.setProperties(0, 0, 100, false);
 		final var mapper = JsonUtils.createMapper();
-		final var obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider, extraPublicationProvider);
+		final var obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider, extraPublicationProvider,
+				locale, progressionInstance.subTask(98));
 		if (obj != null) {
-			return mapper.treeToValue(obj, Map.class);
+			final var tree = mapper.treeToValue(obj, Map.class);
+			progressionInstance.end();
+			return tree;
 		}
+		progressionInstance.end();
 		return null;
 	}
 
 	/** Run the exporter for creating JSON objects.
 	 *
 	 * @param factory the factory of nodes.
+	 * @param locale the locale to use for the messages. 
+	 * @param progression the progression indicator. 
 	 * @return the JSON content.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory) throws Exception {
-		return exportFromDatabaseToJsonObject(factory, null, null);
+	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, Locale locale, Progression progression) throws Exception {
+		return exportFromDatabaseToJsonObject(factory, null, null, locale, progression);
 	}
 
 	/** Run the exporter for creating JSON objects.
@@ -209,30 +224,50 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 *      If this argument is not {@code null} and if it replies a similar publication, the information in this
 	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
 	 * @param extraPublicationProvider this provider gives publications that must be exported into the JSON that are
-	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported. 
+	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported.
+	 * @param locale the locale to use for the messages. 
+	 * @param progression the progression indicator. 
 	 * @return the JSON content.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, SimilarPublicationProvider similarPublicationProvider,
-			ExtraPublicationProvider extraPublicationProvider) throws Exception {
+			ExtraPublicationProvider extraPublicationProvider, Locale locale, Progression progression) throws Exception {
+		final var progressionInstance = progression == null ? new DefaultProgression() : progression;
+		progressionInstance.setProperties(0, 0, 16, false, getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.global_indicators", locale)); //$NON-NLS-1$
 		final var root = factory.objectNode();
 		final var repository = new HashMap<Object, String>();
 		exportGlobalIndicators(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.addresses", locale)); //$NON-NLS-1$
 		exportAddresses(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.organizations", locale)); //$NON-NLS-1$
 		exportOrganizations(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.persons", locale)); //$NON-NLS-1$
 		exportPersons(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.memberships", locale)); //$NON-NLS-1$
 		exportOrganizationMemberships(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.journals", locale)); //$NON-NLS-1$
 		exportJournals(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.conferences", locale)); //$NON-NLS-1$
 		exportConferences(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.publications", locale)); //$NON-NLS-1$
 		exportPublications(root, repository, similarPublicationProvider, extraPublicationProvider);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.jury_memberships", locale)); //$NON-NLS-1$
 		exportJuryMemberships(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.supervisions", locale)); //$NON-NLS-1$
 		exportSupervisions(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.invitations", locale)); //$NON-NLS-1$
 		exportInvitations(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.projects", locale)); //$NON-NLS-1$
 		exportProjects(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.associated_structures", locale)); //$NON-NLS-1$
 		exportAssociatedStructures(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.teaching_activities", locale)); //$NON-NLS-1$
 		exportTeachingActivities(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.scientific_axes", locale)); //$NON-NLS-1$
 		exportScientificAxes(root, repository);
+		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.users", locale)); //$NON-NLS-1$
 		exportApplicationUsers(root, repository);
+		progressionInstance.end();
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;

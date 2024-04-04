@@ -89,6 +89,8 @@ import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentTextPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.DefaultPersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -198,7 +200,7 @@ public class PublicationServiceTest {
 		this.patentService = mock(PatentService.class);
 		this.reportService = mock(ReportService.class);
 		this.thesisService = mock(ThesisService.class);
-		this.test = new PublicationService(this.messages, new Constants(), mock(SessionFactory.class), this.publicationRepository, this.prePublicationFactory,
+		this.test = new PublicationService(this.publicationRepository, this.prePublicationFactory,
 				this.authorshipRepository,
 				this.personService, this.personRepository,
 				this.journalRepository, this.conferenceRepository, this.nameParser, this.bibtex, this.ris, this.html,
@@ -206,7 +208,7 @@ public class PublicationServiceTest {
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
 				this.miscDocumentService, this.patentService, this.reportService,
-				this.thesisService);
+				this.thesisService, this.messages, new Constants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -529,21 +531,21 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportBibTeX_Collection_null() {
-		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class), Locale.US));
+		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class), Locale.US), new DefaultProgression());
 		assertNull(bibtex);
 	}
 
 	@Test
 	public void exportBibTeX_Collection() {
-		when(this.bibtex.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		when(this.bibtex.exportPublications(any(Collection.class), any(), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator(mock(JournalService.class), Locale.US));
+		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator(mock(JournalService.class), Locale.US), new DefaultProgression());
 
 		assertEquals("abc", bibtex);
 
-		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
-		verify(this.bibtex, only()).exportPublications(arg.capture(), any());
+		ArgumentCaptor<Collection> arg = ArgumentCaptor.forClass(Collection.class);
+		verify(this.bibtex, only()).exportPublications(arg.capture(), any(), any());
 		Iterable<Publication> it = arg.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -554,21 +556,21 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportRIS_Collection_null() {
-		String ris = this.test.exportRIS((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class), Locale.US));
+		String ris = this.test.exportRIS((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class), Locale.US), new DefaultProgression());
 		assertNull(ris);
 	}
 
 	@Test
 	public void exportRIS_Collection() {
-		when(this.ris.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		when(this.ris.exportPublications(any(Collection.class), any(), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String bibtex = this.test.exportRIS(pubs, new ExporterConfigurator(mock(JournalService.class), Locale.US));
+		String bibtex = this.test.exportRIS(pubs, new ExporterConfigurator(mock(JournalService.class), Locale.US), new DefaultProgression());
 
 		assertEquals("abc", bibtex);
 
-		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
-		verify(this.ris, only()).exportPublications(arg.capture(), any());
+		ArgumentCaptor<Collection> arg = ArgumentCaptor.forClass(Collection.class);
+		verify(this.ris, only()).exportPublications(arg.capture(), any(), any());
 		Iterable<Publication> it = arg.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -580,82 +582,24 @@ public class PublicationServiceTest {
 	@Test
 	public void exportHtml_Collection_null() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		String html = this.test.exportHtml((Collection<Publication>) null, configurator);
+		String html = this.test.exportHtml((Collection<Publication>) null, configurator, new DefaultProgression());
 		assertNull(html);
 	}
 
 	@Test
 	public void exportHtml_Collection() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		when(this.html.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		when(this.html.exportPublications(any(Collection.class), any(), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String html = this.test.exportHtml(pubs, configurator);
+		String html = this.test.exportHtml(pubs, configurator, new DefaultProgression());
 
 		assertEquals("abc", html);
 
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
+		ArgumentCaptor<Collection> arg0 = ArgumentCaptor.forClass(Collection.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.html, only()).exportPublications(arg0.capture(), arg1.capture());
-		Iterable<Publication> it = arg0.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-		assertNotNull(arg1.getValue());
-	}
-
-	@Test
-	public void exportOdt_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		byte[] odt = this.test.exportOdt((Collection<Publication>) null, configurator);
-		assertNull(odt);
-	}
-
-	@Test
-	public void exportOdt_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		when(this.odt.exportPublications(any(Iterable.class), any())).thenReturn("abc".getBytes());
-		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
-
-		byte[] odt = this.test.exportOdt(pubs, configurator);
-
-		assertEquals("abc", new String(odt));
-
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
-		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.odt, only()).exportPublications(arg0.capture(), arg1.capture());
-		Iterable<Publication> it = arg0.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-		assertNotNull(arg1.getValue());
-	}
-
-	@Test
-	public void exportJson_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		String html = this.test.exportJson((Collection<Publication>) null, configurator);
-		assertNull(html);
-	}
-
-	@Test
-	public void exportJson_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		when(this.json.exportPublicationsWithRootKeys(any(Iterable.class), any(), any(String[].class))).thenReturn("abc");
-		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
-
-		String json = this.test.exportJson(pubs, configurator);
-
-		assertEquals("abc", json);
-
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
-		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		ArgumentCaptor<String[]> arg2 = ArgumentCaptor.forClass(String[].class);
-		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), arg2.capture());
+		ArgumentCaptor<Progression> arg2 = ArgumentCaptor.forClass(Progression.class);
+		verify(this.html, only()).exportPublications(arg0.capture(), arg1.capture(), arg2.capture());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -667,27 +611,26 @@ public class PublicationServiceTest {
 	}
 
 	@Test
-	public void exportJsonAsTree_Collection_null() throws Exception {
+	public void exportOdt_Collection_null() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		JsonNode json = this.test.exportJsonAsTree((Collection<Publication>) null, configurator, null);
-		assertNull(json);
+		byte[] odt = this.test.exportOdt((Collection<Publication>) null, configurator, new DefaultProgression());
+		assertNull(odt);
 	}
 
 	@Test
-	public void exportJsonAsTree_Collection() throws Exception {
+	public void exportOdt_Collection() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
-		JsonNode root = mock(JsonNode.class);
-		when(this.json.exportPublicationsAsTreeWithRootKeys(any(Iterable.class), any(), any())).thenReturn(root);
+		when(this.odt.exportPublications(any(Collection.class), any(), any())).thenReturn("abc".getBytes());
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		JsonNode json = this.test.exportJsonAsTree(pubs, configurator, null);
+		byte[] odt = this.test.exportOdt(pubs, configurator, new DefaultProgression());
 
-		assertSame(root, json);
+		assertEquals("abc", new String(odt));
 
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
+		ArgumentCaptor<Collection> arg0 = ArgumentCaptor.forClass(Collection.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		ArgumentCaptor<Procedure2> arg2 = ArgumentCaptor.forClass(Procedure2.class);
-		verify(this.json, only()).exportPublicationsAsTreeWithRootKeys(arg0.capture(), arg1.capture(), arg2.capture());
+		ArgumentCaptor<Progression> arg2 = ArgumentCaptor.forClass(Progression.class);
+		verify(this.odt, only()).exportPublications(arg0.capture(), arg1.capture(), arg2.capture());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -695,6 +638,73 @@ public class PublicationServiceTest {
 		assertSame(this.pub2, iterator.next());
 		assertFalse(iterator.hasNext());
 		assertNotNull(arg1.getValue());
+		assertNotNull(arg2.getValue());
+	}
+
+	@Test
+	public void exportJson_Collection_null() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
+		String html = this.test.exportJson((Collection<Publication>) null, configurator, new DefaultProgression());
+		assertNull(html);
+	}
+
+	@Test
+	public void exportJson_Collection() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
+		when(this.json.exportPublicationsWithRootKeys(any(Collection.class), any(), any(), any(String[].class))).thenReturn("abc");
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
+
+		String json = this.test.exportJson(pubs, configurator, new DefaultProgression());
+
+		assertEquals("abc", json);
+
+		ArgumentCaptor<Collection> arg0 = ArgumentCaptor.forClass(Collection.class);
+		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
+		ArgumentCaptor<Progression> arg3 = ArgumentCaptor.forClass(Progression.class);
+		ArgumentCaptor<String[]> arg2 = ArgumentCaptor.forClass(String[].class);
+		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), arg3.capture(), arg2.capture());
+		Iterable<Publication> it = arg0.getValue();
+		assertNotNull(it);
+		Iterator<Publication> iterator = it.iterator();
+		assertSame(this.pub0, iterator.next());
+		assertSame(this.pub2, iterator.next());
+		assertFalse(iterator.hasNext());
+		assertNotNull(arg1.getValue());
+		assertNotNull(arg2.getValue());
+		assertNotNull(arg3.getValue());
+	}
+
+	@Test
+	public void exportJsonAsTree_Collection_null() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
+		JsonNode json = this.test.exportJsonAsTree((Collection<Publication>) null, configurator, new DefaultProgression(), null);
+		assertNull(json);
+	}
+
+	@Test
+	public void exportJsonAsTree_Collection() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
+		JsonNode root = mock(JsonNode.class);
+		when(this.json.exportPublicationsAsTreeWithRootKeys(any(Collection.class), any(), any(), any())).thenReturn(root);
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
+
+		JsonNode json = this.test.exportJsonAsTree(pubs, configurator, new DefaultProgression(), null);
+
+		assertSame(root, json);
+
+		ArgumentCaptor<Collection> arg0 = ArgumentCaptor.forClass(Collection.class);
+		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
+		ArgumentCaptor<Progression> arg3 = ArgumentCaptor.forClass(Progression.class);
+		ArgumentCaptor<Procedure2> arg2 = ArgumentCaptor.forClass(Procedure2.class);
+		verify(this.json, only()).exportPublicationsAsTreeWithRootKeys(arg0.capture(), arg1.capture(), arg3.capture(), arg2.capture());
+		Iterable<Publication> it = arg0.getValue();
+		assertNotNull(it);
+		Iterator<Publication> iterator = it.iterator();
+		assertSame(this.pub0, iterator.next());
+		assertSame(this.pub2, iterator.next());
+		assertFalse(iterator.hasNext());
+		assertNotNull(arg1.getValue());
+		assertNotNull(arg3.getValue());
 		assertNull(arg2.getValue());
 	}
 

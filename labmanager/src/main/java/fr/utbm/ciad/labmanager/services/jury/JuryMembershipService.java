@@ -70,20 +70,20 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param membershipRepository the jury membership repository.
 	 * @param personService the service for accessing the persons.
 	 * @param nameParser the parser of person names.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public JuryMembershipService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired JuryMembershipRepository membershipRepository,
 			@Autowired PersonService personService,
-			@Autowired PersonNameParser nameParser) {
+			@Autowired PersonNameParser nameParser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.membershipRepository = membershipRepository;
 		this.personService = personService;

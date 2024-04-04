@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.utils.io.json;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -32,6 +33,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
+import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -60,27 +62,35 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	}
 
 	@Override
-	public String exportPublicationsWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			String... rootKeys) throws Exception {
-		final var root = exportPublicationsAsTreeWithRootKeys(publications, configurator, null, rootKeys);
+	public String exportPublicationsWithRootKeys(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, String... rootKeys) throws Exception {
+		progression.setProperties(0, 0, publications.size() + 1, false);	
+		final var root = exportPublicationsAsTreeWithRootKeys(publications, configurator,
+				progression.subTask(publications.size()), null, rootKeys);
 		final var mapper = JsonUtils.createMapper();
-		return mapper.writer().writeValueAsString(root);
+		final var output = mapper.writer().writeValueAsString(root);
+		progression.end();
+		return output;
 	}
 
 	@Override
-	public JsonNode exportPublicationsAsTreeWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
+	public JsonNode exportPublicationsAsTreeWithRootKeys(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
+		progression.setProperties(0, 0, publications.size() + (rootKeys == null ? 0 : rootKeys.length), false);		
 		final var mapper = JsonUtils.createMapper();
-		final var node = exportPublicationsAsTree(publications, configurator, callback, mapper, configurator.getLocaleOrLanguageLocale(null));
+		final var node = exportPublicationsAsTree(publications, configurator, progression.subTask(publications.size()),
+				callback, mapper, configurator.getLocaleOrLanguageLocale(null));
 		var root = node;
 		if (rootKeys != null) {
 			for (var i = rootKeys.length - 1; i >= 0; --i) {
 				final var rkey = rootKeys[i];
 				final var onode = mapper.createObjectNode();
 				onode.set(rkey, root);
-				root = onode; 
+				root = onode;
+				progression.increment();
 			}
 		}
+		progression.end();
 		return root;
 	}
 
@@ -88,6 +98,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	 * 
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
+	 * @param progression the progression indicator.
 	 * @param callback a function that is invoked for each publication for giving the opportunity
 	 *     to fill up the Json node of the publication.
 	 * @param mapper the JSON object creator and mapper.
@@ -95,11 +106,13 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	 * @return the representation of the publications.
 	 * @throws Exception if the publication cannot be converted.
 	 */
-	public JsonNode exportPublicationsAsTree(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper, Locale locale) throws Exception {
+	public JsonNode exportPublicationsAsTree(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper, Locale locale) throws Exception {
 		if (publications == null) {
+			progression.end();
 			return mapper.nullNode();
 		}
+		progression.setProperties(0, 0, publications.size(), false);
 		final var array = mapper.createArrayNode();
 		for (final var publication : publications) {
 			final var entryNode = exportPublication(publication, configurator, mapper);
@@ -129,7 +142,9 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			}
 			//
 			array.add(entryNode);
+			progression.increment();
 		}
+		progression.end();
 		return array;
 	}
 

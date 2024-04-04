@@ -72,22 +72,22 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param scientificAxisRepository the repository for accessing the scientific axes.
 	 * @param publicationRepository the repository for accessing the publications.
 	 * @param membershipRepository the repository for accessing the memberships.
 	 * @param projectRepository the repository for accessing the projects.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public ScientificAxisService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired ScientificAxisRepository scientificAxisRepository,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired MembershipRepository membershipRepository,
-			@Autowired ProjectRepository projectRepository) {
+			@Autowired ProjectRepository projectRepository,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.scientificAxisRepository = scientificAxisRepository;
 		this.publicationRepository = publicationRepository;

@@ -88,20 +88,20 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param organizationRepository the organization repository.
 	 * @param membershipRepository the membership repository.
 	 * @param personRepository the person repository.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public MembershipService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MembershipRepository membershipRepository,
-			@Autowired PersonRepository personRepository) {
+			@Autowired PersonRepository personRepository,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.organizationRepository = organizationRepository;
 		this.membershipRepository = membershipRepository;

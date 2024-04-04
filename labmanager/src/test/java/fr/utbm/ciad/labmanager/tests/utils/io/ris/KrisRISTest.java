@@ -82,6 +82,7 @@ import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.ris.KrisRIS;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.vmutil.Resources;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -229,7 +230,7 @@ public class KrisRISTest {
 		when(pub.getPages()).thenReturn("pages/1");
 		when(pub.getScimagoQIndex()).thenReturn(QuartileRanking.Q2);
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - JOUR",
@@ -271,7 +272,7 @@ public class KrisRISTest {
 		when(pub.getPublisher()).thenReturn("publisher/1");
 		when(pub.getSeries()).thenReturn("series/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - BOOK",
@@ -313,7 +314,7 @@ public class KrisRISTest {
 		when(pub.getPublisher()).thenReturn("publisher/1");
 		when(pub.getSeries()).thenReturn("series/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - CHAP",
@@ -349,7 +350,7 @@ public class KrisRISTest {
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - THES",
@@ -380,7 +381,7 @@ public class KrisRISTest {
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - THES",
@@ -422,7 +423,7 @@ public class KrisRISTest {
 		when(pub.getPages()).thenReturn("pages/1");
 		when(pub.getScimagoQIndex()).thenReturn(QuartileRanking.Q2);
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - EDBOOK",
@@ -471,7 +472,7 @@ public class KrisRISTest {
 		when(pub.getAddress()).thenReturn("adr/1");
 		when(pub.getEditors()).thenReturn("Editor1, Editor2 and Editor3, Editor4");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - CPAPER",
@@ -515,7 +516,7 @@ public class KrisRISTest {
 		when(pub.getAddress()).thenReturn("adr/1");
 		when(pub.getEditors()).thenReturn("Editor1, Editor2 and Editor3, Editor4");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - HEAR",
@@ -550,7 +551,7 @@ public class KrisRISTest {
 		when(pub.getReportNumber()).thenReturn("num/1");
 		when(pub.getReportType()).thenReturn("type/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - RPRT",
@@ -585,7 +586,7 @@ public class KrisRISTest {
 		when(pub.getReportNumber()).thenReturn("num/1");
 		when(pub.getReportType()).thenReturn("type/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - RPRT",
@@ -620,7 +621,7 @@ public class KrisRISTest {
 		when(pub.getPatentNumber()).thenReturn("bre/1");
 		when(pub.getPatentType()).thenReturn("int./1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - PAT",
@@ -657,7 +658,7 @@ public class KrisRISTest {
 		when(pub.getOrganization()).thenReturn("orga/1");
 		when(pub.getPublisher()).thenReturn("publisher/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 		assertEquals(lines(
 				"TY  - ART",
@@ -701,7 +702,7 @@ public class KrisRISTest {
 			lenient().when(pub.getPublicationYear()).thenReturn(2022);
 			lenient().when(pub.getTitle()).thenReturn("title/" + type.name());
 
-			final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
+			final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US), new DefaultProgression());
 
 			assertFalse(Strings.isNullOrEmpty(bibtex));
 		}

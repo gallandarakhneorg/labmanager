@@ -72,22 +72,22 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param supervisionRepository the repository for person supervisions.
 	 * @param supervisorRepository the repository for person supervisors.
 	 * @param membershipRepository the repository for accessing the organization memberships.
 	 * @param personService the service for accessing the persons.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public SupervisionService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired SupervisorRepository supervisorRepository,
 			@Autowired MembershipRepository membershipRepository,
-			@Autowired PersonService personService) {
+			@Autowired PersonService personService,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.supervisionRepository = supervisionRepository;
 		this.supervisorRepository = supervisorRepository;

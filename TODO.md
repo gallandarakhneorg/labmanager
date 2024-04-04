@@ -66,8 +66,6 @@
   * Annual activity report Excel for SPIM
   * Annual activity report Excel for PPST
   * Annual activity report Excel for CIAD UB (Voir besoins à l'UB)
-  * Export all database to JSON
-  * Export all database to ZIP
 * Tests
   * Extend the Unit Tests and Integration Tests.
 

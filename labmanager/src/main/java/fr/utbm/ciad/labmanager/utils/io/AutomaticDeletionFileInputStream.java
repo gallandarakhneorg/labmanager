@@ -19,30 +19,39 @@
 
 package fr.utbm.ciad.labmanager.utils.io;
 
-import java.util.Collection;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import org.arakhne.afc.progress.Progression;
-
-/** Exporter of publications.
+/** An file input stream that delete the source file at the end of reading.
  * 
- * @param <T> the type of the replied value after exporting.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 4.0
  */
-public interface PublicationExporter<T> {
+public class AutomaticDeletionFileInputStream extends FileInputStream {
 
-	/** Export publications. The content of the exported flow depends on the sub-interfaces.
-	 *
-	 * @param publications the publications to export.
-	 * @param configurator the configurator for the export, never {@code null}.
-	 * @param progression the progression indicator to be used.
-	 * @return the representation of the publications.
-	 * @throws Exception if the publication cannot be converted.
+	private final File file;
+	
+	/** Constructor.
+	 * 
+	 * @param file the file to read.
+	 * @throws FileNotFoundException if the file does not exist
 	 */
-	T exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception;
+	public AutomaticDeletionFileInputStream(File file) throws FileNotFoundException {
+		super(file);
+		this.file = file;
+	}
 
+	@Override
+	public void close() throws IOException {
+		super.close();
+		if (this.file != null) {
+			this.file.delete();
+		}
+	}
+	
 }

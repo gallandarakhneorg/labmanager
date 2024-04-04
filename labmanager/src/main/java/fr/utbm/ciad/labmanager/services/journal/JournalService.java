@@ -90,26 +90,26 @@ public class JournalService extends AbstractEntityService<Journal> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param journalRepository the journal repository.
 	 * @param indicatorRepository the repository for journal indicators.
 	 * @param publicationRepository the publication repository.
 	 * @param scimago the reference to the tool for accessing to the Scimago platform.
 	 * @param wos the reference to the tool for accessing to the Web-of-Science platform.
 	 * @param netConnection the tools for accessing the network.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public JournalService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository indicatorRepository,
 			@Autowired JournalPaperRepository publicationRepository,
 			@Autowired ScimagoPlatform scimago,
 			@Autowired WebOfSciencePlatform wos,
-			@Autowired NetConnection netConnection) {
+			@Autowired NetConnection netConnection,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.journalRepository = journalRepository;
 		this.indicatorRepository = indicatorRepository;

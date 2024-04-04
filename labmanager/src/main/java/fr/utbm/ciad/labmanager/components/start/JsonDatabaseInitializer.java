@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.components.start;
 import java.net.URL;
 
 import com.google.common.base.Strings;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter;
 import fr.utbm.ciad.labmanager.utils.io.json.ZipToDatabaseImporter;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -49,10 +50,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class JsonDatabaseInitializer implements ApplicationRunner {
-
-	private static final String DATA_FILENAME = "data.json"; //$NON-NLS-1$
-
-	private static final String ARCHIVE_FILENAME = "data.zip"; //$NON-NLS-1$
 
 	/** Logger of the service. It is lazy loaded.
 	 */
@@ -117,7 +114,7 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	 */
 	protected static URL getDataURLInWar() {
 		try {
-			final var url = Resources.getResource("/" + DATA_FILENAME); //$NON-NLS-1$
+			final var url = Resources.getResource("/" + Constants.INITIALIZATION_JSON_DATA_FILENAME); //$NON-NLS-1$
 			if (url != null) {
 				try {
 					@SuppressWarnings("resource")
@@ -144,7 +141,7 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 		if (!Strings.isNullOrEmpty(this.dataSourceFolder)) {
 			try {
 				final var root = FileSystem.convertStringToFile(this.dataSourceFolder);
-				final var file = FileSystem.join(root, DATA_FILENAME);
+				final var file = FileSystem.join(root, Constants.INITIALIZATION_JSON_DATA_FILENAME);
 				if (file != null && file.exists() && file.canRead()) {
 					try {
 						return FileSystem.convertFileToURL(file);
@@ -179,7 +176,7 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 		if (!Strings.isNullOrEmpty(this.dataSourceFolder)) {
 			try {
 				final var root = FileSystem.convertStringToFile(this.dataSourceFolder);
-				final var file = FileSystem.join(root, ARCHIVE_FILENAME);
+				final var file = FileSystem.join(root, Constants.INITIALIZATION_ZIP_DATA_FILENAME);
 				if (file != null && file.exists() && file.canRead()) {
 					try {
 						return FileSystem.convertFileToURL(file);

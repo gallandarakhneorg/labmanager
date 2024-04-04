@@ -63,18 +63,18 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param fileManager the manager of files.
+	 * @param addressRepository the address repository.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the Hibernate session factory.
-	 * @param fileManager the manager of files.
-	 * @param addressRepository the address repository.
 	 */
 	public OrganizationAddressService(
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
-			@Autowired DownloadableFileManager fileManager,
-			@Autowired OrganizationAddressRepository addressRepository) {
+			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.fileManager = fileManager;
 		this.addressRepository = addressRepository;
