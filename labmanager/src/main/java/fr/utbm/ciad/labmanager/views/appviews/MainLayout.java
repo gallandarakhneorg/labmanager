@@ -58,6 +58,7 @@ import fr.utbm.ciad.labmanager.views.appviews.assocstructures.AssociatedStructur
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferencesListView;
 import fr.utbm.ciad.labmanager.views.appviews.culture.ScientificCultureActionsListView;
 import fr.utbm.ciad.labmanager.views.appviews.database.DatabaseInputOutputView;
+import fr.utbm.ciad.labmanager.views.appviews.exports.ReportExportView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.IncomingInvitationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.OutgoingInvitationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.journals.JournalsListView;
@@ -184,6 +185,10 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private SideNavItem addresses;
 	
+	private SideNavItem exportingSection;
+
+	private SideNavItem exportingReports;
+
 	private SideNavItem databaseSection;
 
 	private SideNavItem databaseInputOutput;
@@ -425,6 +430,19 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 	}
 
+	/** Create the export management items in the navigation panel.
+	 *
+	 * @param nav the navigation panel.
+	 */
+	protected void createExportNavigation(SideNav nav) {
+		if (this.accessChecker.hasAccess(ReportExportView.class)) {
+			this.exportingSection = new SideNavItem(""); //$NON-NLS-1$
+			this.exportingReports = new SideNavItem("", ReportExportView.class, LineAwesomeIcon.DOWNLOAD_SOLID.create()); //$NON-NLS-1$
+			this.exportingSection.addItem(this.exportingReports);
+			nav.addItem(this.exportingSection);
+		}
+	}
+
 	/** Create the database management items in the navigation panel.
 	 *
 	 * @param nav the navigation panel.
@@ -465,6 +483,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		createScientificCultureNavigation(nav);
 		createTeachingNavigation(nav);
 		createStructureManagementNavigation(nav);
+		createExportNavigation(nav);
 		createDatabaseNavigation(nav);
 		createDocumentationNavigation(nav);
 		return nav;
@@ -762,6 +781,13 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 		if (this.addresses != null) {
 			this.addresses.setLabel(getTranslation("views.navitem.addresses")); //$NON-NLS-1$
+		}
+
+		if (this.exportingSection != null) {
+			this.exportingSection.setLabel(getTranslation("views.navitem.export")); //$NON-NLS-1$
+		}
+		if (this.exportingReports != null) {
+			this.exportingReports.setLabel(getTranslation("views.navitem.export.reports")); //$NON-NLS-1$
 		}
 
 		if (this.databaseSection != null) {

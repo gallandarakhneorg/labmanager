@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.base.Strings;
@@ -906,6 +907,20 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Override
 	public String toString() {
 		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
+	/** Replies the employer organization. If the membership is associated to multiple employing organizations,
+	 * this function will reply a single one, randomly selected.
+	 *
+	 * @return the employer organization.
+	 * @since 4.0
+	 */
+	public Optional<ResearchOrganization> getEmployer() {
+		var referenceOrganization = getSuperResearchOrganization();
+		if (referenceOrganization == null) {
+			referenceOrganization = getDirectResearchOrganization();
+		}
+		return referenceOrganization.getEmployingOrganizations().stream().findAny();
 	}
 
 }

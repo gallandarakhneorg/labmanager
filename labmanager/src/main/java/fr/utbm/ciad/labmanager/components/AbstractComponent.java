@@ -139,7 +139,7 @@ public abstract class AbstractComponent {
 	 * @return the string.
 	 */
 	public String getMessage(Locale locale, String key, Object... args) {
-		return getMessageSourceAccessor().getMessage(key, args);
+		return getMessageSourceAccessor().getMessage(key, args, locale);
 	}
 
 	/** Change the message provider of this controller.

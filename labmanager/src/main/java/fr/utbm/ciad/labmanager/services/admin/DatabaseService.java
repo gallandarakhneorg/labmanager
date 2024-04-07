@@ -27,6 +27,10 @@ import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.services.admin.carnot.IcartsActivityReportGenerator;
+import fr.utbm.ciad.labmanager.services.admin.spim.SpimActivityReportGenerator;
+import fr.utbm.ciad.labmanager.services.admin.utbm.UtbmActivityReportGenerator;
+import fr.utbm.ciad.labmanager.utils.DownloadableFileDescription;
 import fr.utbm.ciad.labmanager.utils.io.AutomaticDeletionFileInputStream;
 import fr.utbm.ciad.labmanager.utils.io.json.DatabaseToJsonExporter;
 import fr.utbm.ciad.labmanager.utils.io.json.DatabaseToZipExporter;
@@ -54,11 +58,21 @@ public class DatabaseService extends AbstractService {
 	
 	private final DatabaseToZipExporter zipExporter;
 
+	private final UtbmActivityReportGenerator utbmActivityReportGenerator;
+
+	private final SpimActivityReportGenerator spimActivityReportGenerator;
+
+	private final IcartsActivityReportGenerator icartsActivityReportGenerator;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param jsonExporter the database exporter to JSON file.
 	 * @param zipExporter the database exporter to ZIP file.
+	 * @param utbmActivityReportGenerator the generator of activity report with UTBM standard.
+	 * @param ubActivityReportGenerator the generator of activity report with UB standard.
+	 * @param spimActivityReportGenerator the generator of activity report with SPIM standard.
+	 * @param icartsActivityReportGenerator the generator of activity report with IC ARTS standard.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the factory of JPA session.
@@ -66,12 +80,18 @@ public class DatabaseService extends AbstractService {
 	public DatabaseService(
 			@Autowired DatabaseToJsonExporter jsonExporter,
 			@Autowired DatabaseToZipExporter zipExporter,
+			@Autowired UtbmActivityReportGenerator utbmActivityReportGenerator,
+			@Autowired SpimActivityReportGenerator spimActivityReportGenerator,
+			@Autowired IcartsActivityReportGenerator icartsActivityReportGenerator,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.jsonExporter = jsonExporter;
 		this.zipExporter = zipExporter;
+		this.utbmActivityReportGenerator = utbmActivityReportGenerator;
+		this.spimActivityReportGenerator = spimActivityReportGenerator;
+		this.icartsActivityReportGenerator = icartsActivityReportGenerator;
 	}
 
 	/** Export database content to Json.
@@ -119,6 +139,45 @@ public class DatabaseService extends AbstractService {
 		final var tmpFile = File.createTempFile(Constants.INITIALIZATION_BASENAME, Constants.ZIP_FILENAME_EXTENSION);
 		exporter.exportToZip(new FileOutputStream(tmpFile));
 		return new AutomaticDeletionFileInputStream(tmpFile);
+	}
+
+	/** Export the Excel file for the UTBM annual activity report.
+	 *
+	 * @param organizationId the identifier of the organization for which the publications must be extracted.
+	 * @param year the reference year.
+	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param progression the progression indicator.
+	 * @return the content of the file.
+	 * @throws Exception the export error.
+	 */
+	public DownloadableFileDescription exportUtbmActivityReport(long organizationId, int year, Locale locale, Progression progression) throws Exception {
+		return this.utbmActivityReportGenerator.exportUtbmAnnualReport(organizationId, year, locale, progression);
+	}
+
+	/** Export the Excel file for the SPIM annual activity report.
+	 *
+	 * @param organizationId the identifier of the organization for which the publications must be extracted.
+	 * @param year the reference year.
+	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param progression the progression indicator.
+	 * @return the content of the file.
+	 * @throws Exception the export error.
+	 */
+	public DownloadableFileDescription exportSpimActivityReport(long organizationId, int year, Locale locale, Progression progression) throws Exception {
+		return this.spimActivityReportGenerator.exportSpimAnnualReport(organizationId, year, locale, progression);
+	}
+
+	/** Export the Excel file for the IC-ARTS annual activity report.
+	 *
+	 * @param organizationId the identifier of the organization for which the publications must be extracted.
+	 * @param year the reference year.
+	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param progression the progression indicator.
+	 * @return the content of the file.
+	 * @throws Exception the export error.
+	 */
+	public DownloadableFileDescription exportIcartsActivityReport(long organizationId, int year, Locale locale, Progression progression) throws Exception {
+		return this.icartsActivityReportGenerator.exportIcartsAnnualReport(organizationId, year, locale, progression);
 	}
 
 }

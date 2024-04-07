@@ -36,6 +36,12 @@ public class Constants {
 
 	// FIXME Remove unnecessary constants
 
+	/** MIME for MS Excel file.
+	 *
+	 * @since 4.0
+	 */
+	public static final String EXCEL_MIME = "application/ms-excel"; //$NON-NLS-1$
+
 	/** MIME for JSON file.
 	 *
 	 * @since 4.0

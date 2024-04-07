@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -1182,6 +1183,32 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		if (list != null) {
 			this.otherPartnerProjects.addAll(list);
 		}
+	}
+
+	/** Replies the organizations that are employers.
+	 *
+	 * @return the list of employing organizations.
+	 * @since 4.0
+	 */
+	public Set<ResearchOrganization> getEmployingOrganizations() {
+		if (getType().isEmployer()) {
+			return Collections.singleton(this);
+		}
+		final var employers = new HashSet<ResearchOrganization>();
+		final var treated = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+		final var candidates = new LinkedList<ResearchOrganization>();
+		candidates.add(this);
+		while (!candidates.isEmpty()) {
+			final var candidate = candidates.removeFirst();
+			if (treated.add(candidate)) {
+				if (candidate.getType().isEmployer()) {
+					employers.add(candidate);
+				} else {
+					candidates.addAll(candidate.getSuperOrganizations());
+				}
+			}
+		}
+		return employers;
 	}
 
 }

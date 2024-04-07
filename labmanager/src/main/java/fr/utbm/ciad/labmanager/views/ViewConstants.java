@@ -51,6 +51,26 @@ public final class ViewConstants {
 	 */
 	public static final String ONLINE_MANUAL_URL = "https://www.ciad-lab.fr/docs/"; //$NON-NLS-1$
 	
+	/** URL path of the images with terminal slash.
+	 */
+	public static final String IMAGE_URL_PATH = "/images/"; //$NON-NLS-1$
+
+	/** Path to the logo of UTBM.
+	 */
+	public static final String UTBM_LOGO = IMAGE_URL_PATH + "utbmlogo.svg"; //$NON-NLS-1$
+
+	/** Path to the logo of UB.
+	 */
+	public static final String UB_LOGO = IMAGE_URL_PATH + "ublogo.svg"; //$NON-NLS-1$
+
+	/** Path to the logo of SPIM.
+	 */
+	public static final String SPIM_LOGO = IMAGE_URL_PATH + "spimlogo.svg"; //$NON-NLS-1$
+
+	/** Path to the logo of Carnot ARTS.
+	 */
+	public static final String CARNOT_ARTS_LOGO = IMAGE_URL_PATH + "carnotartslogo.svg"; //$NON-NLS-1$
+	
 	/** URL path of the icons with terminal slash.
 	 */
 	public static final String ICON_URL_PATH = "/icons/"; //$NON-NLS-1$

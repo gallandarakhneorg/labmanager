@@ -20,6 +20,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.download;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Optional;
@@ -39,10 +40,12 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.server.StreamResource;
+import fr.utbm.ciad.labmanager.utils.DownloadableFileDescription;
 import fr.utbm.ciad.labmanager.views.components.addons.SerializableExceptionFunction;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.arakhne.afc.vmutil.FileSystem;
 
 /** Extension of a component that is clickable in order to start asynchronous a task and download the result from the client browser.
  * In order to enable the downloading, it is important that the component is visible during the download process. Otherwise there is a risk to
@@ -75,6 +78,8 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 	private final ProgressExtension<String, C> progress;
 
 	private SerializableExceptionFunction<Progression, InputStream> inputStreamFactory;
+	
+	private SerializableExceptionFunction<Progression, DownloadableFileDescription> downloadableFileDescription;
 
 	private SerializableExceptionFunction<Progression, StreamResource> streamResourceSupplier;
 
@@ -86,7 +91,6 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 	 * 
 	 * @param component the component to extend.
 	 */
-	@SuppressWarnings("resource")
 	protected DownloadExtension(C component) {
 		assert component != null;
 		this.progress = ProgressExtension.<String,C>extend(component)
@@ -101,21 +105,7 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 					try {
 						// Create href object for representing the downloadable file
 						final var subTask = progression.subTask(CHILD_PROGRESS_SIZE);
-						final StreamResource href;
-						if (this.streamResourceSupplier != null) {
-							href = this.streamResourceSupplier.apply(subTask);
-						} else {
-							final var inputStream = this.inputStreamFactory.apply(subTask);
-							if (inputStream == null) {
-								// Do nothing because the stream factory does not create a stream. The error is logged by the stream factory if there is some error.
-								throw new CancellationException();
-							}
-							href = new StreamResource(this.fileNameSupplier.get(), () -> inputStream);
-							final var mime = this.fileTypeSupplier.get();
-							if (!Strings.isNullOrEmpty(mime)) {
-								href.setContentType(mime);
-							}
-						}
+						final var href = buildStreamResource(subTask);
 						href.setCacheTime(0);
 						subTask.end();
 	
@@ -144,6 +134,66 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 
 					return name;
 				});
+	}
+
+	@SuppressWarnings("resource")
+	private StreamResource buildStreamResource(Progression progression) throws Exception {
+		if (this.streamResourceSupplier != null) {
+			final var href = this.streamResourceSupplier.apply(progression);
+			if (href == null) {
+				// Do nothing because the stream factory does not create a stream.
+				throw new CancellationException();
+			}
+			if (this.fileTypeSupplier != null) {
+				final var mime = this.fileTypeSupplier.get();
+				if (!Strings.isNullOrEmpty(mime)) {
+					href.setContentType(mime);
+				}
+			}
+			return href;
+		}
+		if (this.downloadableFileDescription != null) {
+			final var description = this.downloadableFileDescription.apply(progression);
+			if (description == null) {
+				// Do nothing because the stream factory does not create a description.
+				throw new CancellationException();
+			}
+			String filename = this.fileNameSupplier.get();
+			final var extension = description.filenameExtension();
+			if (!Strings.isNullOrEmpty(extension)) {
+				var url = FileSystem.convertStringToURL(filename, false);
+				url = FileSystem.replaceExtension(url, extension);
+				final var file = FileSystem.convertURLToFile(url);
+				filename = file.getName();
+			}
+			final var href = new StreamResource(filename, () -> new ByteArrayInputStream(description.content() == null ? new byte[0] : description.content()));
+			String mime = null;
+			if (description.mime() != null) {
+				mime = description.mime().toString();
+			} else if (this.fileTypeSupplier != null) {
+				mime = this.fileTypeSupplier.get();
+			}
+			if (!Strings.isNullOrEmpty(mime)) {
+				href.setContentType(mime);
+			}
+			return href;
+		}
+		if (this.inputStreamFactory != null) {
+			final var inputStream = this.inputStreamFactory.apply(progression);
+			if (inputStream == null) {
+				// Do nothing because the stream factory does not create a stream.
+				throw new CancellationException();
+			}
+			final var href = new StreamResource(this.fileNameSupplier.get(), () -> inputStream);
+			if (this.fileTypeSupplier != null) {
+				final var mime = this.fileTypeSupplier.get();
+				if (!Strings.isNullOrEmpty(mime)) {
+					href.setContentType(mime);
+				}
+			}
+			return href;
+		}
+		throw new IllegalStateException();
 	}
 
 	/** Replies the component that is receiving the anchor. This component must be not clikable to avoid infinite loop.
@@ -212,6 +262,17 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 	 */
 	public DownloadExtension<C> withInputStreamFactory(SerializableExceptionFunction<Progression, InputStream> factory) {
 		this.inputStreamFactory = factory;
+		return this;
+	}
+
+	/** Change the factory for the input stream of the content of the downloadable file. This function reads the input stream
+	 * and set the {@link #withMimeType(SerializableSupplier) MIME type} and add extension to the {@link #withFilename(SerializableSupplier) filename}.
+	 *
+	 * @param factory the object that is able to create the input stream to the client.
+	 * @return {@code this}
+	 */
+	public DownloadExtension<C> withFileDescription(SerializableExceptionFunction<Progression, DownloadableFileDescription> factory) {
+		this.downloadableFileDescription = factory;
 		return this;
 	}
 

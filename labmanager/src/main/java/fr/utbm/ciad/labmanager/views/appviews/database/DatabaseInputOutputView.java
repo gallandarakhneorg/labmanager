@@ -23,13 +23,12 @@ import java.io.InputStream;
 import java.util.Locale;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -40,7 +39,7 @@ import fr.utbm.ciad.labmanager.services.admin.DatabaseService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtension;
+import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadBigButton;
 import jakarta.annotation.security.RolesAllowed;
 import org.arakhne.afc.progress.Progression;
 import org.slf4j.Logger;
@@ -58,25 +57,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route(value = "databaseio", layout = MainLayout.class)
 @RolesAllowed({UserRole.ADMIN_GRANT})
 @Uses(Icon.class)
-public class DatabaseInputOutputView extends Composite<HorizontalLayout> implements HasDynamicTitle, LocaleChangeObserver {
+public class DatabaseInputOutputView extends Composite<FlexLayout> implements HasDynamicTitle, LocaleChangeObserver {
 
 	private static final long serialVersionUID = -4957957381615358038L;
-
-	private static final int BUTTON_WIDTH = 256;
-
-	private static final int BUTTON_HEIGHT = 164;
-	
-	private static final int ICON_SIZE = 128;
-
-	private static final String ICON_SIZE_STR = new StringBuilder().append(128).append(Unit.PIXELS.getSymbol()).toString();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseInputOutputView.class);
 
 	private final DatabaseService databaseService;
 	
-	private final Button exportJson;
+	private final DownloadBigButton exportJson;
 	
-	private final Button exportZip;
+	private final DownloadBigButton exportZip;
 
 	/** Constructor.
 	 *
@@ -85,39 +76,31 @@ public class DatabaseInputOutputView extends Composite<HorizontalLayout> impleme
     public DatabaseInputOutputView(@Autowired DatabaseService databaseService) {
     	this.databaseService = databaseService;
     	
-		final var jsonImage0 = new Image(ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON), null);
-		jsonImage0.setMinHeight(ICON_SIZE, Unit.PIXELS);
-		jsonImage0.setMinWidth(ICON_SIZE, Unit.PIXELS);
-    	this.exportJson = new Button(jsonImage0);
-    	this.exportJson.setMinHeight(BUTTON_HEIGHT, Unit.PIXELS);
-    	this.exportJson.setMinWidth(BUTTON_WIDTH, Unit.PIXELS);
-		final var jsonImage1 = new Image(ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON), null);
-        DownloadExtension.extend(this.exportJson)
-	    	.withProgressIcon(jsonImage1)
-	    	.withProgressTitle(getTranslation("views.databases.io.export_json")) //$NON-NLS-1$
+    	this.exportJson = DownloadBigButton.newButtonWithComponent(
+    			getTranslation("views.databases.io.export_json"), //$NON-NLS-1$
+    			() -> new Image(ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON), null));
+    	this.exportJson.configure()
         	.withFilename(() -> Constants.INITIALIZATION_JSON_DATA_FILENAME)
         	.withMimeType(() -> Constants.JSON_MIME)
 	    	.withFailureListener(this::notifyExportError)
         	.withInputStreamFactory(progress -> exportJson(progress));
 
-		final var zipImage0 = VaadinIcon.FILE_ZIP.create();
-		zipImage0.setSize(ICON_SIZE_STR);
-		zipImage0.setColor("black"); //$NON-NLS-1$
-    	this.exportZip = new Button(zipImage0);
-    	this.exportZip.setMinHeight(BUTTON_HEIGHT, Unit.PIXELS);
-    	this.exportZip.setMinWidth(BUTTON_WIDTH, Unit.PIXELS);
-		final var zipImage1 = VaadinIcon.FILE_ZIP.create();
-		zipImage1.setColor("black"); //$NON-NLS-1$
-        DownloadExtension.extend(this.exportZip)
-	    	.withProgressIcon(zipImage1)
-	    	.withProgressTitle(getTranslation("views.databases.io.export_zip")) //$NON-NLS-1$
+    	this.exportZip = DownloadBigButton.newButtonWithIcon(
+    			getTranslation("views.databases.io.export_zip"), //$NON-NLS-1$
+    			() -> {
+    				final var icon = VaadinIcon.FILE_ZIP.create();
+    				icon.setColor("black"); //$NON-NLS-1$
+    				return icon;
+    			});
+        this.exportZip.configure()
         	.withFilename(() -> Constants.INITIALIZATION_ZIP_DATA_FILENAME)
         	.withMimeType(() -> Constants.ZIP_MIME)
 	    	.withFailureListener(this::notifyExportError)
         	.withInputStreamFactory(progress -> exportZip(progress));
 
     	final var root = getContent();
-    	root.setPadding(true);
+    	root.setSizeFull();
+		root.setFlexWrap(FlexWrap.WRAP);
 		root.add(this.exportJson, this.exportZip);
     }
 
