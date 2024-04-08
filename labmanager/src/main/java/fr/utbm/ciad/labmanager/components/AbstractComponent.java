@@ -78,11 +78,6 @@ public abstract class AbstractComponent {
 
 	private final Random random = new Random();
 
-	/** Indicates if the component is launched in debug mode.
-	 */
-	@Value("${labmanager.debug}")
-	protected boolean debugVersion;
-
 	@Value("${labmanager.init.data-source")
 	private String dataSource;
 
