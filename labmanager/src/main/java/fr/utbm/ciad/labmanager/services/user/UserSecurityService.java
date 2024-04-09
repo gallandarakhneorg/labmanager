@@ -27,6 +27,7 @@ import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.apache.logging.log4j.util.Strings;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.GrantedAuthority;
@@ -55,15 +56,17 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param userRepository the repository for the application users.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
-	 * @param userRepository the repository for the application users.
+	 * @param sessionFactory the factory of JPA session.
 	 */
 	public UserSecurityService(
+			@Autowired UserRepository userRepository,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired UserRepository userRepository) {
-		super(messages, constants);
+			@Autowired SessionFactory sessionFactory) {
+		super(messages, constants, sessionFactory);
 		this.userRepository = userRepository;
 	}
 

@@ -118,7 +118,8 @@ public class MembershipServiceTest {
 		this.membershipRepository = mock(MembershipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.sessionFactory = mock(SessionFactory.class);
-		this.test = new MembershipService(this.messages, new Constants(), this.sessionFactory, this.organizationRepository, this.membershipRepository, this.personRepository);
+		this.test = new MembershipService(this.organizationRepository, this.membershipRepository, this.personRepository,
+				this.messages, new Constants(), this.sessionFactory);
 
 		// Prepare some memberships to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

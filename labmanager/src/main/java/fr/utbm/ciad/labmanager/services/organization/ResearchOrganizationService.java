@@ -73,20 +73,20 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param addressRepository the address repository.
 	 * @param organizationRepository the organization repository.
 	 * @param fileManager the manager of the uploaded and downloadable files.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public ResearchOrganizationService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
-			@Autowired DownloadableFileManager fileManager) {
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;

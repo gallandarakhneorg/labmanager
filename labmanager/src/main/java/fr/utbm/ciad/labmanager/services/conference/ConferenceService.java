@@ -85,21 +85,21 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param conferenceRepository the journal repository.
 	 * @param indicatorsRepository the repository for accessing to the quality indicators.
 	 * @param corePortal the accessor to the online CORE portal.
 	 * @param sessionFactory the factory for hibernate session.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public ConferenceService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired ConferenceQualityAnnualIndicatorsRepository indicatorsRepository,
-			@Autowired CorePortal corePortal) {
+			@Autowired CorePortal corePortal,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.conferenceRepository = conferenceRepository;
 		this.indicatorsRepository = indicatorsRepository;

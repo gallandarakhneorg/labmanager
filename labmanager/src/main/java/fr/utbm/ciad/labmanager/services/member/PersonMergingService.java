@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -79,8 +80,6 @@ public class PersonMergingService extends AbstractService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
 	 * @param personRepository the person repository.
 	 * @param personService the person service.
 	 * @param organizationMembershipService the service for managing the organization memberships.
@@ -91,10 +90,11 @@ public class PersonMergingService extends AbstractService {
 	 * @param projectMemberRepository the repository for accessing the project members.
 	 * @param structureHolderRepository the repository for accessing the structure holders.
 	 * @param nameComparator the comparator of person names.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the factory of JPA session.
 	 */
 	public PersonMergingService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
 			@Autowired PersonRepository personRepository,
 			@Autowired PersonService personService,
 			@Autowired MembershipService organizationMembershipService,
@@ -104,8 +104,11 @@ public class PersonMergingService extends AbstractService {
 			@Autowired PersonInvitationService invitationService,
 			@Autowired ProjectMemberRepository projectMemberRepository,
 			@Autowired AssociatedStructureHolderRepository structureHolderRepository,
-			@Autowired PersonNameComparator nameComparator) {
-		super(messages, constants);
+			@Autowired PersonNameComparator nameComparator,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
+		super(messages, constants, sessionFactory);
 		this.personRepository = personRepository;
 		this.personService = personService;
 		this.organizationMembershipService = organizationMembershipService;

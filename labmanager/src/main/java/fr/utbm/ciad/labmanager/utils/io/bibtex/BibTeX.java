@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
+import org.arakhne.afc.progress.Progression;
 
 /** Utilities for BibTeX. BibTeX is reference management software for formatting lists of bibliography references.
  * The BibTeX tool is typically used together with the LaTeX document preparation system.
@@ -213,9 +215,9 @@ public interface BibTeX extends PublicationExporter<String> {
 			boolean createMissedJournal, boolean createMissedConference) throws Exception;
 
 	@Override
-	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
 		try (final var writer = new StringWriter()) {
-			exportPublications(writer, publications, configurator);
+			exportPublications(writer, publications, configurator, progression);
 			return Strings.emptyToNull(writer.toString());
 		} catch (IOException ex) {
 			return null;
@@ -227,8 +229,9 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param output the writer of the BibTeX for saving its content.
 	 * @param publications the publications to export.
 	 * @param configurator the configuration of the exporter.
+	 * @param progression the progression indicator.
 	 * @throws IOException if any problem occurred when writing the BibTeX content.
 	 */
-	void exportPublications(Writer output, Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws IOException;
+	void exportPublications(Writer output, Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws IOException;
 
 }

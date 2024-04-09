@@ -2,7 +2,6 @@
  * $Id$
  * 
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
- * Copyright (c) 2019 Kaspar Scherrer
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,28 +17,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons.download;
+package fr.utbm.ciad.labmanager.utils;
 
-import java.io.InputStream;
-import java.io.Serializable;
+import org.springframework.http.MediaType;
 
-/** Definition of a factory for building an input stream. This interface allows the factory method to throw an exception.
+/** Description of a downloadable file.
  *
+ * @param filenameExtension the extension of the filename for the downloadable file.
+ * @param mime the MIME type.
+ * @param content the content of the file.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-@FunctionalInterface
-public interface InputStreamFactory2 extends Serializable {
-
-    /**
-     * Produce {@link InputStream} instance to read resource data.
-     *
-     * @return data input stream. May not be null.
-     * @throws Exception when the input stream cannot be created.
-     */
-    InputStream createInputStream() throws Exception;
-
+public record DownloadableFileDescription(String filenameExtension, MediaType mime, byte[] content) {
+	//
 }

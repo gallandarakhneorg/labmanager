@@ -1,6 +1,7 @@
 # To-Do for Developpers
 
 * Application extensions:
+  * Welcome page that may contain configuration panels for each user
   * Connection form 2 CAS (UTBM or UB) + send a query to the administrators for the creation of an account if it is not already created in LabManager (but CAS authentifcation is successfull)
   * Replace Vaadin Grid by Vaadin VGrid (See the Maven dependency below)
 		
@@ -14,6 +15,8 @@
 	* Notification of inconsistencies on the welcome page
 	* No ORCID for persons
 	* No DOI for publications
+  * Access rights to pages
+    * Review the access rights to the Vaadin pages according to the role of the authenticated user
 * Cleaning:
   * Clean code `fr.utbm.ciad.labmanager.configuration.Constants`
   * Remove unnecessary functions from services
@@ -60,14 +63,8 @@
   * Import Pubs from JSON
 * Exports:
   * Export Pubs to HAL
-  * Annual activity report Excel for UTBM
-  * Annual activity report Excel for UB
-  * Annual activity report Excel for Carnot
-  * Annual activity report Excel for SPIM
-  * Annual activity report Excel for PPST
   * Annual activity report Excel for CIAD UB (Voir besoins à l'UB)
-  * Export all database to JSON
-  * Export all database to ZIP
+  * Activity report Word for REPEC-C3
 * Tests
   * Extend the Unit Tests and Integration Tests.
 

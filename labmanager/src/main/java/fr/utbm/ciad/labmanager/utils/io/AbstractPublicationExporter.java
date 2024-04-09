@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.utils.io;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.function.Consumer;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationCategory;
+import io.reactivex.functions.BiConsumer;
+import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.util.ListUtil;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -101,56 +104,62 @@ public abstract class AbstractPublicationExporter {
 	 *
 	 * @param publications the list of publications.
 	 * @param configurator the exporter configuration.
+	 * @param progression the progression indicator.
 	 * @param section the lambda for generating a section. 
 	 * @param subsection the lambda for generating a subsection. 
 	 * @param list the lambda for generating a list of publications.
 	 * @throws Exception if the export cannot be done.
 	 */
-	protected void exportPublicationsWithGroupingCriteria(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			Consumer<String> section,
-			Consumer<String> subsection,
-			Consumer<List<Publication>> list) throws Exception {
+	protected void exportPublicationsWithGroupingCriteria(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, Consumer<String> section, Consumer<String> subsection, BiConsumer<List<Publication>, Progression> list) throws Exception {
 		if (configurator.isGroupedByCategory() || configurator.isGroupedByYear()) {
 			final var currentLocale = configurator.getLocaleOrLanguageLocale(null);
 			if (configurator.isGroupedByCategory() && configurator.isGroupedByYear()) {
-				final var groupedPublications = groupByCategoryAndYear(publications);
+				progression.setProperties(0, 0, publications.size() * 2, false);
+				final var groupedPublications = groupByCategoryAndYear(publications, progression.subTask(publications.size()));
 				for (final var entry0 : groupedPublications.entrySet()) {
 					section.accept(getCategoryLabel(currentLocale, entry0.getKey()));
 					for (final var entry1 : entry0.getValue().entrySet()) {
 						subsection.accept(getYearLabel(entry1.getKey()));
-						list.accept(entry1.getValue());
+						list.accept(entry1.getValue(), progression);
 					}
 				}
 			} else if (configurator.isGroupedByCategory()) {
-				final var groupedPublications = groupByCategory(publications);
+				progression.setProperties(0, 0, publications.size() * 2, false);
+				final var groupedPublications = groupByCategory(publications, progression.subTask(publications.size()));
 				for (final var entry : groupedPublications.entrySet()) {
 					section.accept(getCategoryLabel(currentLocale, entry.getKey()));
-					list.accept(entry.getValue());
+					list.accept(entry.getValue(), progression);
 				}
 			} else {
-				final var groupedPublications = groupByYear(publications);
+				progression.setProperties(0, 0, publications.size() * 2, false);
+				final var groupedPublications = groupByYear(publications, progression.subTask(publications.size()));
 				for (final var entry : groupedPublications.entrySet()) {
 					section.accept(getYearLabel(entry.getKey()));
-					list.accept(entry.getValue());
+					list.accept(entry.getValue(), progression);
 				}
 			}
 		} else {
+			progression.setProperties(0, 0, publications.size() * 2, false);
 			final var ungroupedPublications = new ArrayList<Publication>();
 			final Comparator<? super Publication> sorter = getPublicationComparator();
 			for (final var publication : publications) {
 				ListUtil.add(ungroupedPublications, sorter, publication, true, false);
+				progression.increment();
 			}
-			list.accept(ungroupedPublications);
+			list.accept(ungroupedPublications, progression.subTask(publications.size()));
 		}
+		progression.end();
 	}
 
 	/** Group the publications per category and year.
 	 *
-	 * @param html the receiver of the HTML code.
 	 * @param publications the publications to export.
-	 * @param configurator the exporter configurator.
+	 * @param progression the progression indicator.
 	 */
-	protected Map<PublicationCategory, Map<Integer, List<Publication>>> groupByCategoryAndYear(Iterable<? extends Publication> publications) {
+	protected Map<PublicationCategory, Map<Integer, List<Publication>>> groupByCategoryAndYear(Collection<? extends Publication> publications,
+			Progression progression) {
+		progression.setProperties(0, 0, publications.size(), false);
 		final var content = new TreeMap<PublicationCategory, Map<Integer, List<Publication>>>();
 		final Comparator<? super Publication> sorter = getPublicationComparator();
 		for (final var publication : publications) {
@@ -159,41 +168,47 @@ public abstract class AbstractPublicationExporter {
 			final var year = Integer.valueOf(publication.getPublicationYear());
 			final var list = years.computeIfAbsent(year, it -> new ArrayList<>());
 			ListUtil.add(list, sorter, publication, true, false);
+			progression.increment();
 		}
+		progression.end();
 		return content;
 	}
 
 	/** Group the publications per category only.
 	 *
-	 * @param html the receiver of the HTML code.
 	 * @param publications the publications to export.
-	 * @param configurator the exporter configurator.
+	 * @param progression the progression indicator.
 	 */
-	protected Map<PublicationCategory, List<Publication>> groupByCategory(Iterable<? extends Publication> publications) {
+	protected Map<PublicationCategory, List<Publication>> groupByCategory(Collection<? extends Publication> publications, Progression progression) {
+		progression.setProperties(0, 0, publications.size(), false);
 		final var content = new TreeMap<PublicationCategory, List<Publication>>();
 		final Comparator<? super Publication> sorter = getPublicationComparator();
 		for (final var publication : publications) {
 			final var category = publication.getCategory();
 			final var list = content.computeIfAbsent(category, it -> new ArrayList<>());
 			ListUtil.add(list, sorter, publication, true, false);
+			progression.increment();
 		}
+		progression.end();
 		return content;
 	}
 
 	/** Group the publications per year only.
 	 *
-	 * @param html the receiver of the HTML code.
 	 * @param publications the publications to export.
-	 * @param configurator the exporter configurator.
+	 * @param progression the progression indicator.
 	 */
-	protected Map<Integer, List<Publication>> groupByYear(Iterable<? extends Publication> publications) {
+	protected Map<Integer, List<Publication>> groupByYear(Collection<? extends Publication> publications, Progression progression) {
+		progression.setProperties(0, 0, publications.size(), false);
 		final var content = new TreeMap<Integer, List<Publication>>(Collections.reverseOrder());
 		final Comparator<? super Publication> sorter = getPublicationComparator();
 		for (final var publication : publications) {
 			final var year = Integer.valueOf(publication.getPublicationYear());
 			final var list = content.computeIfAbsent(year, it -> new ArrayList<>());
 			ListUtil.add(list, sorter, publication, true, false);
+			progression.increment();
 		}
+		progression.end();
 		return content;
 	}
 

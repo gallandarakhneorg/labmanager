@@ -72,20 +72,20 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param invitationRepository the person invitation repository.
 	 * @param personService the service for accessing the person.
 	 * @param nameParser the parser of person names.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public PersonInvitationService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired PersonService personService,
-			@Autowired PersonNameParser nameParser) {
+			@Autowired PersonNameParser nameParser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.invitationRepository = invitationRepository;
 		this.personService = personService;

@@ -126,6 +126,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 	 */
 	public TableHelper getTable(String currentName, String newName) {
 		final var source = this.ods.getTableByName(currentName);
+		assert source != null : "Table not found with name: " + currentName; //$NON-NLS-1$
 		if (!Strings.isNullOrEmpty(newName)) {
 			source.setTableName(newName);
 		}

@@ -19,9 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
+import java.util.Collection;
+
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
+import org.arakhne.afc.progress.Progression;
 
 /** Utilities for exporting publications to HTML content.
  * This exporter is generic and not dedicated to a specific target.
@@ -82,10 +85,11 @@ public interface HtmlExporter extends PublicationExporter<String> {
 	 *
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
+	 * @param progression the progression indicator.
 	 * @return the HTML representation of the publications.
 	 * @throws Exception if the publication cannot be converted to HTML.
 	 */
 	@Override
-	String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception;
+	String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception;
 
 }

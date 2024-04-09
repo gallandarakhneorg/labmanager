@@ -119,8 +119,9 @@ public class PersonServiceTest {
 		this.nameParser = new DefaultPersonNameParser();
 		// Create a real comparator instance to be used in the test
 		this.nameComparator = new SorensenDicePersonNameComparator(this.nameParser);
-		this.test = new PersonService(this.messages, new Constants(), this.sessionFactory, this.publicationRepository, this.authorshipRepository, this.personRepository,
-				this.googlePlatfom, this.scopusPlatfom, this.wosPlatfom, this.nameParser, this.nameComparator);
+		this.test = new PersonService(this.publicationRepository, this.authorshipRepository, this.personRepository,
+				this.googlePlatfom, this.scopusPlatfom, this.wosPlatfom, this.nameParser, this.nameComparator,
+				this.messages, new Constants(), this.sessionFactory);
 
 		// Prepare some persons to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,6 +75,7 @@ import fr.utbm.ciad.labmanager.utils.io.bibtex.MissedConferenceException;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.MissedJournalException;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -170,15 +172,18 @@ public class KrisRIS extends AbstractRIS {
 	}
 
 	@Override
-	public void exportPublications(Writer output, Iterable<? extends Publication> publications,
-			ExporterConfigurator configurator) throws IOException {
+	public void exportPublications(Writer output, Collection<? extends Publication> publications,
+			ExporterConfigurator configurator, Progression progression) throws IOException {
+		progression.setProperties(0, 0, publications.size() + 1, false);
 		final var records = new ArrayList<RisRecord>();
 		final var iterator = publications.iterator();
 		while (iterator.hasNext()) {
 			final var publication = iterator.next();
 			exportPublication(configurator.getLocaleOrLanguageLocale(publication.getMajorLanguage()), publication, records);
+			progression.increment();
 		}
 		KRisIO.export(records, output);
+		progression.end();
 	}
 
 	/** Export a single publication to RIS record.

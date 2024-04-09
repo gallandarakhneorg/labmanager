@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -28,6 +29,7 @@ import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.AbstractBibTeX;
+import org.arakhne.afc.progress.Progression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,8 +62,8 @@ public class AbstractBibTeXTest {
 			}
 
 			@Override
-			public void exportPublications(Writer output, Iterable<? extends Publication> publications,
-					ExporterConfigurator configurator) throws IOException {
+			public void exportPublications(Writer output, Collection<? extends Publication> publications,
+					ExporterConfigurator configurator, Progression progression) throws IOException {
 				throw new UnsupportedOperationException();
 			}
 		};

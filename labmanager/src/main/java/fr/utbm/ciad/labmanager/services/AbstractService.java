@@ -21,7 +21,11 @@ package fr.utbm.ciad.labmanager.services;
 
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.Constants;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.util.function.ThrowingConsumer;
+import org.springframework.util.function.ThrowingFunction;
 
 /** Abstract implementation of a Spring boot service.
  * 
@@ -33,13 +37,62 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractService extends AbstractComponent {
 
+	private final SessionFactory sessionFactory;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param sessionFactory the factory of JPA session.
+	 * @since 4.0
 	 */
-	public AbstractService(MessageSourceAccessor messages, Constants constants) {
+	public AbstractService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
 		super(messages, constants);
+		this.sessionFactory = sessionFactory;
+	}
+
+	/** Run the provided code in a JPA session.
+	 *
+	 * @param code the code to run. It takes the session as argument.
+	 * @since 4.0
+	 */
+	@SuppressWarnings("resource")
+	public void inSession(ThrowingConsumer<Session> code) {
+		Session currentSession = null;
+		try {
+			currentSession = this.sessionFactory.getCurrentSession();
+		} catch (Throwable ex) {
+			//
+		}
+		if (currentSession == null) {
+			try (final var session = this.sessionFactory.openSession()) {
+				code.accept(session);
+			}
+		} else {
+			code.accept(currentSession);
+		}
+	}
+
+	/** Run the provided code in a JPA session.
+	 *
+	 * @param code the code to run. It takes the session as argument.
+	 * @return the computed value.
+	 * @since 4.0
+	 */
+	@SuppressWarnings("resource")
+	public <T> T inSessionWithResult(ThrowingFunction<Session, T> code) {
+		Session currentSession = null;
+		try {
+			currentSession = this.sessionFactory.getCurrentSession();
+		} catch (Throwable ex) {
+			//
+		}
+		if (currentSession == null) {
+			try (final var session = this.sessionFactory.openSession()) {
+				return code.apply(session);
+			}
+		}
+		return code.apply(currentSession);
 	}
 
 }

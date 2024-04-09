@@ -80,7 +80,7 @@ public class BookChapterServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(BookChapterRepository.class);
-		this.test = new BookChapterService(this.messages, new Constants(), mock(SessionFactory.class), this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository);
+		this.test = new BookChapterService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.messages, new Constants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

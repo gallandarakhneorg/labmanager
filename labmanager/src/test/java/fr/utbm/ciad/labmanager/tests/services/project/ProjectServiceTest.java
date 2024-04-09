@@ -95,8 +95,9 @@ public class ProjectServiceTest {
 		this.membershipService = mock(MembershipService.class);
 		this.fileManager = mock(DownloadableFileManager.class);
 		this.sessionFactory = mock(SessionFactory.class);
-		this.test = new ProjectService(this.messages, new Constants(), this.sessionFactory, this.projectRepository, this.projectMemberRepository,
-				this.organizationRepository, this.personRepository, this.membershipService, this.fileManager);
+		this.test = new ProjectService(this.projectRepository, this.projectMemberRepository,
+				this.organizationRepository, this.personRepository, this.membershipService, this.fileManager,
+				this.messages, new Constants(), this.sessionFactory);
 	}
 	
 	@Test

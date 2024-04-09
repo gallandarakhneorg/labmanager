@@ -99,9 +99,6 @@ public class PersonService extends AbstractEntityService<Person> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param publicationRepository the publication repository.
 	 * @param authorshipRepository the authorship repository.
 	 * @param personRepository the person repository.
@@ -117,11 +114,11 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @param projectService the service for accessing the projects.
 	 * @param supervisionService the service for accessing the student supervisions.
 	 * @param teachingService the service for accessing the teaching activities.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public PersonService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonRepository personRepository,
@@ -129,7 +126,10 @@ public class PersonService extends AbstractEntityService<Person> {
 			@Autowired ScopusPlatform scopusPlatfom,
 			@Autowired WebOfSciencePlatform wosPlatfom,
 			@Autowired PersonNameParser nameParser,
-			@Autowired PersonNameComparator nameComparator) {
+			@Autowired PersonNameComparator nameComparator,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;

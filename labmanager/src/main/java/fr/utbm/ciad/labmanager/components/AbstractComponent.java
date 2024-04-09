@@ -78,11 +78,6 @@ public abstract class AbstractComponent {
 
 	private final Random random = new Random();
 
-	/** Indicates if the component is launched in debug mode.
-	 */
-	@Value("${labmanager.debug}")
-	protected boolean debugVersion;
-
 	@Value("${labmanager.init.data-source")
 	private String dataSource;
 
@@ -139,7 +134,7 @@ public abstract class AbstractComponent {
 	 * @return the string.
 	 */
 	public String getMessage(Locale locale, String key, Object... args) {
-		return getMessageSourceAccessor().getMessage(key, args);
+		return getMessageSourceAccessor().getMessage(key, args, locale);
 	}
 
 	/** Change the message provider of this controller.

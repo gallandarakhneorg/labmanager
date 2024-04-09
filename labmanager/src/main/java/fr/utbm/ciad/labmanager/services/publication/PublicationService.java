@@ -92,6 +92,7 @@ import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
@@ -170,9 +171,6 @@ public class PublicationService extends AbstractPublicationService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param publicationRepository the publication repository.
 	 * @param prePublicationFactory factory of pre-publications.
 	 * @param authorshipService the service for managing the authorships.
@@ -199,11 +197,11 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param patentService the service for patents.
 	 * @param reportService the service for reports.
 	 * @param thesisService the service for theses.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public PublicationService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired AuthorshipRepository authorshipRepository,
@@ -227,7 +225,10 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired MiscDocumentService miscDocumentService,
 			@Autowired PatentService patentService,
 			@Autowired ReportService reportService,
-			@Autowired ThesisService thesisService) {
+			@Autowired ThesisService thesisService,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.publicationRepository = publicationRepository;
 		this.prePublicationFactory = prePublicationFactory;
@@ -984,13 +985,14 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param progression the progression indicator to be used.
 	 * @return the BibTeX description of the publications with the given identifiers.
 	 */
-	public String exportBibTeX(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	public String exportBibTeX(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
 		if (publications == null) {
 			return null;
 		}
-		return this.bibtex.exportPublications(publications, configurator);
+		return this.bibtex.exportPublications(publications, configurator, progression);
 	}
 
 	/**
@@ -998,14 +1000,15 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param progression the progression indicator to be used.
 	 * @return the RIS description of the publications with the given identifiers.
 	 * @since 3.7
 	 */
-	public String exportRIS(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	public String exportRIS(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
 		if (publications == null) {
 			return null;
 		}
-		return this.ris.exportPublications(publications, configurator);
+		return this.ris.exportPublications(publications, configurator, progression);
 	}
 
 	/**
@@ -1013,14 +1016,15 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param progression the progression indicator to be used.
 	 * @return the HTML description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the HTML for the publications.
 	 */
-	public String exportHtml(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public String exportHtml(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.html.exportPublications(publications, configurator);
+		return this.html.exportPublications(publications, configurator, progression);
 	}
 
 	/**
@@ -1028,14 +1032,15 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param progression the progression indicator to be used.
 	 * @return the ODT description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the ODT for the publications.
 	 */
-	public byte[] exportOdt(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public byte[] exportOdt(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.odt.exportPublications(publications, configurator);
+		return this.odt.exportPublications(publications, configurator, progression);
 	}
 
 	/**
@@ -1043,16 +1048,18 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param progression the progression indicator to be used.
 	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
 	 *     output into the last created node with the {@code rootKeys}.
 	 * @return the JSON description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the JSON for the publications.
 	 */
-	public String exportJson(Iterable<? extends Publication> publications, ExporterConfigurator configurator, String... rootKeys) throws Exception {
+	public String exportJson(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, String... rootKeys) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.json.exportPublicationsWithRootKeys(publications, configurator, rootKeys);
+		return this.json.exportPublicationsWithRootKeys(publications, configurator, progression, rootKeys);
 	}
 
 	/**
@@ -1060,6 +1067,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param progression the progression indicator to be used.
 	 * @param callback a function that is invoked for each publication for giving the opportunity
 	 *     to fill up the Json node of the publication.
 	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
@@ -1067,12 +1075,13 @@ public class PublicationService extends AbstractPublicationService {
 	 * @return the Jackson JSON description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the JSON for the publications.
 	 */
-	public JsonNode exportJsonAsTree(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
+	public JsonNode exportJsonAsTree(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
 		if (publications == null) {
+			progression.end();
 			return null;
 		}
-		return this.json.exportPublicationsAsTreeWithRootKeys(publications, configurator, callback, rootKeys);
+		return this.json.exportPublicationsAsTreeWithRootKeys(publications, configurator, progression, callback, rootKeys);
 	}
 
 	/** Get the journal instance that is corresponding to the identifier from the given map for an attribute with the given name.

@@ -59,23 +59,23 @@ public class PatentService extends AbstractPublicationTypeService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating the DOI.
 	 * @param halTools the tools for manipulating the HAL ids.
 	 * @param repository the repository for this service.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public PatentService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired DoiTools doiTools,
 			@Autowired HalTools halTools,
-			@Autowired PatentRepository repository) {
-		super(messages, constants, sessionFactory, downloadableFileManager, doiTools, halTools);
+			@Autowired PatentRepository repository,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {
+		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
 	}
 

@@ -69,18 +69,18 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param structureRepository the repository for the associated structures.
+	 * @param organizationRepository the repository for the research organizations.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the Hibernate session factory.
-	 * @param structureRepository the repository for the associated structures.
-	 * @param organizationRepository the repository for the research organizations.
 	 */
 	public AssociatedStructureService(
+			@Autowired AssociatedStructureRepository structureRepository,
+			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
-			@Autowired AssociatedStructureRepository structureRepository,
-			@Autowired ResearchOrganizationRepository organizationRepository) {
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.structureRepository = structureRepository;
 		this.organizationRepository = organizationRepository;

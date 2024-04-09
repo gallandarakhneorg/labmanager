@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +37,7 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.ConferenceFake;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.JournalFake;
+import org.arakhne.afc.progress.Progression;
 
 /** Utilities for RIS.
  * RIS is a standardized tag format developed by Research Information Systems, Incorporated to enable citation programs
@@ -180,9 +182,9 @@ public interface RIS extends PublicationExporter<String> {
 			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception;
 
 	@Override
-	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
 		try (final var writer = new StringWriter()) {
-			exportPublications(writer, publications, configurator);
+			exportPublications(writer, publications, configurator, progression);
 			return Strings.emptyToNull(writer.toString());
 		} catch (IOException ex) {
 			return null;
@@ -194,8 +196,9 @@ public interface RIS extends PublicationExporter<String> {
 	 * @param output the writer of the RIS for saving its content.
 	 * @param publications the publications to export.
 	 * @param configurator the configuration of the exporter.
+	 * @param progression the progression indicator.
 	 * @throws IOException if any problem occurred when writing the RIS content.
 	 */
-	void exportPublications(Writer output, Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws IOException;
+	void exportPublications(Writer output, Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws IOException;
 
 }

@@ -74,18 +74,18 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param teachingActivityRepository the repository for the teaching activities.
+	 * @param fileManager the manager of the uploaded and downloadable files.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the Hibernate session factory.
-	 * @param teachingActivityRepository the repository for the teaching activities.
-	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
 	public TeachingService(
+			@Autowired TeachingActivityRepository teachingActivityRepository,
+			@Autowired DownloadableFileManager fileManager,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
-			@Autowired TeachingActivityRepository teachingActivityRepository,
-			@Autowired DownloadableFileManager fileManager) {
+			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.teachingActivityRepository = teachingActivityRepository;
 		this.fileManager = fileManager;

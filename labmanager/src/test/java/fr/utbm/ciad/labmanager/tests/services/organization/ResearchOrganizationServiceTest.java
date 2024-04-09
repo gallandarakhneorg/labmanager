@@ -95,8 +95,8 @@ public class ResearchOrganizationServiceTest {
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
 		this.sessionFactory = mock(SessionFactory.class);
 		this.fileManager = mock(DownloadableFileManager.class);
-		this.test = new ResearchOrganizationService(this.messages, new Constants(), this.sessionFactory,
-				this.addressRepository, this.organizationRepository, this.fileManager);
+		this.test = new ResearchOrganizationService(this.addressRepository, this.organizationRepository, this.fileManager,
+				this.messages, new Constants(), this.sessionFactory);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

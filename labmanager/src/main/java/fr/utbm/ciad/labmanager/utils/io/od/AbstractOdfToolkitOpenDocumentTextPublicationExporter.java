@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.utils.io.od;
 
 import java.io.ByteArrayOutputStream;
 import java.time.format.TextStyle;
+import java.util.Collection;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
@@ -40,6 +41,7 @@ import fr.utbm.ciad.labmanager.utils.io.AbstractPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.Progression;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextListElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
@@ -93,12 +95,14 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 
 	@SuppressWarnings("resource")
 	@Override
-	public byte[] exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public byte[] exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
 		if (publications == null) {
+			progression.end();
 			return null;
 		}
+		progression.setProperties(0, 0, publications.size() * 2, false);
 		final var odt = OdfTextDocument.newTextDocument();
-		exportPublicationsWithGroupingCriteria(publications, configurator,
+		exportPublicationsWithGroupingCriteria(publications, configurator, progression.subTask(publications.size()),
 				it -> {
 					try {
 						final var element = odt.getContentRoot().newTextHElement(1);
@@ -115,9 +119,9 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 						throw new RuntimeException(ex);
 					}
 				},
-				it -> {
+				(it, progress) -> {
 					try {
-						exportFlatList(odt.getContentRoot().newTextListElement(), it, configurator);
+						exportFlatList(odt.getContentRoot().newTextListElement(), it, configurator, progress);
 					} catch (Exception ex) {
 						throw new RuntimeException(ex);
 					}					
@@ -128,6 +132,7 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 			output.flush();
 			content = output.toByteArray();
 		}
+		progression.end();
 		return content;
 	}
 
@@ -136,11 +141,16 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 	 * @param list the ODT list in which the publications must be exported.
 	 * @param publications the publications to export.
 	 * @param configurator the exporter configurator.
+	 * @param progression the progression indicator.
 	 */
-	protected void exportFlatList(TextListElement list, Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+	protected void exportFlatList(TextListElement list, Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression) {
+		progression.setProperties(0, 0, publications.size(), false);
 		for (final var publication : publications) {
 			exportPublication(list, publication, configurator);
+			progression.increment();
 		}
+		progression.end();
 	}
 
 	/** Export in ODT a single publication.

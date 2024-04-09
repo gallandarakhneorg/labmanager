@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.common.base.Strings;
@@ -34,7 +33,6 @@ import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.apache.commons.io.function.IOBiConsumer;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,9 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public abstract class AbstractEntityService<T extends IdentifiableEntity> extends AbstractService {
 
-
-	private final SessionFactory sessionFactory;
-
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
@@ -59,30 +54,7 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 	 * @param sessionFactory the factory of JPA session.
 	 */
 	public AbstractEntityService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
-		super(messages, constants);
-		this.sessionFactory = sessionFactory;
-	}
-
-	/** Run the provided code in a JPA session.
-	 *
-	 * @param code the code to run. It takes the session as argument.
-	 * @since 4.0
-	 */
-	@SuppressWarnings("resource")
-	public void inSession(Consumer<Session> code) {
-		Session currentSession = null;
-		try {
-			currentSession = this.sessionFactory.getCurrentSession();
-		} catch (Throwable ex) {
-			//
-		}
-		if (currentSession == null) {
-			try (final var session = this.sessionFactory.openSession()) {
-				code.accept(session);
-			}
-		} else {
-			code.accept(currentSession);
-		}
+		super(messages, constants, sessionFactory);
 	}
 
 	/** Start the editing of the given entity.

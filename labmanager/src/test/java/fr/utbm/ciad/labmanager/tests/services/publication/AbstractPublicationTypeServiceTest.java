@@ -417,12 +417,12 @@ public class AbstractPublicationTypeServiceTest {
 	public class PublicationTypeServiceMock extends AbstractPublicationTypeService {
 
 		public PublicationTypeServiceMock() {
-			super(AbstractPublicationTypeServiceTest.this.messages,
-					new Constants(),
-					mock(SessionFactory.class),
-					AbstractPublicationTypeServiceTest.this.downloadableFileManager,
+			super(	AbstractPublicationTypeServiceTest.this.downloadableFileManager,
 					new DefaultDoiTools(),
-					new DefaultHalTools());
+					new DefaultHalTools(),
+					AbstractPublicationTypeServiceTest.this.messages,
+					new Constants(),
+					mock(SessionFactory.class));
 		}
 
 		@Override

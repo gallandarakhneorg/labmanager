@@ -1610,13 +1610,13 @@ public enum MemberStatus {
 	 *
 	 * @param messages the accessor to the localized acronyms.
 	 * @return the typical acronym in France for the position.
-	 * @since 3.6
+	 * @since 4.0
 	 */
 	public String getFrenchAcronym(MessageSourceAccessor messages) {
 		final var key = new StringBuilder();
 		key.append(MESSAGE_PREFIX).append(name());
 		key.append("_acronym"); //$NON-NLS-1$
-		final var label = messages.getMessage(key.toString());
+		final var label = messages.getMessage(key.toString(), Locale.FRANCE);
 		return Strings.nullToEmpty(label);
 	}
 

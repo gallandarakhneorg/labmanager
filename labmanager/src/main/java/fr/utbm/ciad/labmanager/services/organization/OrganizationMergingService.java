@@ -70,9 +70,6 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param organizationService the organization service.
 	 * @param organizationRepository the organization repository.
 	 * @param membershipRepository the repository of the organization memberships.
@@ -80,18 +77,21 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	 * @param structureRepository the repository of the associated structures.
 	 * @param structureHolderRepository the repository of the associated structures' holders.
 	 * @param nameComparator the comparator of organization names.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public OrganizationMergingService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired SessionFactory sessionFactory,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository,
 			@Autowired AssociatedStructureHolderRepository structureHolderRepository,
-			@Autowired OrganizationNameComparator nameComparator) {
+			@Autowired OrganizationNameComparator nameComparator,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.organizationService = organizationService;
 		this.organizationRepository = organizationRepository;

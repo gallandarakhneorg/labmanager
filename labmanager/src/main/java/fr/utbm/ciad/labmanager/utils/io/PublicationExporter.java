@@ -19,7 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io;
 
+import java.util.Collection;
+
 import fr.utbm.ciad.labmanager.data.publication.Publication;
+import org.arakhne.afc.progress.Progression;
 
 /** Exporter of publications.
  * 
@@ -36,9 +39,10 @@ public interface PublicationExporter<T> {
 	 *
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
+	 * @param progression the progression indicator to be used.
 	 * @return the representation of the publications.
 	 * @throws Exception if the publication cannot be converted.
 	 */
-	T exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception;
+	T exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception;
 
 }
