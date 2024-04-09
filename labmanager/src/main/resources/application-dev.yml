@@ -14,7 +14,7 @@ logging:
         descriptor:
           sql: ERROR
   file:
-    path: /tmp/labmanager-tmp
+    path: ./tmp/labmanager-tmp
 
 spring:
   sql:
@@ -42,7 +42,7 @@ spring:
 
   datasource:
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
-    url: jdbc:derby:directory:/tmp/labmanager-tmp/db;create=true
+    url: jdbc:derby:directory:./tmp/labmanager-tmp/db;create=true
     generate-unique-name: false
     username: sa
     password:
@@ -70,7 +70,7 @@ management:
   endpoint:
     logfile:
       enabled: true
-      external-file: /tmp/labmanager-tmp/LabManager.log
+      external-file: ./tmp/labmanager-tmp/LabManager.log
   endpoints:
     enabled-by-default: true
     web:
@@ -89,6 +89,8 @@ vaadin:
   whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application
 
 labmanager:
+  debug: true
+  splash-screen: /images/ciadpicture.svg
   application-name: CIAD Lab Manager
   application-image: /images/ciadpicture.svg
   application-copyright: Copyright CIAD Laboratory, Université de Technologie de Belfort Montbéliard 2019-2024. This program is under the terms of the GNU Affero General Public License.
@@ -97,11 +99,11 @@ labmanager:
   default-lear-organization: UTBM
   init:
     enable: true
-    data-source: /tmp/labmanager-tmp
+    data-source: ./tmp/labmanager-tmp
   file:
-    upload-directory: /tmp/labmanager-tmp
-    temp-directory: /tmp/labmanager-tmp/tmp
+    upload-directory: ./tmp/labmanager-tmp
+    temp-directory: ./tmp/labmanager-tmp/tmp
   web:
-    server-side-resources: /tmp/labmanager-tmp/Downloadables/
+    server-side-resources: ./tmp/labmanager-tmp/Downloadables/
     client-side-resources: /Downloadables/
     help-url: https://www.ciad-lab.fr/docs/
