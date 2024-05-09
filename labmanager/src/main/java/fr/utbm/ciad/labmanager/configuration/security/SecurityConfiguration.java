@@ -20,13 +20,28 @@
 package fr.utbm.ciad.labmanager.configuration.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import fr.utbm.ciad.labmanager.views.appviews.login.AdaptiveLoginView;
+import org.apereo.cas.client.session.SingleSignOutFilter;
+import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
+import org.apereo.cas.client.validation.TicketValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.*;
+import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.CasAuthenticationProvider;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /** Configuration of the security login.
@@ -41,18 +56,20 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfiguration extends VaadinWebSecurity {
 
-	/** The default password encoder when using local security system.
-	 *
-	 * @return the encoder.
-	 */
-	@SuppressWarnings("static-method")
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		/* TODO
-		return new BCryptPasswordEncoder();
-		*/
-		return NoOpPasswordEncoder.getInstance();
-	}
+	@Value("${labmanager.cas-server.url.base}")
+	private String casServerUrlBase;
+
+	@Value("${labmanager.cas-server.url.login}")
+	private String casServerUrlLogin;
+
+	@Value("${labmanager.cas-server.url.logout}")
+	private String casServerUrlLogout;
+
+	@Value("${labmanager.cas-server.url.service}")
+	private String casServerUrlService;
+
+	@Value("${labmanager.cas-server.key}")
+	private String casServerKey;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -63,9 +80,94 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 		http.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
 
-		super.configure(http);
-		
-		setLoginView(http, AdaptiveLoginView.class);
+		http.csrf(AbstractHttpConfigurer::disable);
 	}
 
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+		http
+				.addFilter(casAuthenticationFilter(userDetailsService))
+				.addFilterBefore(new SingleSignOutFilter(), CasAuthenticationFilter.class)
+				.authorizeHttpRequests(
+						(authorize)
+								-> authorize.requestMatchers(HttpMethod.GET, "/loggedout")
+								.permitAll()
+								.anyRequest()
+								.authenticated())
+				.exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(casAuthenticationEntryPoint()))
+				.logout(l -> l.logoutSuccessUrl("/logout"));
+
+		return http.build();
+	}
+
+	@Bean
+	public CasAuthenticationProvider casAuthenticationProvider(UserDetailsService userDetailsService) {
+		CasAuthenticationProvider provider = new CasAuthenticationProvider();
+		provider.setUserDetailsService(userDetailsService);
+		provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService));
+		provider.setServiceProperties(serviceProperties());
+		provider.setTicketValidator(ticketValidator());
+		provider.setKey(casServerKey);
+		return provider;
+	}
+
+	private TicketValidator ticketValidator() {
+		return new Cas30ServiceTicketValidator(this.casServerUrlBase);
+	}
+
+	/**
+	 * First step of the CAS authentication process.
+	 * @return the authentication entry point.
+	 */
+	@Bean
+	public CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
+		CasAuthenticationEntryPoint casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
+		casAuthenticationEntryPoint.setLoginUrl(this.casServerUrlLogin);
+		casAuthenticationEntryPoint.setServiceProperties(serviceProperties());
+		return casAuthenticationEntryPoint;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Bean
+	public CasAuthenticationFilter casAuthenticationFilter(UserDetailsService userDetailsService) {
+		CasAuthenticationFilter filter = new CasAuthenticationFilter();
+		CasAuthenticationProvider casAuthenticationProvider = casAuthenticationProvider(userDetailsService);
+		//ProviderManager providerManager = new ProviderManager(new AnonymousAuthenticationProvider("13792c4f-5188-46da-922d-3f1cee3f85cZ"));
+		//providerManager.setAuthenticationEventPublisher(new DefaultAuthenticationEventPublisher());
+		//ProviderManager providerManager2 = new ProviderManager(Collections.singletonList(casAuthenticationProvider), providerManager);
+		filter.setAuthenticationManager(new ProviderManager(casAuthenticationProvider));
+		return filter;
+	}
+
+	@Bean
+	public ServiceProperties serviceProperties() {
+		ServiceProperties serviceProperties = new ServiceProperties();
+		serviceProperties.setService(casServerUrlService);
+		serviceProperties.setSendRenew(false);
+		return serviceProperties;
+	}
+
+	@SuppressWarnings("static-method")
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		/* TODO
+		return new BCryptPasswordEncoder();
+		*/
+		return NoOpPasswordEncoder.getInstance();
+	}
+
+	@Bean
+	public SingleSignOutFilter singleSignOutFilter() {
+		return new SingleSignOutFilter();
+	}
+
+	@Bean
+	public LogoutFilter logoutFilter() {
+		LogoutFilter logoutFilter = new LogoutFilter(this.casServerUrlLogout, new SecurityContextLogoutHandler());
+		logoutFilter.setFilterProcessesUrl("/logout");
+		return logoutFilter;
+	}
 }
