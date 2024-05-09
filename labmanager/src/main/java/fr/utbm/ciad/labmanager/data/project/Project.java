@@ -511,7 +511,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			if (budgetValue > 0f) {
 				JsonUtils.writeField(generator, "budget", Float.valueOf(budgetValue)); //$NON-NLS-1$
 			}
-			final var grant = budget.getGrant();
+			final var grant = budget.getFundingReference();
 			if (!Strings.isNullOrEmpty(grant)) {
 				JsonUtils.writeField(generator, "grant", grant); //$NON-NLS-1$
 			}

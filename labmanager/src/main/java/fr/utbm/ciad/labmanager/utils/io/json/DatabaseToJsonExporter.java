@@ -987,8 +987,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 						if (budget.getBudget() > 0f) {
 							node.put(BUDGET_KEY, Float.valueOf(budget.getBudget()));
 						}
-						if (!Strings.isNullOrEmpty(budget.getGrant())) {
-							node.put(GRANT_KEY, budget.getGrant());
+						if (!Strings.isNullOrEmpty(budget.getFundingReference())) {
+							node.put(GRANT_KEY, budget.getFundingReference());
 						}
 					}
 					if (!budgetNode.isEmpty()) {

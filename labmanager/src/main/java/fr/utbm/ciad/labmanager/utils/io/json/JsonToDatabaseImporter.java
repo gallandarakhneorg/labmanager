@@ -1837,7 +1837,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								}
 								final var grantValue = getStringValue(it.get(GRANT_KEY));
 								if (grantValue != null) {
-									budgetObject.setGrant(grantValue);
+									budgetObject.setFundingReference(grantValue);
 								}
 								budgetList.add(budgetObject);
 							});

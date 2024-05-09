@@ -75,7 +75,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 	/** Grant number of the project.
 	 */
 	@Column
-	private String grant;
+	private String fundingReference;
 
 	/** Construct an empty member.
 	 */
@@ -124,8 +124,8 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 		if (getFundingScheme() != null) {
 			consumer.accept("fundingScheme", getFundingScheme()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getGrant())) {
-			consumer.accept("grant", getGrant()); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getFundingReference())) {
+			consumer.accept("grant", getFundingReference()); //$NON-NLS-1$
 		}
 	}
 
@@ -178,16 +178,16 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 	 *
 	 * @return the grant number.
 	 */
-	public String getGrant() {
-		return this.grant;
+	public String getFundingReference() {
+		return this.fundingReference;
 	}
 
 	/** Change the grant number of the project.
 	 *
 	 * @param grant the grant number.
 	 */
-	public void setGrant(String grant) {
-		this.grant = Strings.emptyToNull(grant);
+	public void setFundingReference(String grant) {
+		this.fundingReference = Strings.emptyToNull(grant);
 	}
 
 	/** Replies the budget for the local organization in Kilo euros.

@@ -137,27 +137,27 @@ public class ProjectBudgetTest {
 
 	@Test
 	public void getGrant() {
-		assertNull(this.test.getGrant());
+		assertNull(this.test.getFundingReference());
 	}
 
 	@Test
 	public void setGrant_null() {
-		this.test.setGrant("xyz");
-		this.test.setGrant(null);
-		assertNull(this.test.getGrant());
+		this.test.setFundingReference("xyz");
+		this.test.setFundingReference(null);
+		assertNull(this.test.getFundingReference());
 	}
 
 	@Test
 	public void setGrant_empty() {
-		this.test.setGrant("xyz");
-		this.test.setGrant("");
-		assertNull(this.test.getGrant());
+		this.test.setFundingReference("xyz");
+		this.test.setFundingReference("");
+		assertNull(this.test.getFundingReference());
 	}
 
 	@Test
 	public void setGrant() {
-		this.test.setGrant("xyz");
-		assertEquals("xyz", this.test.getGrant());
+		this.test.setFundingReference("xyz");
+		assertEquals("xyz", this.test.getFundingReference());
 	}
 
 	private static ProjectBudget createTransient1() {

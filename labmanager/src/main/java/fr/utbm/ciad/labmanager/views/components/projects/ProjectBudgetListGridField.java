@@ -106,7 +106,7 @@ public class ProjectBudgetListGridField extends AbstractEntityListGridField<Proj
 		if (budget == null) {
 			return ""; //$NON-NLS-1$
 		}
-		final var grant = budget.getGrant();
+		final var grant = budget.getFundingReference();
 		return Strings.nullToEmpty(grant);
 	}
 
@@ -133,7 +133,7 @@ public class ProjectBudgetListGridField extends AbstractEntityListGridField<Proj
 	private TextField createGrantEditor(ProjectBudget budget) {
 		final var field = new TextField();
 		final var binder = getGridEditor().getBinder();
-		binder.forField(field).bind(ProjectBudget::getGrant, ProjectBudget::setGrant);
+		binder.forField(field).bind(ProjectBudget::getFundingReference, ProjectBudget::setFundingReference);
 		return field;
 	}
 
