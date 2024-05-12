@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,6 +23,7 @@ import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.apereo.cas.client.session.SingleSignOutFilter;
 import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
 import org.apereo.cas.client.validation.TicketValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,8 +45,9 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-/** Configuration of the security login.
- * 
+/**
+ * Configuration of the security login.
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -56,118 +58,111 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfiguration extends VaadinWebSecurity {
 
-	@Value("${labmanager.cas-server.url.base}")
-	private String casServerUrlBase;
+    @Value("${labmanager.cas-server.url.base}")
+    private String casServerUrlBase;
 
-	@Value("${labmanager.cas-server.url.login}")
-	private String casServerUrlLogin;
+    @Value("${labmanager.cas-server.url.login}")
+    private String casServerUrlLogin;
 
-	@Value("${labmanager.cas-server.url.logout}")
-	private String casServerUrlLogout;
+    @Value("${labmanager.cas-server.url.logout}")
+    private String casServerUrlLogout;
 
-	@Value("${labmanager.cas-server.url.service}")
-	private String casServerUrlService;
+    @Value("${labmanager.cas-server.url.service}")
+    private String casServerUrlService;
 
-	@Value("${labmanager.cas-server.key}")
-	private String casServerKey;
+    @Value("${labmanager.cas-server.key}")
+    private String casServerKey;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests(
-				authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
+    @Autowired
+    private UserDetailsService userDetailsService;
 
-		// Icons from the line-awesome addon
-		http.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests(
+                authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
 
-		http.csrf(AbstractHttpConfigurer::disable);
-	}
+        // Icons from the line-awesome addon
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
-		http
-				.addFilter(casAuthenticationFilter(userDetailsService))
-				.addFilterBefore(new SingleSignOutFilter(), CasAuthenticationFilter.class)
-				.authorizeHttpRequests(
-						(authorize)
-								-> authorize.requestMatchers(HttpMethod.GET, "/loggedout")
-								.permitAll()
-								.anyRequest()
-								.authenticated())
-				.exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(casAuthenticationEntryPoint()))
-				.logout(l -> l.logoutSuccessUrl("/logout"));
+        http.csrf(AbstractHttpConfigurer::disable);
+    }
 
-		return http.build();
-	}
+    @Override
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        this.configure(http);
 
-	@Bean
-	public CasAuthenticationProvider casAuthenticationProvider(UserDetailsService userDetailsService) {
-		CasAuthenticationProvider provider = new CasAuthenticationProvider();
-		provider.setUserDetailsService(userDetailsService);
-		provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService));
-		provider.setServiceProperties(serviceProperties());
-		provider.setTicketValidator(ticketValidator());
-		provider.setKey(casServerKey);
-		return provider;
-	}
+        http
+                .addFilter(casAuthenticationFilter())
+                .addFilterBefore(new SingleSignOutFilter(), CasAuthenticationFilter.class)
+                .authorizeHttpRequests(
+                        (authorize)
+                                -> authorize.requestMatchers(HttpMethod.GET, "/loggedout")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated())
+                .exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(casAuthenticationEntryPoint()))
+                .logout(l -> l.logoutSuccessUrl("/logout"));
 
-	private TicketValidator ticketValidator() {
-		return new Cas30ServiceTicketValidator(this.casServerUrlBase);
-	}
+        return http.build();
+    }
 
-	/**
-	 * First step of the CAS authentication process.
-	 * @return the authentication entry point.
-	 */
-	@Bean
-	public CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
-		CasAuthenticationEntryPoint casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
-		casAuthenticationEntryPoint.setLoginUrl(this.casServerUrlLogin);
-		casAuthenticationEntryPoint.setServiceProperties(serviceProperties());
-		return casAuthenticationEntryPoint;
-	}
+    @Bean
+    public CasAuthenticationProvider casAuthenticationProvider() {
+        CasAuthenticationProvider provider = new CasAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService));
+        provider.setServiceProperties(serviceProperties());
+        provider.setTicketValidator(ticketValidator());
+        provider.setKey(casServerKey);
+        return provider;
+    }
 
-	/**
-	 *
-	 * @return
-	 */
-	@Bean
-	public CasAuthenticationFilter casAuthenticationFilter(UserDetailsService userDetailsService) {
-		CasAuthenticationFilter filter = new CasAuthenticationFilter();
-		CasAuthenticationProvider casAuthenticationProvider = casAuthenticationProvider(userDetailsService);
-		//ProviderManager providerManager = new ProviderManager(new AnonymousAuthenticationProvider("13792c4f-5188-46da-922d-3f1cee3f85cZ"));
-		//providerManager.setAuthenticationEventPublisher(new DefaultAuthenticationEventPublisher());
-		//ProviderManager providerManager2 = new ProviderManager(Collections.singletonList(casAuthenticationProvider), providerManager);
-		filter.setAuthenticationManager(new ProviderManager(casAuthenticationProvider));
-		return filter;
-	}
+    private TicketValidator ticketValidator() {
+        return new Cas30ServiceTicketValidator(this.casServerUrlBase);
+    }
 
-	@Bean
-	public ServiceProperties serviceProperties() {
-		ServiceProperties serviceProperties = new ServiceProperties();
-		serviceProperties.setService(casServerUrlService);
-		serviceProperties.setSendRenew(false);
-		return serviceProperties;
-	}
+    /**
+     * First step of the CAS authentication process.
+     *
+     * @return the authentication entry point.
+     */
+    @Bean
+    public CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
+        CasAuthenticationEntryPoint casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
+        casAuthenticationEntryPoint.setLoginUrl(this.casServerUrlLogin);
+        casAuthenticationEntryPoint.setServiceProperties(serviceProperties());
+        return casAuthenticationEntryPoint;
+    }
 
-	@SuppressWarnings("static-method")
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		/* TODO
-		return new BCryptPasswordEncoder();
-		*/
-		return NoOpPasswordEncoder.getInstance();
-	}
+    /**
+     * @return
+     */
+    @Bean
+    public CasAuthenticationFilter casAuthenticationFilter() {
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        CasAuthenticationProvider casAuthenticationProvider = casAuthenticationProvider();
+        filter.setAuthenticationManager(new ProviderManager(casAuthenticationProvider));
+        return filter;
+    }
 
-	@Bean
-	public SingleSignOutFilter singleSignOutFilter() {
-		return new SingleSignOutFilter();
-	}
+    @Bean
+    public ServiceProperties serviceProperties() {
+        ServiceProperties serviceProperties = new ServiceProperties();
+        serviceProperties.setService(casServerUrlService);
+        serviceProperties.setSendRenew(false);
+        return serviceProperties;
+    }
 
-	@Bean
-	public LogoutFilter logoutFilter() {
-		LogoutFilter logoutFilter = new LogoutFilter(this.casServerUrlLogout, new SecurityContextLogoutHandler());
-		logoutFilter.setFilterProcessesUrl("/logout");
-		return logoutFilter;
-	}
+    @Bean
+    public SingleSignOutFilter singleSignOutFilter() {
+        return new SingleSignOutFilter();
+    }
+
+    @Bean
+    public LogoutFilter logoutFilter() {
+        LogoutFilter logoutFilter = new LogoutFilter(this.casServerUrlLogout, new SecurityContextLogoutHandler());
+        logoutFilter.setFilterProcessesUrl("/logout");
+        return logoutFilter;
+    }
 }
