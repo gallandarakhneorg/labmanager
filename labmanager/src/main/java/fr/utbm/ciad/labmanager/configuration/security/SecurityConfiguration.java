@@ -78,12 +78,12 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(
-                authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
-
-        // Icons from the line-awesome addon
-        http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
+        http.authorizeHttpRequests(authorize -> {
+            authorize
+                    .requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()
+                    .requestMatchers("/login").permitAll();
+        });
 
         http.csrf(AbstractHttpConfigurer::disable);
     }
@@ -101,8 +101,14 @@ public class SecurityConfiguration extends VaadinWebSecurity {
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
-                .exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(casAuthenticationEntryPoint()))
-                .logout(l -> l.logoutSuccessUrl("/logout"));
+                .exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(casAuthenticationEntryPoint()));
+
+        http
+                .logout((logout) -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .addLogoutHandler(new SecurityContextLogoutHandler())
+                        .logoutSuccessUrl("/loggedout")
+                        .permitAll());
 
         return http.build();
     }
