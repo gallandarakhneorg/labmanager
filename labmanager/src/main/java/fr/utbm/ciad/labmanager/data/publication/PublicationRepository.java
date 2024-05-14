@@ -21,10 +21,12 @@ package fr.utbm.ciad.labmanager.data.publication;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA repository for a publication.
  * 
@@ -42,6 +44,9 @@ public interface PublicationRepository extends JpaRepository<Publication, Long>,
 	 * @return the list of publications.
 	 */
 	List<Publication> findAllByAuthorshipsPersonId(long personId);
+
+	@Query("SELECT p FROM Publication p LEFT JOIN FETCH p.authorships a WHERE p.id = :id")
+	Optional<Publication> findByIdJoinAuthorships(long id);
 
 	/** Replies the list of publications for the person with the given webpage identifier.
 	 *

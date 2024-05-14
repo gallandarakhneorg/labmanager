@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA Repository for the persons.
  * 
@@ -90,5 +91,8 @@ public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecif
 	 * @return the persons.
 	 */
 	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(long id);
+
+	@Query("SELECT p FROM Person p LEFT JOIN FETCH p.authorships m WHERE p.id = :id")
+	Optional<Person> findByIdJoinAuthorships(long id);
 
 }

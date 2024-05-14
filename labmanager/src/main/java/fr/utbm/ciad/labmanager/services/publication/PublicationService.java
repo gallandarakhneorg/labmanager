@@ -515,9 +515,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @return the added authorship
 	 */
 	public Authorship addAuthorship(long personId, long publicationId, int rank, boolean updateOtherAuthorshipRanks) {
-		final var optPerson = this.personRepository.findById(Long.valueOf(personId));
+		final var optPerson = this.personRepository.findByIdJoinAuthorships(Long.valueOf(personId));
 		if (optPerson.isPresent()) {
-			final var optPub = this.publicationRepository.findById(Long.valueOf(publicationId));
+			final var optPub = this.publicationRepository.findByIdJoinAuthorships(Long.valueOf(publicationId));
 			if (optPub.isPresent()) {
 				final var publication = optPub.get();
 				// No need to add the authorship if the person is already linked to the publication
@@ -552,7 +552,7 @@ public class PublicationService extends AbstractPublicationService {
 					currentAuthors.add(authorship);
 					publication.getAuthorshipsRaw().add(authorship);
 					this.authorshipRepository.save(authorship);
-					this.personRepository.save(person);
+					//this.personRepository.save(person);
 					this.publicationRepository.save(publication);
 					return authorship;
 				}

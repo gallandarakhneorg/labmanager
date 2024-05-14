@@ -19,8 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.publications;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -33,6 +32,7 @@ import java.util.stream.Stream;
 import com.google.common.base.Strings;
 import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -44,6 +44,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -168,6 +170,16 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 	private MenuItem exportJsonButton;
 
+	private MenuItem importButton;
+
+	private MenuItem importBibTexButton;
+
+	private MenuItem importRisButton;
+
+	private MenuItem importJsonButton;
+
+	private Dialog importDialog;
+
 	private MenuItem regenerateThumbnailButton;
 
 	/** Constructor.
@@ -290,6 +302,22 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		final var halImageResource = ComponentFactory.newStreamImage(ViewConstants.HAL_ICON);
 		this.exportHalButton = ComponentFactory.addIconItem(exportSubMenu, halImageResource, null, null, null);
 		this.exportHalButton.setEnabled(false);
+
+
+		this.importButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SAVE_SOLID, null, null, null);
+		this.importButton.setEnabled(true);
+		final var importSubMenu = this.importButton.getSubMenu();
+
+		this.importBibTexButton = ComponentFactory.addIconItem(importSubMenu, bibTexImageResource, null, null, null);
+		this.importBibTexButton.setEnabled(true);
+		this.importBibTexButton.addClickListener(event -> openImportBibtexDialog());
+
+		this.importRisButton = ComponentFactory.addIconItem(importSubMenu, risImageResource, null, null, null);
+		this.importRisButton.setEnabled(true);
+
+		this.importJsonButton = ComponentFactory.addIconItem(importSubMenu, jsonImageResource, null, null, null);
+		this.importJsonButton.setEnabled(false);
+
 
 		this.regenerateThumbnailButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openThumbnailRegenerationWizard());
 
@@ -493,6 +521,53 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		return new StringInputStream(content, Charset.defaultCharset());
 	}
 
+	protected void openImportBibtexDialog() {
+		MultiFileMemoryBuffer multiFileMemoryBuffer = new MultiFileMemoryBuffer();
+		Upload multiFileUpload = new Upload(multiFileMemoryBuffer);
+		multiFileUpload.setDropAllowed(true);
+		multiFileUpload.setAutoUpload(false);
+		//multiFileUpload.setAcceptedFileTypes("text/x-bibtex");
+
+		multiFileUpload.addSucceededListener(event -> {
+			String fileName = event.getFileName();
+			InputStream inputStream = multiFileMemoryBuffer.getInputStream(fileName);
+			Reader reader = new BufferedReader(new InputStreamReader(inputStream));
+			try {
+				publicationService.importBibTeXPublications(reader, null, true, true, null);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		Button cancelButton = new Button("Cancel", event -> {
+			// Abort upload
+			multiFileUpload.clearFileList();
+			this.importDialog.close();
+		});
+
+		Button importButton = new Button("Import", event -> {
+			Set<String> fileName = multiFileMemoryBuffer.getFiles();
+			multiFileUpload.getElement().callJsFunction("uploadFiles");
+			fileName.forEach(file -> {
+				InputStream fileData = multiFileMemoryBuffer.getInputStream(file);
+				Reader reader = new BufferedReader(new InputStreamReader(fileData));
+
+				try {
+					publicationService.importBibTeXPublications(reader, null, true, true, null);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			});
+		});
+
+		this.importDialog = new Dialog();
+		this.importDialog.add(multiFileUpload);
+		this.importDialog.setHeaderTitle(getTranslation("views.import")); //$NON-NLS-1$
+		this.importDialog.getFooter().add(cancelButton); //$NON-NLS-1$
+		this.importDialog.getFooter().add(importButton); //$NON-NLS-1$
+		this.importDialog.open();
+	}
+
 	@Override
 	protected void onSelectionChange(Set<?> selection) {
 		super.onSelectionChange(selection);
@@ -675,12 +750,22 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	protected void openPublicationEditor(Publication publication, String title) {
 		final var editor = new EmbeddedPublicationEditor(
 				this.publicationService.startEditing(publication),
-				getSupportedPublicationTypeArray(), true,
-				this.fileManager, this.publicationService, this.personService, this.userService, 
-				this.journalService, this.conferenceService, this.axisService,
-				getAuthenticatedUser(), getMessageSourceAccessor(), this.personCreationLabelKey,
-				this.personFieldLabelKey, this.personFieldHelperLabelKey,
-				this.personNullErrorKey, this.personDuplicateErrorKey);
+				getSupportedPublicationTypeArray(),
+				true,
+				this.fileManager,
+				this.publicationService,
+				this.personService,
+				this.userService,
+				this.journalService,
+				this.conferenceService,
+				this.axisService,
+				getAuthenticatedUser(),
+				getMessageSourceAccessor(),
+				this.personCreationLabelKey,
+				this.personFieldLabelKey,
+				this.personFieldHelperLabelKey,
+				this.personNullErrorKey,
+				this.personDuplicateErrorKey);
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Publication> refreshAll = (dialog, entity) -> refreshGrid();
 		ComponentFactory.openEditionModalDialog(title, editor, false,
@@ -724,6 +809,18 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		}
 		if (this.exportJsonButton != null) {
 			ComponentFactory.setIconItemText(this.exportJsonButton, getTranslation("views.publication.export.json")); //$NON-NLS-1$
+		}
+		if (this.importButton != null) {
+			ComponentFactory.setIconItemText(this.importButton, getTranslation("views.import")); //$NON-NLS-1$
+		}
+		if (this.importBibTexButton != null) {
+			ComponentFactory.setIconItemText(this.importBibTexButton, getTranslation("views.publication.import.bibtex")); //$NON-NLS-1$
+		}
+		if (this.importRisButton != null) {
+			ComponentFactory.setIconItemText(this.importRisButton, getTranslation("views.publication.import.ris")); //$NON-NLS-1$
+		}
+		if (this.importJsonButton != null) {
+			ComponentFactory.setIconItemText(this.importJsonButton, getTranslation("views.publication.import.json")); //$NON-NLS-1$
 		}
 		if (this.regenerateThumbnailButton != null) {
 			ComponentFactory.setIconItemText(this.regenerateThumbnailButton, getTranslation("views.publications.thumbnailGenerator")); //$NON-NLS-1$
