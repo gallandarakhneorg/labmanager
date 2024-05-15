@@ -64,7 +64,7 @@ public class BaseMessageSource {
 	 *
 	 * @return the message source.
 	 */
-	protected static MessageSource createMessageSource() {
+	protected static ReloadableResourceBundleMessageSource createMessageSource() {
 		final var res = new ReloadableResourceBundleMessageSource();
 		res.setFallbackToSystemLocale(false);
 		res.addBasenames(TRANSLATION_BASEFILE);

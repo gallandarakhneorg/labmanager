@@ -17,16 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.components.messages;
+package fr.utbm.ciad.labmanager.views.components.messages;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.i18n.DefaultI18NProvider;
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
 
 /** Provider of I18N messages for Vaadin. This providers is linked to the {@link BaseMessageSource Spring message source}.
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @since 4.0
  */
 @Component
-public class SpringBasedI18NProvider implements I18NProvider {
+public class SpringBasedI18NProvider extends DefaultI18NProvider {
 
 	private static final long serialVersionUID = 7109279618234895282L;
 
@@ -55,19 +56,19 @@ public class SpringBasedI18NProvider implements I18NProvider {
 	 * @param springMessageSource the spring message source.
 	 */
 	public SpringBasedI18NProvider(@Autowired BaseMessageSource springMessageSource) {
+		super(LOCALES);
 		this.springMessageSource = springMessageSource;
-	}
-	
-	@Override
-	public List<Locale> getProvidedLocales() {
-		return LOCALES;
 	}
 
 	@Override
 	public String getTranslation(String key, Locale locale, Object... params) {
 		assert !Strings.isNullOrEmpty(key);
 		final var concreteLocale = locale == null ? Locale.getDefault() : locale;
-		return this.springMessageSource.getMessageSource().getMessage(key, params, concreteLocale);
+		try {
+			return this.springMessageSource.getMessageSource().getMessage(key, params, concreteLocale);
+		} catch (NoSuchMessageException ex) {
+			return super.getTranslation(key, locale, params);
+		}
 	}
 	
 }

@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.services.journal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -51,6 +53,7 @@ import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.arakhne.afc.progress.ProgressionListener;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +130,21 @@ public class JournalService extends AbstractEntityService<Journal> {
 		return this.journalRepository.findAll();
 	}
 
+	/** Replies all the journals for the database and applying the given callback on all journals.
+	 *
+	 * @return the list of journals.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @since 4.0
+	 */
+	@Transactional
+	public List<Journal> getAllJournals(Consumer<Journal> callback) {
+		final var list = this.journalRepository.findAll();
+		if (callback != null) {
+			list.forEach(callback);
+		}
+		return list;
+	}
+
 	/** Replies all the journals for the database.
 	 *
 	 * @param filter the filter of journals.
@@ -135,6 +153,22 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 */
 	public List<Journal> getAllJournals(Specification<Journal> filter) {
 		return this.journalRepository.findAll(filter);
+	}
+
+	/** Replies all the journals for the database and applying the given callback on all journals.
+	 *
+	 * @param filter the filter of journals.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of journals.
+	 * @since 4.0
+	 */
+	@Transactional
+	public List<Journal> getAllJournals(Specification<Journal> filter, Consumer<Journal> callback) {
+		final var list = this.journalRepository.findAll(filter);
+		if (callback != null) {
+			list.forEach(callback);
+		}
+		return list;
 	}
 
 	/** Replies all the journals for the database.
@@ -409,12 +443,13 @@ public class JournalService extends AbstractEntityService<Journal> {
 	/** Download the quartile information from the Scimago website.
 	 *
 	 * @param journalId the identifier of the journal.
+	 * @param progression the progression indicator.
 	 * @return the quartile or {@code null} if none cannot be found.
 	 */
-	public QuartileRanking downloadScimagoQuartileByJournalId(long journalId) {
+	public QuartileRanking downloadScimagoQuartileByJournalId(long journalId, Progression progression) {
 		final var res = this.journalRepository.findById(Long.valueOf(journalId));
 		if (res.isPresent()) {
-			return downloadScimagoQuartileByJournal(res.get());
+			return downloadScimagoQuartileByJournal(res.get(), progression);
 		}
 		return null;
 	}
@@ -450,37 +485,45 @@ public class JournalService extends AbstractEntityService<Journal> {
 	/** Download the quartile information from the Scimago website.
 	 *
 	 * @param journal the journal for which the quartile must be downloaded.
+	 * @param progression the progression indicator.
 	 * @return the quartile or {@code null} if none cannot be found.
 	 */
-	public QuartileRanking downloadScimagoQuartileByJournal(Journal journal) {
-		if (journal != null) {
-			final var scimagoId = journal.getScimagoId();
-			if (!Strings.isNullOrEmpty(scimagoId)) {
-				try {
-					final var url = getScimagoQuartileImageURLByJournal(journal);
-					if (url != null) {
-						final var image = this.netConnection.getImageFromURL(url);
-						final var rgba = image.getRGB(5, 55);
-						final var red = (rgba >> 16) & 0xff;
-						switch (red) {
-						case 164:
-							return QuartileRanking.Q1;
-						case 232:
-							return QuartileRanking.Q2;
-						case 251:
-							return QuartileRanking.Q3;
-						case 221:
-							return QuartileRanking.Q4;
-						default:
-							//
+	public QuartileRanking downloadScimagoQuartileByJournal(Journal journal, Progression progression) {
+		try {
+			progression.setProperties(0, 0, 3, false);
+			if (journal != null) {
+				final var scimagoId = journal.getScimagoId();
+				if (!Strings.isNullOrEmpty(scimagoId)) {
+					try {
+						final var url = getScimagoQuartileImageURLByJournal(journal);
+						if (url != null) {
+							progression.increment();
+							final var image = this.netConnection.getImageFromURL(url);
+							progression.increment();
+							final var rgba = image.getRGB(5, 55);
+							final var red = (rgba >> 16) & 0xff;
+							switch (red) {
+							case 164:
+								return QuartileRanking.Q1;
+							case 232:
+								return QuartileRanking.Q2;
+							case 251:
+								return QuartileRanking.Q3;
+							case 221:
+								return QuartileRanking.Q4;
+							default:
+								//
+							}
 						}
+					} catch (Throwable ex) {
+						getLogger().warn(ex.getLocalizedMessage(), ex);
 					}
-				} catch (Throwable ex) {
-					getLogger().warn(ex.getLocalizedMessage(), ex);
 				}
 			}
+			return null;
+		} finally {
+			progression.end();
 		}
-		return null;
 	}
 
 	/** Save the given quality indicators for the journal.
@@ -513,6 +556,142 @@ public class JournalService extends AbstractEntityService<Journal> {
 			this.indicatorRepository.delete(indicators);
 			this.journalRepository.save(journal);
 		}
+	}
+	
+	/** Update the journal rankings from Scimago indicators.
+	 * This function does not save the journals in the database.
+	 *
+	 * @param year the reference year for which the indicators must be extracted.
+	 * @param journals the list of the journals to be updated.
+	 * @param listener the listener on the task progression.
+	 * @throws Exception when Scimago indicators cannot be obtained.
+	 */
+	public void updateScimagoJournalIndicators(int year, List<Journal> journals, ProgressionListener listener) throws Exception {
+		final var progression = new DefaultProgression(0, journals.size());
+		try {
+			if (listener != null) {
+				progression.addProgressionListener(listener);
+			}
+			
+			/*for (final var journal : journals) {
+				final var subTask = progression.subTask(1);
+				final var rankings = this.scimago.getJournalRanking(year, journal.getScimagoId(), subTask);
+				if (rankings != null) {
+					QuartileRanking q = null;
+					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
+						q = rankings.get(journal.getScimagoCategory());
+					}
+					if (q == null) {
+						final var categories = scimagoNode.putArray("categories"); //$NON-NLS-1$
+						for (final var category : rankings.entrySet()) {
+							if (!ScimagoPlatform.BEST.equals(category.getKey())) {
+								final var categoryNode = categories.addObject();
+								categoryNode.put("name", category.getKey()); //$NON-NLS-1$
+								categoryNode.put("qindex", category.getValue().name()); //$NON-NLS-1$
+							}
+						}
+					} else {
+						scimagoNode.put("qindex", q.name()); //$NON-NLS-1$
+					}
+				} else {
+					scimagoNode.put("qindex", QuartileRanking.NR.name()); //$NON-NLS-1$
+				}
+				if (!scimagoNode.isEmpty()) {
+					journalNode.set("scimago", scimagoNode); //$NON-NLS-1$
+				}
+				progression.ensureNoSubTask();
+			}*/
+		} finally {
+			progression.end();
+		}
+	}
+
+	/** Download the journal indicators for the given reference year for the Scimago platform.
+	 * This function uses the {@link ScimagoPlatform} tool for downloading the CSV file from the Scimago
+	 * website.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param journals the list of journals to update.
+	 * @param progress the progression monitor.
+	 * @param consumer the consumer of the journal ranking information.
+	 * @throws Exception if the journal information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public void downloadJournalIndicatorsFromScimago(int referenceYear, List<Journal> journals, Progression progress, JournalRankingConsumer consumer) throws Exception {
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		progress0.setProperties(0, 0, journals.size() * 2, false);
+		for (final var journal : journals) {
+			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
+				progress0.setComment(journal.getJournalName());
+				final var scientificField = journal.getScimagoCategory();
+				final var lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
+				final var rankings = this.scimago.getJournalRanking(referenceYear, journal.getScimagoId(), progress0.subTask(1));
+				progress0.ensureNoSubTask();
+				if (rankings != null) {
+					QuartileRanking q = null;
+					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
+						q = rankings.get(journal.getScimagoCategory());
+					}
+					if (q == null) {
+						final var availableQuartiles = rankings.entrySet().stream().filter(it -> !ScimagoPlatform.BEST.equals(it.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+						consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, availableQuartiles);
+					} else {
+						consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, Collections.singletonMap(scientificField, q));
+					}
+				} else {
+					consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, Collections.emptyMap());
+				}
+				progress0.increment();
+			} else {
+				progress0.subTask(2);
+			}
+		}
+		progress0.end();
+	}
+
+	/** Download the journal indicators for the given reference year for the WoS platform.
+	 * This function uses the {@link WosPlatform} tool for downloading the CSV file from a local file.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param journals the list of journals to update.
+	 * @param progress the progression monitor.
+	 * @param consumer the consumer of the journal ranking information.
+	 * @throws Exception if the journal information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public void downloadJournalIndicatorsFromWoS(int referenceYear, List<Journal> journals, Progression progress, JournalRankingConsumer consumer) throws Exception {
+		/* FIXME: final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		progress0.setProperties(0, 0, journals.size() * 2, false);
+		for (final var journal : journals) {
+			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
+				progress0.setComment(journal.getJournalName());
+				final var scientificField = journal.getScimagoCategory();
+				final var lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
+				URL csvSource = null;
+				final var rankings = this.wos.getJournalRanking(referenceYear, csvSource, journal.getScimagoId(), progress0.subTask(1));
+				progress0.ensureNoSubTask();
+				if (rankings != null) {
+					QuartileRanking q = null;
+					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
+						q = rankings.get(journal.getScimagoCategory());
+					}
+					if (q == null) {
+						final var availableQuartiles = rankings.entrySet().stream().filter(it -> !ScimagoPlatform.BEST.equals(it.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+						consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, availableQuartiles);
+					} else {
+						consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, Collections.singletonMap(scientificField, q));
+					}
+				} else {
+					consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, Collections.emptyMap());
+				}
+				progress0.increment();
+			} else {
+				progress0.subTask(2);
+			}
+		}
+		progress0.end();*/
 	}
 
 	/** Replies Json that describes an update of the journal indicators for the given reference year.
@@ -824,6 +1003,28 @@ public class JournalService extends AbstractEntityService<Journal> {
 			//
 			JournalService.this.journalRepository.deleteAllById(identifiers);
 		}
+
+	}
+
+	/** Consumer of journal ranking information.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public interface JournalRankingConsumer extends Serializable {
+
+		/** Invoked when a journal ranking is discovered from the source.
+		 * 
+		 * @param referenceYear the reference year.
+		 * @param journalId the identifier of the journal.
+		 * @param scientificField the name of the scientific field that is serving as reference.
+		 * @param oldQuartile the previously know quartile.
+		 * @param choices lists the available quartiles per scientific field.
+		 */
+		void consume(int referenceYear, long journalId,  String scientificField, QuartileRanking oldQuartile, Map<String, QuartileRanking> choices);
 
 	}
 
