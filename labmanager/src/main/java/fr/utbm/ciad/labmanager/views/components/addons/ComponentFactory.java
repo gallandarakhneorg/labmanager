@@ -68,6 +68,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
+import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.internal.LocaleUtil;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
@@ -1284,8 +1286,55 @@ public final class ComponentFactory {
 		notification.open();
 		return notification;
 	}
+	
+	/** Replies the locale that is defined by Vaadin app.
+	 *
+	 * @return the locale.
+	 * @see #getTranslation(String, Object...)
+	 * @see #getTranslation(Locale, String, Object...)
+	 */
+	public static Locale getLocale() {
+		return LocaleUtil.getLocale(LocaleUtil::getI18NProvider);
+	}
 
-	/** Builder of a HQL query filter.
+    /**
+     * Get the translation for the locale.
+     *
+     * <p>The method never returns a null. If there is no {@link I18NProvider}
+     * available or no translation for the {@code key} it returns an exception
+     * string e.g. '!{key}!'.
+     *
+     * @param key translation key.
+     * @param parameters the parameters used in translation string.
+     * @return translation text.
+     * @see #getLocale()
+     * @see #getTranslation(Locale, String, Object...)
+     */
+    public static String getTranslation(String key, Object... parameters) {
+        final var i18NProvider = LocaleUtil.getI18NProvider();
+        return i18NProvider.map(i18n -> i18n.getTranslation(key, LocaleUtil.getLocale(() -> i18NProvider), parameters)).orElseGet(() -> "!{" + key + "}!"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    /**
+     * Get the translation for the locale.
+     *
+     * <p>The method never returns a null. If there is no {@link I18NProvider}
+     * available or no translation for the {@code key} it returns an exception
+     * string e.g. '!{key}!'.
+     *
+     * @param locale the locale to be used for the message.
+     * @param key translation key.
+     * @param parameters the parameters used in translation string.
+     * @return translation text.
+     * @see #getLocale()
+     * @see #getTranslation(String, Object...)
+     */
+    public static String getTranslation(Locale locale, String key, Object... parameters) {
+        final var i18NProvider = LocaleUtil.getI18NProvider();
+        return i18NProvider.map(i18n -> i18n.getTranslation(key, locale, parameters)).orElseGet(() -> "!{" + key + "}!"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+    
+    /** Builder of a HQL query filter.
 	 *
 	 * @param <T> the type of entity.
 	 * @author $Author: sgalland$
