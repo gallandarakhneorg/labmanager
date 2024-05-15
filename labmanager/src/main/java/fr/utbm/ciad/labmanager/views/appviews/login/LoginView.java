@@ -20,8 +20,10 @@ public class LoginView extends Composite<HorizontalLayout> implements BeforeEnte
 
     private static final long serialVersionUID = 4873621745334362590L;
 
+    private final AuthenticatedUser authenticatedUser;
 
-    public LoginView() {
+    public LoginView(@Autowired AuthenticatedUser authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
         getContent().setWidth("100%");
         getContent().getStyle().set("flex-grow", "1");
         final VerticalLayout layoutColumn2 = new VerticalLayout();
@@ -32,13 +34,24 @@ public class LoginView extends Composite<HorizontalLayout> implements BeforeEnte
         layoutColumn2.setAlignItems(FlexComponent.Alignment.CENTER);
         icon.getElement().setAttribute("icon", "lumo:user");
         //layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, loginForm);
+
+        Button loginButton = new Button("Login");
+        loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        loginButton.addClickListener(event -> {
+            event.forwardTo("/login/cas");
+                });
+
         getContent().add(layoutColumn2);
+
         layoutColumn2.add(icon);
 
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-
+        if (this.authenticatedUser.get().isPresent()) {
+            // Already logged in
+            beforeEnterEvent.forwardTo(""); //$NON-NLS-1$
+        }
     }
 }

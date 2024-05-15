@@ -78,11 +78,17 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> {
-            authorize
-                    .requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()
-                    .requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()
-                    .requestMatchers("/login").permitAll();
+        http.authorizeHttpRequests(
+                (authorize)
+                        -> {
+                    authorize
+                            .requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/VAADIN/**/")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/themes/**")).permitAll()
+                            .requestMatchers("/login").permitAll()
+                            .requestMatchers("/adaptiveLogin").permitAll()
+                            .requestMatchers("/").permitAll();
         });
 
         http.csrf(AbstractHttpConfigurer::disable);
@@ -97,18 +103,20 @@ public class SecurityConfiguration extends VaadinWebSecurity {
                 .addFilterBefore(new SingleSignOutFilter(), CasAuthenticationFilter.class)
                 .authorizeHttpRequests(
                         (authorize)
-                                -> authorize.requestMatchers(HttpMethod.GET, "/loggedout")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated())
-                .exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(casAuthenticationEntryPoint()));
+                                -> authorize
+                                .anyRequest().authenticated())
+                .exceptionHandling(
+                        (exceptions)
+                                -> exceptions
+                                .authenticationEntryPoint(casAuthenticationEntryPoint()));
 
         http
-                .logout((logout) -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .addLogoutHandler(new SecurityContextLogoutHandler())
-                        .logoutSuccessUrl("/loggedout")
-                        .permitAll());
+                .logout(
+                        (logout)
+                                -> logout
+                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                                .addLogoutHandler(new SecurityContextLogoutHandler())
+                                .logoutSuccessUrl("/").permitAll());
 
         return http.build();
     }
