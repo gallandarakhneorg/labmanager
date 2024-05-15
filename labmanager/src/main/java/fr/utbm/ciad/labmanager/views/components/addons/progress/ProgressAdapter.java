@@ -64,6 +64,25 @@ public class ProgressAdapter implements ProgressionListener, Serializable {
 		this(bar, null);
 	}
 
+	/** Replies the progression percentage for the task.
+	 * When the progression is {@link #isIndeterminate() indeterminate}, the value
+	 * replied by this function is inconsistent.
+	 *
+	 * @return the progression percentage.
+	 */
+	public double getPercent() {
+		return this.progressBar.getValue();
+	}
+
+	/** Replies the progression is indeterminate. When the progression is indeterminate, the value
+	 * replied by {@link #getPercent()} is inconsistent.
+	 *
+	 * @return {@code true} if the progression is indeterminate.
+	 */
+	public boolean isIndeterminate() {
+		return this.progressBar.isIndeterminate();
+	}
+
 	@Override
 	public void onProgressionValueChanged(ProgressionEvent event) {
 		updateProgressBar(event.isIndeterminate(), event.getPercent(), event.getComment());

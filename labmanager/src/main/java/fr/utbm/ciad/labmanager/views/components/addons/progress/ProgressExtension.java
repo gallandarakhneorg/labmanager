@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.ClickNotifier;
@@ -34,6 +35,7 @@ import com.vaadin.flow.component.icon.AbstractIcon;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
+import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.progress.ProgressionListener;
 
 /** Extension of a component that is clickable in order to start asynchronous a task and show its progress in a modal dialog.
@@ -292,6 +294,26 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 			}
 			this.dialog.openAndRun();
 		}
+	}
+
+	/** Extend the given progression with an specific comment pattern.
+	 *
+	 * @param progress the progression to delegate to.
+	 * @param pattern the comment pattern. The format of the pattern must follows the rules from {@link String#format(String, Object...)}.
+	 * @return the extended progression
+	 */
+	public static Progression withCommentPattern(Progression progress, String pattern) {
+		return new PatternCommentProgression(progress, it -> String.format(pattern, it));
+	}
+
+	/** Extend the given progression with an specific comment pattern.
+	 *
+	 * @param progress the progression to delegate to.
+	 * @param formatter the function for formatting the comment. If {@code null}, the internal comment part is used as-is.
+	 * @return the extended progression
+	 */
+	public static Progression withCommentFormatter(Progression progress, Function<String, String> formatter) {
+		return new PatternCommentProgression(progress, formatter == null ? it -> it : formatter);
 	}
 
 }
