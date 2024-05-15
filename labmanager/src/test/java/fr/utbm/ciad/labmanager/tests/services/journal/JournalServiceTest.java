@@ -66,6 +66,7 @@ import fr.utbm.ciad.labmanager.utils.io.scimago.OnlineScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.DefaultProgression;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -463,7 +464,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournalId_noId() throws Exception {
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234, new DefaultProgression());
 		assertNull(r);
 	}
 
@@ -477,7 +478,7 @@ public class JournalServiceTest {
 
 		when(this.jour1.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234, new DefaultProgression());
 		assertSame(QuartileRanking.Q1, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -495,7 +496,7 @@ public class JournalServiceTest {
 
 		when(this.jour1.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234, new DefaultProgression());
 		assertSame(QuartileRanking.Q2, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -513,7 +514,7 @@ public class JournalServiceTest {
 
 		when(this.jour1.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234, new DefaultProgression());
 		assertSame(QuartileRanking.Q3, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -531,7 +532,7 @@ public class JournalServiceTest {
 
 		when(this.jour1.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234, new DefaultProgression());
 		assertSame(QuartileRanking.Q4, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -549,7 +550,7 @@ public class JournalServiceTest {
 
 		when(this.jour1.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournalId(234, new DefaultProgression());
 		assertNull(r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -559,7 +560,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournal_nullJournal() throws Exception {
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(null);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(null, new DefaultProgression());
 		assertNull(r);
 	}
 
@@ -573,7 +574,7 @@ public class JournalServiceTest {
 
 		when(this.jour3.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3, new DefaultProgression());
 		assertSame(QuartileRanking.Q1, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -591,7 +592,7 @@ public class JournalServiceTest {
 
 		when(this.jour3.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3, new DefaultProgression());
 		assertSame(QuartileRanking.Q2, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -609,7 +610,7 @@ public class JournalServiceTest {
 
 		when(this.jour3.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3, new DefaultProgression());
 		assertSame(QuartileRanking.Q3, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -627,7 +628,7 @@ public class JournalServiceTest {
 
 		when(this.jour3.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3, new DefaultProgression());
 		assertSame(QuartileRanking.Q4, r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -645,7 +646,7 @@ public class JournalServiceTest {
 
 		when(this.jour3.getScimagoId()).thenReturn("xyz");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3, new DefaultProgression());
 		assertNull(r);
 
 		final ArgumentCaptor<URL> arg0 = ArgumentCaptor.forClass(URL.class);
@@ -670,7 +671,7 @@ public class JournalServiceTest {
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");
 
-		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
+		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3, new DefaultProgression());
 		assertSame(QuartileRanking.Q1, r);
 	}
 
