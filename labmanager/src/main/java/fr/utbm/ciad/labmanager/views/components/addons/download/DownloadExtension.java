@@ -41,7 +41,7 @@ import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.utils.DownloadableFileDescription;
-import fr.utbm.ciad.labmanager.views.components.addons.SerializableExceptionFunction;
+import fr.utbm.ciad.labmanager.utils.SerializableExceptionFunction;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;

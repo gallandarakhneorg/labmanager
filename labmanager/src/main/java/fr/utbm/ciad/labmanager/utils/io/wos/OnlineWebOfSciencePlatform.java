@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,8 @@ import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** Accessor to the online Web-of-Science platform.
  * 
@@ -52,6 +55,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Primary
 public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements WebOfSciencePlatform {
+
+	private static final String SCHEME = "https"; //$NON-NLS-1$
+
+	private static final String HOST = "wos-journal.info"; //$NON-NLS-1$
+
+	/** Hostname of the server that may provide informations about journals
+	 */
+	protected static final String JOURNAL_PATH = "journalid"; //$NON-NLS-1$
 
 	/** Name of the column for the journal ISSN.
 	 */
@@ -70,6 +81,10 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 	protected static final String IMPACT_FACTOR_COLUMN_PREFIX = "IF"; //$NON-NLS-1$
 
 	private final Map<Integer, Map<String, WebOfScienceJournal>> rankingCache = new ConcurrentHashMap<>();
+
+	/** Factory of URI builder.
+	 */
+	protected final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
 
 	private static WebOfScienceJournal analyzeCsvRecord(Integer categoryColumn, Integer impactFactorColumn, String[] row) {
 		final var quartiles = new TreeMap<String, QuartileRanking>();
@@ -235,6 +250,67 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 			}
 		}
 		throw new IllegalArgumentException("Invalid Web-of-Science URL or no valid access: " + wosProfile); //$NON-NLS-1$
+	}
+
+	@Override
+	public URL getJournalUrl(String journalId) {
+		if (!Strings.isNullOrEmpty(journalId)) {
+			try {
+				var builder = this.uriBuilderFactory.builder();
+				builder = builder.scheme(SCHEME);
+				builder = builder.host(HOST);
+				builder = builder.pathSegment(JOURNAL_PATH, journalId);
+				final var uri = builder.build();
+				return uri.toURL();
+			} catch (Exception ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public WebOfScienceJournal getJournalRanking(String journalId, Progression progress) throws Exception {
+		final var prog = ensureProgress(progress);
+		final var journalPage = getJournalUrl(journalId);
+		if (journalPage != null) {
+			final var output = new AtomicReference<WebOfScienceJournal>();
+			loadHtmlPage(
+					DEFAULT_DEVELOPER,
+					journalPage,
+					prog,
+					"a[title=\"Search this journal with Google\"]", //$NON-NLS-1$
+					0,
+					(page, element0) -> {
+						final var impactFactorDiv = page.querySelector("//div[contains(text(), 'Impact Factor')]/following::div"); //$NON-NLS-1$
+						final var impactFactor = positiveFloat(readFloat(impactFactorDiv));
+						
+						final var quartilesDiv = page.querySelector("//div[contains(text(), 'Category / Quartile')]/following::div"); //$NON-NLS-1$
+						final var quartilesText = readText(quartilesDiv);
+						final var quartiles = new HashMap<String, QuartileRanking>();
+						if (quartilesText != null) {
+							final var pattern0 = Pattern.compile("\\s*([^()]+)\\s*\\((Q[0-9])\\)"); //$NON-NLS-1$
+							final var pattern1 = Pattern.compile("^(.*)\\s*\\-\\s.*?$"); //$NON-NLS-1$
+							final var matcher0 = pattern0.matcher(quartilesText);
+							while (matcher0.find()) {
+								var category = matcher0.group(1).toLowerCase().trim();
+								final var quartileText = matcher0.group(2);
+								final var matcher1 = pattern1.matcher(category);
+								if (matcher1.find()) {
+									category = matcher1.group(1).trim();
+								}
+								final var quartile = QuartileRanking.valueOfCaseInsensitive(quartileText);
+								quartiles.put(category, quartile);
+							}
+						}
+						output.set(new WebOfScienceJournal(quartiles, impactFactor));
+					});
+			final var data = output.get();
+			if (data != null) {
+				return data;
+			}
+		}
+		throw new IllegalArgumentException("Invalid Web-of-Science URL or no valid access: " + journalPage); //$NON-NLS-1$
 	}
 
 	/** Call back for analyzing the journal CSV.

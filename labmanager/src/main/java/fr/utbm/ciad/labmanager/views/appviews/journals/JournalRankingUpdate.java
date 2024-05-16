@@ -21,10 +21,13 @@ package fr.utbm.ciad.labmanager.views.appviews.journals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
+import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
@@ -54,6 +57,8 @@ public class JournalRankingUpdate extends AbstractContextData {
 	private final Map<Long, JournalRankingInformation> scimago = new TreeMap<>();
 
 	private final Map<Long, JournalRankingInformation> wos = new TreeMap<>();
+
+	private final Map<Long, JournalImpactFactor> impactFactors = new TreeMap<>();
 
 	/** Constructor.
 	 */
@@ -174,7 +179,119 @@ public class JournalRankingUpdate extends AbstractContextData {
 		this.wos.clear();
 	}
 
-	private record JournalRankingInformation(QuartileRanking knownQuartile, Map<String, QuartileRanking> rankings) {
+	/** Add impact factor for the journal with the given identifier.
+	 *
+	 * @param journalId the identifier of the journal.
+	 * @param oldImpactFactor the previously known impact factor.
+	 * @param currentImpactFactor the current impact factor.
+	 */
+	public synchronized void addImpactFactor(long journalId, float oldImpactFactor, float currentImpactFactor) {
+		this.impactFactors.put(Long.valueOf(journalId), new JournalImpactFactor(oldImpactFactor, currentImpactFactor));
+	}
+
+	/** Remove all the references to the impact factors.
+	 */
+	public synchronized void clearImpactFactors() {
+		this.impactFactors.clear();
+	}
+
+	/** Replies all the update information about the journals.
+	 *
+	 * @return the stream of information, one entry per journal.
+	 */
+	public Stream<JournalNewInformation> getJournalUpdates() {
+		final var defaultRanking = new JournalRankingInformation(QuartileRanking.NR, Collections.emptyMap());
+		final var defaultImpacts = new JournalImpactFactor(0f, 0f);
+		return getJournals().stream().map(journal -> {
+			final var journalId = Long.valueOf(journal.getId());
+			
+			final var scimago = this.scimago.getOrDefault(journalId, defaultRanking);
+			final var scimagoQ = extractNewQuartile(journal.getScimagoCategory(), scimago);
+			
+			final var wos = this.wos.getOrDefault(journalId, defaultRanking);
+			final var wosQ = extractNewQuartile(journal.getWosCategory(), wos);
+
+			final var impactFactors = this.impactFactors.getOrDefault(journalId, defaultImpacts);
+			final var currentIF = extractNewImpactFactor(impactFactors);
+			
+			if (scimagoQ != null || wosQ != null || currentIF != null) {
+				return new JournalNewInformation(journal,
+						(scimagoQ != null ? scimago.knownQuartile() : null), scimagoQ,
+						(wosQ != null ? wos.knownQuartile : null), wosQ,
+						(impactFactors != null ? Float.valueOf(impactFactors.oldImpactFactor) : null), currentIF);
+			}
+			return null;
+		}).filter(it -> it != null);
+	}
+
+	private static QuartileRanking extractNewQuartile(String category, JournalRankingInformation information) {
+		final var oldQuartile = QuartileRanking.normalize(information.knownQuartile());
+		QuartileRanking currentQuartile = null;
+		if (!Strings.isNullOrEmpty(category)) {
+			currentQuartile = information.rankings().get(category);
+		}
+		currentQuartile = QuartileRanking.normalize(currentQuartile);
+		if (oldQuartile != currentQuartile) {
+			return currentQuartile;
+		}
+		return null;
+	}
+
+	private static Float extractNewImpactFactor(JournalImpactFactor information) {
+		final var oldFactor = information.oldImpactFactor();
+		final var newFactor = information.currentImpactFactor();
+		final var oldString = oldFactor > 0f ? String.format("%1.3f", Float.valueOf(oldFactor)) : ""; //$NON-NLS-1$ //$NON-NLS-2$
+		final var newString = newFactor > 0f ? String.format("%1.3f", Float.valueOf(newFactor)) : ""; //$NON-NLS-1$ //$NON-NLS-2$
+		if (!oldString.equals(newString)) {
+			return Float.valueOf(newFactor);
+		}
+		return null;
+	}
+
+	/** Description of the information for a journal.
+	 * 
+	 * @param journal the journal. 
+	 * @param oldScimago the old Scimago indicator, or {@code null}. 
+	 * @param newScimago the new Scimago indicator, or {@code null}. 
+	 * @param oldWos the old WOS indicator, or {@code null}. 
+	 * @param newWos the new WOS indicator, or {@code null}. 
+	 * @param oldImpactFactor the old impact factor, or {@code null}. 
+	 * @param newImpactFactor the new impact factor, or {@code null}. 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public record JournalNewInformation(Journal journal, QuartileRanking oldScimago, QuartileRanking newScimago, QuartileRanking oldWos, QuartileRanking newWos, Float oldImpactFactor, Float newImpactFactor) {
+		//
+	}
+
+	/** Description of the quartile information for a journal.
+	 * 
+	 * @param knownQuartile the previously known quartile value for the journal. 
+	 * @param rankings the current quartiles per scientific category. 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public record JournalRankingInformation(QuartileRanking knownQuartile, Map<String, QuartileRanking> rankings) {
+		//
+	}
+
+	/** Description of the impact factor information for a journal.
+	 * 
+	 * @param oldImpactFactor the previously known impact factor. 
+	 * @param currentImpactFactor the current impact factor. 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public record JournalImpactFactor(float oldImpactFactor, float currentImpactFactor) {
 		//
 	}
 

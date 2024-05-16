@@ -622,16 +622,16 @@ public class JournalService extends AbstractEntityService<Journal> {
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, journals.size() * 2, false);
 		for (final var journal : journals) {
+			progress0.setComment(journal.getJournalName());
 			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
-				progress0.setComment(journal.getJournalName());
 				final var scientificField = journal.getScimagoCategory();
 				final var lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
 				final var rankings = this.scimago.getJournalRanking(referenceYear, journal.getScimagoId(), progress0.subTask(1));
 				progress0.ensureNoSubTask();
 				if (rankings != null) {
 					QuartileRanking q = null;
-					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
-						q = rankings.get(journal.getScimagoCategory());
+					if (!Strings.isNullOrEmpty(scientificField)) {
+						q = rankings.get(scientificField);
 					}
 					if (q == null) {
 						final var availableQuartiles = rankings.entrySet().stream().filter(it -> !ScimagoPlatform.BEST.equals(it.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -661,37 +661,72 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadJournalIndicatorsFromWoS(int referenceYear, List<Journal> journals, Progression progress, JournalRankingConsumer consumer) throws Exception {
-		/* FIXME: final var progress0 = progress == null ? new DefaultProgression() : progress; 
+	public void downloadJournalIndicatorsFromWoS(int referenceYear, List<Journal> journals, Progression progress, JournalRankingConsumer2 consumer) throws Exception {
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, journals.size() * 2, false);
 		for (final var journal : journals) {
-			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
-				progress0.setComment(journal.getJournalName());
-				final var scientificField = journal.getScimagoCategory();
-				final var lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
-				URL csvSource = null;
-				final var rankings = this.wos.getJournalRanking(referenceYear, csvSource, journal.getScimagoId(), progress0.subTask(1));
+			progress0.setComment(journal.getJournalName());
+			if (!Strings.isNullOrEmpty(journal.getWosId())) {
+				final var scientificField = journal.getWosCategory();
+				final var lastWosQuartile = journal.getWosQIndexByYear(referenceYear);
+				final var lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
+				final var rankings = this.wos.getJournalRanking(journal.getWosId(), progress0.subTask(1));
 				progress0.ensureNoSubTask();
 				if (rankings != null) {
+					final var currentImpactFactor = rankings.impactFactor;
 					QuartileRanking q = null;
-					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
-						q = rankings.get(journal.getScimagoCategory());
+					if (!Strings.isNullOrEmpty(journal.getWosCategory())) {
+						q = rankings.quartiles.get(journal.getWosCategory());
 					}
 					if (q == null) {
-						final var availableQuartiles = rankings.entrySet().stream().filter(it -> !ScimagoPlatform.BEST.equals(it.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-						consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, availableQuartiles);
+						final var availableQuartiles = rankings.quartiles.entrySet().stream().filter(it -> !ScimagoPlatform.BEST.equals(it.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+						consumer.consume(referenceYear, journal.getId(), scientificField, lastWosQuartile, availableQuartiles, lastImpactFactor, currentImpactFactor);
 					} else {
-						consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, Collections.singletonMap(scientificField, q));
+						consumer.consume(referenceYear, journal.getId(), scientificField, lastWosQuartile, Collections.singletonMap(scientificField, q), lastImpactFactor, currentImpactFactor);
 					}
 				} else {
-					consumer.consume(referenceYear, journal.getId(), scientificField, lastScimagoQuartile, Collections.emptyMap());
+					consumer.consume(referenceYear, journal.getId(), scientificField, lastWosQuartile, Collections.emptyMap(), lastImpactFactor, 0f);
 				}
 				progress0.increment();
 			} else {
 				progress0.subTask(2);
 			}
 		}
-		progress0.end();*/
+		progress0.end();
+	}
+
+	/** Update the journal indicators according to the given inputs.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param journalUpdates the streams that describes the updates.
+	 * @param progress the progression monitor.
+	 * @param updateScimago indicates if the Scimago indicators are updated.
+	 * @param updateWos indicates if the Web-of-Science indicators are updated.
+	 * @param updateImpactFactor indicates if the impact factors are updated.
+	 * @throws Exception if the journal information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional
+	public void updateJournalIndicators(int referenceYear, Collection<JournalRankingUpdateInformation> journalUpdates, boolean updateScimago, boolean updateWos, boolean updateImpactFactor, Progression progress) {
+		progress.setProperties(0, 0, journalUpdates.size() + 1, false);
+		final var journals = new ArrayList<Journal>();
+		journalUpdates.forEach(info -> {
+			final var journal = info.journal();
+			progress.setComment(journal.getJournalName());
+			if (updateScimago && info.scimago() != null) {
+				journal.setScimagoQIndexByYear(referenceYear, info.scimago());
+			}
+			if (updateWos && info.wos() != null) {
+				journal.setWosQIndexByYear(referenceYear, info.wos());
+			}
+			if (updateImpactFactor && info.impactFactor() != null) {
+				journal.setImpactFactorByYear(referenceYear, info.impactFactor().floatValue());
+			}
+			journals.add(journal);
+			progress.increment();
+		});
+		this.journalRepository.saveAll(journals);
+		progress.end();
 	}
 
 	/** Replies Json that describes an update of the journal indicators for the given reference year.
@@ -1006,7 +1041,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 
 	}
 
-	/** Consumer of journal ranking information.
+	/** Consumer of journal ranking information with quartiles.
 	 * 
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
@@ -1026,6 +1061,46 @@ public class JournalService extends AbstractEntityService<Journal> {
 		 */
 		void consume(int referenceYear, long journalId,  String scientificField, QuartileRanking oldQuartile, Map<String, QuartileRanking> choices);
 
+	}
+
+	/** Consumer of journal ranking information with quartiles and impact factors.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public interface JournalRankingConsumer2 extends Serializable {
+
+		/** Invoked when a journal ranking is discovered from the source.
+		 * 
+		 * @param referenceYear the reference year.
+		 * @param journalId the identifier of the journal.
+		 * @param scientificField the name of the scientific field that is serving as reference.
+		 * @param oldQuartile the previously know quartile.
+		 * @param choices lists the available quartiles per scientific field.
+		 * @param oldImpactFactor the previsouly known impact factor, or {@code 0}.
+		 * @param impactFactor the new impact factor, or {@code 0}.
+		 */
+		void consume(int referenceYear, long journalId,  String scientificField, QuartileRanking oldQuartile, Map<String, QuartileRanking> choices, float oldImpactFactor, float impactFactor);
+
+	}
+
+	/** Description of the information for a journal.
+	 * 
+	 * @param journal the journal. 
+	 * @param scimago the new Scimago quartile, or {@code null} to avoid quartile change. 
+	 * @param wos the new WOS quartile, or {@code null} to avoid quartile change.
+	 * @param impactFactor the new impact factors, or {@code null} to avoid impact factor change.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public record JournalRankingUpdateInformation(Journal journal, QuartileRanking scimago, QuartileRanking wos, Float impactFactor) {
+		//
 	}
 
 }

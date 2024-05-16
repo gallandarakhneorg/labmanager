@@ -91,6 +91,10 @@ public final class ViewConstants {
 	 */
 	public static final String WOS_ICON = ICON_URL_PATH + "wos.svg"; //$NON-NLS-1$
 
+	/** URL of the WOS information platform, with the terminal slash character.
+	 */
+	public static final String WOSINFO_BASE_URL = "https://wos-journal.info/"; //$NON-NLS-1$
+
 	/** Path to the icon of Scimago.
 	 */
 	public static final String SCIMAGO_ICON = ICON_URL_PATH + "scimago.svg"; //$NON-NLS-1$

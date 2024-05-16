@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.addons;
+package fr.utbm.ciad.labmanager.utils;
 
 import java.io.Serializable;
 

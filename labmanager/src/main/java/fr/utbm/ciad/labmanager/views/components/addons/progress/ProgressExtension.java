@@ -316,4 +316,15 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 		return new PatternCommentProgression(progress, formatter == null ? it -> it : formatter);
 	}
 
+	/** Force to show a comment in the given progression component.
+	 *
+	 * @param progress the progression to delegate to.
+	 * @param comment the comment to put in the progression component.
+	 * @return the extended progression
+	 */
+	public static Progression forceComment(Progression progress, String comment) {
+		progress.setProperties(progress.getValue(), progress.getMinimum(), progress.getMaximum(), false, comment);
+		return progress;
+	}
+
 }
