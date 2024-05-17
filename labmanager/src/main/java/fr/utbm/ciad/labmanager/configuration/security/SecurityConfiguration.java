@@ -20,6 +20,8 @@
 package fr.utbm.ciad.labmanager.configuration.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import fr.utbm.ciad.labmanager.configuration.security.cas.UbCasAuthenticationEntryPoint;
+import fr.utbm.ciad.labmanager.configuration.security.cas.UtbmCasAuthenticationEntryPoint;
 import org.apereo.cas.client.session.SingleSignOutFilter;
 import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
 import org.apereo.cas.client.validation.TicketValidator;
@@ -27,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
@@ -37,9 +38,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -58,23 +56,39 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfiguration extends VaadinWebSecurity {
 
-    @Value("${labmanager.cas-server.url.base}")
-    private String casServerUrlBase;
-
-    @Value("${labmanager.cas-server.url.login}")
-    private String casServerUrlLogin;
-
-    @Value("${labmanager.cas-server.url.logout}")
-    private String casServerUrlLogout;
-
-    @Value("${labmanager.cas-server.url.service}")
-    private String casServerUrlService;
-
-    @Value("${labmanager.cas-server.key}")
-    private String casServerKey;
-
     @Autowired
     private UserDetailsService userDetailsService;
+
+
+
+    @Value("${labmanager.cas-servers.ub.base}")
+    private String casServerUbBaseUrl;
+
+    @Value("${labmanager.cas-servers.ub.login}")
+    private String casServerUbLoginUrl;
+
+    @Value("${labmanager.cas-servers.ub.service}")
+    private String casServerUbServiceUrl;
+
+    @Value("${labmanager.cas-servers.ub.key}")
+    private String casServerUbKey;
+
+
+
+    @Value("${labmanager.cas-servers.utbm.base}")
+    private String casServerUtbmBaseUrl;
+
+    @Value("${labmanager.cas-servers.utbm.login}")
+    private String casServerUtbmLoginUrl;
+
+    @Value("${labmanager.cas-servers.utbm.logout}")
+    private String casServerUtbmLogoutUrl;
+
+    @Value("${labmanager.cas-servers.utbm.service}")
+    private String casServerUtbmServiceUrl;
+
+    @Value("${labmanager.cas-servers.utbm.key}")
+    private String casServerUtbmKey;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -108,7 +122,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
                 .exceptionHandling(
                         (exceptions)
                                 -> exceptions
-                                .authenticationEntryPoint(casAuthenticationEntryPoint()));
+                                .authenticationEntryPoint(commonAuthenticationEntryPoint()));
 
         http
                 .logout(
@@ -128,12 +142,12 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService));
         provider.setServiceProperties(serviceProperties());
         provider.setTicketValidator(ticketValidator());
-        provider.setKey(casServerKey);
+        provider.setKey(casServerUtbmKey);
         return provider;
     }
 
     private TicketValidator ticketValidator() {
-        return new Cas30ServiceTicketValidator(this.casServerUrlBase);
+        return new Cas30ServiceTicketValidator(this.casServerUtbmBaseUrl);
     }
 
     /**
@@ -142,11 +156,15 @@ public class SecurityConfiguration extends VaadinWebSecurity {
      * @return the authentication entry point.
      */
     @Bean
-    public CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
-        CasAuthenticationEntryPoint casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
-        casAuthenticationEntryPoint.setLoginUrl(this.casServerUrlLogin);
-        casAuthenticationEntryPoint.setServiceProperties(serviceProperties());
-        return casAuthenticationEntryPoint;
+    public CommonAuthenticationEntryPoint commonAuthenticationEntryPoint() {
+        UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint = new UtbmCasAuthenticationEntryPoint();
+        utbmCasAuthenticationEntryPoint.setLoginUrl(this.casServerUtbmLoginUrl);
+        utbmCasAuthenticationEntryPoint.setServiceProperties(serviceProperties());
+
+        UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint = new UbCasAuthenticationEntryPoint();
+        ubCasAuthenticationEntryPoint.setLoginUrl(this.casServerUbLoginUrl);
+        ubCasAuthenticationEntryPoint.setServiceProperties(serviceProperties());
+        return new CommonAuthenticationEntryPoint(utbmCasAuthenticationEntryPoint, ubCasAuthenticationEntryPoint);
     }
 
     /**
@@ -163,7 +181,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     @Bean
     public ServiceProperties serviceProperties() {
         ServiceProperties serviceProperties = new ServiceProperties();
-        serviceProperties.setService(casServerUrlService);
+        serviceProperties.setService(casServerUtbmServiceUrl);
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }
@@ -175,7 +193,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
     @Bean
     public LogoutFilter logoutFilter() {
-        LogoutFilter logoutFilter = new LogoutFilter(this.casServerUrlLogout, new SecurityContextLogoutHandler());
+        LogoutFilter logoutFilter = new LogoutFilter(this.casServerUtbmLogoutUrl, new SecurityContextLogoutHandler());
         logoutFilter.setFilterProcessesUrl("/logout");
         return logoutFilter;
     }

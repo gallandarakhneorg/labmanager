@@ -96,12 +96,18 @@ vaadin:
   whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application
 
 labmanager:
-  cas-server:
-    key: "13792c4f-5188-46da-922d-3f1cee3f85c8"
-    url:
+  cas-servers:
+    utbm:
+      key: "13792c4f-5188-46da-922d-3f1cee3f85c8"
       base: https://cas.utbm.fr
-      login: ${labmanager.cas-server.url.base}/login
-      logout: ${labmanager.cas-server.url.base}/logout
+      login: ${labmanager.cas-servers.utbm.base}/login
+      logout: ${labmanager.cas-servers.utbm.base}/logout
+      service: ${labmanager.application-url}/login/cas
+    ub:
+      key: "13792c4f-5188-46da-922d-3f1cee3f85c9"
+      base: https://casv6.u-bourgogne.fr/
+      login: ${labmanager.cas-servers.ub.base}/cas/login
+      logout: ${labmanager.cas-servers.ub.base}/cas/logout
       service: ${labmanager.application-url}/login/cas
   application-name: CIAD Lab Manager
   application-image: /images/ciadpicture.svg

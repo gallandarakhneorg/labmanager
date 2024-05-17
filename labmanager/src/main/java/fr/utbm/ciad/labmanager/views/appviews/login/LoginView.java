@@ -1,6 +1,7 @@
 package fr.utbm.ciad.labmanager.views.appviews.login;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.Icon;
@@ -13,6 +14,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 @Route(value = "login")
 @AnonymousAllowed
@@ -21,6 +23,12 @@ public class LoginView extends Composite<HorizontalLayout> implements BeforeEnte
     private static final long serialVersionUID = 4873621745334362590L;
 
     private final AuthenticatedUser authenticatedUser;
+
+    @Value("${labmanager.cas-servers.utbm.service}")
+    private String casServerUtbmServiceUrl;
+
+    @Value("${labmanager.cas-servers.ub.service}")
+    private String casServerUdbServiceUrl;
 
     public LoginView(@Autowired AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
@@ -35,12 +43,20 @@ public class LoginView extends Composite<HorizontalLayout> implements BeforeEnte
         icon.getElement().setAttribute("icon", "lumo:user");
         //layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, loginForm);
 
-        Button loginButton = new Button("Login");
-        loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        loginButton.addClickListener(event -> {
-            event.forwardTo("/login/cas");
+        Button loginButtonUtbm = new Button("Login Utbm");
+        loginButtonUtbm.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        loginButtonUtbm.addClickListener(event -> {
+            UI.getCurrent().getPage().executeJs("window.location.href = '" + casServerUtbmServiceUrl + "?cas=utbm'");
                 });
 
+        Button loginButtonUniv = new Button("Login Univ");
+        loginButtonUniv.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        loginButtonUniv.addClickListener(event -> {
+            UI.getCurrent().getPage().executeJs("window.location.href = '" + casServerUdbServiceUrl + "?cas=ub'");
+        });
+
+        layoutColumn2.add(loginButtonUtbm);
+        layoutColumn2.add(loginButtonUniv);
         getContent().add(layoutColumn2);
 
         layoutColumn2.add(icon);
