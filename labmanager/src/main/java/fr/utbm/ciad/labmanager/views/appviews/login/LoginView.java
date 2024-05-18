@@ -46,13 +46,13 @@ public class LoginView extends Composite<HorizontalLayout> implements BeforeEnte
         Button loginButtonUtbm = new Button("Login Utbm");
         loginButtonUtbm.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         loginButtonUtbm.addClickListener(event -> {
-            UI.getCurrent().getPage().executeJs("window.location.href = '" + casServerUtbmServiceUrl + "?cas=utbm'");
+            UI.getCurrent().getPage().executeJs("window.location.href = '" + casServerUtbmServiceUrl + "'");
                 });
 
         Button loginButtonUniv = new Button("Login Univ");
         loginButtonUniv.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         loginButtonUniv.addClickListener(event -> {
-            UI.getCurrent().getPage().executeJs("window.location.href = '" + casServerUdbServiceUrl + "?cas=ub'");
+            UI.getCurrent().getPage().executeJs("window.location.href = '" + casServerUdbServiceUrl + "'");
         });
 
         layoutColumn2.add(loginButtonUtbm);

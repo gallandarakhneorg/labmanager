@@ -20,8 +20,14 @@
 package fr.utbm.ciad.labmanager.configuration.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import fr.utbm.ciad.labmanager.configuration.security.cas.UbCasAuthenticationEntryPoint;
-import fr.utbm.ciad.labmanager.configuration.security.cas.UtbmCasAuthenticationEntryPoint;
+import fr.utbm.ciad.labmanager.configuration.security.entrypoint.CommonAuthenticationEntryPoint;
+import fr.utbm.ciad.labmanager.configuration.security.entrypoint.UbCasAuthenticationEntryPoint;
+import fr.utbm.ciad.labmanager.configuration.security.entrypoint.UtbmCasAuthenticationEntryPoint;
+import fr.utbm.ciad.labmanager.configuration.security.filter.CommonAuthenticationFilter;
+import fr.utbm.ciad.labmanager.configuration.security.filter.UbCasAuthenticationFilter;
+import fr.utbm.ciad.labmanager.configuration.security.filter.UtbmCasAuthenticationFilter;
+import fr.utbm.ciad.labmanager.configuration.security.provider.UbCasAuthenticationProvider;
+import fr.utbm.ciad.labmanager.configuration.security.provider.UtbmCasAuthenticationProvider;
 import org.apereo.cas.client.session.SingleSignOutFilter;
 import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
 import org.apereo.cas.client.validation.TicketValidator;
@@ -29,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
@@ -60,7 +66,6 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     private UserDetailsService userDetailsService;
 
 
-
     @Value("${labmanager.cas-servers.ub.base}")
     private String casServerUbBaseUrl;
 
@@ -72,7 +77,6 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
     @Value("${labmanager.cas-servers.ub.key}")
     private String casServerUbKey;
-
 
 
     @Value("${labmanager.cas-servers.utbm.base}")
@@ -101,9 +105,8 @@ public class SecurityConfiguration extends VaadinWebSecurity {
                             .requestMatchers(new AntPathRequestMatcher("/VAADIN/**/")).permitAll()
                             .requestMatchers(new AntPathRequestMatcher("/themes/**")).permitAll()
                             .requestMatchers("/login").permitAll()
-                            .requestMatchers("/adaptiveLogin").permitAll()
                             .requestMatchers("/").permitAll();
-        });
+                });
 
         http.csrf(AbstractHttpConfigurer::disable);
     }
@@ -113,7 +116,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         this.configure(http);
 
         http
-                .addFilter(casAuthenticationFilter())
+                .addFilter(commonFilter())
                 .addFilterBefore(new SingleSignOutFilter(), CasAuthenticationFilter.class)
                 .authorizeHttpRequests(
                         (authorize)
@@ -150,6 +153,10 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         return new Cas30ServiceTicketValidator(this.casServerUtbmBaseUrl);
     }
 
+    private TicketValidator ticketValidator(String url) {
+        return new Cas30ServiceTicketValidator(url);
+    }
+
     /**
      * First step of the CAS authentication process.
      *
@@ -157,14 +164,11 @@ public class SecurityConfiguration extends VaadinWebSecurity {
      */
     @Bean
     public CommonAuthenticationEntryPoint commonAuthenticationEntryPoint() {
-        UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint = new UtbmCasAuthenticationEntryPoint();
-        utbmCasAuthenticationEntryPoint.setLoginUrl(this.casServerUtbmLoginUrl);
-        utbmCasAuthenticationEntryPoint.setServiceProperties(serviceProperties());
-
-        UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint = new UbCasAuthenticationEntryPoint();
-        ubCasAuthenticationEntryPoint.setLoginUrl(this.casServerUbLoginUrl);
-        ubCasAuthenticationEntryPoint.setServiceProperties(serviceProperties());
-        return new CommonAuthenticationEntryPoint(utbmCasAuthenticationEntryPoint, ubCasAuthenticationEntryPoint);
+        UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint = new UtbmCasAuthenticationEntryPoint(this.casServerUtbmLoginUrl, serviceProperties());
+        UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint = new UbCasAuthenticationEntryPoint(this.casServerUbLoginUrl, serviceProperties());
+        return new CommonAuthenticationEntryPoint(
+                utbmCasAuthenticationEntryPoint,
+                ubCasAuthenticationEntryPoint);
     }
 
     /**
@@ -179,9 +183,42 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     }
 
     @Bean
+    public CommonAuthenticationFilter commonFilter() {
+        UtbmCasAuthenticationProvider utbmProvider
+                = new UtbmCasAuthenticationProvider
+                (
+                        this.userDetailsService,
+                        serviceProperties(this.casServerUtbmServiceUrl),
+                        ticketValidator(this.casServerUtbmBaseUrl),
+                        casServerUtbmKey
+                );
+        UbCasAuthenticationProvider ubProvider
+                = new UbCasAuthenticationProvider
+                (
+                        this.userDetailsService,
+                        serviceProperties(this.casServerUbServiceUrl),
+                        ticketValidator(this.casServerUbBaseUrl),
+                        casServerUbKey
+                );
+
+        return new CommonAuthenticationFilter
+                (
+                        new UtbmCasAuthenticationFilter(new ProviderManager(utbmProvider)),
+                        new UbCasAuthenticationFilter(new ProviderManager(ubProvider))
+                );
+    }
+
+    @Bean
     public ServiceProperties serviceProperties() {
         ServiceProperties serviceProperties = new ServiceProperties();
         serviceProperties.setService(casServerUtbmServiceUrl);
+        serviceProperties.setSendRenew(false);
+        return serviceProperties;
+    }
+
+    public ServiceProperties serviceProperties(String url) {
+        ServiceProperties serviceProperties = new ServiceProperties();
+        serviceProperties.setService(url);
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

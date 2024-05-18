@@ -1,7 +1,5 @@
-package fr.utbm.ciad.labmanager.configuration.security;
+package fr.utbm.ciad.labmanager.configuration.security.entrypoint;
 
-import fr.utbm.ciad.labmanager.configuration.security.cas.UbCasAuthenticationEntryPoint;
-import fr.utbm.ciad.labmanager.configuration.security.cas.UtbmCasAuthenticationEntryPoint;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +14,9 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint,
     private final UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint;
     private final UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint;
 
-    public CommonAuthenticationEntryPoint(UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint, UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint) {
+    public CommonAuthenticationEntryPoint(
+            UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint,
+            UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint) {
         this.utbmCasAuthenticationEntryPoint = utbmCasAuthenticationEntryPoint;
         this.ubCasAuthenticationEntryPoint = ubCasAuthenticationEntryPoint;
     }
@@ -29,16 +29,22 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint,
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        var param = request.getParameter("cas");
-        switch (param) {
-            case "utbm":
-                utbmCasAuthenticationEntryPoint.commence(request, response, authException);
-                break;
-            case "ub":
-                ubCasAuthenticationEntryPoint.commence(request, response, authException);
-                break;
-            default:
-                response.sendRedirect("/LabManager/login");
+        var param = request.getParameter("organization");
+        if (param == null) {
+            response.sendRedirect("/LabManager/login");
+        } else {
+            switch (param) {
+                case "UTBM":
+                    utbmCasAuthenticationEntryPoint.commence(request, response, authException);
+                    break;
+                case "UB":
+                    ubCasAuthenticationEntryPoint.commence(request, response, authException);
+                    break;
+                default:
+                    response.sendRedirect("/LabManager/login");
+                    break;
+            }
         }
+
     }
 }

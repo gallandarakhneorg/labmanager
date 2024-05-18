@@ -102,13 +102,13 @@ labmanager:
       base: https://cas.utbm.fr
       login: ${labmanager.cas-servers.utbm.base}/login
       logout: ${labmanager.cas-servers.utbm.base}/logout
-      service: ${labmanager.application-url}/login/cas
+      service: ${labmanager.application-url}/login/cas?organization=UTBM
     ub:
       key: "13792c4f-5188-46da-922d-3f1cee3f85c9"
       base: https://casv6.u-bourgogne.fr/
       login: ${labmanager.cas-servers.ub.base}/cas/login
       logout: ${labmanager.cas-servers.ub.base}/cas/logout
-      service: ${labmanager.application-url}/login/cas
+      service: ${labmanager.application-url}/login/cas?organization=UB
   application-name: CIAD Lab Manager
   application-image: /images/ciadpicture.svg
   application-copyright: Copyright CIAD Laboratory, Université de Technologie de Belfort Montbéliard 2019-2024. This program is under the terms of the GNU Affero General Public License.
