@@ -48,7 +48,6 @@
 	* projects
 	* publications
 	* members
-  * Update conference rankings
   * Merge similar entities
 	* Persons
 	* organizations
