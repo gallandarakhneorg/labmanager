@@ -94,6 +94,13 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     @Value("${labmanager.cas-servers.utbm.key}")
     private String casServerUtbmKey;
 
+    /**
+     * Configure the security.
+     * Override the default configuration to permit access to the login page bypass the vaadin configure.
+     *
+     * @param http the http security.
+     * @throws Exception if an error occurs.
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
@@ -111,6 +118,14 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         http.csrf(AbstractHttpConfigurer::disable);
     }
 
+    /**
+     * Configure the security filter chain.
+     * Override the default configuration to add the CAS authentication.
+     *
+     * @param http the http security.
+     * @return the security filter chain.
+     * @throws Exception if an error occurs.
+     */
     @Override
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         this.configure(http);
@@ -138,21 +153,12 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         return http.build();
     }
 
-    @Bean
-    public CasAuthenticationProvider casAuthenticationProvider() {
-        CasAuthenticationProvider provider = new CasAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService));
-        provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(ticketValidator());
-        provider.setKey(casServerUtbmKey);
-        return provider;
-    }
-
-    private TicketValidator ticketValidator() {
-        return new Cas30ServiceTicketValidator(this.casServerUtbmBaseUrl);
-    }
-
+    /**
+     * Create a ticket validator.
+     *
+     * @param url the URL of the CAS server.
+     * @return the ticket validator.
+     */
     private TicketValidator ticketValidator(String url) {
         return new Cas30ServiceTicketValidator(url);
     }
@@ -164,24 +170,18 @@ public class SecurityConfiguration extends VaadinWebSecurity {
      */
     @Bean
     public CommonAuthenticationEntryPoint commonAuthenticationEntryPoint() {
-        UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint = new UtbmCasAuthenticationEntryPoint(this.casServerUtbmLoginUrl, serviceProperties());
-        UbCasAuthenticationEntryPoint ubCasAuthenticationEntryPoint = new UbCasAuthenticationEntryPoint(this.casServerUbLoginUrl, serviceProperties());
+        UtbmCasAuthenticationEntryPoint utbmEntryPoint = new UtbmCasAuthenticationEntryPoint(this.casServerUtbmLoginUrl, serviceProperties(this.casServerUtbmServiceUrl));
+        UbCasAuthenticationEntryPoint ubEntryPoint = new UbCasAuthenticationEntryPoint(this.casServerUbLoginUrl, serviceProperties(this.casServerUbServiceUrl));
         return new CommonAuthenticationEntryPoint(
-                utbmCasAuthenticationEntryPoint,
-                ubCasAuthenticationEntryPoint);
+                utbmEntryPoint,
+                ubEntryPoint);
     }
 
     /**
-     * @return
+     * Create the common filter.
+     *
+     * @return the common filter.
      */
-    @Bean
-    public CasAuthenticationFilter casAuthenticationFilter() {
-        CasAuthenticationFilter filter = new CasAuthenticationFilter();
-        CasAuthenticationProvider casAuthenticationProvider = casAuthenticationProvider();
-        filter.setAuthenticationManager(new ProviderManager(casAuthenticationProvider));
-        return filter;
-    }
-
     @Bean
     public CommonAuthenticationFilter commonFilter() {
         UtbmCasAuthenticationProvider utbmProvider
@@ -206,14 +206,6 @@ public class SecurityConfiguration extends VaadinWebSecurity {
                         new UtbmCasAuthenticationFilter(new ProviderManager(utbmProvider)),
                         new UbCasAuthenticationFilter(new ProviderManager(ubProvider))
                 );
-    }
-
-    @Bean
-    public ServiceProperties serviceProperties() {
-        ServiceProperties serviceProperties = new ServiceProperties();
-        serviceProperties.setService(casServerUtbmServiceUrl);
-        serviceProperties.setSendRenew(false);
-        return serviceProperties;
     }
 
     public ServiceProperties serviceProperties(String url) {

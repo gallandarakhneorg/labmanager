@@ -9,6 +9,20 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
+/**
+ * CommonAuthenticationEntryPoint
+ * <p>
+ * This class is used to redirect the user to the correct CAS server based on the organization parameter or to the login page.
+ *
+ * @see UtbmCasAuthenticationEntryPoint
+ * @see UbCasAuthenticationEntryPoint
+ * @see AbstractCasAuthenticationEntryPoint
+ * @author $Author: jferlin$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 5.0
+ */
 public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
     private final UtbmCasAuthenticationEntryPoint utbmCasAuthenticationEntryPoint;
