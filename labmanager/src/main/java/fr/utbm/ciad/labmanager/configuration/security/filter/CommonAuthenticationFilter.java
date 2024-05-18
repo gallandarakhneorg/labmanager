@@ -33,18 +33,13 @@ public class CommonAuthenticationFilter extends CasAuthenticationFilter implemen
         var organizationParam = request.getParameter("organization");
         boolean requiresAuthentication = super.requiresAuthentication(request, response);
         if (!requiresAuthentication) {
-            //servletResponse.getWriter().write("cas parameter is missing");
-            this.logger.warn("Do not require authentication");
             chain.doFilter(request, response);
         } else {
-            this.logger.warn("Do require authentication");
             switch (organizationParam) {
                 case "UTBM":
-                    this.logger.warn("UTBM");
                     utbmCasAuthenticationFilter.doFilter(request, response, chain);
                     break;
                 case "UB":
-                    this.logger.warn("UB");
                     ubCasAuthenticationFilter.doFilter(request, response, chain);
                     break;
                 default:

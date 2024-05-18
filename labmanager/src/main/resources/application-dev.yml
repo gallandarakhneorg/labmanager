@@ -105,7 +105,7 @@ labmanager:
       service: ${labmanager.application-url}/login/cas?organization=UTBM
     ub:
       key: "13792c4f-5188-46da-922d-3f1cee3f85c9"
-      base: https://casv6.u-bourgogne.fr/
+      base: https://casv6.u-bourgogne.fr
       login: ${labmanager.cas-servers.ub.base}/cas/login
       logout: ${labmanager.cas-servers.ub.base}/cas/logout
       service: ${labmanager.application-url}/login/cas?organization=UB
