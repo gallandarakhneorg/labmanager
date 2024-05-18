@@ -611,7 +611,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * website.
 	 *
 	 * @param referenceYear the reference year.
-	 * @param journals the list of journals to update.
+	 * @param journals the list of journals for which the indicators should be downloaded.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the journal ranking information.
 	 * @throws Exception if the journal information cannot be downloaded.
@@ -651,10 +651,10 @@ public class JournalService extends AbstractEntityService<Journal> {
 	}
 
 	/** Download the journal indicators for the given reference year for the WoS platform.
-	 * This function uses the {@link WosPlatform} tool for downloading the CSV file from a local file.
+	 * This function uses the {@link WosPlatform} tool for downloading the indicators.
 	 *
 	 * @param referenceYear the reference year.
-	 * @param journals the list of journals to update.
+	 * @param journals the list of journals for which the indicators should be downloaded.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the journal ranking information.
 	 * @throws Exception if the journal information cannot be downloaded.

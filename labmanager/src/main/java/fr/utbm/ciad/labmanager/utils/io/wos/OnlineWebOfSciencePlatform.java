@@ -58,7 +58,7 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 
 	private static final String SCHEME = "https"; //$NON-NLS-1$
 
-	private static final String HOST = "wos-journal.info"; //$NON-NLS-1$
+	private static final String JOURNAL_HOST = "wos-journal.info"; //$NON-NLS-1$
 
 	/** Hostname of the server that may provide informations about journals
 	 */
@@ -258,7 +258,7 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 			try {
 				var builder = this.uriBuilderFactory.builder();
 				builder = builder.scheme(SCHEME);
-				builder = builder.host(HOST);
+				builder = builder.host(JOURNAL_HOST);
 				builder = builder.pathSegment(JOURNAL_PATH, journalId);
 				final var uri = builder.build();
 				return uri.toURL();

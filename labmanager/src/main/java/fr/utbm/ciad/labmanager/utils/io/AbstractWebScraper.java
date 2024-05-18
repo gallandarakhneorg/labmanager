@@ -214,6 +214,7 @@ public abstract class AbstractWebScraper {
 	 * @param loadedHandler the handler invoked when the page is loaded.
 	 * @throws Exception if it is impossible to read the page.
 	 */
+	@SuppressWarnings("deprecation")
 	protected static void loadHtmlPage(boolean developer, URL url, Progression progress,
 			String loadElementSelector, int waitingDuration,
 			HtmlPageExtractor loadedHandler) throws Exception {

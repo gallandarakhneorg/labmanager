@@ -19,11 +19,17 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
+import java.util.Collections;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -34,6 +40,8 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonEditor;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
@@ -63,6 +71,8 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 
 	private Button validateButton;
 
+	private MenuItem updateRankingsButton;
+
 	/** Constructor.
 	 *
 	 * @param personService the service to access to the person JPA.
@@ -89,6 +99,26 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 	@Override
 	public String getPageTitle() {
 		return getTranslation("views.persons.editor_title.user"); //$NON-NLS-1$
+	}
+	
+	@Override
+	protected Details createIndexesComponents(VerticalLayout receiver) {
+		final var details = super.createIndexesComponents(receiver);
+
+		final var menu = new MenuBar();
+		menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
+		details.addComponentAsFirst(menu);
+
+		this.updateRankingsButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openRankingsUpdateWizard());
+
+		return details;
+	}
+
+	/** Open the wizard for updating the person rankings.
+	 */
+	protected void openRankingsUpdateWizard() {
+		final var identifiers = AbstractLabManagerWizard.buildQueryParameters(Collections.singletonList(getEditedEntity()), MyProfileView.class);
+		getUI().ifPresent(ui -> ui.navigate(PersonRankingUpdaterWizard.class, identifiers));
 	}
 
 	@Override
@@ -131,6 +161,7 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
+		ComponentFactory.setIconItemText(this.updateRankingsButton, getTranslation("views.persons.updateRankings")); //$NON-NLS-1$
 		this.saveButton.setText(getTranslation("views.save")); //$NON-NLS-1$
 		this.validateButton.setText(getTranslation("views.validate")); //$NON-NLS-1$
 	}

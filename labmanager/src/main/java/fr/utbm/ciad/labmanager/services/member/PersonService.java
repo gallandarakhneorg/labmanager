@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.member;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -88,11 +89,11 @@ public class PersonService extends AbstractEntityService<Person> {
 
 	private PersonNameParser nameParser;
 
-	private GoogleScholarPlatform googlePlatfom;
+	private GoogleScholarPlatform googlePlatform;
 
-	private ScopusPlatform scopusPlatfom;
+	private ScopusPlatform scopusPlatform;
 
-	private WebOfSciencePlatform wosPlatfom;
+	private WebOfSciencePlatform wosPlatform;
 
 	private PersonNameComparator nameComparator;
 
@@ -134,9 +135,9 @@ public class PersonService extends AbstractEntityService<Person> {
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
-		this.googlePlatfom = googlePlatfom;
-		this.scopusPlatfom = scopusPlatfom;
-		this.wosPlatfom = wosPlatfom;
+		this.googlePlatform = googlePlatfom;
+		this.scopusPlatform = scopusPlatfom;
+		this.wosPlatform = wosPlatfom;
 		this.nameParser = nameParser;
 		this.nameComparator = nameComparator;
 	}
@@ -359,6 +360,177 @@ public class PersonService extends AbstractEntityService<Person> {
 		res.setValidated(validated);
 		this.personRepository.save(res);
 		return res;
+	}
+
+	/** Download the person indicators from the WoS platform.
+	 * This function uses the {@link WosPlatform} tool for downloading the indicators.
+	 *
+	 * @param persons the list of persons for who the indicators should be downloaded.
+	 * @param progress the progression monitor.
+	 * @param consumer the consumer of the person ranking information.
+	 * @throws Exception if the person information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public void downloadPersonIndicatorsFromWoS(List<Person> persons, Progression progress, PersonRankingConsumer consumer) {
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		progress0.setProperties(0, 0, persons.size() * 2, false);
+		for (final var person : persons) {
+			progress0.setComment(person.getFullName());
+			final var wosURL = person.getResearcherIdURL();
+			if (wosURL != null) {
+				final var lastHindex = person.getWosHindex();
+				final var lastCitations = person.getWosCitations();
+				WebOfSciencePerson rankings = null;
+				try {
+					rankings = this.wosPlatform.getPersonRanking(wosURL, progress0.subTask(1));
+				} catch (Throwable ex) {
+					rankings = null;
+				}
+				progress0.ensureNoSubTask();
+				if (rankings != null) {
+					final var currentHindex = rankings.hindex;
+					final var currentCitations = rankings.citations;
+					consumer.consume(person.getId(), lastHindex, currentHindex, lastCitations, currentCitations);
+				} else {
+					consumer.consume(person.getId(), lastHindex, 0, lastCitations, 0);
+				}
+				progress0.increment();
+			} else {
+				progress0.subTask(2);
+			}
+		}
+		progress0.end();
+	}
+
+	/** Download the person indicators from the Scopus platform.
+	 * This function uses the {@link ScopusPlatform} tool for downloading the indicators.
+	 *
+	 * @param persons the list of persons for who the indicators should be downloaded.
+	 * @param progress the progression monitor.
+	 * @param consumer the consumer of the person ranking information.
+	 * @throws Exception if the person information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public void downloadPersonIndicatorsFromScopus(List<Person> persons, Progression progress, PersonRankingConsumer consumer) {
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		progress0.setProperties(0, 0, persons.size() * 2, false);
+		for (final var person : persons) {
+			progress0.setComment(person.getFullName());
+			final var scopusId = person.getScopusId();
+			if (!Strings.isNullOrEmpty(scopusId)) {
+				final var lastHindex = person.getScopusHindex();
+				final var lastCitations = person.getScopusCitations();
+				ScopusPerson rankings = null;
+				try {
+					rankings = this.scopusPlatform.getPersonRanking(scopusId, progress0.subTask(1));
+				} catch (Throwable ex) {
+					rankings = null;
+				}
+				progress0.ensureNoSubTask();
+				if (rankings != null) {
+					final var currentHindex = rankings.hindex;
+					final var currentCitations = rankings.citations;
+					consumer.consume(person.getId(), lastHindex, currentHindex, lastCitations, currentCitations);
+				} else {
+					consumer.consume(person.getId(), lastHindex, 0, lastCitations, 0);
+				}
+				progress0.increment();
+			} else {
+				progress0.subTask(2);
+			}
+		}
+		progress0.end();
+	}
+
+	/** Download the person indicators from the Google Scholar platform.
+	 * This function uses the {@link GoogleScholarPlatform} tool for downloading the indicators.
+	 *
+	 * @param persons the list of persons for who the indicators should be downloaded.
+	 * @param progress the progression monitor.
+	 * @param consumer the consumer of the person ranking information.
+	 * @throws Exception if the person information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public void downloadPersonIndicatorsFromGoogleScholar(List<Person> persons, Progression progress, PersonRankingConsumer consumer) {
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		progress0.setProperties(0, 0, persons.size() * 2, false);
+		for (final var person : persons) {
+			progress0.setComment(person.getFullName());
+			final var gsURL = person.getGoogleScholarURL();
+			if (gsURL != null) {
+				final var lastHindex = person.getGoogleScholarHindex();
+				final var lastCitations = person.getGoogleScholarCitations();
+				GoogleScholarPerson rankings = null;
+				try {
+					rankings = this.googlePlatform.getPersonRanking(gsURL, progress0.subTask(1));
+				} catch (Throwable ex) {
+					rankings = null;
+				}
+				progress0.ensureNoSubTask();
+				if (rankings != null) {
+					final var currentHindex = rankings.hindex;
+					final var currentCitations = rankings.citations;
+					consumer.consume(person.getId(), lastHindex, currentHindex, lastCitations, currentCitations);
+				} else {
+					consumer.consume(person.getId(), lastHindex, 0, lastCitations, 0);
+				}
+				progress0.increment();
+			} else {
+				progress0.subTask(2);
+			}
+		}
+		progress0.end();
+	}
+
+	/** Update the persons indicators according to the given inputs.
+	 *
+	 * @param personUpdates the streams that describes the updates.
+	 * @param progress the progression monitor.
+	 * @param updateWos indicates if the Web-of-Science indicators are updated.
+	 * @param updateScopus indicates if the Scopus indicators are updated.
+	 * @param updateGoogleScholar indicates if the Google Scholar are updated.
+	 * @throws Exception if the journal information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional
+	public void updatePersonIndicators(Collection<PersonRankingUpdateInformation> personUpdates, boolean updateWos, boolean updateScopus, boolean updateGoogleScholar, Progression progress) {
+		progress.setProperties(0, 0, personUpdates.size() + 1, false);
+		final var persons = new ArrayList<Person>();
+		personUpdates.forEach(info -> {
+			final var person = info.person();
+			progress.setComment(person.getFullName());
+			if (updateWos) {
+				if (info.wosHindex() != null) {
+					person.setWosHindex(info.wosHindex().intValue());
+				}
+				if (info.wosCitations() != null) {
+					person.setWosCitations(info.wosCitations().intValue());
+				}
+			}
+			if (updateScopus) {
+				if (info.scopusHindex() != null) {
+					person.setScopusHindex(info.scopusHindex().intValue());
+				}
+				if (info.scopusCitations() != null) {
+					person.setScopusCitations(info.scopusCitations().intValue());
+				}
+			}
+			if (updateGoogleScholar) {
+				if (info.googleScholarHindex() != null) {
+					person.setGoogleScholarHindex(info.googleScholarHindex().intValue());
+				}
+				if (info.googleScholarCitations() != null) {
+					person.setGoogleScholarCitations(info.googleScholarCitations().intValue());
+				}
+			}
+			persons.add(person);
+			progress.increment();
+		});
+		this.personRepository.saveAll(persons);
+		progress.end();
 	}
 
 	/** Change the attributes of a person in the database.
@@ -695,7 +867,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			final var url = person.getGoogleScholarURL();
 			if (url != null) {
 				try {
-					final var indicators = this.googlePlatfom.getPersonRanking(url, null);
+					final var indicators = this.googlePlatform.getPersonRanking(url, null);
 					if (indicators != null) {
 						if (hindexEnabled) {
 							if (indicators.hindex > 0) {
@@ -725,7 +897,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			final var url = person.getScopusURL();
 			if (url != null) {
 				try {
-					final var indicators = this.scopusPlatfom.getPersonRanking(url, null);
+					final var indicators = this.scopusPlatform.getPersonRanking(url, null);
 					if (indicators != null) {
 						if (hindexEnabled) {
 							if (indicators.hindex > 0) {
@@ -755,7 +927,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			final var url = person.getResearcherIdURL();
 			if (url != null) {
 				try {
-					final var indicators = this.wosPlatfom.getPersonRanking(url, null);
+					final var indicators = this.wosPlatform.getPersonRanking(url, null);
 					if (indicators != null) {
 						if (hindexEnabled) {
 							if (indicators.hindex > 0) {
@@ -1002,6 +1174,48 @@ public class PersonService extends AbstractEntityService<Person> {
 			//
 		}
 
+	}
+
+	/** Consumer of person ranking information with H-index and citations.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public interface PersonRankingConsumer extends Serializable {
+
+		/** Invoked when a person ranking is discovered from the source.
+		 * 
+		 * @param personId the identifier of the person.
+		 * @param knownHindex the H-index of the person that is already known. 
+		 * @param newHindex the new H-index for the person. 
+		 * @param knownCitations the number of citations for the person that is already known. 
+		 * @param newCitations the new number of citations for the person. 
+		 */
+		void consume(long personId, int knownHindex, int newHindex, int knownCitations, int newCitations);
+
+	}
+
+	/** Description of the information for a person.
+	 * 
+	 * @param person the person. 
+	 * @param wosHindex the new WOS H-index, or {@code null} to avoid indicator change.
+	 * @param wosCitations the new WOS citations, or {@code null} to avoid indicator change.
+	 * @param scopusHindex the new Scopus H-index, or {@code null} to avoid indicator change.
+	 * @param scopusCitations the new Scopus citations, or {@code null} to avoid indicator change.
+	 * @param googleScholarHindex the new Google Scholar H-index, or {@code null} to avoid indicator change.
+	 * @param googleScholarCitations the new Google Scholar citations, or {@code null} to avoid indicator change.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public record PersonRankingUpdateInformation(Person person, Integer wosHindex, Integer wosCitations,
+			Integer scopusHindex, Integer scopusCitations, Integer googleScholarHindex, Integer googleScholarCitations) {
+		//
 	}
 
 }

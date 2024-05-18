@@ -646,8 +646,9 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		final var sectionKey = key.toString();
 		final var attributeKey = key.append('.').append(sectionId).toString();
 		
-		final var session = VaadinService.getCurrentRequest().getWrappedSession();
-		if (session.getAttribute(sectionKey) == null) {
+		final var request = VaadinService.getCurrentRequest();
+		final var session = request != null ? request.getWrappedSession() : null;
+		if (session == null || session.getAttribute(sectionKey) == null) {
 			// Section was never defined. Use the default configuration.
 			details.setOpened(openByDefault);
 		} else {

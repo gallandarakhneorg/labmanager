@@ -48,9 +48,7 @@
 	* projects
 	* publications
 	* members
-  * Update journal rankings
   * Update conference rankings
-  * Update person rankings
   * Merge similar entities
 	* Persons
 	* organizations

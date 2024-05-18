@@ -478,7 +478,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 		@Override
 		public void localeChange(LocaleChangeEvent event) {
 			super.localeChange(event);
-			if (this.scimagoColumn != null) {
+			if (this.nameColumn != null) {
 				this.nameColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.journal_name")); //$NON-NLS-1$
 			}
 			if (this.publisherColumn != null) {
