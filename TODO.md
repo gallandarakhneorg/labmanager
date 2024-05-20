@@ -38,7 +38,6 @@
 * Admin tools:
   * Listing/Edition/Deletion of memberships
   * Private component for selecting the public global indicators
-  * Regenerate thumbnails images of publications
   * Tool for extending the contract of a person (with a potential change of position type)
   * Tool for creating the user account on the different platforms
 	* LabManager
