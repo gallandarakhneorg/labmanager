@@ -144,9 +144,9 @@ public class OnlineWebOfSciencePlatformTest {
 		WebOfScienceJournal data0 = this.test.getJournalRanking("2687", progress);
 		assertNotNull(data0);
 		assertEquals(7.5f, data0.impactFactor);
-		assertSame(QuartileRanking.Q1, data0.quartiles.get("computer science, artificial intelligence - scie"));
-		assertSame(QuartileRanking.Q1, data0.quartiles.get("engineering, biomedical - scie"));
-		assertSame(QuartileRanking.Q2, data0.quartiles.get("medical informatics - scie"));
+		assertSame(QuartileRanking.Q1, data0.quartiles.get("computer science, artificial intelligence"));
+		assertSame(QuartileRanking.Q1, data0.quartiles.get("engineering, biomedical"));
+		assertSame(QuartileRanking.Q2, data0.quartiles.get("medical informatics"));
 	}
 
 }

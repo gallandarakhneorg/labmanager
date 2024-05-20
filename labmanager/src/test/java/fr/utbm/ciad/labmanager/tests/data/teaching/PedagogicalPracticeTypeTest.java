@@ -109,10 +109,10 @@ public class PedagogicalPracticeTypeTest {
 	public void getLabel_Locale_US() throws Exception {
 		assertEquals("Collaborative works", cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getLabel(this.messages, Locale.US));
 		assertEquals("Distance learning", cons(PedagogicalPracticeType.DISTANCE_LEARNING).getLabel(this.messages, Locale.US));
-		assertEquals("Historical pedagogical method", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel(this.messages, Locale.US));
+		assertEquals("Historical pedagogical method (Lecture, Tutorial, Labwork)", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel(this.messages, Locale.US));
 		assertEquals("Inverted classroom", cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getLabel(this.messages, Locale.US));
 		assertEquals("Use of modern presentation tools", cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getLabel(this.messages, Locale.US));
-		assertEquals("Other method", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel(this.messages, Locale.US));
+		assertEquals("Other pedagogical practice that is not listed", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel(this.messages, Locale.US));
 		assertEquals("Pedagogy 3.0", cons(PedagogicalPracticeType.PEDAGOGY_3_0).getLabel(this.messages, Locale.US));
 		assertEquals("Problem based learning", cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getLabel(this.messages, Locale.US));
 		assertEquals("Project-oriented pedagogy", cons(PedagogicalPracticeType.PROJECT_ORIENTED).getLabel(this.messages, Locale.US));

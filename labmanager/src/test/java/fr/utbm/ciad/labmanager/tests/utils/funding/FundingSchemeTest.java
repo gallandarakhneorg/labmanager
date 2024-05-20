@@ -100,6 +100,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isRegional());
 		assertFalse(cons(FundingScheme.PHC).isRegional());
 		assertFalse(cons(FundingScheme.PIA).isRegional());
+		assertFalse(cons(FundingScheme.FRANCE_2030).isRegional());
 		assertTrue(cons(FundingScheme.REGION_BFC).isRegional());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isRegional());
 		assertAllTreated();
@@ -144,6 +145,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isNational());
 		assertFalse(cons(FundingScheme.PHC).isNational());
 		assertTrue(cons(FundingScheme.PIA).isNational());
+		assertTrue(cons(FundingScheme.FRANCE_2030).isNational());
 		assertFalse(cons(FundingScheme.REGION_BFC).isNational());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isNational());
 		assertAllTreated();
@@ -188,6 +190,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isEuropean());
 		assertFalse(cons(FundingScheme.PHC).isEuropean());
 		assertFalse(cons(FundingScheme.PIA).isEuropean());
+		assertFalse(cons(FundingScheme.FRANCE_2030).isEuropean());
 		assertFalse(cons(FundingScheme.REGION_BFC).isEuropean());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isEuropean());
 		assertAllTreated();
@@ -232,6 +235,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isInternational());
 		assertTrue(cons(FundingScheme.PHC).isInternational());
 		assertFalse(cons(FundingScheme.PIA).isInternational());
+		assertFalse(cons(FundingScheme.FRANCE_2030).isInternational());
 		assertFalse(cons(FundingScheme.REGION_BFC).isInternational());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isInternational());
 		assertAllTreated();
@@ -276,6 +280,7 @@ public class FundingSchemeTest {
 		assertEquals("Not funded", cons(FundingScheme.NOT_FUNDED).getLabel(this.messages, Locale.US));
 		assertEquals("PHC - Partenariats Hubert Curien", cons(FundingScheme.PHC).getLabel(this.messages, Locale.US));
 		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel(this.messages, Locale.US));
+		assertEquals("France 2030 - Plan d'Investissement d'Avenir France 2030", cons(FundingScheme.FRANCE_2030).getLabel(this.messages, Locale.US));
 		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel(this.messages, Locale.US));
 		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel(this.messages, Locale.US));
 		assertAllTreated();
@@ -320,6 +325,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isCompetitive());
 		assertTrue(cons(FundingScheme.PHC).isCompetitive());
 		assertTrue(cons(FundingScheme.PIA).isCompetitive());
+		assertTrue(cons(FundingScheme.FRANCE_2030).isCompetitive());
 		assertTrue(cons(FundingScheme.REGION_BFC).isCompetitive());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isCompetitive());
 		assertAllTreated();
@@ -364,6 +370,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isNotAcademic());
 		assertFalse(cons(FundingScheme.PHC).isNotAcademic());
 		assertFalse(cons(FundingScheme.PIA).isNotAcademic());
+		assertFalse(cons(FundingScheme.FRANCE_2030).isNotAcademic());
 		assertFalse(cons(FundingScheme.REGION_BFC).isNotAcademic());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isNotAcademic());
 		assertAllTreated();
@@ -408,6 +415,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.NOT_FUNDED).isAcademicButContractual());
 		assertFalse(cons(FundingScheme.PHC).isAcademicButContractual());
 		assertFalse(cons(FundingScheme.PIA).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.FRANCE_2030).isAcademicButContractual());
 		assertFalse(cons(FundingScheme.REGION_BFC).isAcademicButContractual());
 		assertFalse(cons(FundingScheme.SELF_FUNDING).isAcademicButContractual());
 		assertAllTreated();
@@ -439,21 +447,22 @@ public class FundingSchemeTest {
 		assertEquals(21, cons(FundingScheme.EU_UNIVERSITY).reverseOrdinal());
 		assertEquals(22, cons(FundingScheme.FRENCH_COMPANY).reverseOrdinal());
 		assertEquals(23, cons(FundingScheme.CIFRE).reverseOrdinal());
-		assertEquals(24, cons(FundingScheme.PIA).reverseOrdinal());
-		assertEquals(25, cons(FundingScheme.IDEX).reverseOrdinal());
-		assertEquals(26, cons(FundingScheme.ISITE).reverseOrdinal());
-		assertEquals(27, cons(FundingScheme.ANR).reverseOrdinal());
-		assertEquals(28, cons(FundingScheme.ADEME).reverseOrdinal());
-		assertEquals(29, cons(FundingScheme.FUI).reverseOrdinal());
-		assertEquals(30, cons(FundingScheme.CPER).reverseOrdinal());
-		assertEquals(31, cons(FundingScheme.REGION_BFC).reverseOrdinal());
-		assertEquals(32, cons(FundingScheme.CARNOT).reverseOrdinal());
-		assertEquals(33, cons(FundingScheme.FRENCH_OTHER).reverseOrdinal());
-		assertEquals(34, cons(FundingScheme.FRENCH_UNIVERSITY).reverseOrdinal());
-		assertEquals(35, cons(FundingScheme.HOSTING_ORGANIZATION).reverseOrdinal());
-		assertEquals(36, cons(FundingScheme.LOCAL_INSTITUTION).reverseOrdinal());
-		assertEquals(37, cons(FundingScheme.SELF_FUNDING).reverseOrdinal());
-		assertEquals(38, cons(FundingScheme.NOT_FUNDED).reverseOrdinal());
+		assertEquals(24, cons(FundingScheme.FRANCE_2030).reverseOrdinal());
+		assertEquals(25, cons(FundingScheme.PIA).reverseOrdinal());
+		assertEquals(26, cons(FundingScheme.IDEX).reverseOrdinal());
+		assertEquals(27, cons(FundingScheme.ISITE).reverseOrdinal());
+		assertEquals(28, cons(FundingScheme.ANR).reverseOrdinal());
+		assertEquals(29, cons(FundingScheme.ADEME).reverseOrdinal());
+		assertEquals(30, cons(FundingScheme.FUI).reverseOrdinal());
+		assertEquals(31, cons(FundingScheme.CPER).reverseOrdinal());
+		assertEquals(32, cons(FundingScheme.REGION_BFC).reverseOrdinal());
+		assertEquals(33, cons(FundingScheme.CARNOT).reverseOrdinal());
+		assertEquals(34, cons(FundingScheme.FRENCH_OTHER).reverseOrdinal());
+		assertEquals(35, cons(FundingScheme.FRENCH_UNIVERSITY).reverseOrdinal());
+		assertEquals(36, cons(FundingScheme.HOSTING_ORGANIZATION).reverseOrdinal());
+		assertEquals(37, cons(FundingScheme.LOCAL_INSTITUTION).reverseOrdinal());
+		assertEquals(38, cons(FundingScheme.SELF_FUNDING).reverseOrdinal());
+		assertEquals(39, cons(FundingScheme.NOT_FUNDED).reverseOrdinal());
 		assertAllTreated();
 	}
 

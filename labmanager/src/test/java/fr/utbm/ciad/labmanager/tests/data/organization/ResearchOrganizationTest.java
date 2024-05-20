@@ -88,7 +88,8 @@ public class ResearchOrganizationTest {
 		members.add(mock(Membership.class));
 		//
 		this.test.setDirectOrganizationMemberships(members);
-		assertSame(members, this.test.getDirectOrganizationMemberships());
+		assertNotSame(members, this.test.getDirectOrganizationMemberships());
+		assertEquals(members, this.test.getDirectOrganizationMemberships());
 		//
 		this.test.setDirectOrganizationMemberships(null);
 		assertTrue(this.test.getDirectOrganizationMemberships().isEmpty());

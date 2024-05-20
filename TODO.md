@@ -61,8 +61,6 @@
   * Export Pubs to HAL
   * Annual activity report Excel for CIAD UB (Voir besoins à l'UB)
   * Activity report Word for REPEC-C3
-* Tests
-  * Extend the Unit Tests and Integration Tests.
 
 # To-Do for production
 
