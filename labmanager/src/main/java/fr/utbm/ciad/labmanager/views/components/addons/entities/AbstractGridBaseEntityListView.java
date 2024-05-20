@@ -532,6 +532,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	/** Refresh the grid content.
 	 */
 	protected void refreshGrid() {
+		this.grid.deselectAll();
 		this.grid.getDataProvider().refreshAll();
 	}
 
