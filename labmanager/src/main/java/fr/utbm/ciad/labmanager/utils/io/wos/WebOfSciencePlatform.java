@@ -40,6 +40,25 @@ import org.arakhne.afc.progress.Progression;
  */
 public interface WebOfSciencePlatform {
 
+	/** Replies the URL of a journal on Web-of-Science.
+	 *
+	 * @param journalId the identifier of the journal.
+	 * @return the URL for the journal.
+	 * @since 4.0
+	 */
+	URL getJournalUrl(String journalId);
+
+	/** Replies the ranking description for the journal with the given identifier.
+	 * The ranking description provides the quartiles per scientific topics and the impact factor.
+	 * The source of information does not permit to extract information for a specific year.
+	 *
+	 * @param journalId the identifier of the journal on WoS.
+	 * @param progress progress monitor.
+	 * @return the ranking description for the journal.
+	 * @throws Exception if rankings cannot be read.
+	 */
+	WebOfScienceJournal getJournalRanking(String journalId, Progression progress) throws Exception;
+
 	/** Replies the ranking descriptions for all the journals and for the given year.
 	 * The ranking descriptions maps journal identifier to a single ranking description.
 	 * Each ranking description provides the quartiles per scientific topics.

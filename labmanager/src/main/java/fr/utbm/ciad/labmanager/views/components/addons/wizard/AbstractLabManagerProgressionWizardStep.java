@@ -21,7 +21,10 @@ package fr.utbm.ciad.labmanager.views.components.addons.wizard;
 
 import java.util.Optional;
 
+import com.google.common.base.Strings;
+import fr.utbm.ciad.labmanager.utils.SerializableExceptionProvider;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressAdapter;
+import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import io.overcoded.vaadin.wizard.AbstractProgressionWizardStep;
 import io.overcoded.vaadin.wizard.ExceptionRunnable;
 import org.arakhne.afc.progress.DefaultProgression;
@@ -46,10 +49,11 @@ public abstract class AbstractLabManagerProgressionWizardStep<T extends Abstract
 	 * @param name the name of the step. It is also the initial value of the step's title.
 	 * @param order the order number for the wizard step.
 	 * @param tasksCount the number of tasks that should be run in parallel.
-	 * @param automaticNextClick indicates if the wizard has to move to the next step automatically when all the parallel tasks are finished. If there is no next step in the wizard, this flag is ignored.
+	 * @param automaticNextClick indicates if the wizard has to move to the next step automatically when all the parallel tasks are finished and a next button is defined.
+	 * @param automaticFinishClick indicates if the wizard has to move to the finish automatically when all the parallel tasks are finished and a finish button is defined.
 	 */
-	public AbstractLabManagerProgressionWizardStep(T context, String name, int order, int tasksCount, boolean automaticNextClick) {
-		super(context, name, order, tasksCount, automaticNextClick);
+	public AbstractLabManagerProgressionWizardStep(T context, String name, int order, int tasksCount, boolean automaticNextClick, boolean automaticFinishClick) {
+		super(context, name, order, tasksCount, automaticNextClick, automaticFinishClick);
 	}
 
 	@Override
@@ -62,10 +66,12 @@ public abstract class AbstractLabManagerProgressionWizardStep<T extends Abstract
 		final var progression = createProgression(taskNo);
 		final var run0 = createAsynchronousTask(taskNo, progression);
 		return () -> {
+			String endMessage = null;
 			try {
-				run0.run();
+				endMessage = run0.get();
 			} finally {
 				progression.end();
+				ProgressExtension.forceComment(progression, Strings.nullToEmpty(endMessage));
 			}
 		};
 	}
@@ -76,7 +82,7 @@ public abstract class AbstractLabManagerProgressionWizardStep<T extends Abstract
 	 * @param progression the progression indicator to be used by the asynchronous task.
 	 * @return the asynchronous task.
 	 */
-	protected abstract ExceptionRunnable createAsynchronousTask(int taskNo, Progression progression);
+	protected abstract SerializableExceptionProvider<String> createAsynchronousTask(int taskNo, Progression progression);
 
 	/** Create a progression indicator. By default, the maximum value of the progression is {@code 100}.
 	 *

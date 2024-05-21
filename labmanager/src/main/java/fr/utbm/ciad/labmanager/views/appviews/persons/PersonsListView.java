@@ -19,6 +19,10 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
@@ -29,12 +33,15 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.persons.StandardPersonListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** List all the persons.
  * 
@@ -51,6 +58,8 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	private static final long serialVersionUID = 1616874715478139507L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsListView.class);
+
+	private MenuItem updateRankingsButton;
 
 	/** Constructor.
 	 *
@@ -79,6 +88,39 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	@Override
 	public String getPageTitle() {
 		return getTranslation("views.persons.list_title.all"); //$NON-NLS-1$
+	}
+
+	@Override
+	protected MenuBar createMenuBar() {
+		var menu = super.createMenuBar();
+		if (menu == null) {
+			menu = new MenuBar(); 
+			menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
+		}
+		
+		this.updateRankingsButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openRankingsUpdateWizard());
+
+		return menu;
+	}
+
+	/** Open the wizard for updating the person rankings.
+	 */
+	protected void openRankingsUpdateWizard() {
+		final var selection = getGrid().getSelectedItems();
+		if (selection != null && !selection.isEmpty()) {
+			final var identifiers = AbstractLabManagerWizard.buildQueryParameters(selection);
+			getUI().ifPresent(ui -> ui.navigate(PersonRankingUpdaterWizard.class, identifiers));
+		} else {
+			getUI().ifPresent(ui -> ui.navigate(PersonRankingUpdaterWizard.class));
+		}
+	}
+
+	@Override
+	public void localeChange(LocaleChangeEvent event) {
+		super.localeChange(event);
+		if (this.updateRankingsButton != null) {
+			ComponentFactory.setIconItemText(this.updateRankingsButton, getTranslation("views.persons.updateRankings")); //$NON-NLS-1$
+		}
 	}
 
 }

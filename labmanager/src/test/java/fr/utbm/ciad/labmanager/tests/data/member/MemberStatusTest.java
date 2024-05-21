@@ -85,6 +85,8 @@ public class MemberStatusTest {
 		assertEquals(4, cons(MemberStatus.TEACHER_PHD).getHierachicalLevel());
 		assertEquals(4, cons(MemberStatus.TEACHER).getHierachicalLevel());
 		assertEquals(5, cons(MemberStatus.MASTER_STUDENT).getHierachicalLevel());
+		assertEquals(5, cons(MemberStatus.CONTRACT_MASTER_STUDENT).getHierachicalLevel());
+		assertEquals(6, cons(MemberStatus.OTHER_CONTRACT_STUDENT).getHierachicalLevel());
 		assertEquals(6, cons(MemberStatus.OTHER_STUDENT).getHierachicalLevel());
 		assertEquals(7, cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getHierachicalLevel());
 		assertEquals(7, cons(MemberStatus.ASSOCIATED_MEMBER).getHierachicalLevel());
@@ -114,6 +116,8 @@ public class MemberStatusTest {
 		assertEquals(0., cons(MemberStatus.TEACHER_PHD).getUsualResearchFullTimeEquivalent());
 		assertEquals(0., cons(MemberStatus.TEACHER).getUsualResearchFullTimeEquivalent());
 		assertEquals(1., cons(MemberStatus.MASTER_STUDENT).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.CONTRACT_MASTER_STUDENT).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.OTHER_CONTRACT_STUDENT).getUsualResearchFullTimeEquivalent());
 		assertEquals(1., cons(MemberStatus.OTHER_STUDENT).getUsualResearchFullTimeEquivalent());
 		assertEquals(0., cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getUsualResearchFullTimeEquivalent());
 		assertEquals(0., cons(MemberStatus.ASSOCIATED_MEMBER).getUsualResearchFullTimeEquivalent());
@@ -143,6 +147,8 @@ public class MemberStatusTest {
 		assertTrue(cons(MemberStatus.TEACHER_PHD).isPermanentPositionAllowed());
 		assertTrue(cons(MemberStatus.TEACHER).isPermanentPositionAllowed());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isPermanentPositionAllowed());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isPermanentPositionAllowed());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isPermanentPositionAllowed());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isPermanentPositionAllowed());
@@ -172,6 +178,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isResearcher());
 		assertFalse(cons(MemberStatus.TEACHER).isResearcher());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isResearcher());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isResearcher());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isResearcher());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isResearcher());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isResearcher());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER).isResearcher());
@@ -201,6 +209,8 @@ public class MemberStatusTest {
 		assertTrue(cons(MemberStatus.TEACHER_PHD).isTeacher());
 		assertTrue(cons(MemberStatus.TEACHER).isTeacher());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isTeacher());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isTeacher());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isTeacher());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isTeacher());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isTeacher());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isTeacher());
@@ -230,6 +240,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.TEACHER).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isTechnicalStaff());
+		assertTrue(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isTechnicalStaff());
+		assertTrue(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isTechnicalStaff());
@@ -259,6 +271,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.TEACHER).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isAdministrativeStaff());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isAdministrativeStaff());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isAdministrativeStaff());
@@ -288,6 +302,8 @@ public class MemberStatusTest {
 		assertTrue(cons(MemberStatus.TEACHER_PHD).isPhDOwner());
 		assertFalse(cons(MemberStatus.TEACHER).isPhDOwner());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isPhDOwner());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isPhDOwner());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isPhDOwner());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isPhDOwner());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isPhDOwner());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isPhDOwner());
@@ -317,6 +333,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isHdrOwner());
 		assertFalse(cons(MemberStatus.TEACHER).isHdrOwner());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isHdrOwner());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isHdrOwner());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isHdrOwner());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isHdrOwner());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isHdrOwner());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isHdrOwner());
@@ -346,6 +364,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isSupervisable());
 		assertFalse(cons(MemberStatus.TEACHER).isSupervisable());
 		assertTrue(cons(MemberStatus.MASTER_STUDENT).isSupervisable());
+		assertTrue(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isSupervisable());
+		assertTrue(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isSupervisable());
 		assertTrue(cons(MemberStatus.OTHER_STUDENT).isSupervisable());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isSupervisable());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isSupervisable());
@@ -375,6 +395,8 @@ public class MemberStatusTest {
 		assertTrue(cons(MemberStatus.TEACHER_PHD).isSupervisor());
 		assertFalse(cons(MemberStatus.TEACHER).isSupervisor());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isSupervisor());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isSupervisor());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isSupervisor());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isSupervisor());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isSupervisor());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER).isSupervisor());
@@ -404,6 +426,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isExternalPosition());
 		assertFalse(cons(MemberStatus.TEACHER).isExternalPosition());
 		assertTrue(cons(MemberStatus.MASTER_STUDENT).isExternalPosition());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isExternalPosition());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isExternalPosition());
 		assertTrue(cons(MemberStatus.OTHER_STUDENT).isExternalPosition());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isExternalPosition());
 		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER).isExternalPosition());
@@ -433,6 +457,8 @@ public class MemberStatusTest {
 		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
 		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
 		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
 		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
@@ -462,6 +488,8 @@ public class MemberStatusTest {
 		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
 		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.MALE, false, Locale.US));
 		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
 		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.MALE, false, Locale.US));
@@ -491,6 +519,8 @@ public class MemberStatusTest {
 		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
 		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
 		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
 		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
@@ -520,6 +550,8 @@ public class MemberStatusTest {
 		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
 		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
 		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
 		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
@@ -549,6 +581,8 @@ public class MemberStatusTest {
 		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
 		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, (Gender) null, false, Locale.US));
 		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
 		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
 		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, (Gender) null, false, Locale.US));
@@ -578,6 +612,8 @@ public class MemberStatusTest {
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
 		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
 		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
@@ -607,6 +643,8 @@ public class MemberStatusTest {
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.MALE, true, Locale.US));
 		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
 		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.MALE, true, Locale.US));
@@ -636,6 +674,8 @@ public class MemberStatusTest {
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
 		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
 		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
@@ -665,6 +705,8 @@ public class MemberStatusTest {
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
 		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
 		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
@@ -694,6 +736,8 @@ public class MemberStatusTest {
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, null, true, Locale.US));
 		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, null, true, Locale.US));
 		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Contractual Master Student", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Contractual Student", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getLabel(this.messages, null, true, Locale.US));
 		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, null, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, null, true, Locale.US));
 		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, null, true, Locale.US));
@@ -723,6 +767,8 @@ public class MemberStatusTest {
 		assertFalse(cons(MemberStatus.TEACHER_PHD).isEmeritus());
 		assertFalse(cons(MemberStatus.TEACHER).isEmeritus());
 		assertFalse(cons(MemberStatus.MASTER_STUDENT).isEmeritus());
+		assertFalse(cons(MemberStatus.CONTRACT_MASTER_STUDENT).isEmeritus());
+		assertFalse(cons(MemberStatus.OTHER_CONTRACT_STUDENT).isEmeritus());
 		assertFalse(cons(MemberStatus.OTHER_STUDENT).isEmeritus());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isEmeritus());
 		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isEmeritus());
@@ -752,6 +798,8 @@ public class MemberStatusTest {
 		assertEquals("PAST", cons(MemberStatus.TEACHER_PHD).getFrenchAcronym(this.messages));
 		assertEquals("PAST", cons(MemberStatus.TEACHER).getFrenchAcronym(this.messages));
 		assertEquals("", cons(MemberStatus.MASTER_STUDENT).getFrenchAcronym(this.messages));
+		assertEquals("APP", cons(MemberStatus.CONTRACT_MASTER_STUDENT).getFrenchAcronym(this.messages));
+		assertEquals("APP", cons(MemberStatus.OTHER_CONTRACT_STUDENT).getFrenchAcronym(this.messages));
 		assertEquals("", cons(MemberStatus.OTHER_STUDENT).getFrenchAcronym(this.messages));
 		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getFrenchAcronym(this.messages));
 		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER).getFrenchAcronym(this.messages));

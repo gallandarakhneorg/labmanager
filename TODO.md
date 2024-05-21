@@ -38,7 +38,6 @@
 * Admin tools:
   * Listing/Edition/Deletion of memberships
   * Private component for selecting the public global indicators
-  * Regenerate thumbnails images of publications
   * Tool for extending the contract of a person (with a potential change of position type)
   * Tool for creating the user account on the different platforms
 	* LabManager
@@ -48,9 +47,6 @@
 	* projects
 	* publications
 	* members
-  * Update journal rankings
-  * Update conference rankings
-  * Update person rankings
   * Merge similar entities
 	* Persons
 	* organizations
@@ -65,8 +61,6 @@
   * Export Pubs to HAL
   * Annual activity report Excel for CIAD UB (Voir besoins à l'UB)
   * Activity report Word for REPEC-C3
-* Tests
-  * Extend the Unit Tests and Integration Tests.
 
 # To-Do for production
 

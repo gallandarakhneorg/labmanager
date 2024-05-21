@@ -33,27 +33,40 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.dom.Style.AlignSelf;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.services.journal.JournalService.JournalRankingUpdateInformation;
+import fr.utbm.ciad.labmanager.utils.SerializableExceptionProvider;
+import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.appviews.journals.JournalRankingUpdate.JournalNewInformation;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullValueValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerProgressionWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
-import io.overcoded.vaadin.wizard.ExceptionRunnable;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.Predicate;
 import org.arakhne.afc.progress.Progression;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** Wizard for updating the journal rankings.
@@ -90,7 +103,9 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 		this(properties, context, Arrays.asList(
 				new JournalInputWizardStep(context),
 				new JournalRankLoadingWizardStep(context, journalService),
-				new JournalRankDownloadWizardStep(context, journalService)));
+				new JournalRankDownloadWizardStep(context, journalService),
+				new JournalRankingSummaryWizardStep(context),
+				new JournalRankSavingWizardStep(context, journalService)));
 	}
 
 	private JournalRankingUpdaterWizard(WizardConfigurationProperties properties, JournalRankingUpdate context, List<WizardStep<JournalRankingUpdate>> steps) {
@@ -226,7 +241,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 		 * @param journalService the service for accessing to the journals' JPA entities.
 		 */
 		public JournalRankLoadingWizardStep(JournalRankingUpdate context, JournalService journalService) {
-			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step2.title"), 2, 1, true);//$NON-NLS-1$
+			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step2.title"), 2, 1, true, false);//$NON-NLS-1$
 			this.journalService = journalService;
 		}
 
@@ -242,13 +257,14 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 		}
 
 		@Override
-		protected ExceptionRunnable createAsynchronousTask(int taskNo, Progression progression) {
+		protected SerializableExceptionProvider<String> createAsynchronousTask(int taskNo, Progression progression) {
+			final var terminationMessage = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step2.journal_read"); //$NON-NLS-1$
 			return () -> {
 				final var identifiers = getContext().getEntityIdentifiers();
 				progression.increment(5);
 				final Consumer<Journal> callback = it -> {
 					// Force loading of quality indicators for the journals
-					it.getQualityIndicators();
+					Hibernate.initialize(it.getQualityIndicators());
 				};
 				final List<Journal> journals;
 				if (identifiers == null || identifiers.isEmpty()) {
@@ -269,6 +285,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 				}
 				progression.increment(90);
 				getContext().setJournals(journals);
+				return terminationMessage;
 			};
 		}
 
@@ -294,7 +311,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 		 * @param journalService the service for accessing to the journals' JPA entities.
 		 */
 		public JournalRankDownloadWizardStep(JournalRankingUpdate context, JournalService journalService) {
-			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step3.title"), 3, 1, false);//$NON-NLS-1$
+			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step3.title"), 3, 2, true, false);//$NON-NLS-1$
 			this.journalService = journalService;
 		}
 
@@ -317,7 +334,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 				image = new Image(ComponentFactory.newStreamImage(ViewConstants.SCIMAGO_ICON), ViewConstants.SCIMAGO_BASE_URL);
 				break;
 			case 1:
-				image = new Image(ComponentFactory.newStreamImage(ViewConstants.WOS_ICON), null);
+				image = new Image(ComponentFactory.newStreamImage(ViewConstants.WOS_ICON), ViewConstants.WOSINFO_BASE_URL);
 				break;
 			default:
 				throw new IllegalArgumentException();
@@ -326,16 +343,19 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 			image.setMaxHeight(ViewConstants.MAX_ICON_SIZE, Unit.POINTS);
 			image.setMinWidth(ViewConstants.ICON_SIZE, Unit.POINTS);
 			image.setMaxWidth(ViewConstants.MAX_ICON_SIZE, Unit.POINTS);
-			image.getStyle().setAlignSelf(AlignSelf.CENTER);
+			final var style = image.getStyle();
+			style.setAlignSelf(AlignSelf.BASELINE);
+			style.setMarginRight("var(--lumo-space-s)"); //$NON-NLS-1$
 			return image;
 		}
 
 		@Override
-		protected ExceptionRunnable createAsynchronousTask(int taskNo, Progression progression) {
+		protected SerializableExceptionProvider<String> createAsynchronousTask(int taskNo, Progression progression) {
 			switch (taskNo) {
 			case 0:
 				final var pattern0 = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step3.download_scimago"); //$NON-NLS-1$
 				final var extendedProgression0 = ProgressExtension.withCommentFormatter(progression, it -> MessageFormat.format(pattern0, it));
+				final var terminationMessage0 = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step3.scimago_downloaded"); //$NON-NLS-1$
 				return () -> {
 					if (getContext().getScimagoEnable()) {
 						getContext().clearScimagoRankings();
@@ -344,18 +364,35 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 					} else {
 						progression.end();
 					}
+					return terminationMessage0;
 				};
 			case 1:
 				final var pattern1 = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step3.download_wos"); //$NON-NLS-1$
 				final var extendedProgression1 = ProgressExtension.withCommentFormatter(progression, it -> MessageFormat.format(pattern1, it));
+				final var terminationMessage1 = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step3.wos_downloaded"); //$NON-NLS-1$
 				return () -> {
-					if (getContext().getWosEnable()) {
-						getContext().clearScimagoRankings();
+					final var ewos = getContext().getWosEnable();
+					final var eif = getContext().getImpactFactorsEnable();
+					if (ewos || eif) {
+						if (ewos) {
+							getContext().clearWosRankings();
+						}
+						if (eif) {
+							getContext().clearImpactFactors();
+						}
 						this.journalService.downloadJournalIndicatorsFromWoS(getContext().getYear(), getContext().getJournals(), extendedProgression1,
-								(referenceYear, journalId, scientificField, oldQuartile, newQuartiles) -> getContext().addWosRanking(journalId, oldQuartile, newQuartiles));
+								(referenceYear, journalId, scientificField, oldQuartile, newQuartiles, oldImpact, newImpact) -> {
+									if (ewos) {
+										getContext().addWosRanking(journalId, oldQuartile, newQuartiles);
+									}
+									if (eif) {
+										getContext().addImpactFactor(journalId, oldImpact, newImpact);
+									}
+								});
 					} else {
 						progression.end();
 					}
+					return terminationMessage1;
 				};
 			default:
 				throw new IllegalArgumentException();
@@ -364,294 +401,201 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 
 	}
 
-	//	/** Wizard step for journal rank loading.
-	//	 * 
-	//	 * @author $Author: sgalland$
-	//	 * @version $Name$ $Revision$ $Date$
-	//	 * @mavengroupid $GroupId$
-	//	 * @mavenartifactid $ArtifactId$
-	//	 * @since 4.0
-	//	 */
-	//	protected static class JournalRankLoadingWizardStep extends AbstractLocaleWizardStep<JournalRankingUpdate> {
-	//
-	//		private static final long serialVersionUID = 4125384926627194410L;
-	//
-	//		private final JournalService journalService;
-	//
-	//		private Span textLoadingJournals;
-	//
-	//		private ProgressAdapter progressLoadingJournals;
-	//		
-	//		private Span textLoadingWos;
-	//
-	//		private ProgressAdapter progressLoadingWos;
-	//
-	//		private Span textLoadingScimago;
-	//
-	//		private ProgressAdapter progressLoadingScimago;
-	//
-	//		private Span textLoadingImpactFactors;
-	//
-	//		private ProgressAdapter progressLoadingImpactFactors;
-	//
-	//		/** Constructor.
-	//		 *
-	//		 * @param journalService the service for accessing the journal entities.
-	//		 * @param context the data context.
-	//		 */
-	//		public JournalRankLoadingWizardStep(JournalService journalService, JournalRankingUpdate context) {
-	//			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step2.title"), 2); //$NON-NLS-1$, 1);
-	//			this.journalService = journalService;
-	//		}
-	//
-	//		@Override
-	//		public Div getLayout() {
-	//			final var layout = new VerticalLayout();
-	//			
-	//			this.textLoadingJournals = new Span(""); //$NON-NLS-1$
-	//			final var div0 = new Div(this.textLoadingJournals);
-	//			layout.add(div0);
-	//			
-	//			final var progressLoadingJournals = new ProgressBar();
-	//			progressLoadingJournals.setWidthFull();
-	//			progressLoadingJournals.setIndeterminate(true);
-	//			layout.add(progressLoadingJournals);
-	//			this.progressLoadingJournals = new ProgressAdapter(progressLoadingJournals);
-	//
-	//			this.textLoadingWos = new Span(""); //$NON-NLS-1$
-	//			final var div1 = new Div(this.textLoadingWos);
-	//			layout.add(div1);
-	//
-	//			final var progressLoadingWos = new ProgressBar();
-	//			progressLoadingWos.setWidthFull();
-	//			progressLoadingWos.setIndeterminate(true);
-	//			layout.add(progressLoadingWos);
-	//			this.progressLoadingWos = new ProgressAdapter(progressLoadingWos);
-	//
-	//			this.textLoadingScimago = new Span(""); //$NON-NLS-1$
-	//			final var div2 = new Div(this.textLoadingScimago);
-	//			layout.add(div2);
-	//
-	//			final var progressLoadingScimago = new ProgressBar();
-	//			progressLoadingScimago.setWidthFull();
-	//			progressLoadingScimago.setIndeterminate(true);
-	//			layout.add(progressLoadingScimago);
-	//			this.progressLoadingScimago = new ProgressAdapter(progressLoadingScimago);
-	//
-	//			this.textLoadingImpactFactors = new Span(""); //$NON-NLS-1$
-	//			final var div3 = new Div(this.textLoadingImpactFactors);
-	//			layout.add(div3);
-	//
-	//			final var progressLoadingImpactFactors = new ProgressBar();
-	//			progressLoadingImpactFactors.setWidthFull();
-	//			progressLoadingImpactFactors.setIndeterminate(true);
-	//			layout.add(progressLoadingImpactFactors);
-	//			this.progressLoadingImpactFactors = new ProgressAdapter(progressLoadingImpactFactors);
-	//
-	//			return new Div(layout);
-	//		}
-	//
-	//		@Override
-	//		public void setStatus(StepStatus status) {
-	//			super.setStatus(status);
-	//			if (status == StepStatus.ACTIVE) {
-	//				startLoadingTasks();
-	//			}
-	//		}
-	//
-	//		/** Start the loading tasks accotrding to the internal sequence for loading.
-	//		 */
-	//		protected void startLoadingTasks() {
-	//			if (this.progressLoadingImpactFactors.isIndeterminate()) {
-	//				startJournalInformationLoading();
-	//			}
-	//		}
-	//
-	//		/** Invoked when an error has been encountered.
-	//		 * 
-	//		 * @param error the error description.
-	//		 */
-	//		private void onTaskError(Throwable error) {
-	//			// FIXME
-	//			error.printStackTrace();
-	//		}
-	//
-	//		private Void onTaskErrorInternal(Throwable error) {
-	//			onTaskError(error);
-	//			return null;
-	//		}
-	//
-	//		/** Invoked when the journal informations are loaded.
-	//		 */
-	//		protected void onJournalInformationsLoaded() {
-	//			if (this.progressLoadingWos.isIndeterminate()) {
-	//				startWosLoading();
-	//			}
-	//			if (this.progressLoadingScimago.isIndeterminate()) {
-	//				startScimagoLoading();
-	//			}
-	//			if (this.progressLoadingImpactFactors.isIndeterminate()) {
-	//				startImpactFactorsLoading();
-	//			}
-	//		}
-	//
-	//		private void onJournalInformationsLoadedInternal(Void data) {
-	//			onJournalInformationsLoaded();
-	//		}
-	//
-	//		/** Start the loading of the journal informations in a parallel thread.
-	//		 */
-	//		protected void startJournalInformationLoading() {
-	//			final var task = CompletableFuture.runAsync(() -> {
-	//				final var progression = new DefaultProgression(0, 100);
-	//				progression.addProgressionListener(this.progressLoadingJournals);
-	//				final var identifiers = getContext().getEntityIdentifiers();
-	//				progression.increment(10);
-	//				final List<Journal> journals;
-	//				if (identifiers == null || identifiers.isEmpty()) {
-	//					journals = this.journalService.getAllJournals();
-	//				} else {
-	//					journals = this.journalService.getAllJournals((root, query, criteriaBuilder) -> {
-	//						Predicate pred = null;
-	//						for (final var id : identifiers) {
-	//							final var p = criteriaBuilder.equal(root.get("id"), Long.valueOf(id)); //$NON-NLS-1$
-	//							if (pred == null) {
-	//								pred = p;
-	//							} else {
-	//								pred = criteriaBuilder.or(pred, p);
-	//							}
-	//						}
-	//						return pred;
-	//					});
-	//				}
-	//				progression.increment(80);
-	//				getContext().setJournals(journals);
-	//				progression.end();
-	//			});
-	//			if (task != null) {
-	//				task
-	//					.exceptionally(this::onTaskErrorInternal)
-	//					.thenAccept(this::onJournalInformationsLoadedInternal);
-	//			} else {
-	//				onTaskError(new IllegalStateException());
-	//			}
-	//		}
-	//
-	//		/** Invoked when the WoS informations are loaded.
-	//		 */
-	//		protected void onWosLoaded() {
-	//		}
-	//
-	//		private void onWosLoadedInternal(Void data) {
-	//			onWosLoaded();
-	//		}
-	//
-	//		/** Start the loading of the journal informations in a parallel thread.
-	//		 */
-	//		protected void startWosLoading() {
-	//			final var task = CompletableFuture.runAsync(() -> {
-	//				final var progression = new DefaultProgression(0, 100);
-	//				progression.addProgressionListener(this.progressLoadingWos);
-	//				
-	//				progression.end();
-	//			});
-	//			if (task != null) {
-	//				task
-	//					.exceptionally(this::onTaskErrorInternal)
-	//					.thenAccept(this::onWosLoadedInternal);
-	//			} else {
-	//				onTaskError(new IllegalStateException());
-	//			}
-	//		}
-	//
-	//		/** Invoked when the Scimago informations are loaded.
-	//		 */
-	//		protected void onScimagoLoaded() {
-	//		}
-	//
-	//		private void onScimagoLoadedInternal(Void data) {
-	//			onScimagoLoaded();
-	//		}
-	//
-	//		/** Start the loading of the journal informations in a parallel thread.
-	//		 */
-	//		protected void startScimagoLoading() {
-	//			final var task = CompletableFuture.runAsync(() -> {
-	//				try {
-	//					final var context = getContext();
-	//					final var year = context.getYear();
-	//					final var journals = context.getJournals();
-	//					final var progression = new DefaultProgression(0, journals.size());
-	//					progression.addProgressionListener(this.progressLoadingScimago);
-	//					
-	//					for (final var journal : journals) {
-	//						final var subTask = progression.subTask(1);
-	//						final var quartiles = this.scimago.getJournalRanking(year, journal.getScimagoId(), subTask);
-	//						progression.ensureNoSubTask();
-	//					}
-	//				} catch (Throwable ex) {
-	//					onTaskError(ex);
-	//					
-	//				} finally {
-	//					progression.end();
-	//				}
-	//			});
-	//			if (task != null) {
-	//				task
-	//					.exceptionally(this::onTaskErrorInternal)
-	//					.thenAccept(this::onScimagoLoadedInternal);
-	//			} else {
-	//				onTaskError(new IllegalStateException());
-	//			}
-	//		}
-	//
-	//		/** Invoked when the impact factors are loaded.
-	//		 */
-	//		protected void onImpactFactorsLoaded() {
-	//		}
-	//
-	//		private void onImpactFactorsLoadedInternal(Void data) {
-	//			onScimagoLoaded();
-	//		}
-	//
-	//		/** Start the loading of the journal impact factors in a parallel thread.
-	//		 */
-	//		protected void startImpactFactorsLoading() {
-	//			final var task = CompletableFuture.runAsync(() -> {
-	//				final var progression = new DefaultProgression(0, 100);
-	//				progression.addProgressionListener(this.progressLoadingImpactFactors);
-	//				
-	//				progression.end();
-	//			});
-	//			if (task != null) {
-	//				task
-	//					.exceptionally(this::onTaskErrorInternal)
-	//					.thenAccept(this::onImpactFactorsLoadedInternal);
-	//			} else {
-	//				onTaskError(new IllegalStateException());
-	//			}
-	//		}
-	//
-	//		@Override
-	//		public boolean isValid() {
-	//			return false;
-	//		}
-	//
-	//		@Override
-	//		public boolean commit() {
-	//			return false;
-	//		}
-	//
-	//		@Override
-	//		public void localeChange(LocaleChangeEvent event) {
-	//			super.localeChange(event);
-	//			setName(ComponentFactory.getTranslation(event.getLocale(), "views.journals.updateRankings.step2.title")); //$NON-NLS-1$
-	//			this.textLoadingJournals.setText(ComponentFactory.getTranslation(event.getLocale(), "views.journals.updateRankings.step2.loading_journals")); //$NON-NLS-1$
-	//			this.textLoadingWos.setText(ComponentFactory.getTranslation(event.getLocale(), "views.journals.updateRankings.step2.loading_wos")); //$NON-NLS-1$
-	//			this.textLoadingScimago.setText(ComponentFactory.getTranslation(event.getLocale(), "views.journals.updateRankings.step2.loading_scimago")); //$NON-NLS-1$
-	//			this.textLoadingImpactFactors.setText(ComponentFactory.getTranslation(event.getLocale(), "views.journals.updateRankings.step2.loading_impact_factors")); //$NON-NLS-1$
-	//		}
-	//		
-	//	}
+	/** Wizard step to summarize the updates of the journal ranking informations.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected static class JournalRankingSummaryWizardStep extends WizardStep<JournalRankingUpdate> {
+
+		private static final long serialVersionUID = -5461457655161100043L;
+
+		private Grid<JournalNewInformation> grid;
+
+		private Column<JournalNewInformation> nameColumn;
+		
+		private Column<JournalNewInformation> publisherColumn;
+
+		private Column<JournalNewInformation> issnColumn;
+
+		private Column<JournalNewInformation> scimagoColumn;
+
+		private Column<JournalNewInformation> wosColumn;
+
+		private Column<JournalNewInformation> impactFactorColumn;
+
+		/** Constructor.
+		 *
+		 * @param context the data context.
+		 */
+		public JournalRankingSummaryWizardStep(JournalRankingUpdate context) {
+			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step4.title"), 4); //$NON-NLS-1$
+		}
+
+		@Override
+		public Div getLayout() {
+			this.grid = new Grid<>(JournalNewInformation.class, false);
+			this.grid.setPageSize(ViewConstants.GRID_PAGE_SIZE);
+			this.grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+			this.grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+			this.grid.setSelectionMode(SelectionMode.NONE);
+
+			this.nameColumn = this.grid.addColumn(info -> info.journal().getJournalName())
+					.setAutoWidth(true).setSortable(true);
+			this.publisherColumn = this.grid.addColumn(info -> info.journal().getPublisher())
+					.setAutoWidth(true).setSortable(true);
+			this.issnColumn = this.grid.addColumn(info -> info.journal().getISSN())
+					.setAutoWidth(true).setSortable(true);
+			if (getContext().getScimagoEnable()) {
+				this.scimagoColumn = this.grid.addColumn(info -> toString(info.oldScimago(), info.newScimago()))
+						.setAutoWidth(true).setSortable(true);
+			} else {
+				this.scimagoColumn = null;
+			}
+			if (getContext().getWosEnable()) {
+				this.wosColumn = this.grid.addColumn(info -> toString(info.oldWos(), info.newWos()))
+						.setAutoWidth(true).setSortable(true);
+			} else {
+				this.wosColumn = null;
+			}
+			if (getContext().getImpactFactorsEnable()) {
+				this.impactFactorColumn = this.grid.addColumn(info -> toString(info.oldImpactFactor(), info.newImpactFactor()))
+						.setAutoWidth(true).setSortable(true);
+			} else {
+				this.impactFactorColumn = null;
+			}
+
+			this.grid.sort(GridSortOrder.asc(this.nameColumn).build());
+
+			this.grid.setItems(new ListDataProvider<>(getContext().getJournalUpdates().toList()));
+
+			return new Div(this.grid);
+		}
+		
+		@Override
+		public void localeChange(LocaleChangeEvent event) {
+			super.localeChange(event);
+			if (this.nameColumn != null) {
+				this.nameColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.journal_name")); //$NON-NLS-1$
+			}
+			if (this.publisherColumn != null) {
+				this.publisherColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.publisher")); //$NON-NLS-1$
+			}
+			if (this.issnColumn != null) {
+				this.issnColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.issn")); //$NON-NLS-1$
+			}
+			if (this.scimagoColumn != null) {
+				this.scimagoColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.scimago")); //$NON-NLS-1$
+			}
+			if (this.wosColumn != null) {
+				this.wosColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.wos")); //$NON-NLS-1$
+			}
+			if (this.impactFactorColumn != null) {
+				this.impactFactorColumn.setHeader(ComponentFactory.getTranslation("views.journals.updateRankings.step4.impactFactor")); //$NON-NLS-1$
+			}
+		}
+
+		private static String toString(QuartileRanking oldQuartile, QuartileRanking newQuartile) {
+			if (oldQuartile != null && newQuartile != null) {
+				return new StringBuilder()
+						.append(oldQuartile.name())
+						.append(" \u2B95 ") //$NON-NLS-1$
+						.append(newQuartile.name())
+						.toString();
+			}
+			return ""; //$NON-NLS-1$
+		}
+
+		private static String toString(Float oldFactor, Float newFactor) {
+			if (oldFactor != null && newFactor != null) {
+				return new StringBuilder()
+						.append(String.format("%1.3f", oldFactor)) //$NON-NLS-1$
+						.append(" \u2B95 ") //$NON-NLS-1$
+						.append(String.format("%1.3f", newFactor)) //$NON-NLS-1$
+						.toString();
+			}
+			return ""; //$NON-NLS-1$
+		}
+
+		@Override
+		public boolean isValid() {
+			return this.grid.getListDataView().getItemCount() > 0;
+		}
+
+		@Override
+		public boolean commit() {
+			return true;
+		}
+
+	}
+
+	/** Wizard step for saving the ranking updates.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	protected static class JournalRankSavingWizardStep extends AbstractLabManagerProgressionWizardStep<JournalRankingUpdate> {
+
+		private static final long serialVersionUID = 9014929025845066499L;
+
+		private final JournalService journalService;
+
+		/** Constructor.
+		 *
+		 * @param context the data to be shared between the wizard steps.
+		 * @param journalService the service for accessing to the journals' JPA entities.
+		 */
+		public JournalRankSavingWizardStep(JournalRankingUpdate context, JournalService journalService) {
+			super(context, ComponentFactory.getTranslation("views.journals.updateRankings.step5.title"), 5, 1, false, true);//$NON-NLS-1$
+			this.journalService = journalService;
+		}
+
+		@Override
+		public BiFunction<Component, String, String> getBackActionMessageSupplier() {
+			return (cmp, tlt) -> ComponentFactory.getTranslation("views.journals.updateRankings.step5.back.message", tlt); //$NON-NLS-1$
+		}
+
+		@Override
+		public void localeChange(LocaleChangeEvent event) {
+			super.localeChange(event);
+			getMajorText().ifPresent(it -> it.setText(ComponentFactory.getTranslation("views.journals.updateRankings.step5.comment"))); //$NON-NLS-1$
+		}
+
+		@Override
+		protected Component getProgressIcon(int taskNo) {
+			final var image = VaadinIcon.COG.create();
+			final var style = image.getStyle();
+			style.setAlignSelf(AlignSelf.BASELINE);
+			style.setMarginRight("var(--lumo-space-s)"); //$NON-NLS-1$
+			return image;
+		}
+
+		@Override
+		protected SerializableExceptionProvider<String> createAsynchronousTask(int taskNo, Progression progression) {
+			final var pattern0 = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step5.saving"); //$NON-NLS-1$
+			final var extendedProgression0 = ProgressExtension.withCommentFormatter(progression, it -> MessageFormat.format(pattern0, it));
+			final var terminationMessage0 = getWizard().orElseThrow().getTranslation("views.journals.updateRankings.step5.end"); //$NON-NLS-1$
+			return () -> {
+				final var context = getContext();
+				this.journalService.updateJournalIndicators(context.getYear(),
+						context.getJournalUpdates().map(it -> {
+							final var journal = it.journal();
+							final var scimago = it.newScimago();
+							final var wos = it.newWos();
+							final var factor = it.newImpactFactor();
+							return new JournalRankingUpdateInformation(journal, scimago, wos, factor);
+						}).toList(),
+						context.getScimagoEnable(), context.getWosEnable(), context.getImpactFactorsEnable(), extendedProgression0);
+				return terminationMessage0;
+			};
+		}
+
+	}
 
 }

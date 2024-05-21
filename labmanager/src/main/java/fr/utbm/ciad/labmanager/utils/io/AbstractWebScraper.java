@@ -110,6 +110,48 @@ public abstract class AbstractWebScraper {
 		return null;
 	}
 
+	/** Read a floating-point number value from the element.
+	 *
+	 * @param handle the handle to read.
+	 * @return the value or {@code null} if it is not possible to extract the number.
+	 * @since 4.0
+	 */
+	protected static Float readFloat(ElementHandle handle) {
+		if (handle != null) {
+			var content = handle.textContent();
+			if (!Strings.isNullOrEmpty(content)) {
+				content = content.trim(); 
+				// Remove any mark that is related to the local format of the number
+				final var unformattedContent = content.replaceAll("[^0-9+\\-.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				if (!Strings.isNullOrEmpty(unformattedContent)) {
+					try {
+						return Float.valueOf(unformattedContent);
+					} catch (Throwable ex) {
+						//
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/** Read a text value from the element.
+	 *
+	 * @param handle the handle to read.
+	 * @return the value or {@code null} if it is not possible to extract the text.
+	 * @since 4.0
+	 */
+	protected static String readText(ElementHandle handle) {
+		if (handle != null) {
+			var content = handle.textContent();
+			if (!Strings.isNullOrEmpty(content)) {
+				content = content.trim(); 
+				return Strings.emptyToNull(content);
+			}
+		}
+		return null;
+	}
+
 	/** Read an integer value in the element pointed by the given selectors.
 	 *
 	 * @param handle the original handle.
@@ -146,6 +188,22 @@ public abstract class AbstractWebScraper {
 		return -1;
 	}
 
+	/** Replies the float value from the given float. If the given argument is {@code null}, the value
+	 * {@code 0} is returned.
+	 *
+	 * @param value the value.
+	 * @return the value if it is positive or nul, or {@code 0} if it is negative.
+	 */
+	protected static float positiveFloat(Float value) {
+		if (value != null) {
+			final var fvalue = value.floatValue();
+			if (fvalue >= 0f) {
+				return fvalue;
+			}
+		}
+		return 0;
+	}
+
 	/** Read the content of the page pointed by the given URL.
 	 *
 	 * @param developer indicates if the browser is launched in developer mode (window visible) or not (window invisible).
@@ -156,6 +214,7 @@ public abstract class AbstractWebScraper {
 	 * @param loadedHandler the handler invoked when the page is loaded.
 	 * @throws Exception if it is impossible to read the page.
 	 */
+	@SuppressWarnings("deprecation")
 	protected static void loadHtmlPage(boolean developer, URL url, Progression progress,
 			String loadElementSelector, int waitingDuration,
 			HtmlPageExtractor loadedHandler) throws Exception {

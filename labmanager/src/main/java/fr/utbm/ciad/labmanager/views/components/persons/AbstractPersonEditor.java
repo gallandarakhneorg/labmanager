@@ -551,8 +551,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	 * </ul>
 	 *
 	 * @param receiver the receiver of the component
+	 * @return the details for the indexes.
 	 */
-	protected void createIndexesComponents(VerticalLayout receiver) {
+	protected Details createIndexesComponents(VerticalLayout receiver) {
 		final var content0 = ComponentFactory.newColumnForm(1);
 
 		this.wosHindex = new IntegerField();
@@ -613,6 +614,8 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		getEntityDataBinder().forField(this.wosCitations).bind(Person::getWosCitations, Person::setWosCitations);
 		getEntityDataBinder().forField(this.scopusCitations).bind(Person::getScopusCitations, Person::setScopusCitations);
 		getEntityDataBinder().forField(this.gscholarCitations).bind(Person::getGoogleScholarCitations, Person::setGoogleScholarCitations);
+
+		return this.indexesDetails;
 	}
 
 	/** Create the components for entering the social links.

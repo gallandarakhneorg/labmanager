@@ -295,6 +295,7 @@ public class MembershipTest {
 		doIsPermanentPositionTest(MemberStatus.ASSOCIATE_PROFESSOR_HDR);
 		doIsPermanentPositionTest(MemberStatus.ASSOCIATED_MEMBER);
 		doIsPermanentPositionTest(MemberStatus.ASSOCIATED_MEMBER_PHD);
+		doIsPermanentPositionTest(MemberStatus.CONTRACT_MASTER_STUDENT);
 		doIsPermanentPositionTest(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER);
 		doIsPermanentPositionTest(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD);
 		doIsPermanentPositionTest(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR);
@@ -304,6 +305,7 @@ public class MembershipTest {
 		doIsPermanentPositionTest(MemberStatus.ENGINEER_PHD);
 		doIsPermanentPositionTest(MemberStatus.FULL_PROFESSOR);
 		doIsPermanentPositionTest(MemberStatus.MASTER_STUDENT);
+		doIsPermanentPositionTest(MemberStatus.OTHER_CONTRACT_STUDENT);
 		doIsPermanentPositionTest(MemberStatus.OTHER_STUDENT);
 		doIsPermanentPositionTest(MemberStatus.PHD_STUDENT);
 		doIsPermanentPositionTest(MemberStatus.POSTDOC);

@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.conference;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -116,12 +117,41 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 
 	/** Replies all the conferences for the database.
 	 *
+	 * @return the list of conferences.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @since 4.0
+	 */
+	public List<Conference> getAllConferences(Consumer<Conference> callback) {
+		final var list = this.conferenceRepository.findAll();
+		if (callback != null) {
+			list.forEach(callback);
+		}
+		return list;
+	}
+
+	/** Replies all the conferences for the database.
+	 *
 	 * @param filter the filter of conferences.
 	 * @return the list of conferences.
 	 * @since 4.0
 	 */
 	public List<Conference> getAllConferences(Specification<Conference> filter) {
 		return this.conferenceRepository.findAll(filter);
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param filter the filter of conferences.
+	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public List<Conference> getAllConferences(Specification<Conference> filter, Consumer<Conference> callback) {
+		final var list = this.conferenceRepository.findAll(filter);
+		if (callback != null) {
+			list.forEach(callback);
+		}
+		return list;
 	}
 
 	/** Replies all the conferences for the database.
@@ -438,6 +468,31 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		session.getTransaction().commit();
 	}
 
+	/** Update the conference indicators according to the given inputs.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param conferenceUpdates the streams that describes the updates.
+	 * @param progress the progression monitor.
+	 * @throws Exception if the journal information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional
+	public void updateConferenceIndicators(int referenceYear, Collection<ConferenceRankingUpdateInformation> conferenceUpdates, Progression progress) {
+		progress.setProperties(0, 0, conferenceUpdates.size() + 1, false);
+		final var conferences = new ArrayList<Conference>();
+		conferenceUpdates.forEach(info -> {
+			final var conference = info.conference();
+			progress.setComment(conference.getAcronymAndName());
+			if (info.ranking() != null) {
+				conference.setCoreIndexByYear(referenceYear, info.ranking());
+			}
+			conferences.add(conference);
+			progress.increment();
+		});
+		this.conferenceRepository.saveAll(conferences);
+		progress.end();
+	}
+
 	/** Save conference indicators. If a conference is not mentioned in the given map, its associated indicators will be not changed.
 	 *
 	 * @param year the reference year.
@@ -458,6 +513,43 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 				}
 			}
 		}
+	}
+
+	/** Download the conference indicators for the given reference year for the CORE portail.
+	 * This function uses the {@link CorePortalPlatform} tool for downloading indicators.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param conferences the list of conferences for which the indicators should be downloaded.
+	 * @param progress the progression monitor.
+	 * @param consumer the consumer of the conference ranking information.
+	 * @throws Exception if the conference information cannot be downloaded.
+	 * @since 4.0
+	 */
+	@Transactional(readOnly = true)
+	public void downloadConferenceIndicatorsFromCore(int referenceYear, List<Conference> conferences, Progression progress, ConferenceRankingConsumer consumer) throws Exception {
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		progress0.setProperties(0, 0, conferences.size() * 2, false);
+		for (final var conference : conferences) {
+			progress0.setComment(conference.getAcronymAndName());
+			if (!Strings.isNullOrEmpty(conference.getCoreId())) {
+				final var lastRanking = conference.getCoreIndexByYear(referenceYear);
+				final var rankings = this.corePortal.getConferenceRanking(referenceYear, conference.getCoreId(), progress0.subTask(1));
+				progress0.ensureNoSubTask();
+				if (rankings != null) {
+					if (rankings.ranking == null) {
+						consumer.consume(referenceYear, conference.getId(), lastRanking, CoreRanking.NR);
+					} else {
+						consumer.consume(referenceYear, conference.getId(), lastRanking, rankings.ranking);
+					}
+				} else {
+					consumer.consume(referenceYear, conference.getId(), lastRanking, CoreRanking.NR);
+				}
+				progress0.increment();
+			} else {
+				progress0.subTask(2);
+			}
+		}
+		progress0.end();
 	}
 
 	@Override
@@ -570,6 +662,41 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 			ConferenceService.this.conferenceRepository.deleteAllById(identifiers);
 		}
 
+	}
+
+	/** Consumer of conference ranking information with ranking scores.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public interface ConferenceRankingConsumer extends Serializable {
+
+		/** Invoked when a conference ranking is discovered from the source.
+		 * 
+		 * @param referenceYear the reference year.
+		 * @param conferenceId the identifier of the conference.
+		 * @param oldRanking the previously know ranking.
+		 * @param newRanking the current ranking.
+		 */
+		void consume(int referenceYear, long conferenceId, CoreRanking oldRanking, CoreRanking newRanking);
+
+	}
+
+	/** Description of the information for a conference.
+	 * 
+	 * @param conference the conference. 
+	 * @param ranking the new CORE ranking, or {@code null} to avoid ranking change. 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public record ConferenceRankingUpdateInformation(Conference conference, CoreRanking ranking) {
+		//
 	}
 
 }

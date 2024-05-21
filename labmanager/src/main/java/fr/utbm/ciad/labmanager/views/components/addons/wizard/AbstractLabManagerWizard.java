@@ -22,11 +22,13 @@ package fr.utbm.ciad.labmanager.views.components.addons.wizard;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -53,6 +55,10 @@ public abstract class AbstractLabManagerWizard<T extends AbstractContextData> ex
 
 	private static final String IDENTIFIERS_KEY = "ids"; //$NON-NLS-1$
 
+	private static final String TERMINATION_VIEW_KEY = "termination"; //$NON-NLS-1$
+
+	private Class<? extends Component> terminationView;
+	
 	/** Constructor.
 	 *
 	 * @param properties the properties that are used by the wizard.
@@ -72,8 +78,22 @@ public abstract class AbstractLabManagerWizard<T extends AbstractContextData> ex
 	 * @return the route parameters.
 	 */
 	public static QueryParameters buildQueryParameters(Collection<? extends IdentifiableEntity> entities) {
+		return buildQueryParameters(entities, null);
+	}
+
+	/** Build route parameters for this wizard that contains the list of the entity identifiers to update.
+	 *
+	 * @param entities the list of the entities.
+	 * @param targetView the view that should be added at the end of the wizard.
+	 * @return the route parameters.
+	 */
+	public static QueryParameters buildQueryParameters(Collection<? extends IdentifiableEntity> entities, Class<? extends Component> targetView) {
 		final var identifiers = entities.stream().map(it -> Long.toString(it.getId())).toList();
-		final var map = Collections.singletonMap(IDENTIFIERS_KEY, identifiers);
+		final var map = new HashMap<String, List<String>>();
+		map.put(IDENTIFIERS_KEY, identifiers);
+		if (targetView != null) {
+			map.put(TERMINATION_VIEW_KEY, Collections.singletonList(targetView.getName()));
+		}
 		return new QueryParameters(map);
 	}
 
@@ -99,7 +119,49 @@ public abstract class AbstractLabManagerWizard<T extends AbstractContextData> ex
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		this.context.setEntityIdentifiers(extractParameters(parameter, event.getLocation().getQueryParameters()).toList());
+		final var queryParams = event.getLocation().getQueryParameters();
+
+		this.context.setEntityIdentifiers(extractParameters(parameter, queryParams).toList());
+
+		if (queryParams != null) {
+			final var list = queryParams.getParameters(TERMINATION_VIEW_KEY);
+			if (list != null && !list.isEmpty()) {
+				for (final var name : list) {
+					try {
+						final var type = Class.forName(name);
+						if (Component.class.isAssignableFrom(type)) {
+							this.terminationView = type.asSubclass(Component.class);
+						}
+					} catch (Throwable ex) {
+						//
+					}
+				}
+			}
+		}
+	}
+
+	/** Replies the type of the view to be displayed when the wizard is terminated.
+	 *
+	 * @return the view name, or {@code null}.
+	 */
+	public Class<? extends Component> getTerminationView() {
+		return this.terminationView;
+	}
+
+	@Override
+	protected void setFinishLayout() {
+		final var terminationView = getTerminationView();
+		if (terminationView != null) {
+			final var uiOpt = getUI();
+			if (uiOpt.isPresent()) {
+				var ui = uiOpt.get();
+				ui.accessSynchronously(() -> {
+					ui.navigate(terminationView);
+				});
+				return;
+			}
+		}
+		super.setFinishLayout();
 	}
 
 }

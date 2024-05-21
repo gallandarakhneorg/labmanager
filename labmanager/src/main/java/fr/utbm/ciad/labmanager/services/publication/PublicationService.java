@@ -92,7 +92,9 @@ import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
@@ -2202,6 +2204,45 @@ public class PublicationService extends AbstractPublicationService {
 			return authorship;
 		}
 		return null;
+	}
+
+	/** Generate the thumbnails for the given publications.
+	 *
+	 * @param publications the list of publications
+	 * @param locale the locale to be used for the progress messages.
+	 * @param progress the progression indicator to be used during the process.
+	 * @throws IOException if some thumbnail cannot be generated
+	 */
+	public void generateThumbnails(List<Publication> publications, Locale locale, Progression progress) throws IOException {
+		final var progress0 = progress == null ? new DefaultProgression() : progress;
+		final var existingThumbnails = this.fileManager.getThumbailFiles();
+		progress0.setProperties(0, 0, existingThumbnails.totalSize() + publications.size() * 2, false);
+		while (existingThumbnails.hasNext()) {
+			final var thumbnail = existingThumbnails.next();
+			progress0.setComment(getMessage(locale, MESSAGE_PREFIX + "deleteThumbnail", thumbnail.getName())); //$NON-NLS-1$
+			thumbnail.delete();
+			progress0.increment();
+		}
+		for (final var publication : publications) {
+			progress0.setComment(getMessage(locale, MESSAGE_PREFIX + "generateThumbnail", publication.getTitle())); //$NON-NLS-1$
+			final var paperFile = publication.getPathToDownloadablePDF();
+			if (!Strings.isNullOrEmpty(paperFile)) {
+				final var file = FileSystem.convertStringToFile(paperFile);
+				if (file != null) {
+					this.fileManager.regenerateThumbnail(file);
+				}
+			}
+			progress0.increment();
+			final var awardFile = publication.getPathToDownloadableAwardCertificate();
+			if (!Strings.isNullOrEmpty(awardFile)) {
+				final var file = FileSystem.convertStringToFile(awardFile);
+				if (file != null) {
+					this.fileManager.regenerateThumbnail(file);
+				}
+			}
+			progress0.increment();
+		}
+		progress0.end();
 	}
 
 	@Override

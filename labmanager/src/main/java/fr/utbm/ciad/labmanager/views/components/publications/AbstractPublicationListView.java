@@ -74,6 +74,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -166,6 +167,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	private MenuItem exportHalButton;
 
 	private MenuItem exportJsonButton;
+
+	private MenuItem regenerateThumbnailButton;
 
 	/** Constructor.
 	 *
@@ -288,7 +291,21 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		this.exportHalButton = ComponentFactory.addIconItem(exportSubMenu, halImageResource, null, null, null);
 		this.exportHalButton.setEnabled(false);
 
+		this.regenerateThumbnailButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openThumbnailRegenerationWizard());
+
 		return menu;
+	}
+
+	/** Open the wizard for regenerating the publication thumbnails.
+	 */
+	protected void openThumbnailRegenerationWizard() {
+		final var selection = getGrid().getSelectedItems();
+		if (selection != null && !selection.isEmpty()) {
+			final var identifiers = AbstractLabManagerWizard.buildQueryParameters(selection);
+			getUI().ifPresent(ui -> ui.navigate(ThumbnailGeneratorWizard.class, identifiers));
+		} else {
+			getUI().ifPresent(ui -> ui.navigate(ThumbnailGeneratorWizard.class));
+		}
 	}
 
 	/** Replies the default configurator for exporters.
@@ -707,6 +724,9 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		}
 		if (this.exportJsonButton != null) {
 			ComponentFactory.setIconItemText(this.exportJsonButton, getTranslation("views.publication.export.json")); //$NON-NLS-1$
+		}
+		if (this.regenerateThumbnailButton != null) {
+			ComponentFactory.setIconItemText(this.regenerateThumbnailButton, getTranslation("views.publications.thumbnailGenerator")); //$NON-NLS-1$
 		}
 		refreshGrid();
 	}
