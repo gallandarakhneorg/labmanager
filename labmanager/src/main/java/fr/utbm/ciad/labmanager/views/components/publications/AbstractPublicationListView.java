@@ -19,8 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.publications;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -28,11 +27,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -44,6 +45,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -81,6 +84,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -167,6 +171,16 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	private MenuItem exportHalButton;
 
 	private MenuItem exportJsonButton;
+
+	private MenuItem importButton;
+
+	private MenuItem importBibTexButton;
+
+	private MenuItem importRisButton;
+
+	private MenuItem importJsonButton;
+
+	private Dialog importDialog;
 
 	private MenuItem regenerateThumbnailButton;
 
@@ -290,6 +304,23 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		final var halImageResource = ComponentFactory.newStreamImage(ViewConstants.HAL_ICON);
 		this.exportHalButton = ComponentFactory.addIconItem(exportSubMenu, halImageResource, null, null, null);
 		this.exportHalButton.setEnabled(false);
+
+
+		this.importButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SAVE_SOLID, null, null, null);
+		this.importButton.setEnabled(true);
+		final var importSubMenu = this.importButton.getSubMenu();
+
+		this.importBibTexButton = ComponentFactory.addIconItem(importSubMenu, bibTexImageResource, null, null, null);
+		this.importBibTexButton.addClickListener(event -> openImportBibtexDialog());
+		this.importBibTexButton.setEnabled(true);
+
+		this.importRisButton = ComponentFactory.addIconItem(importSubMenu, risImageResource, null, null, null);
+		this.importRisButton.addClickListener(event -> openImportRisDialog());
+		this.importRisButton.setEnabled(true);
+
+		this.importJsonButton = ComponentFactory.addIconItem(importSubMenu, jsonImageResource, null, null, null);
+		this.importJsonButton.setEnabled(false);
+
 
 		this.regenerateThumbnailButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openThumbnailRegenerationWizard());
 
@@ -493,6 +524,104 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		return new StringInputStream(content, Charset.defaultCharset());
 	}
 
+	/**
+	 * Sets up and displays the import dialog for importing publications.
+	 * This method configures the dialog with a title and an import function that defines how the publications are imported.
+	 * It creates an upload component for users to upload files, which are then processed by the provided import function.
+	 * The dialog also includes "Cancel" and "Import" buttons for user interactions.
+	 *
+	 * @param dialogTitle       The title of the import dialog, displayed at the top of the dialog.
+	 * @param importFunction    A function that takes a {@link Reader} and returns a list of {@link Publication} objects.
+	 *                          This function defines how the uploaded files are read and processed into publications.
+	 */
+	protected void setupImportDialog(String dialogTitle, Function<Reader, List<Publication>> importFunction) {
+		Upload upload = getUploadDialog(importFunction);
+
+		this.importDialog = new Dialog();
+		this.importDialog.add(upload);
+		this.importDialog.setHeaderTitle(dialogTitle);
+		Button cancelButton = new Button(getTranslation("views.cancel"), e -> {
+			upload.clearFileList();
+			this.importDialog.close();
+		});
+		Button importButton = new Button(getTranslation("views.import"), e -> upload.getElement().callJsFunction("uploadFiles"));
+		this.importDialog.getFooter().add(cancelButton, importButton);
+		this.importDialog.setCloseOnOutsideClick(false);
+		this.importDialog.setCloseOnEsc(false);
+		this.importDialog.open();
+	}
+
+	/**
+	 * Creates and configures an upload component for the import dialog.
+	 * This method initializes the upload component with a {@link MultiFileMemoryBuffer} and configures it
+	 * to not allow auto-uploading of files. It also sets up a listener to process the uploaded files
+	 * using the provided import function once all files have been uploaded.
+	 *
+	 * @param importFunction    A function that takes a {@link Reader} and returns a list of {@link Publication} objects.
+	 *                          This function is used to read and process the uploaded files into publications.
+	 * @return                  The configured {@link Upload} component ready to be added to the import dialog.
+	 */
+	private @NotNull Upload getUploadDialog(Function<Reader, List<Publication>> importFunction) {
+		MultiFileMemoryBuffer buffer = new MultiFileMemoryBuffer();
+		Upload upload = new Upload(buffer);
+		upload.setDropAllowed(true);
+		upload.setAutoUpload(false);
+
+		upload.addAllFinishedListener(
+				event -> {
+					buffer
+							.getFiles()
+							.forEach(file ->
+							{
+								try (InputStream fileData = buffer.getInputStream(file);
+									 Reader reader = new BufferedReader(new InputStreamReader(fileData))) {
+
+									// Read the publications from the file
+									List<Publication> publications = importFunction.apply(reader);
+									for (int i = 0; i < publications.size(); i++) {
+										this.addEntity(publications.get(i), file, i+1, publications.size());
+									}
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							});
+					this.importDialog.close();
+				});
+		return upload;
+	}
+
+	/**
+	 * Opens the import dialog for BibTeX files.
+	 * This method sets up the import dialog specifically for importing BibTeX files by providing
+	 * a title and an import function tailored for BibTeX. The import function uses the publication service
+	 * to read publications from BibTeX format.
+	 */
+	protected void openImportBibtexDialog() {
+		setupImportDialog(getTranslation("views.import.bibtex"), reader -> {
+            try {
+                return publicationService.readPublicationsFromBibTeX(reader, true, false, true, true, true);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+	}
+
+	/**
+	 * Opens the import dialog for RIS files.
+	 * Similar to {@link #openImportBibtexDialog()}, but tailored for importing RIS files.
+	 * The import function provided to the setup method uses the publication service to read publications from RIS format.
+	 */
+	protected void openImportRisDialog() {
+		setupImportDialog(getTranslation("views.import.ris"), reader -> {
+            try {
+                return publicationService.readPublicationsFromRIS(reader, true, false, true, true, true, null);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+	}
+
+
 	@Override
 	protected void onSelectionChange(Set<?> selection) {
 		super.onSelectionChange(selection);
@@ -662,10 +791,18 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		openPublicationEditor(emptyPublication, getTranslation("views.publication.add_publication")); //$NON-NLS-1$
 	}
 
-	@Override
-	protected void edit(Publication publication) {
-		openPublicationEditor(publication, getTranslation("views.publication.edit_publication", publication.getTitle())); //$NON-NLS-1$
-	}
+    protected void addEntity(Publication entity) {
+        openPublicationEditor(entity, getTranslation("views.publication.add_publication")); //$NON-NLS-1$
+    }
+
+    protected void addEntity(Publication entity,String fileName, int index, int size) {
+        openPublicationEditor(entity, getTranslation("views.publication.import_publication", index, size, fileName)); //$NON-NLS-1$
+    }
+
+    @Override
+    protected void edit(Publication publication) {
+        openPublicationEditor(publication, getTranslation("views.publication.edit_publication", publication.getTitle())); //$NON-NLS-1$
+    }
 
 	/** Show the editor of a publication.
 	 *
@@ -675,12 +812,22 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	protected void openPublicationEditor(Publication publication, String title) {
 		final var editor = new EmbeddedPublicationEditor(
 				this.publicationService.startEditing(publication),
-				getSupportedPublicationTypeArray(), true,
-				this.fileManager, this.publicationService, this.personService, this.userService, 
-				this.journalService, this.conferenceService, this.axisService,
-				getAuthenticatedUser(), getMessageSourceAccessor(), this.personCreationLabelKey,
-				this.personFieldLabelKey, this.personFieldHelperLabelKey,
-				this.personNullErrorKey, this.personDuplicateErrorKey);
+				getSupportedPublicationTypeArray(),
+				true,
+				this.fileManager,
+				this.publicationService,
+				this.personService,
+				this.userService,
+				this.journalService,
+				this.conferenceService,
+				this.axisService,
+				getAuthenticatedUser(),
+				getMessageSourceAccessor(),
+				this.personCreationLabelKey,
+				this.personFieldLabelKey,
+				this.personFieldHelperLabelKey,
+				this.personNullErrorKey,
+				this.personDuplicateErrorKey);
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Publication> refreshAll = (dialog, entity) -> refreshGrid();
 		ComponentFactory.openEditionModalDialog(title, editor, false,
@@ -724,6 +871,18 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		}
 		if (this.exportJsonButton != null) {
 			ComponentFactory.setIconItemText(this.exportJsonButton, getTranslation("views.publication.export.json")); //$NON-NLS-1$
+		}
+		if (this.importButton != null) {
+			ComponentFactory.setIconItemText(this.importButton, getTranslation("views.import")); //$NON-NLS-1$
+		}
+		if (this.importBibTexButton != null) {
+			ComponentFactory.setIconItemText(this.importBibTexButton, getTranslation("views.publication.import.bibtex")); //$NON-NLS-1$
+		}
+		if (this.importRisButton != null) {
+			ComponentFactory.setIconItemText(this.importRisButton, getTranslation("views.publication.import.ris")); //$NON-NLS-1$
+		}
+		if (this.importJsonButton != null) {
+			ComponentFactory.setIconItemText(this.importJsonButton, getTranslation("views.publication.import.json")); //$NON-NLS-1$
 		}
 		if (this.regenerateThumbnailButton != null) {
 			ComponentFactory.setIconItemText(this.regenerateThumbnailButton, getTranslation("views.publications.thumbnailGenerator")); //$NON-NLS-1$

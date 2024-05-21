@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA Repository for the persons.
  * 
@@ -90,5 +93,13 @@ public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecif
 	 * @return the persons.
 	 */
 	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(long id);
+
+	@Query("SELECT p FROM Person p LEFT JOIN FETCH p.authorships m WHERE p.id = :id")
+	Optional<Person> findByIdJoinAuthorships(long id);
+
+	@NotNull
+	@Modifying
+	@Query("SELECT p FROM Person p")
+	List<Person> findAll();
 
 }

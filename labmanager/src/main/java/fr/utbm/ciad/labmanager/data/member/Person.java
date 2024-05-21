@@ -368,7 +368,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	/** List of publications of the person.
 	 */
-	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Authorship> authorships;
 
 	/** List of teaching activities for the person.

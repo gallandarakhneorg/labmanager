@@ -552,7 +552,7 @@ public class PublicationService extends AbstractPublicationService {
 					currentAuthors.add(authorship);
 					publication.getAuthorshipsRaw().add(authorship);
 					this.authorshipRepository.save(authorship);
-					this.personRepository.save(person);
+					//this.personRepository.save(person);
 					this.publicationRepository.save(publication);
 					return authorship;
 				}
@@ -2199,8 +2199,6 @@ public class PublicationService extends AbstractPublicationService {
 			person.getAuthorships().add(authorship);
 
 			this.authorshipRepository.save(authorship);
-			this.personRepository.save(person);
-			this.publicationRepository.save(publication);
 			return authorship;
 		}
 		return null;
@@ -2276,7 +2274,7 @@ public class PublicationService extends AbstractPublicationService {
 		inSession(session -> {
 			for (final var publication : publications) {
 				if (publication.getId() != 0l) {
-					session.load(publication, Long.valueOf(publication.getId()));
+					session.load(publication, publication.getId());
 					Hibernate.initialize(publication.getAuthorships());
 					for (final var authorship : publication.getAuthorships()) {
 						Hibernate.initialize(authorship.getPerson());
@@ -2384,19 +2382,9 @@ public class PublicationService extends AbstractPublicationService {
 			for (final var publication : getEntities()) {
 				// Unlink the authorships and author related entities
 				final var id = publication.getId();
-				final var iterator = publication.getAuthorships().iterator();
-				while (iterator.hasNext()) {
-					final var autship = iterator.next();
-					final var person = autship.getPerson();
-					if (person != null) {
-						person.getAuthorships().remove(autship);
-						autship.setPerson(null);
-						PublicationService.this.personRepository.save(person);
-					}
-					autship.setPublication(null);
-					iterator.remove();
-					PublicationService.this.authorshipRepository.save(autship);
-				}
+                for (Authorship authorship : publication.getAuthorships()) {
+                    PublicationService.this.authorshipRepository.deleteById(authorship.getId());
+                }
 				publication.getAuthorshipsRaw().clear();
 				publication.setScientificAxes(null);
 
