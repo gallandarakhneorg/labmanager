@@ -10,9 +10,16 @@ import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 5.0
+ * @since 4.1
  */
 public abstract class AbstractCasAuthenticationEntryPoint extends CasAuthenticationEntryPoint {
+
+    /**
+     * Create a new instance of the {@link AbstractCasAuthenticationEntryPoint} with the given login URL and service properties.
+     *
+     * @param loginUrl          the login URL
+     * @param serviceProperties the service properties
+     */
     public AbstractCasAuthenticationEntryPoint(String loginUrl, ServiceProperties serviceProperties) {
         super();
         setLoginUrl(loginUrl);

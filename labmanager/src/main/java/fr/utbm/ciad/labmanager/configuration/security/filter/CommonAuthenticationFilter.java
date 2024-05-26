@@ -7,6 +7,18 @@ import org.springframework.security.cas.web.CasAuthenticationFilter;
 
 import java.io.IOException;
 
+/**
+ * This class is used to redirect the user to the correct CAS server based on the organization parameter or to the login page.
+ *
+ * @author $Author: jferlin$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @see UtbmCasAuthenticationFilter
+ * @see UbCasAuthenticationFilter
+ * @see AbstractCasAuthenticationFilter
+ * @since 4.1
+ */
 public class CommonAuthenticationFilter extends CasAuthenticationFilter implements Filter {
 
     private final UtbmCasAuthenticationFilter utbmCasAuthenticationFilter;

@@ -163,6 +163,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
     /**
      * First step of the CAS authentication process.
+     * Create the common authentication entry point that will redirect to the correct CAS server.
      *
      * @return the authentication entry point.
      */

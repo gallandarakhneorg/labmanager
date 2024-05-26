@@ -9,9 +9,16 @@ import org.springframework.security.cas.ServiceProperties;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 5.0
+ * @since 4.1
  */
 public class UtbmCasAuthenticationEntryPoint extends AbstractCasAuthenticationEntryPoint {
+
+    /**
+     * Create a new instance of the {@link UtbmCasAuthenticationEntryPoint} with the given login URL and service properties.
+     *
+     * @param loginUrl          the login URL
+     * @param serviceProperties the service properties
+     */
     public UtbmCasAuthenticationEntryPoint(String loginUrl, ServiceProperties serviceProperties) {
         super(loginUrl, serviceProperties);
     }
