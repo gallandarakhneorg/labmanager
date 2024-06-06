@@ -48,14 +48,7 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
-import fr.utbm.ciad.labmanager.data.publication.Authorship;
-import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
-import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
-import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
-import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+import fr.utbm.ciad.labmanager.data.publication.*;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
 import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
 import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
@@ -105,6 +98,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -561,20 +555,62 @@ public class PublicationService extends AbstractPublicationService {
 		return this.authorshipRepository.findByPublicationId(publicationId);
 	}
 
-	/** Link a person and a publication.
-	 * The person is added at the given position in the list of the authors.
-	 * If this list contains authors with a rank greater than or equals to the given rank,
-	 * the ranks of these authors is incremented.
+	/** Replies the years.
 	 *
-	 * @param personId the identifier of the person.
-	 * @param publicationId the identifier of the publication.
-	 * @param rank the position of the person in the list of authors. To be sure to add the authorship at the end,
-	 *     pass {@link Integer#MAX_VALUE}.
-	 * @param updateOtherAuthorshipRanks indicates if the authorships ranks are re-arranged in order to be consistent.
-	 *     If it is {@code false}, the given rank as argument is put into the authorship without change.
-	 * @return the added authorship
-	 */
-	public Authorship addAuthorship(long personId, long publicationId, int rank, boolean updateOtherAuthorshipRanks) {
+	 * @return the years.
+	 * */
+	public List<Integer> getAllYears(){
+		return this.publicationRepository.findDistinctPublicationYears();
+	}
+
+	/** Replies the publication types.
+	 *
+	 * @return the years.
+	 * */
+	public List<PublicationType> getAllType(){
+		return this.publicationRepository.findAllDistinctPublicationTypes();
+	}
+
+	/** Replies the publication types.
+	 *
+	 * @return the count of the type.
+	 * */
+	public Integer getCountPublicationByTypeByYear(PublicationType type, Integer year){
+		return this.publicationRepository.countPublicationsForTypeAndYear(type,year);
+	}
+
+	/** Replies the publication categories.
+	 *
+	 * @return the list of publication categories.
+	 * */
+	public List<String> getAllCategories(){
+		List<PublicationType> publicationTypes = getAllType();
+		List<String> publicationCategories = new ArrayList<>();
+		for(PublicationType publicationType : publicationTypes){
+			if(!publicationCategories.contains(publicationType.getCategory(true).toString())){
+				publicationCategories.add(publicationType.getCategory(true).toString());
+			}
+		}
+		return publicationCategories;
+	}
+
+    /**
+     * Link a person and a publication.
+     * The person is added at the given position in the list of the authors.
+     * If this list contains authors with a rank greater than or equals to the given rank,
+     * the ranks of these authors is incremented.
+     *
+     * @param personId                   the identifier of the person.
+     * @param publicationId              the identifier of the publication.
+     * @param rank                       the position of the person in the list of authors. To be sure to add the authorship at the end,
+     *                                   pass {@link Integer#MAX_VALUE}.
+     * @param updateOtherAuthorshipRanks indicates if the authorships ranks are re-arranged in order to be consistent.
+     *                                   If it is {@code false}, the given rank as argument is put into the authorship without change.
+     * @return the added authorship
+     */
+
+
+    public Authorship addAuthorship(long personId, long publicationId, int rank, boolean updateOtherAuthorshipRanks) {
 		final var optPerson = this.personRepository.findById(Long.valueOf(personId));
 		if (optPerson.isPresent()) {
 			final var optPub = this.publicationRepository.findById(Long.valueOf(publicationId));
