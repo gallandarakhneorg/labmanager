@@ -21,7 +21,8 @@ package fr.utbm.ciad.labmanager.data.publication;
 
 import java.util.*;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -86,6 +87,14 @@ public interface PublicationRepository extends JpaRepository<Publication, Long>,
 	 */
 	@Query("SELECT DISTINCT p.type FROM Publication p")
 	List<PublicationType> findAllDistinctPublicationTypes();
+
+	/** Replies the list of publications for the given year.
+	 *
+	 * @param year the year of publication.
+	 * @return the set of publications for the given year.
+	 * @since 3.6
+	 */
+	List<Publication> findAllByPublicationYear(Integer year);
 
 	/** Replies the count of publications for the given type and year.
 	 *
