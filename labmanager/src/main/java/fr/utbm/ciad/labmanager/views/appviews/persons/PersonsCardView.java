@@ -186,7 +186,7 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
         final var editor = new EmbeddedPersonEditor(
-                userContext, authenticatedUser, messages);
+                userContext, this.personService, authenticatedUser, messages);
         final var newEntity = editor.isNewEntity();
         final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshPage();
         ComponentFactory.openEditionModalDialog(title, editor, true,

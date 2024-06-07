@@ -41,7 +41,7 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
         final var editor = new EmbeddedPersonEditor(
-                userContext, authenticatedUser, messages);
+                userContext, this.personService, authenticatedUser, messages);
         final var newEntity = editor.isNewEntity();
         final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshPage();
         final SerializableBiConsumer<Dialog, Person> refreshOne = (dialog, entity) -> refreshCard(entity);
