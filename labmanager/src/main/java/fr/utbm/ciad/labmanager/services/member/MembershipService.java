@@ -665,10 +665,16 @@ public class MembershipService extends AbstractEntityService<Membership> {
 				Hibernate.initialize(membership.getPerson());
 
 				Hibernate.initialize(membership.getDirectResearchOrganization());
-				Hibernate.initialize(membership.getDirectResearchOrganization().getAddresses());
+
+				if (membership.getDirectResearchOrganization() != null) {
+					Hibernate.initialize(membership.getDirectResearchOrganization().getAddresses());
+				}
 
 				Hibernate.initialize(membership.getSuperResearchOrganization());
-				Hibernate.initialize(membership.getSuperResearchOrganization().getAddresses());
+
+				if(membership.getSuperResearchOrganization() != null){
+					Hibernate.initialize(membership.getSuperResearchOrganization().getAddresses());
+				}
 
 				Hibernate.initialize(membership.getOrganizationAddress());
 
