@@ -68,6 +68,7 @@ import fr.utbm.ciad.labmanager.views.appviews.memberships.MembershipsListView;
 import fr.utbm.ciad.labmanager.views.appviews.organizations.AddressesListView;
 import fr.utbm.ciad.labmanager.views.appviews.organizations.OrganizationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.MyProfileView;
+import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsCardView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsListView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.PatentsListView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.ProjectsListView;
