@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -624,7 +625,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		// Logout
 		//
 		this.logoutLink = mainMenu.addItem("", e -> { //$NON-NLS-1$
-			this.authenticatedUser.logout();
+			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8443/LabManager/logout'");
 		});
 	}
 
@@ -835,7 +836,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			this.loginLink.setText(getTranslation("views.sign_in")); //$NON-NLS-1$
 		}
 		if (this.logoutLink != null) {
-			this.logoutLink.setText(getTranslation("views.sign_out")); //$NON-NLS-1$ // TODO: A régler
+			this.logoutLink.setText(getTranslation("views.sign_out")); //$NON-NLS-1$
 		}
 		if (this.languagesLink != null) {
 			this.languagesLink.setText(getTranslation("views.languages")); //$NON-NLS-1$
