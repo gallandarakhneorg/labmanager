@@ -44,7 +44,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public final class EmbeddedPublicationEditorWizard extends PublicationEditor {
+public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEditorWizard {
 
 	private static final long serialVersionUID = 7233675942546351403L;
 

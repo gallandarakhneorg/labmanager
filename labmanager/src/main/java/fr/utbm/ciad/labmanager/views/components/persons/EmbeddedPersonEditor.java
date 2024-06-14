@@ -49,9 +49,9 @@ public final class EmbeddedPersonEditor extends AbstractPersonEditor {
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      */
-    public EmbeddedPersonEditor(UserEditingContext userContext, AuthenticatedUser authenticatedUser,
+    public EmbeddedPersonEditor(UserEditingContext userContext, PersonService personService, AuthenticatedUser authenticatedUser,
                                 MessageSourceAccessor messages) {
-        super(userContext, false, authenticatedUser, messages, LOGGER);
+        super(userContext, personService, false, authenticatedUser, messages, LOGGER);
         createEditorContentAndLinkBeans();
     }
 

@@ -928,7 +928,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
         openPublicationEditor(entity, getTranslation("views.publication.import_publication", index, size, fileName)); //$NON-NLS-1$
     }
 
-    protected void addEntity(Publication entity, String fileName, boolean saveInDatabase, SerializableBiConsumer<Dialog, Publication> refreshAll) {
+	protected void addEntity(Publication entity, String fileName, boolean saveInDatabase, SerializableBiConsumer<Dialog, Publication> refreshAll) {
         openPublicationEditor(entity, getTranslation("views.publication.import_publication", fileName), saveInDatabase, refreshAll); //$NON-NLS-1$
     }
 
@@ -940,6 +940,10 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
     protected void edit(Publication publication) {
         openPublicationEditor(publication, getTranslation("views.publication.edit_publication", publication.getTitle()), true); //$NON-NLS-1$
     }
+
+	private void openPublicationEditor(Publication entity, String translation) {
+		openPublicationEditor(entity, translation, true);
+	}
 
 	/**
 	 * Show the editor of a publication.
@@ -1014,8 +1018,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 				newEntity ? null : refreshAll);
 	}
 
-	protected void openPublicationEditor(Publication publication, String title) {
-		var editor =  new EmbeddedPublicationEditor(
+	private AbstractEntityEditor<Publication> createPublicationEditor(Publication publication) {
+		return new EmbeddedPublicationEditor(
 				this.publicationService.startEditing(publication),
 				getSupportedPublicationTypeArray(),
 				true,

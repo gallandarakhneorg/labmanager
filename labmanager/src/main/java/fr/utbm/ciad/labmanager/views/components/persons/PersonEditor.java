@@ -28,6 +28,7 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
@@ -127,6 +128,8 @@ public class PersonEditor extends AbstractEntityEditor<Person> {
 
     public PersonEditorComponentWizard personAdditionWizard;
 
+    private PersonService personService;
+
     /**
      * Constructor.
      *
@@ -143,7 +146,27 @@ public class PersonEditor extends AbstractEntityEditor<Person> {
                 "views.persons.administration.validated_person", //$NON-NLS-1$
                 userContext.getPersonContext(), relinkEntityWhenSaving);
         this.userContext = userContext;
+        this.personService = personService;
 
+    }
+
+    @Override
+    public SimilarityError isAlreadyInDatabase() {
+        var user = this.userContext.getUser();
+        if (user != null) {
+            var person = user.getPerson();
+            if (person != null) {
+                long id = this.personService.getPersonIdBySimilarName(person.getLastName(), person.getFirstName());
+                if (id == 0) {
+                    return SimilarityError.NO_ERROR;
+                } else if (id == person.getId()) {
+                    return SimilarityError.NO_ERROR;
+                } else {
+                    return SimilarityError.SAME_NAME;
+                }
+            }
+        }
+        return SimilarityError.NO_ERROR;
     }
 
     /** Create the content of the editor.
