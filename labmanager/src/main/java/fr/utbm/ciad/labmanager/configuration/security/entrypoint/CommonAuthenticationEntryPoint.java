@@ -63,7 +63,10 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint,
      * @throws ServletException The servlet exception
      */
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException) throws IOException, ServletException {
         var param = request.getParameter("organization");
         if (param == null) {
             response.sendRedirect("/LabManager/login");
@@ -80,6 +83,5 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint,
                     break;
             }
         }
-
     }
 }

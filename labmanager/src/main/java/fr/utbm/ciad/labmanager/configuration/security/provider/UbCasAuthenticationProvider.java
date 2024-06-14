@@ -23,7 +23,11 @@ public class UbCasAuthenticationProvider extends AbstractCasAuthenticationProvid
      * @param ticket             The ticket validator
      * @param key                The key
      */
-    public UbCasAuthenticationProvider(UserDetailsService userDetailsService, ServiceProperties serviceProperties, TicketValidator ticket, String key) {
+    public UbCasAuthenticationProvider(
+            UserDetailsService userDetailsService,
+            ServiceProperties serviceProperties,
+            TicketValidator ticket,
+            String key) {
         super(userDetailsService, serviceProperties, ticket, key);
     }
 }

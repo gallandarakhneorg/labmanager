@@ -25,7 +25,11 @@ public abstract class AbstractCasAuthenticationProvider extends CasAuthenticatio
      * @param ticket             The ticket validator
      * @param key                The key
      */
-    public AbstractCasAuthenticationProvider(UserDetailsService userDetailsService, ServiceProperties serviceProperties, TicketValidator ticket, String key) {
+    public AbstractCasAuthenticationProvider(
+            UserDetailsService userDetailsService,
+            ServiceProperties serviceProperties,
+            TicketValidator ticket,
+            String key) {
         super();
         setUserDetailsService(userDetailsService);
         setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<>(userDetailsService));

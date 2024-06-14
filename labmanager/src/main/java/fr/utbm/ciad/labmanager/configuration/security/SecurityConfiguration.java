@@ -152,32 +152,8 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     }
 
     /**
-     * Create a ticket validator.
-     *
-     * @param url the URL of the CAS server.
-     * @return the ticket validator.
-     */
-    private TicketValidator ticketValidator(String url) {
-        return new Cas30ServiceTicketValidator(url);
-    }
-
-    /**
-     * First step of the CAS authentication process.
-     * Create the common authentication entry point that will redirect to the correct CAS server.
-     *
-     * @return the authentication entry point.
-     */
-    @Bean
-    public CommonAuthenticationEntryPoint commonAuthenticationEntryPoint() {
-        UtbmCasAuthenticationEntryPoint utbmEntryPoint = new UtbmCasAuthenticationEntryPoint(this.casServerUtbmLoginUrl, serviceProperties(this.casServerUtbmServiceUrl));
-        UbCasAuthenticationEntryPoint ubEntryPoint = new UbCasAuthenticationEntryPoint(this.casServerUbLoginUrl, serviceProperties(this.casServerUbServiceUrl));
-        return new CommonAuthenticationEntryPoint(
-                utbmEntryPoint,
-                ubEntryPoint);
-    }
-
-    /**
      * Create the common filter.
+     * This filter is used to redirect the user to the correct CAS server based on the organization parameter or to the login page.
      *
      * @return the common filter.
      */
@@ -207,6 +183,38 @@ public class SecurityConfiguration extends VaadinWebSecurity {
                 );
     }
 
+    /**
+     * First step of the CAS authentication process.
+     * Create the common authentication entry point that will redirect to the correct CAS server.
+     *
+     * @return the authentication entry point.
+     */
+    @Bean
+    public CommonAuthenticationEntryPoint commonAuthenticationEntryPoint() {
+        UtbmCasAuthenticationEntryPoint utbmEntryPoint = new UtbmCasAuthenticationEntryPoint(this.casServerUtbmLoginUrl, serviceProperties(this.casServerUtbmServiceUrl));
+        UbCasAuthenticationEntryPoint ubEntryPoint = new UbCasAuthenticationEntryPoint(this.casServerUbLoginUrl, serviceProperties(this.casServerUbServiceUrl));
+        return new CommonAuthenticationEntryPoint(
+                utbmEntryPoint,
+                ubEntryPoint);
+    }
+
+    /**
+     * Create a ticket validator.
+     *
+     * @param url the URL of the CAS server.
+     * @return the ticket validator.
+     */
+    private TicketValidator ticketValidator(String url) {
+        return new Cas30ServiceTicketValidator(url);
+    }
+
+    /**
+     * Create the service properties.
+     * This is used to configure the CAS service.
+     *
+     * @param url the URL of the service.
+     * @return the service properties.
+     */
     public ServiceProperties serviceProperties(String url) {
         ServiceProperties serviceProperties = new ServiceProperties();
         serviceProperties.setService(url);
