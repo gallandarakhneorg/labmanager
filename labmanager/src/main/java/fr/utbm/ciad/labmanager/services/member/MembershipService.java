@@ -18,6 +18,7 @@
  */
 
 package fr.utbm.ciad.labmanager.services.member;
+import com.vaadin.flow.internal.LocaleUtil;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.*;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
@@ -871,6 +872,13 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		}
 
 	}
+
+	/** Replies the active memberships for the given person.
+	 *
+	 * @param person the person.
+	 * @param membershipComparator the comparator to use for sorting the memberships.
+	 * @return the list of the active memberships.
+	 */
 	public List<String> getActiveMembershipsForPerson(Person person, Comparator<Membership> membershipComparator) {
 		List<String> labels = new ArrayList<>();
         Iterator<Membership> memberships = new MembershipIterator(person, this, membershipComparator);
@@ -881,5 +889,21 @@ public class MembershipService extends AbstractEntityService<Membership> {
         }
         return labels;
 	}
+
+	/** Replies the role of the person in the organization.
+	 *
+	 * @param person the person.
+	 * @param membershipComparator the comparator to use for sorting the memberships.
+	 * @return the role of the person in the organization.
+	 */
+	public String getRoleForPerson(Person person, Comparator<Membership> membershipComparator) {
+		Iterator<Membership> memberships = new MembershipIterator(person, this, membershipComparator);
+		while (memberships.hasNext()){
+			Membership membership = memberships.next();
+			if (membership.isActive())
+				return membership.getMemberStatus().getLabel(getMessageSourceAccessor(), person.getGender(), false, LocaleUtil.getLocale(LocaleUtil::getI18NProvider));
+		}
+		return null;
+    }
 
 }

@@ -24,6 +24,7 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
 
     public PersonCardView(Person person, PersonService personService, UserService userService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, MembershipService membershipService, ChronoMembershipComparator membershipComparator){
         super(new CardBuilder().setImageUrl(person.getPhotoURL() != null  ? person.getPhotoURL().toString() : null)
+                .setRole(membershipService.getRoleForPerson(person, membershipComparator))
                 .setName(person.getFullName()).setEmail(person.getEmail())
                 .setOfficePhone(person.getOfficePhone()).setMobilePhone(person.getMobilePhone())
                 .setOfficeRoom(person.getOfficeRoom())
@@ -51,21 +52,6 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
                 newEntity ? null : refreshAll);
     }
 
-    public void updateCardData(Person person) {
-        // Fetch the updated data for the person
-        Person updatedPerson = personService.getPersonById(person.getId());
-
-        // Use the CardBuilder to rebuild the card with the updated data
-        CardBuilder cardBuilder = new CardBuilder()
-                .setImageUrl(updatedPerson.getPhotoURL() != null  ? updatedPerson.getPhotoURL().toString() : null)
-                .setName(updatedPerson.getFullName())
-                .setEmail(updatedPerson.getEmail())
-                .setOfficePhone(updatedPerson.getOfficePhone())
-                .setMobilePhone(updatedPerson.getMobilePhone())
-                .setOfficeRoom(updatedPerson.getOfficeRoom())
-                .setLabels(membershipService.getActiveMembershipsForPerson(updatedPerson, membershipComparator));
-    }
-
     @Override
     protected void onClickEvent(Person entity) {
         if (isAdminRole()){
@@ -74,7 +60,16 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
     }
 
     protected void refreshCard(Person entity) {
-        updateCardData(entity);
+        Person updatedPerson = personService.getPersonById(entity.getId());
+        CardBuilder cardBuilder = new CardBuilder()
+                .setImageUrl(updatedPerson.getPhotoURL() != null  ? updatedPerson.getPhotoURL().toString() : null)
+                .setName(updatedPerson.getFullName())
+                .setEmail(updatedPerson.getEmail())
+                .setOfficePhone(updatedPerson.getOfficePhone())
+                .setMobilePhone(updatedPerson.getMobilePhone())
+                .setOfficeRoom(updatedPerson.getOfficeRoom())
+                .setLabels(membershipService.getActiveMembershipsForPerson(updatedPerson, membershipComparator));
+        updateCard(cardBuilder);
     }
 
     protected void refreshPage() {
