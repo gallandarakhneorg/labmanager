@@ -19,14 +19,10 @@
 
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
-import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -42,7 +38,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public final class EmbeddedConferenceEditorWizard extends ConferenceEditor {
+public final class EmbeddedConferenceEditorWizard extends AbstractConferenceEditorWizard {
 
     private static final long serialVersionUID = -2522520461244264353L;
 
@@ -55,8 +51,8 @@ public final class EmbeddedConferenceEditorWizard extends ConferenceEditor {
      * @param messages the accessor to the localized messages (Spring layer).
      */
     public EmbeddedConferenceEditorWizard(EntityEditingContext<Conference> context,
-                                    AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-        super(context, false, authenticatedUser, messages, LOGGER);
+                                          AuthenticatedUser authenticatedUser, ConferenceService conferenceService, MessageSourceAccessor messages) {
+        super(context, false, conferenceService , authenticatedUser, messages, LOGGER);
         createEditorContentAndLinkBeans();
     }
 

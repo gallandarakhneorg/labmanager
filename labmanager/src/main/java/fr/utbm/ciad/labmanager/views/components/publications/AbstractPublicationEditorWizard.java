@@ -62,79 +62,9 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public abstract class AbstractPublicationEditorWizard extends AbstractEntityEditor<Publication> {
+public abstract class AbstractPublicationEditorWizard extends AbstractPublicationEditor {
 
     private static final long serialVersionUID = 6119323451118628960L;
-
-    private final boolean enableTypeSelector;
-
-    private final String personCreationLabelKey;
-
-    private final String personFieldLabelKey;
-
-    private final String personFieldHelperLabelKey;
-
-    private final String personNullErrorKey;
-
-    private final String personDuplicateErrorKey;
-
-    private final DownloadableFileManager fileManager;
-
-    private final PersonService personService;
-
-    private final JournalService journalService;
-
-    private final ConferenceService conferenceService;
-
-    private final PublicationService publicationService;
-
-    private final UserService userService;
-
-    private final ScientificAxisService axisService;
-
-    private final PublicationFieldBuilder fieldBuilder;
-
-    private PublicationType[] supportedTypes;
-
-    private FormLayout generalLayout;
-
-    private ComboBox<PublicationType> type;
-
-    private TextField title;
-
-    private MultiPersonNameField authors;
-
-    private DatePicker publicationDate;
-
-    private FormLayout identificationLayout;
-
-    private TextField doi;
-
-    private TextField halId;
-
-    private TextField dblpUrl;
-
-    private TextField isbn;
-
-    private TextField issn;
-
-    private MarkdownField abstractText;
-
-    private TextField keywords;
-
-    private ComboBox<PublicationLanguage> language;
-
-    private ServerSideUploadablePdfField uploadPdf;
-
-    private TextField videoUrl;
-
-    private ServerSideUploadablePdfField uploadAward;
-
-    private TextField extraUrl;
-
-    private ComboListField<ScientificAxis> scientificAxes;
-
-    private ToggleButton manualValidationForced;
 
     private PublicationEditorComponentWizard publicationEditorComponentWizard;
 
@@ -168,44 +98,12 @@ public abstract class AbstractPublicationEditorWizard extends AbstractEntityEdit
                                            AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
                                            String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
                                            String personNullErrorKey, String personDuplicateErrorKey) {
-        super(Publication.class, authenticatedUser, messages, logger,
-                "views.publication.administration_details", //$NON-NLS-1$
-                "views.publication.administration.validated_publication", //$NON-NLS-1$
-                context, relinkEntityWhenSaving);
+
+        super(context,supportedTypes,relinkEntityWhenSaving, enableTypeSelector, fileManager, publicationService, personService, userService, journalService, conferenceService, axisService, authenticatedUser, messages, logger, personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
         this.supportedTypes = supportedTypes;
         // Sort types by their natural order, that corresponds to the weight of the type
         Arrays.sort(this.supportedTypes, (a, b) -> Integer.compare(a.ordinal(), b.ordinal()));
-        this.enableTypeSelector = enableTypeSelector;
-        this.publicationService = publicationService;
-        this.personCreationLabelKey = personCreationLabelKey;
-        this.personFieldLabelKey = personFieldLabelKey;
-        this.personFieldHelperLabelKey = personFieldHelperLabelKey;
-        this.personNullErrorKey = personNullErrorKey;
-        this.personDuplicateErrorKey = personDuplicateErrorKey;
-        this.fileManager = fileManager;
-        this.personService = personService;
-        this.userService = userService;
-        this.journalService = journalService;
-        this.conferenceService = conferenceService;
-        this.axisService = axisService;
 
-        // Special case when the publication is a PrePublication (or fake publication)
-        final var currentEntity = getEditingContext().getEntity();
-        if (currentEntity.isFakeEntity()) {
-            assert this.supportedTypes.length > 0;
-            final var type = this.supportedTypes[0];
-            final var newPublication = this.publicationService.transform(currentEntity, type);
-            getEditingContext().setEntity(newPublication);
-        }
-
-
-
-        // Must be the latest initialization for ensuring that all the class's fields are initialized before creating the dynamic field builder
-        this.fieldBuilder = createDynamicFieldBuilder();
-    }
-
-    protected PublicationFieldBuilder createDynamicFieldBuilder() {
-        return new PublicationFieldBuilder();
     }
 
     /** Create the content of the editor.
@@ -214,6 +112,7 @@ public abstract class AbstractPublicationEditorWizard extends AbstractEntityEdit
      * @param rootContainer the container.
      * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
      */
+    @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
         if (isBaseAdmin()) {
             publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(),createGeneralDetails(),createIdentificationDetails(),createContentDetails(),createResourceDetails(),createReferenceDetails(), createAdministrationComponents(

@@ -63,31 +63,31 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 
 	private static final long serialVersionUID = 6750040717745583722L;
 
-	private DetailsWithErrorMark descriptionDetails;
+	protected DetailsWithErrorMark descriptionDetails;
 
-	private TextField acronym;
+	protected TextField acronym;
 
-	private TextField name;
-	
-	private RadioButtonGroup<Boolean> openAccess;
+	protected TextField name;
 
-	private TextField conferenceUrl;
+	protected RadioButtonGroup<Boolean> openAccess;
 
-	private Details rankingDetails;
+	protected TextField conferenceUrl;
 
-	private TextField coreId;
+	protected Details rankingDetails;
 
-	private ConferenceAnnualRankingField rankings;
+	protected TextField coreId;
 
-	private DetailsWithErrorMark publicationDetails;
+	protected ConferenceAnnualRankingField rankings;
 
-	private TextField publisherName;
+	protected DetailsWithErrorMark publicationDetails;
 
-	private TextField issn;
+	protected TextField publisherName;
 
-	private TextField isbn;
+	protected TextField issn;
 
-	private ConferenceService conferenceService;
+	protected TextField isbn;
+
+	protected ConferenceService conferenceService;
 
 	/** Constructor.
 	 *
@@ -304,7 +304,9 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 
-		this.descriptionDetails.setSummaryText(getTranslation("views.conferences.description_informations")); //$NON-NLS-1$
+		if(this.descriptionDetails != null){
+			this.descriptionDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.acronym.setLabel(getTranslation("views.conferences.acronym")); //$NON-NLS-1$
 		this.acronym.setHelperText(getTranslation("views.conferences.acronym.help")); //$NON-NLS-1$
 		this.name.setLabel(getTranslation("views.conferences.name")); //$NON-NLS-1$
@@ -314,13 +316,17 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		setOpenAccessRenderer();
 		this.conferenceUrl.setLabel(getTranslation("views.conferences.url")); //$NON-NLS-1$
 
-		this.rankingDetails.setSummaryText(getTranslation("views.conferences.ranking_informations")); //$NON-NLS-1$
+		if(this.rankingDetails != null){
+			this.rankingDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.coreId.setLabel(getTranslation("views.conferences.core.id")); //$NON-NLS-1$
 		this.coreId.setHelperText(getTranslation("views.conferences.core.id.help")); //$NON-NLS-1$
 		this.rankings.setLabel(getTranslation("views.conferences.rankings")); //$NON-NLS-1$
 		this.rankings.setHelperText(getTranslation("views.conferences.rankings.help")); //$NON-NLS-1$
 
-		this.publicationDetails.setSummaryText(getTranslation("views.conferences.publisher_informations")); //$NON-NLS-1$
+		if(this.publicationDetails != null){
+			this.publicationDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.publisherName.setLabel(getTranslation("views.conferences.publisher_name")); //$NON-NLS-1$
 		this.publisherName.setHelperText(getTranslation("views.conferences.publisher_name.help")); //$NON-NLS-1$
 		this.issn.setLabel(getTranslation("views.journals.issn")); //$NON-NLS-1$

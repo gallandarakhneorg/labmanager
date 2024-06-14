@@ -1,6 +1,5 @@
 package fr.utbm.ciad.labmanager.views.components.journals;
 
-import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -13,10 +12,9 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
-import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.JournalAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
@@ -40,31 +38,9 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public class JournalEditor extends AbstractEntityEditor<Journal> {
+public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor {
 
-    private TextField name;
-
-    private RadioButtonGroup<Boolean> openAccess;
-
-    private TextField journalUrl;
-
-    private TextField publisherName;
-
-    private TextField publisherAddress;
-
-    private TextField issn;
-
-    private TextField isbn;
-
-    private TextField wosId;
-
-    private TextField wosCategory;
-
-    private TextField scimagoId;
-
-    private TextField scimagoCategory;
-
-    private JournalAnnualRankingField rankings;
+    private static final long serialVersionUID = 3928100811567654630L;
 
     private JournalEditorComponentWizard journalEditorComponentWizard;
 
@@ -78,12 +54,10 @@ public class JournalEditor extends AbstractEntityEditor<Journal> {
      * @param messages the accessor to the localized messages (Spring layer).
      * @param logger the logger to be used by this view.
      */
-    public JournalEditor(AbstractEntityService.EntityEditingContext<Journal> context, boolean relinkEntityWhenSaving,
-                                 AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
-        super(Journal.class, authenticatedUser, messages, logger,
-                "views.journals.administration_details", //$NON-NLS-1$
-                "views.journals.administration.validated_organization", //$NON-NLS-1$
-                context, relinkEntityWhenSaving);
+    public AbstractJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context, boolean relinkEntityWhenSaving,
+                                       AuthenticatedUser authenticatedUser, JournalService journalService, MessageSourceAccessor messages, Logger logger) {
+
+        super(context, relinkEntityWhenSaving, journalService ,authenticatedUser, messages, logger);
 
     }
 
@@ -302,28 +276,5 @@ public class JournalEditor extends AbstractEntityEditor<Journal> {
     @Override
     public void localeChange(LocaleChangeEvent event) {
         super.localeChange(event);
-
-        this.name.setLabel(getTranslation("views.journals.name")); //$NON-NLS-1$
-        this.openAccess.setLabel(getTranslation("views.journals.open_access")); //$NON-NLS-1$
-        // Force the refreshing of the radio button items
-        setOpenAccessRenderer();
-        this.journalUrl.setLabel(getTranslation("views.journals.url")); //$NON-NLS-1$
-
-        this.wosId.setLabel(getTranslation("views.journals.wos.id")); //$NON-NLS-1$
-        this.wosId.setHelperText(getTranslation("views.journals.wos.id.help")); //$NON-NLS-1$
-        this.wosCategory.setLabel(getTranslation("views.journals.wos.category")); //$NON-NLS-1$
-        this.wosCategory.setHelperText(getTranslation("views.journals.wos.category.help")); //$NON-NLS-1$
-        this.scimagoId.setLabel(getTranslation("views.journals.scimago.id")); //$NON-NLS-1$
-        this.scimagoId.setHelperText(getTranslation("views.journals.scimago.id.help")); //$NON-NLS-1$
-        this.scimagoCategory.setLabel(getTranslation("views.journals.scimago.category")); //$NON-NLS-1$
-        this.scimagoCategory.setHelperText(getTranslation("views.journals.scimago.category.help")); //$NON-NLS-1$
-        this.rankings.setLabel(getTranslation("views.journals.rankings")); //$NON-NLS-1$
-        this.rankings.setHelperText(getTranslation("views.journals.rankings.help")); //$NON-NLS-1$
-
-        this.publisherName.setLabel(getTranslation("views.journals.publisher_name")); //$NON-NLS-1$
-        this.publisherName.setHelperText(getTranslation("views.journals.publisher_name.help")); //$NON-NLS-1$
-        this.publisherAddress.setLabel(getTranslation("views.journals.publisher_address")); //$NON-NLS-1$
-        this.issn.setLabel(getTranslation("views.journals.issn")); //$NON-NLS-1$
-        this.isbn.setLabel(getTranslation("views.journals.isbn")); //$NON-NLS-1$
     }
 }

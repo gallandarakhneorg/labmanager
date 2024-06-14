@@ -67,37 +67,37 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 
 	private static final long serialVersionUID = -6217566556396821734L;
 
-	private DetailsWithErrorMark descriptionDetails;
+	protected DetailsWithErrorMark descriptionDetails;
 
-	private TextField name;
+	protected TextField name;
 
-	private RadioButtonGroup<Boolean> openAccess;
+	protected RadioButtonGroup<Boolean> openAccess;
 
-	private TextField journalUrl;
+	protected TextField journalUrl;
 
-	private DetailsWithErrorMark publisherDetails;
+	protected DetailsWithErrorMark publisherDetails;
 
-	private TextField publisherName;
+	protected TextField publisherName;
 
-	private TextField publisherAddress;
+	protected TextField publisherAddress;
 
-	private TextField issn;
+	protected TextField issn;
 
-	private TextField isbn;
+	protected TextField isbn;
 
-	private Details rankingDetails;
+	protected Details rankingDetails;
 
-	private TextField wosId;
+	protected TextField wosId;
 
-	private TextField wosCategory;
+	protected TextField wosCategory;
 
-	private TextField scimagoId;
+	protected TextField scimagoId;
 
-	private TextField scimagoCategory;
+	protected TextField scimagoCategory;
 
-	private JournalAnnualRankingField rankings;
+	protected JournalAnnualRankingField rankings;
 
-	private JournalService journalService;
+	protected JournalService journalService;
 
 	/** Constructor.
 	 *
@@ -338,14 +338,18 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 
-		this.descriptionDetails.setSummaryText(getTranslation("views.journals.description_informations")); //$NON-NLS-1$
+		if(this.descriptionDetails != null){
+			this.descriptionDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.name.setLabel(getTranslation("views.journals.name")); //$NON-NLS-1$
 		this.openAccess.setLabel(getTranslation("views.journals.open_access")); //$NON-NLS-1$
 		// Force the refreshing of the radio button items
 		setOpenAccessRenderer();
 		this.journalUrl.setLabel(getTranslation("views.journals.url")); //$NON-NLS-1$
 
-		this.rankingDetails.setSummaryText(getTranslation("views.journals.ranking_informations")); //$NON-NLS-1$
+		if(this.rankingDetails != null){
+			this.rankingDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.wosId.setLabel(getTranslation("views.journals.wos.id")); //$NON-NLS-1$
 		this.wosId.setHelperText(getTranslation("views.journals.wos.id.help")); //$NON-NLS-1$
 		this.wosCategory.setLabel(getTranslation("views.journals.wos.category")); //$NON-NLS-1$
@@ -357,7 +361,9 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 		this.rankings.setLabel(getTranslation("views.journals.rankings")); //$NON-NLS-1$
 		this.rankings.setHelperText(getTranslation("views.journals.rankings.help")); //$NON-NLS-1$
 
-		this.publisherDetails.setSummaryText(getTranslation("views.journals.publisher_informations")); //$NON-NLS-1$
+		if(this.publisherDetails != null){
+			this.publisherDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.publisherName.setLabel(getTranslation("views.journals.publisher_name")); //$NON-NLS-1$
 		this.publisherName.setHelperText(getTranslation("views.journals.publisher_name.help")); //$NON-NLS-1$
 		this.publisherAddress.setLabel(getTranslation("views.journals.publisher_address")); //$NON-NLS-1$

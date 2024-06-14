@@ -3,7 +3,7 @@ package fr.utbm.ciad.labmanager.views.components.journals;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
-import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -19,7 +19,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public final class EmbeddedJournalEditorWizard extends JournalEditor {
+public final class EmbeddedJournalEditorWizard extends AbstractJournalEditorWizard {
 
     private static final long serialVersionUID = -8334616123986168541L;
 
@@ -31,9 +31,9 @@ public final class EmbeddedJournalEditorWizard extends JournalEditor {
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      */
-    public EmbeddedJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context,
+    public EmbeddedJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context, JournalService journalService,
                                        AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-        super(context, false, authenticatedUser, messages, LOGGER);
+        super(context, false, authenticatedUser, journalService,messages, LOGGER);
         createEditorContentAndLinkBeans();
     }
 

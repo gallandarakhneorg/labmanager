@@ -37,7 +37,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public final class EmbeddedPersonEditorWizard extends PersonEditor {
+public final class EmbeddedPersonEditorWizard extends AbstractPersonEditorWizard {
 
 	private static final long serialVersionUID = 3928100811567654630L;
 

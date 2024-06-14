@@ -97,89 +97,89 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 	private static final long serialVersionUID = 4532244485914692596L;
 
-	private final PersonService personService;
+	protected final PersonService personService;
 
-	private DetailsWithErrorMark personalInformationDetails;
+	protected DetailsWithErrorMark personalInformationDetails;
 
-	private TextField lastname;
+	protected TextField lastname;
 
-	private TextField firstname;
+	protected TextField firstname;
 
-	private ComboBox<Gender> gender;
+	protected ComboBox<Gender> gender;
 
-	private ComboBox<CountryCode> nationality;
+	protected ComboBox<CountryCode> nationality;
 
-	private TextField gravatarId;
+	protected TextField gravatarId;
 
-	private VerticalLayout photo;
+	protected VerticalLayout photo;
 
-	private DetailsWithErrorMark contactInformationDetails;
+	protected DetailsWithErrorMark contactInformationDetails;
 
-	private TextField email;
+	protected TextField email;
 
-	private PhoneNumberField officePhone;
+	protected PhoneNumberField officePhone;
 
-	private PhoneNumberField mobilePhone;
+	protected PhoneNumberField mobilePhone;
 
-	private TextField officeRoom;
+	protected TextField officeRoom;
 
-	private DetailsWithErrorMark biographyDetails;
+	protected DetailsWithErrorMark biographyDetails;
 
-	private ToggleButton privateBiography;
-	
-	private MarkdownField biography;
+	protected ToggleButton privateBiography;
 
-	private DetailsWithErrorMark researcherIdsDetails;
+	protected MarkdownField biography;
 
-	private TextField orcid;
+	protected DetailsWithErrorMark researcherIdsDetails;
 
-	private TextField scopus;
+	protected TextField orcid;
 
-	private TextField wos;
+	protected TextField scopus;
 
-	private TextField gscholar;
+	protected TextField wos;
 
-	private Details indexesDetails;
+	protected TextField gscholar;
 
-	private IntegerField wosHindex;
+	protected Details indexesDetails;
 
-	private IntegerField scopusHindex;
+	protected IntegerField wosHindex;
 
-	private IntegerField gscholarHindex;
+	protected IntegerField scopusHindex;
 
-	private IntegerField wosCitations;
+	protected IntegerField gscholarHindex;
 
-	private IntegerField scopusCitations;
+	protected IntegerField wosCitations;
 
-	private IntegerField gscholarCitations;
+	protected IntegerField scopusCitations;
 
-	private DetailsWithErrorMark socialLinksDetails;
+	protected IntegerField gscholarCitations;
 
-	private TextField researchGate;
+	protected DetailsWithErrorMark socialLinksDetails;
 
-	private TextField adScientificIndex;
+	protected TextField researchGate;
 
-	private TextField dblp;
+	protected TextField adScientificIndex;
 
-	private TextField academiaEdu;
+	protected TextField dblp;
 
-	private TextField euCordis;
+	protected TextField academiaEdu;
 
-	private TextField linkedin;
+	protected TextField euCordis;
 
-	private TextField github;
+	protected TextField linkedin;
 
-	private TextField facebook;
+	protected TextField github;
 
-	private ComboBox<WebPageNaming> webpageConvention;
+	protected TextField facebook;
 
-	private TextField userLogin;
+	protected ComboBox<WebPageNaming> webpageConvention;
 
-	private ComboBox<UserRole> userRole;
+	protected TextField userLogin;
 
-	private final Binder<User> userBinder = new Binder<>(User.class);
+	protected ComboBox<UserRole> userRole;
 
-	private final UserEditingContext userContext;
+	protected final Binder<User> userBinder = new Binder<>(User.class);
+
+	protected final UserEditingContext userContext;
 
 
 	/** Constructor.
@@ -749,7 +749,10 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
-		this.personalInformationDetails.setSummaryText(getTranslation("views.persons.personal_informations")); //$NON-NLS-1$
+
+		if(this.personalInformationDetails != null){
+			this.personalInformationDetails.setSummaryText(getTranslation("views.persons.personal_informations")); //$NON-NLS-1$
+		}
 		this.lastname.setLabel(getTranslation("views.persons.last_name")); //$NON-NLS-1$
 		this.firstname.setLabel(getTranslation("views.persons.first_name")); //$NON-NLS-1$
 		this.gender.setLabel(getTranslation("views.persons.gender")); //$NON-NLS-1$
@@ -764,7 +767,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		final String helpPhone = getTranslation("views.phonenumber.help"); //$NON-NLS-1$
 		final String errPhone = getTranslation("views.phonenumber.invalid"); //$NON-NLS-1$
 
-		this.contactInformationDetails.setSummaryText(getTranslation("views.persons.contact_informations")); //$NON-NLS-1$
+		if(this.contactInformationDetails != null){
+			this.contactInformationDetails.setSummaryText(getTranslation("views.persons.contact_informations")); //$NON-NLS-1$
+		}
 		this.email.setLabel(getTranslation("views.persons.email")); //$NON-NLS-1$
 		this.email.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
 		this.officePhone.setLabel(getTranslation("views.persons.officephone")); //$NON-NLS-1$
@@ -775,11 +780,15 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.officeRoom.setLabel(getTranslation("views.persons.officeroom")); //$NON-NLS-1$
 		this.officeRoom.setHelperText(getTranslation("views.persons.officeroom.helper")); //$NON-NLS-1$
 
-		this.biographyDetails.setSummaryText(getTranslation("views.persons.biography_details")); //$NON-NLS-1$
+		if(this.biographyDetails != null){
+			this.biographyDetails.setSummaryText(getTranslation("views.persons.biography_details")); //$NON-NLS-1$
+		}
 		this.privateBiography.setLabel(getTranslation("views.persons.biography_private")); //$NON-NLS-1$
 		this.biography.setLabel(getTranslation("views.persons.biography")); //$NON-NLS-1$
 
-		this.researcherIdsDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		if(this.researcherIdsDetails != null){
+			this.researcherIdsDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.orcid.setLabel(getTranslation("views.persons.orcid")); //$NON-NLS-1$
 		this.orcid.setHelperText(getTranslation("views.persons.orcid.helper")); //$NON-NLS-1$
 		this.scopus.setLabel(getTranslation("views.persons.scopus")); //$NON-NLS-1$
@@ -789,7 +798,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.gscholar.setLabel(getTranslation("views.persons.gscholar")); //$NON-NLS-1$
 		this.gscholar.setHelperText(getTranslation("views.persons.gscholar.helper")); //$NON-NLS-1$
 
-		this.indexesDetails.setSummaryText(getTranslation("views.persons.indexes")); //$NON-NLS-1$
+		if(this.indexesDetails != null){
+			this.indexesDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.wosHindex.setLabel(getTranslation("views.persons.wos_hindex")); //$NON-NLS-1$
 		this.wosHindex.setHelperText(getTranslation("views.persons.wos_update.helper")); //$NON-NLS-1$
 		this.scopusHindex.setLabel(getTranslation("views.persons.scopus_hindex")); //$NON-NLS-1$
@@ -803,7 +814,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.gscholarCitations.setLabel(getTranslation("views.persons.gscholar_citations")); //$NON-NLS-1$
 		this.gscholarCitations.setHelperText(getTranslation("views.persons.gscholar_update.helper")); //$NON-NLS-1$
 
-		this.socialLinksDetails.setSummaryText(getTranslation("views.persons.social_links")); //$NON-NLS-1$
+		if(this.socialLinksDetails != null){
+			this.socialLinksDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.researchGate.setLabel(getTranslation("views.persons.researchgate")); //$NON-NLS-1$
 		this.researchGate.setHelperText(getTranslation("views.persons.researchgate.helper")); //$NON-NLS-1$
 		this.adScientificIndex.setLabel(getTranslation("views.persons.adscientificindex")); //$NON-NLS-1$

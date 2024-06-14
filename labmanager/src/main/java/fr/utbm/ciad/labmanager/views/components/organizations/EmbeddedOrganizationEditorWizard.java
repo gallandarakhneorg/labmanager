@@ -25,7 +25,6 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -41,7 +40,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public final class EmbeddedOrganizationEditorWizard extends OrganizationEditor{
+public final class EmbeddedOrganizationEditorWizard extends AbstractOrganizationEditorWizard {
 
     private static final long serialVersionUID = -5119278327562827799L;
 

@@ -1,6 +1,5 @@
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
-import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -12,11 +11,9 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
-import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.ConferenceAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
@@ -40,26 +37,9 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.CORE_PORTAL_ICON;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public class ConferenceEditor extends AbstractEntityEditor<Conference> {
+public abstract class AbstractConferenceEditorWizard extends AbstractConferenceEditor {
+
     private static final long serialVersionUID = 6750040717745583722L;
-
-    private TextField acronym;
-
-    private TextField name;
-
-    private RadioButtonGroup<Boolean> openAccess;
-
-    private TextField conferenceUrl;
-
-    private TextField coreId;
-
-    private ConferenceAnnualRankingField rankings;
-
-    private TextField publisherName;
-
-    private TextField issn;
-
-    private TextField isbn;
 
     private ConferenceEditorComponentWizard conferenceEditorComponentWizard;
 
@@ -72,12 +52,9 @@ public class ConferenceEditor extends AbstractEntityEditor<Conference> {
      * @param messages the accessor to the localized messages (Spring layer).
      * @param logger the logger to be used by this view.
      */
-    public ConferenceEditor(AbstractEntityService.EntityEditingContext<Conference> context, boolean relinkEntityWhenSaving,
-                                    AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
-        super(Conference.class, authenticatedUser, messages, logger,
-                "views.conferences.administration_details", //$NON-NLS-1$
-                "views.conferences.administration.validated_conference", //$NON-NLS-1$
-                context, relinkEntityWhenSaving);
+    public AbstractConferenceEditorWizard(AbstractEntityService.EntityEditingContext<Conference> context, boolean relinkEntityWhenSaving, ConferenceService conferenceService,
+                                          AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+        super(context, relinkEntityWhenSaving, conferenceService, authenticatedUser, messages, logger);
     }
 
     /** Create the content of the editor.

@@ -54,81 +54,10 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public class PersonEditor extends AbstractEntityEditor<Person> {
+public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
 
-    private TextField lastname;
+    private PersonEditorComponentWizard personAdditionWizard;
 
-    private TextField firstname;
-
-    private ComboBox<Gender> gender;
-
-    private ComboBox<CountryCode> nationality;
-
-    private TextField gravatarId;
-
-    private VerticalLayout photo;
-
-    private TextField email;
-
-    private PhoneNumberField officePhone;
-
-    private PhoneNumberField mobilePhone;
-
-    private TextField officeRoom;
-
-    private ToggleButton privateBiography;
-
-    private MarkdownField biography;
-
-    private TextField orcid;
-
-    private TextField scopus;
-
-    private TextField wos;
-
-    private TextField gscholar;
-
-    private IntegerField wosHindex;
-
-    private IntegerField scopusHindex;
-
-    private IntegerField gscholarHindex;
-
-    private IntegerField wosCitations;
-
-    private IntegerField scopusCitations;
-
-    private IntegerField gscholarCitations;
-
-    private TextField researchGate;
-
-    private TextField adScientificIndex;
-
-    private TextField dblp;
-
-    private TextField academiaEdu;
-
-    private TextField euCordis;
-
-    private TextField linkedin;
-
-    private TextField github;
-
-    private TextField facebook;
-
-    private ComboBox<WebPageNaming> webpageConvention;
-
-    private TextField userLogin;
-
-    private ComboBox<UserRole> userRole;
-
-    private final Binder<User> userBinder = new Binder<>(User.class);
-
-    private final UserService.UserEditingContext userContext;
-
-    public PersonEditorComponentWizard personAdditionWizard;
-
-    private PersonService personService;
 
     /**
      * Constructor.
@@ -140,34 +69,11 @@ public class PersonEditor extends AbstractEntityEditor<Person> {
      * @param messages               the accessor to the localized messages (Spring layer).
      * @param logger                 the logger to be used by this view.
      */
-    public PersonEditor(UserService.UserEditingContext userContext, boolean relinkEntityWhenSaving, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, @Autowired PersonService personService) {
-        super(Person.class, authenticatedUser, messages, logger,
-                "views.persons.administration_details", //$NON-NLS-1$
-                "views.persons.administration.validated_person", //$NON-NLS-1$
-                userContext.getPersonContext(), relinkEntityWhenSaving);
-        this.userContext = userContext;
-        this.personService = personService;
+    public AbstractPersonEditorWizard(UserService.UserEditingContext userContext, boolean relinkEntityWhenSaving, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, @Autowired PersonService personService) {
+        super(userContext,personService,relinkEntityWhenSaving,authenticatedUser,messages,logger);
 
     }
 
-    @Override
-    public SimilarityError isAlreadyInDatabase() {
-        var user = this.userContext.getUser();
-        if (user != null) {
-            var person = user.getPerson();
-            if (person != null) {
-                long id = this.personService.getPersonIdBySimilarName(person.getLastName(), person.getFirstName());
-                if (id == 0) {
-                    return SimilarityError.NO_ERROR;
-                } else if (id == person.getId()) {
-                    return SimilarityError.NO_ERROR;
-                } else {
-                    return SimilarityError.SAME_NAME;
-                }
-            }
-        }
-        return SimilarityError.NO_ERROR;
-    }
 
     /** Create the content of the editor.
      * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
@@ -645,84 +551,7 @@ public class PersonEditor extends AbstractEntityEditor<Person> {
     @Override
     public void localeChange(LocaleChangeEvent event) {
         super.localeChange(event);
-        this.lastname.setLabel(getTranslation("views.persons.last_name")); //$NON-NLS-1$
-        this.firstname.setLabel(getTranslation("views.persons.first_name")); //$NON-NLS-1$
-        this.gender.setLabel(getTranslation("views.persons.gender")); //$NON-NLS-1$
-        this.gender.setHelperText(getTranslation("views.persons.gender.helper")); //$NON-NLS-1$);
-        this.gender.setItemLabelGenerator(this::getGenderLabel);
-        this.nationality.setLabel(getTranslation("views.persons.nationality")); //$NON-NLS-1$
-        this.nationality.setHelperText(getTranslation("views.persons.nationality.helper")); //$NON-NLS-1$);
-        ComponentFactory.updateCountryComboBoxItems(this.nationality, getLocale());
-        this.gravatarId.setLabel(getTranslation("views.persons.gravatar_id")); //$NON-NLS-1$
-        this.gravatarId.setHelperText(getTranslation("views.persons.gravatar_id.helper")); //$NON-NLS-1$
 
-        final String helpPhone = getTranslation("views.phonenumber.help"); //$NON-NLS-1$
-        final String errPhone = getTranslation("views.phonenumber.invalid"); //$NON-NLS-1$
-
-        this.email.setLabel(getTranslation("views.persons.email")); //$NON-NLS-1$
-        this.email.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
-        this.officePhone.setLabel(getTranslation("views.persons.officephone")); //$NON-NLS-1$
-        this.officePhone.setDynamicHelperText(helpPhone);
-        this.officePhone.setErrorMessage(errPhone);
-        this.mobilePhone.setLabel(getTranslation("views.persons.mobilephone")); //$NON-NLS-1$
-        this.mobilePhone.setDynamicHelperText(helpPhone);
-        this.officeRoom.setLabel(getTranslation("views.persons.officeroom")); //$NON-NLS-1$
-        this.officeRoom.setHelperText(getTranslation("views.persons.officeroom.helper")); //$NON-NLS-1$
-
-        this.privateBiography.setLabel(getTranslation("views.persons.biography_private")); //$NON-NLS-1$
-        this.biography.setLabel(getTranslation("views.persons.biography")); //$NON-NLS-1$
-
-        this.orcid.setLabel(getTranslation("views.persons.orcid")); //$NON-NLS-1$
-        this.orcid.setHelperText(getTranslation("views.persons.orcid.helper")); //$NON-NLS-1$
-        this.scopus.setLabel(getTranslation("views.persons.scopus")); //$NON-NLS-1$
-        this.scopus.setHelperText(getTranslation("views.persons.scopus.helper")); //$NON-NLS-1$
-        this.wos.setLabel(getTranslation("views.persons.wos")); //$NON-NLS-1$
-        this.wos.setHelperText(getTranslation("views.persons.wos.helper")); //$NON-NLS-1$
-        this.gscholar.setLabel(getTranslation("views.persons.gscholar")); //$NON-NLS-1$
-        this.gscholar.setHelperText(getTranslation("views.persons.gscholar.helper")); //$NON-NLS-1$
-
-
-        this.wosHindex.setLabel(getTranslation("views.persons.wos_hindex")); //$NON-NLS-1$
-        this.wosHindex.setHelperText(getTranslation("views.persons.wos_update.helper")); //$NON-NLS-1$
-        this.scopusHindex.setLabel(getTranslation("views.persons.scopus_hindex")); //$NON-NLS-1$
-        this.scopusHindex.setHelperText(getTranslation("views.persons.scopus_update.helper")); //$NON-NLS-1$
-        this.gscholarHindex.setLabel(getTranslation("views.persons.gscholar_hindex")); //$NON-NLS-1$
-        this.gscholarHindex.setHelperText(getTranslation("views.persons.gscholar_update.helper")); //$NON-NLS-1$
-        this.wosCitations.setLabel(getTranslation("views.persons.wos_citations")); //$NON-NLS-1$
-        this.wosCitations.setHelperText(getTranslation("views.persons.wos_update.helper")); //$NON-NLS-1$
-        this.scopusCitations.setLabel(getTranslation("views.persons.scopus_citations")); //$NON-NLS-1$
-        this.scopusCitations.setHelperText(getTranslation("views.persons.scopus_update.helper")); //$NON-NLS-1$
-        this.gscholarCitations.setLabel(getTranslation("views.persons.gscholar_citations")); //$NON-NLS-1$
-        this.gscholarCitations.setHelperText(getTranslation("views.persons.gscholar_update.helper")); //$NON-NLS-1$
-
-
-        this.researchGate.setLabel(getTranslation("views.persons.researchgate")); //$NON-NLS-1$
-        this.researchGate.setHelperText(getTranslation("views.persons.researchgate.helper")); //$NON-NLS-1$
-        this.adScientificIndex.setLabel(getTranslation("views.persons.adscientificindex")); //$NON-NLS-1$
-        this.dblp.setLabel(getTranslation("views.persons.dblp")); //$NON-NLS-1$
-        this.academiaEdu.setLabel(getTranslation("views.persons.academia_edu")); //$NON-NLS-1$
-        this.euCordis.setLabel(getTranslation("views.persons.eu_cordis")); //$NON-NLS-1$
-        this.euCordis.setHelperText(getTranslation("views.persons.eu_cordis.helper")); //$NON-NLS-1$
-        this.linkedin.setLabel(getTranslation("views.persons.linkedin")); //$NON-NLS-1$
-        this.linkedin.setHelperText(getTranslation("views.persons.linkedin.helper")); //$NON-NLS-1$
-        this.github.setLabel(getTranslation("views.persons.github")); //$NON-NLS-1$
-        this.github.setHelperText(getTranslation("views.persons.github.helper")); //$NON-NLS-1$
-        this.facebook.setLabel(getTranslation("views.persons.facebook")); //$NON-NLS-1$
-        this.facebook.setHelperText(getTranslation("views.persons.facebook.helper")); //$NON-NLS-1$
-
-        if (this.webpageConvention != null) {
-            this.webpageConvention.setLabel(getTranslation("views.persons.administration.webpage_naming")); //$NON-NLS-1$
-            this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
-        }
-        if (this.userLogin != null) {
-            this.userLogin.setLabel(getTranslation("views.persons.administration.user_login")); //$NON-NLS-1$
-            this.userLogin.setHelperText(getTranslation("views.persons.administration.user_login.help")); //$NON-NLS-1$
-        }
-        if (this.userRole != null) {
-            this.userRole.setLabel(getTranslation("views.persons.administration.user_role")); //$NON-NLS-1$
-            this.userRole.setHelperText(getTranslation("views.persons.administration.user_role.help")); //$NON-NLS-1$
-            this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
-        }
     }
 
     private String getWebPageNamingLabel(WebPageNaming naming) {

@@ -203,7 +203,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	protected void openConferenceEditorWizard(Conference conference, String title) {
 		final var editor = new EmbeddedConferenceEditorWizard(
 				this.conferenceService.startEditing(conference),
-				getAuthenticatedUser(), getMessageSourceAccessor());
+				getAuthenticatedUser(), this.conferenceService , getMessageSourceAccessor());
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Conference> refreshAll = (dialog, entity) -> {
 			// The number of papers should be loaded because it was not loaded before

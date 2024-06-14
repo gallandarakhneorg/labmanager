@@ -113,85 +113,85 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	private static final long serialVersionUID = 6119323451118628960L;
 
-	private final boolean enableTypeSelector;
+	protected final boolean enableTypeSelector;
 
-	private final String personCreationLabelKey;
+	protected final String personCreationLabelKey;
 
-	private final String personFieldLabelKey;
+	protected final String personFieldLabelKey;
 
-	private final String personFieldHelperLabelKey;
+	protected final String personFieldHelperLabelKey;
 
-	private final String personNullErrorKey;
+	protected final String personNullErrorKey;
 
-	private final String personDuplicateErrorKey;
+	protected final String personDuplicateErrorKey;
 
-	private final DownloadableFileManager fileManager;
+	protected final DownloadableFileManager fileManager;
 
-	private final PersonService personService;
+	protected final PersonService personService;
 
-	private final JournalService journalService;
+	protected final JournalService journalService;
 
-	private final ConferenceService conferenceService;
+	protected final ConferenceService conferenceService;
 
-	private final PublicationService publicationService;
+	protected final PublicationService publicationService;
 
-	private final UserService userService;
+	protected final UserService userService;
 
-	private final ScientificAxisService axisService;
+	protected final ScientificAxisService axisService;
 
-	private final PublicationFieldBuilder fieldBuilder;
+	protected final PublicationFieldBuilder fieldBuilder;
 
-	private PublicationType[] supportedTypes;
+	protected PublicationType[] supportedTypes;
 
-	private DetailsWithErrorMark generalDetails;
+	protected DetailsWithErrorMark generalDetails;
 
-	private FormLayout generalLayout;
+	protected FormLayout generalLayout;
 
-	private ComboBox<PublicationType> type;
+	protected ComboBox<PublicationType> type;
 
-	private TextField title;
+	protected TextField title;
 
-	private MultiPersonNameField authors;
+	protected MultiPersonNameField authors;
 
-	private DatePicker publicationDate;
+	protected DatePicker publicationDate;
 
-	private DetailsWithErrorMark identificationDetails;
+	protected DetailsWithErrorMark identificationDetails;
 
-	private FormLayout identificationLayout;
+	protected FormLayout identificationLayout;
 
-	private TextField doi;
+	protected TextField doi;
 
-	private TextField halId;
+	protected TextField halId;
 
-	private TextField dblpUrl;
+	protected TextField dblpUrl;
 
-	private TextField isbn;
+	protected TextField isbn;
 
-	private TextField issn;
+	protected TextField issn;
 
-	private DetailsWithErrorMark contentDetails;
+	protected DetailsWithErrorMark contentDetails;
 
-	private MarkdownField abstractText;
+	protected MarkdownField abstractText;
 
-	private TextField keywords;
+	protected TextField keywords;
 
-	private ComboBox<PublicationLanguage> language;
+	protected ComboBox<PublicationLanguage> language;
 
-	private DetailsWithErrorMark resourcesDetails;
+	protected DetailsWithErrorMark resourcesDetails;
 
-	private ServerSideUploadablePdfField uploadPdf;
+	protected ServerSideUploadablePdfField uploadPdf;
 
-	private TextField videoUrl;
+	protected TextField videoUrl;
 
-	private ServerSideUploadablePdfField uploadAward;
+	protected ServerSideUploadablePdfField uploadAward;
 
-	private TextField extraUrl;
+	protected TextField extraUrl;
 
-	private DetailsWithErrorMark referencesDetails;
+	protected DetailsWithErrorMark referencesDetails;
 
-	private ComboListField<ScientificAxis> scientificAxes;
+	protected ComboListField<ScientificAxis> scientificAxes;
 
-	private ToggleButton manualValidationForced;
+	protected ToggleButton manualValidationForced;
 
 	/** Constructor.
 	 *
@@ -702,7 +702,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 
-		this.generalDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		if(this.generalDetails != null){
+			this.generalDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.type.setLabel(getTranslation("views.publication.type")); //$NON-NLS-1$
 		this.type.setHelperText(getTranslation("views.publication.type.helper")); //$NON-NLS-1$);
 		this.type.setItemLabelGenerator(this::getTypeLabel);
@@ -713,7 +715,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.publicationDate.setLabel(getTranslation("views.publication.date")); //$NON-NLS-1$
 		this.publicationDate.setHelperText(getTranslation("views.publication.date.helper")); //$NON-NLS-1$
 
-		this.identificationDetails.setSummaryText(getTranslation("views.publication.identification_informations")); //$NON-NLS-1$
+		if(this.identificationDetails != null){
+			this.identificationDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.doi.setLabel(getTranslation("views.publication.doi")); //$NON-NLS-1$
 		this.doi.setHelperText(getTranslation("views.publication.doi.helper")); //$NON-NLS-1$
 		this.halId.setLabel(getTranslation("views.publication.halId")); //$NON-NLS-1$
@@ -726,7 +730,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			this.isbn.setLabel(getTranslation("views.publication.isbn")); //$NON-NLS-1$
 		}
 
-		this.contentDetails.setSummaryText(getTranslation("views.publication.content_informations")); //$NON-NLS-1$
+		if(this.contentDetails != null){
+			this.contentDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.abstractText.setLabel(getTranslation("views.publication.abstract_text")); //$NON-NLS-1$
 		this.abstractText.setHelperText(getTranslation("views.publication.abstract_text.helper")); //$NON-NLS-1$
 		this.keywords.setLabel(getTranslation("views.publication.keywords")); //$NON-NLS-1$
@@ -735,13 +741,17 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.language.setHelperText(getTranslation("views.publication.major_language.helper")); //$NON-NLS-1$);
 		this.language.setItemLabelGenerator(this::getLanguageLabel);
 
-		this.resourcesDetails.setSummaryText(getTranslation("views.publication.resources_informations")); //$NON-NLS-1$
+		if(this.resourcesDetails != null){
+			this.resourcesDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.uploadPdf.setLabel(getTranslation("views.publication.uploaded_pdf")); //$NON-NLS-1$
 		this.videoUrl.setLabel(getTranslation("views.publication.video_url")); //$NON-NLS-1$
 		this.uploadAward.setLabel(getTranslation("views.publication.uploaded_award")); //$NON-NLS-1$
 		this.extraUrl.setLabel(getTranslation("views.publication.extra_url")); //$NON-NLS-1$
 
-		this.referencesDetails.setSummaryText(getTranslation("views.publication.references_informations")); //$NON-NLS-1$
+		if(this.referencesDetails != null){
+			this.referencesDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+		}
 		this.scientificAxes.setLabel(getTranslation("views.publication.scientific_axes")); //$NON-NLS-1$
 		this.scientificAxes.setAdditionTooltip(getTranslation("views.publication.scientific_axes.insert")); //$NON-NLS-1$
 		this.scientificAxes.setDeletionTooltip(getTranslation("views.publication.scientific_axes.delete")); //$NON-NLS-1$

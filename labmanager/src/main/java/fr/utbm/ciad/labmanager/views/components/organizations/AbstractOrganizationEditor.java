@@ -81,45 +81,45 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	private static final long serialVersionUID = -4405231976086480507L;
 
-	private DetailsWithErrorMark descriptionDetails;
+	protected DetailsWithErrorMark descriptionDetails;
 
-	private TextField acronym;
+	protected TextField acronym;
 
-	private TextField name;
+	protected TextField name;
 
-	private ComboBox<ResearchOrganizationType> type;
+	protected ComboBox<ResearchOrganizationType> type;
 
-	private Details geographyDetails;
+	protected Details geographyDetails;
 
-	private LeftRightListsField<OrganizationAddress> addresses;
+	protected LeftRightListsField<OrganizationAddress> addresses;
 
-	private ComboBox<CountryCode> country;
+	protected ComboBox<CountryCode> country;
 
-	private Details identificationDetails;
+	protected Details identificationDetails;
 
-	private TextField nationalIdentifier;
+	protected TextField nationalIdentifier;
 
-	private TextField rnsr;
+	protected TextField rnsr;
 
-	private Details superStructureDetails;
+	protected Details superStructureDetails;
 
-	private ComboListField<ResearchOrganization> superStructures;
+	protected ComboListField<ResearchOrganization> superStructures;
 
-	private DetailsWithErrorMark communicationDetails;
+	protected DetailsWithErrorMark communicationDetails;
 
-	private TextField organizationUrl;
+	protected TextField organizationUrl;
 
-	private MarkdownField description;
+	protected MarkdownField description;
 
-	private ServerSideUploadableImageField logo;
+	protected ServerSideUploadableImageField logo;
 
-	private ToggleButton majorOrganization;
+	protected ToggleButton majorOrganization;
 
-	private final DownloadableFileManager fileManager;
+	protected final DownloadableFileManager fileManager;
 
-	private final OrganizationAddressService addressService;
+	protected final OrganizationAddressService addressService;
 
-	private final ResearchOrganizationService organizationService;
+	protected final ResearchOrganizationService organizationService;
 
 	/** Constructor.
 	 *
@@ -442,7 +442,9 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 
-		this.descriptionDetails.setSummaryText(getTranslation("views.organizations.description_informations")); //$NON-NLS-1$
+		if(this.descriptionDetails != null){
+			this.descriptionDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.acronym.setLabel(getTranslation("views.organizations.acronym")); //$NON-NLS-1$
 		this.name.setLabel(getTranslation("views.organizations.name")); //$NON-NLS-1$
 		this.name.setHelperText(getTranslation("views.organizations.name.helper")); //$NON-NLS-1$
@@ -450,7 +452,9 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.type.setHelperText(getTranslation("views.organizations.type.helper")); //$NON-NLS-1$);
 		this.type.setItemLabelGenerator(this::getTypeLabel);
 
-		this.geographyDetails.setSummaryText(getTranslation("views.organizations.geography_informations")); //$NON-NLS-1$
+		if(this.geographyDetails != null){
+			this.geographyDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.addresses.setLabel(getTranslation("views.organizations.addresses")); //$NON-NLS-1$
 		this.addresses.setAdditionTooltip(getTranslation("views.organizations.addresses.insert")); //$NON-NLS-1$
 		this.addresses.setDeletionTooltip(getTranslation("views.organizations.addresses.delete")); //$NON-NLS-1$
@@ -460,19 +464,25 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.country.setLabel(getTranslation("views.organizations.country")); //$NON-NLS-1$
 		ComponentFactory.updateCountryComboBoxItems(this.country, getLocale());
 
-		this.identificationDetails.setSummaryText(getTranslation("views.organizations.identification_informations")); //$NON-NLS-1$
+		if(this.identificationDetails != null){
+			this.identificationDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.nationalIdentifier.setLabel(getTranslation("views.organizations.national_identifier")); //$NON-NLS-1$
 		this.nationalIdentifier.setHelperText(getTranslation("views.organizations.national_identifier.helper")); //$NON-NLS-1$
 		this.rnsr.setLabel(getTranslation("views.organizations.rnsr")); //$NON-NLS-1$
 		this.rnsr.setHelperText(getTranslation("views.organizations.rnsr.helper")); //$NON-NLS-1$
 
-		this.superStructureDetails.setSummaryText(getTranslation("views.organizations.super_structure_informations")); //$NON-NLS-1$
+		if(this.superStructureDetails != null){
+			this.superStructureDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.superStructures.setLabel(getTranslation("views.organizations.super_structures")); //$NON-NLS-1$
 		this.superStructures.setAdditionTooltip(getTranslation("views.organizations.super_structures.insert")); //$NON-NLS-1$
 		this.superStructures.setDeletionTooltip(getTranslation("views.organizations.super_structures.delete")); //$NON-NLS-1$
 		this.superStructures.setCreationTooltip(getTranslation("views.organizations.super_structures.create")); //$NON-NLS-1$
 
-		this.communicationDetails.setSummaryText(getTranslation("views.organizations.communication_informations")); //$NON-NLS-1$
+		if(this.communicationDetails != null){
+			this.communicationDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+		}
 		this.organizationUrl.setLabel(getTranslation("views.organizations.url")); //$NON-NLS-1$
 		this.description.setLabel(getTranslation("views.organizations.description")); //$NON-NLS-1$
 		this.logo.setLabel(getTranslation("views.organizations.logo")); //$NON-NLS-1$

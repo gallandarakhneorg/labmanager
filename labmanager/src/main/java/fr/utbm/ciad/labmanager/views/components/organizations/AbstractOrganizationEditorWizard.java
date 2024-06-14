@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,8 +23,6 @@ import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
-import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
@@ -56,39 +53,9 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public class OrganizationEditor extends AbstractEntityEditor<ResearchOrganization> {
+public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizationEditor {
 
     private static final long serialVersionUID = -4405231976086480507L;
-
-    private TextField acronym;
-
-    private TextField name;
-
-    private ComboBox<ResearchOrganizationType> type;
-
-    private LeftRightListsField<OrganizationAddress> addresses;
-
-    private ComboBox<CountryCode> country;
-
-    private TextField nationalIdentifier;
-
-    private TextField rnsr;
-
-    private ComboListField<ResearchOrganization> superStructures;
-
-    private TextField organizationUrl;
-
-    private MarkdownField description;
-
-    private ServerSideUploadableImageField logo;
-
-    private ToggleButton majorOrganization;
-
-    private final DownloadableFileManager fileManager;
-
-    private final OrganizationAddressService addressService;
-
-    private final ResearchOrganizationService organizationService;
 
     private OrganizationEditorComponentWizard organizationEditorComponentWizard;
 
@@ -105,17 +72,11 @@ public class OrganizationEditor extends AbstractEntityEditor<ResearchOrganizatio
      * @param organizationService                the service for accessing the organizations.
      * @param addressService                     the service for accessing the organization addresses.
      */
-    public OrganizationEditor(AbstractEntityService.EntityEditingContext<ResearchOrganization> context, boolean relinkEntityWhenSaving,
-                                      DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-                                      MessageSourceAccessor messages, Logger logger,
-                                      ResearchOrganizationService organizationService, OrganizationAddressService addressService) {
-        super(ResearchOrganization.class, authenticatedUser, messages, logger,
-                "views.organizations.administration_details", //$NON-NLS-1$
-                "views.organizations.administration.validated_organization", //$NON-NLS-1$
-                context, relinkEntityWhenSaving);
-        this.fileManager = fileManager;
-        this.organizationService = organizationService;
-        this.addressService = addressService;
+    public AbstractOrganizationEditorWizard(AbstractEntityService.EntityEditingContext<ResearchOrganization> context, boolean relinkEntityWhenSaving,
+                                            DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
+                                            MessageSourceAccessor messages, Logger logger,
+                                            ResearchOrganizationService organizationService, OrganizationAddressService addressService) {
+        super(context, relinkEntityWhenSaving, fileManager, authenticatedUser, messages, logger, organizationService, addressService);
 
     }
 
@@ -418,38 +379,6 @@ public class OrganizationEditor extends AbstractEntityEditor<ResearchOrganizatio
     @Override
     public void localeChange(LocaleChangeEvent event) {
         super.localeChange(event);
-
-        this.acronym.setLabel(getTranslation("views.organizations.acronym")); //$NON-NLS-1$
-        this.name.setLabel(getTranslation("views.organizations.name")); //$NON-NLS-1$
-        this.name.setHelperText(getTranslation("views.organizations.name.helper")); //$NON-NLS-1$
-        this.type.setLabel(getTranslation("views.organizations.type")); //$NON-NLS-1$
-        this.type.setHelperText(getTranslation("views.organizations.type.helper")); //$NON-NLS-1$);
-        this.type.setItemLabelGenerator(this::getTypeLabel);
-
-        this.addresses.setLabel(getTranslation("views.organizations.addresses")); //$NON-NLS-1$
-        this.addresses.setAdditionTooltip(getTranslation("views.organizations.addresses.insert")); //$NON-NLS-1$
-        this.addresses.setDeletionTooltip(getTranslation("views.organizations.addresses.delete")); //$NON-NLS-1$
-        this.addresses.setCreationTooltip(getTranslation("views.organizations.addresses.create")); //$NON-NLS-1$
-        this.addresses.setAvailableEntityLabel(getTranslation("views.organizations.addresses.available_addresses")); //$NON-NLS-1$
-        this.addresses.setSelectedEntityLabel(getTranslation("views.organizations.addresses.selected_addresses")); //$NON-NLS-1$
-        this.country.setLabel(getTranslation("views.organizations.country")); //$NON-NLS-1$
-        ComponentFactory.updateCountryComboBoxItems(this.country, getLocale());
-
-        this.nationalIdentifier.setLabel(getTranslation("views.organizations.national_identifier")); //$NON-NLS-1$
-        this.nationalIdentifier.setHelperText(getTranslation("views.organizations.national_identifier.helper")); //$NON-NLS-1$
-        this.rnsr.setLabel(getTranslation("views.organizations.rnsr")); //$NON-NLS-1$
-        this.rnsr.setHelperText(getTranslation("views.organizations.rnsr.helper")); //$NON-NLS-1$
-
-        this.superStructures.setLabel(getTranslation("views.organizations.super_structures")); //$NON-NLS-1$
-        this.superStructures.setAdditionTooltip(getTranslation("views.organizations.super_structures.insert")); //$NON-NLS-1$
-        this.superStructures.setDeletionTooltip(getTranslation("views.organizations.super_structures.delete")); //$NON-NLS-1$
-        this.superStructures.setCreationTooltip(getTranslation("views.organizations.super_structures.create")); //$NON-NLS-1$
-
-        this.organizationUrl.setLabel(getTranslation("views.organizations.url")); //$NON-NLS-1$
-        this.description.setLabel(getTranslation("views.organizations.description")); //$NON-NLS-1$
-        this.logo.setLabel(getTranslation("views.organizations.logo")); //$NON-NLS-1$
-
-        this.majorOrganization.setLabel(getTranslation("views.organizations.major_organization")); //$NON-NLS-1$
     }
 
     /** Specification that is validating any organization that has not the given identifier.
