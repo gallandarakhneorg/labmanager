@@ -114,8 +114,8 @@ public class MultiPersonNameField extends AbstractMultiEntityNameField<Person> {
 					final var personContext = personService.startEditing(newPerson);
 					final var user = userService.getUserFor(newPerson);
 					final var userContext = userService.startEditing(user, personContext);
-					final var editor = new EmbeddedPersonEditor(
-							userContext, personService, authenticatedUser, personService.getMessageSourceAccessor());
+					final var editor = new EmbeddedPersonEditorWizard(
+							userContext, authenticatedUser, personService.getMessageSourceAccessor(),personService);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedPerson) -> saver.accept(changedPerson),
 							null);

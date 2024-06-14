@@ -292,6 +292,41 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		}
 	}
 
+	/** Create the components for administrator.
+	 *
+	 * @param receiver the receiver of the component
+	 * @param builderCallback the callback that is invoked to fill the administration form.
+	 * @param validationBinder invoked to bind the validation attributes of the entity.
+	 * @see #createAdministrationComponents(VerticalLayout, Consumer)
+	 */
+	protected VerticalLayout createAdministrationComponents(Consumer<FormLayout> builderCallback,
+												  Consumer<BindingBuilder<T, Boolean>> validationBinder) {
+		VerticalLayout verticalLayout = new VerticalLayout();
+		verticalLayout.setSizeFull();
+		final var content = ComponentFactory.newColumnForm(1);
+
+		if (builderCallback != null) {
+			builderCallback.accept(content);
+		}
+
+		if (validationBinder != null) {
+			this.validatedEntity = new ToggleButton();
+			content.add(this.validatedEntity);
+			validationBinder.accept(this.entityBinder.forField(this.validatedEntity));
+		}
+
+		/*
+		if (content.getElement().getChildCount() > 0) {
+			this.administrationDetails = new Details("", content); //$NON-NLS-1$
+			this.administrationDetails.setOpened(false);
+			this.administrationDetails.addThemeVariants(DetailsVariant.FILLED);
+			content.add(this.administrationDetails);
+		}
+		*/
+		verticalLayout.add(content);
+		return verticalLayout;
+	}
+
 	/** Create the components for administrator with additional component.
 	 *
 	 * @param receiver the receiver of the component
@@ -301,6 +336,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	protected final void createAdministrationComponents(VerticalLayout receiver, Consumer<BindingBuilder<T, Boolean>> validationBinder) {
 		createAdministrationComponents(receiver, null, validationBinder);
 	}
+
 
 	/** Invoked for validating the entity by an organizational structure manager. This function does not save.
 	 * This function must be overridden by the child class that need to do a specific

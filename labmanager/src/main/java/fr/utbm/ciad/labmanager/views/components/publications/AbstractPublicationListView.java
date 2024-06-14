@@ -921,8 +921,12 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 				getSupportedPublicationTypes().findFirst().get(),
 				EMPTY, EMPTY, EMPTY, now, now.getYear(), EMPTY, EMPTY,
 				EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, PublicationLanguage.getDefault());
-		openPublicationEditor(emptyPublication, getTranslation("views.publication.add_publication"), true); //$NON-NLS-1$
+		openPublicationWizardEditor(emptyPublication, getTranslation("views.publication.add_publication")); //$NON-NLS-1$
 	}
+
+    protected void addEntity(Publication entity,String fileName, int index, int size) {
+        openPublicationEditor(entity, getTranslation("views.publication.import_publication", index, size, fileName)); //$NON-NLS-1$
+    }
 
     protected void addEntity(Publication entity, String fileName, boolean saveInDatabase, SerializableBiConsumer<Dialog, Publication> refreshAll) {
         openPublicationEditor(entity, getTranslation("views.publication.import_publication", fileName), saveInDatabase, refreshAll); //$NON-NLS-1$
@@ -983,8 +987,35 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param publication the publication to edit.
 	 * @return the editor.
 	 */
-	private AbstractEntityEditor<Publication> createPublicationEditor(Publication publication) {
-		return new EmbeddedPublicationEditor(
+	protected void openPublicationWizardEditor(Publication publication, String title) {
+		final var editor = new EmbeddedPublicationEditorWizard(
+				this.publicationService.startEditing(publication),
+				getSupportedPublicationTypeArray(),
+				true,
+				this.fileManager,
+				this.publicationService,
+				this.personService,
+				this.userService,
+				this.journalService,
+				this.conferenceService,
+				this.axisService,
+				getAuthenticatedUser(),
+				getMessageSourceAccessor(),
+				this.personCreationLabelKey,
+				this.personFieldLabelKey,
+				this.personFieldHelperLabelKey,
+				this.personNullErrorKey,
+				this.personDuplicateErrorKey);
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, Publication> refreshAll = (dialog, entity) -> refreshGrid();
+		ComponentFactory.openEditionModalDialog(title, editor, false,
+				// Refresh the "old" item, even if its has been changed in the JPA database
+				refreshAll,
+				newEntity ? null : refreshAll);
+	}
+
+	protected void openPublicationEditor(Publication publication, String title) {
+		var editor =  new EmbeddedPublicationEditor(
 				this.publicationService.startEditing(publication),
 				getSupportedPublicationTypeArray(),
 				true,

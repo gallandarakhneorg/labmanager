@@ -17,41 +17,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.persons;
+package fr.utbm.ciad.labmanager.views.components.conferences;
 
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
+import fr.utbm.ciad.labmanager.data.conference.Conference;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Editor of person information that may be embedded. This editor does not provide
+/** Editor of conference information that may be embedded. This editor does not provide
  * the components for saving the information. It is the role of the component that
- * is embedding this editor to save the edited person.
+ * is embedding this editor to save the edited conference. It is a wizard
  *
  * @author $Author: sgalland$
+ * @author $Author: erenon$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.0
+ * @since 4.1
  */
-public final class EmbeddedPersonEditor extends AbstractPersonEditor {
+public final class EmbeddedConferenceEditorWizard extends ConferenceEditor {
 
-    private static final long serialVersionUID = 3928100811567654630L;
+    private static final long serialVersionUID = -2522520461244264353L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPersonEditor.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedConferenceEditor.class);
 
     /** Constructor.
      *
-     * @param userContext the editing context for the user.
+     * @param context the editing context for the conference.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      */
-    public EmbeddedPersonEditor(UserEditingContext userContext, AuthenticatedUser authenticatedUser,
-                                MessageSourceAccessor messages) {
-        super(userContext, false, authenticatedUser, messages, LOGGER);
+    public EmbeddedConferenceEditorWizard(EntityEditingContext<Conference> context,
+                                    AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+        super(context, false, authenticatedUser, messages, LOGGER);
         createEditorContentAndLinkBeans();
     }
 

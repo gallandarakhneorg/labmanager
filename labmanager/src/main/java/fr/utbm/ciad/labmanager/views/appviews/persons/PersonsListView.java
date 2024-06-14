@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -58,10 +59,12 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	private static final long serialVersionUID = 1616874715478139507L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsListView.class);
+	private final PersonService personService;
 
 	private MenuItem updateRankingsButton;
-
+	private MenuItem editNew;
 	private MenuItem switchView;
+
 
 	/** Constructor.
 	 *
@@ -75,17 +78,18 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	 * @param authenticatedUser the connected user.
 	 */
     public PersonsListView(
-    		@Autowired PersonService personService,
-    		@Autowired UserService userService,
-    		@Autowired MembershipService membershipService,
-    		@Autowired ResearchOrganizationService organizationService,
-    		@Autowired ChronoMembershipComparator membershipComparator,
-    		@Autowired AuthenticatedUser authenticatedUser,
-    		@Autowired MessageSourceAccessor messages) {
+			@Autowired PersonService personService,
+			@Autowired UserService userService,
+			@Autowired MembershipService membershipService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired ChronoMembershipComparator membershipComparator,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages) {
     	super(personService, userService, membershipService, organizationService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
     			authenticatedUser, messages, LOGGER);
-    }
+		this.personService = personService;
+	}
 
 	@Override
 	public String getPageTitle() {
@@ -100,6 +104,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 			menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
 		}
 		this.updateRankingsButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openRankingsUpdateWizard());
+		this.editNew = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openEditWizard());
 		this.switchView = ComponentFactory.addIconItem(menu, LineAwesomeIcon.TH_LIST_SOLID, "Switch view", null, it -> getUI().ifPresent(ui -> ui.navigate(PersonsCardView.class)));
 		return menu;
 	}
@@ -114,6 +119,13 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 		} else {
 			getUI().ifPresent(ui -> ui.navigate(PersonRankingUpdaterWizard.class));
 		}
+	}
+
+	protected void openEditWizard() {
+		Dialog dialog = new Dialog();
+
+		dialog.setSizeFull();
+		dialog.open();
 	}
 
 	@Override

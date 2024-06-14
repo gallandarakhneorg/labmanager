@@ -179,12 +179,32 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 
 	@Override
 	protected void addEntity() {
-		openPersonEditor(new Person(), getTranslation("views.persons.add_person")); //$NON-NLS-1$
+		openPersonWizardEditor(new Person(), getTranslation("views.persons.add_person")); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(Person person) {
 		openPersonEditor(person, getTranslation("views.persons.edit_person", person.getFullName())); //$NON-NLS-1$
+	}
+
+	/** Show the wizard editor of a person.
+	 *
+	 * @param person the person to edit.
+	 * @param title the title of the editor.
+	 */
+	protected void openPersonWizardEditor(Person person, String title) {
+		final var personContext = this.personService.startEditing(person);
+		final var user = this.userService.getUserFor(person);
+		final var userContext = this.userService.startEditing(user, personContext);
+		final var editor = new EmbeddedPersonEditorWizard(
+				userContext, getAuthenticatedUser(), getMessageSourceAccessor(),personService);
+		final var newEntity = editor.isNewEntity();
+		final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshGrid();
+		final SerializableBiConsumer<Dialog, Person> refreshOne = (dialog, entity) -> refreshItem(entity);
+		ComponentFactory.openEditionModalDialog(title, editor, true,
+				// Refresh the "old" item, even if its has been changed in the JPA database
+				newEntity ? refreshAll : refreshOne,
+				newEntity ? null : refreshAll);
 	}
 
 	/** Show the editor of a person.
@@ -206,6 +226,8 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 				newEntity ? refreshAll : refreshOne,
 				newEntity ? null : refreshAll);
 	}
+
+
 
 	@Override
 	protected EntityDeletingContext<Person> createDeletionContextFor(Set<Person> entities) {
