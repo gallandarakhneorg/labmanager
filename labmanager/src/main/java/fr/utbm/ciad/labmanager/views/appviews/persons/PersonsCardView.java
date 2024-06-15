@@ -26,25 +26,15 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import fr.utbm.ciad.labmanager.views.components.persons.EmbeddedPersonEditor;
-import fr.utbm.ciad.labmanager.views.components.persons.PaginationComponent;
-import fr.utbm.ciad.labmanager.views.components.persons.PersonCardView;
-import fr.utbm.ciad.labmanager.views.components.persons.SearchComponent;
+import fr.utbm.ciad.labmanager.views.components.persons.*;
 import jakarta.annotation.security.RolesAllowed;
-import org.apache.jena.base.Sys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Route(value = "persons_cards", layout = MainLayout.class)
 @RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
@@ -178,19 +168,24 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
     }
     
     private void addEntity(){
-        openPersonEditor(new Person(), getTranslation("views.persons.add_person")); //$NON-NLS-1$
+        openPersonWizardEditor(new Person(), getTranslation("views.persons.add_person"));
     }
 
-    protected void openPersonEditor(Person person, String title){
+    /** Show the wizard editor of a person.
+     *
+     * @param person the person to edit.
+     * @param title the title of the editor.
+     */
+    protected void openPersonWizardEditor(Person person, String title) {
         final var personContext = this.personService.startEditing(person);
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
-        final var editor = new EmbeddedPersonEditor(
-                userContext, this.personService, authenticatedUser, messages);
+        final var editor = new EmbeddedPersonEditorWizard(
+                userContext, authenticatedUser, messages,personService);
         final var newEntity = editor.isNewEntity();
         final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshPage();
         ComponentFactory.openEditionModalDialog(title, editor, true,
-                // Refresh the "old" item, even if it has been changed in the JPA database
+                // Refresh the "old" item, even if its has been changed in the JPA database
                 newEntity ? refreshAll : null,
                 newEntity ? null : refreshAll);
     }
