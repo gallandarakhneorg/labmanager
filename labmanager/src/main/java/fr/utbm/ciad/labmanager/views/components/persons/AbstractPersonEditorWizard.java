@@ -75,11 +75,10 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
     }
 
 
-    /** Create the content of the editor.
-     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
+    /**
+     * Create the content of the editor.
      *
      * @param rootContainer the container.
-     * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
      */
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {

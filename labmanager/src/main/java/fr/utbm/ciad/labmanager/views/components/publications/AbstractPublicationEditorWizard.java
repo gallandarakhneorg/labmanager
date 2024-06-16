@@ -4,7 +4,6 @@ import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,7 +32,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToDoiConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToKeywordsConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.*;
@@ -106,11 +104,10 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
 
     }
 
-    /** Create the content of the editor.
-     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
+    /**
+     * Create the content of the editor.
      *
      * @param rootContainer the container.
-     * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
      */
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
@@ -482,48 +479,6 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         this.fieldBuilder.localeChange();
         linkBeans();
         getEntityDataBinder().validate();
-    }
-
-
-    @Override
-    protected void doSave() throws Exception {
-        getEditingContext().save(this.uploadPdf, this.uploadAward);
-    }
-
-    @Override
-    protected String computeSavingSuccessMessage() {
-        return getTranslation("views.publication.save_success", //$NON-NLS-1$
-                getEditedEntity().getTitle());
-    }
-
-    @Override
-    protected String computeValidationSuccessMessage() {
-        return getTranslation("views.publication.validation_success", //$NON-NLS-1$
-                getEditedEntity().getTitle());
-    }
-
-    @Override
-    protected String computeSavingErrorMessage(Throwable error) {
-        return getTranslation("views.publication.save_error", //$NON-NLS-1$
-                getEditedEntity().getTitle(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeValidationErrorMessage(Throwable error) {
-        return getTranslation("views.publication.validation_error", //$NON-NLS-1$
-                getEditedEntity().getTitle(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeDeletionSuccessMessage() {
-        return getTranslation("views.publication.delete_success2", //$NON-NLS-1$
-                getEditedEntity().getTitle());
-    }
-
-    @Override
-    protected String computeDeletionErrorMessage(Throwable error) {
-        return getTranslation("views.publication.delete_error2", //$NON-NLS-1$
-                getEditedEntity().getTitle(), error.getLocalizedMessage());
     }
 
     @Override
