@@ -19,11 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.admin.spim;
 
-import java.time.LocalDate;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeMap;
-
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -40,6 +35,11 @@ import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeMap;
 
 /** A generator of an Excel file that contains the annual activity report with SPIM standard.
  * 

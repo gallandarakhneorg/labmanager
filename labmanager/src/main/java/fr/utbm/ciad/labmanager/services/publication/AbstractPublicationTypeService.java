@@ -19,23 +19,19 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.Set;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
-import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+import fr.utbm.ciad.labmanager.data.publication.*;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.Set;
 
 /** Provides tool for the implemenation of a service for a specific type of publication.
  * 

@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
-import java.util.Comparator;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
+import java.util.List;
 
 /** Comparator of lists of persons.
  * 

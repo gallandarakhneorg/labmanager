@@ -19,9 +19,9 @@
 
 package fr.utbm.ciad.labmanager.data.conference;
 
-import java.util.regex.Pattern;
-
 import com.google.common.base.Strings;
+
+import java.util.regex.Pattern;
 
 /** Utilities for managing Scientific or scientific culture dissemination conference.
  * 

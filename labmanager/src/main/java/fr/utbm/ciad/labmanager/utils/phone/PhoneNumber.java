@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.phone;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -30,6 +26,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.regex.Pattern;
 
 /** International phone number.
  * 

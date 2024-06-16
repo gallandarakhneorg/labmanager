@@ -19,13 +19,13 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.utils.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of memberships. First the names of the persons is considered.
  * 

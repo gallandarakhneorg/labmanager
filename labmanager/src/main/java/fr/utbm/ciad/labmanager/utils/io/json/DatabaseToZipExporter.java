@@ -19,17 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.utils.io.UnclosableStream;
@@ -39,6 +28,13 @@ import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /** Exporter of ZIP (JSON+files) archive from the database.
  * 

@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
-import java.io.File;
-
 import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /** Utilities for managing the downloadable files. This implementation is dedicated to the WordPress service
  * of the lab.

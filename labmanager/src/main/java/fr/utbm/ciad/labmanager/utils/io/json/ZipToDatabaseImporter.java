@@ -19,14 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.zip.ZipInputStream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -36,6 +28,10 @@ import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.net.URL;
+import java.util.zip.ZipInputStream;
 
 /** Importer of ZIP (JSON+Files) data into the database.
  * 

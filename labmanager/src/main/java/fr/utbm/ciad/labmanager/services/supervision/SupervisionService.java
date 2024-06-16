@@ -19,16 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.supervision;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
@@ -49,6 +39,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Consumer;
 
 /** Service for the person supervisions.
  * 

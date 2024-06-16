@@ -19,11 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.coreportal;
 
-import java.net.URL;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-
 import com.google.common.base.Strings;
 import com.microsoft.playwright.ElementHandle;
 import fr.utbm.ciad.labmanager.utils.io.AbstractWebScraper;
@@ -33,6 +28,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilderFactory;
+
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 /** Accessor to the online CORE Portal.
  * 

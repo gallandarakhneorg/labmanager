@@ -5,11 +5,14 @@ import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static com.storedobject.chart.Color.TRANSPARENT;
 
-/** Implementation of a publication category bar chart.
+/**
+ * Implementation of a publication category bar chart.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$
@@ -20,7 +23,7 @@ import static com.storedobject.chart.Color.TRANSPARENT;
  */
 public class PublicationCategoryBarChart extends AbstractPublicationCategoryChart {
 
-    private PublicationService publicationService;
+    private final PublicationService publicationService;
 
     private Data xValues;
 
@@ -28,21 +31,22 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
 
     private CategoryData categoryData;
 
-    private CoordinateSystem rectangularCoordinate;
+    private final CoordinateSystem rectangularCoordinate;
 
-    private XAxis xAxis;
+    private final XAxis xAxis;
 
-    private YAxis yAxis;
+    private final YAxis yAxis;
 
     private LineChart lineChart;
 
-    private List<Integer> totalPublication;
+    private final List<Integer> totalPublication;
 
-    private List<PublicationType> publicationTypes;
+    private final List<PublicationType> publicationTypes;
 
-    private Legend legend;
+    private final Legend legend;
 
-    /** Constructor.
+    /**
+     * Constructor.
      *
      * @param publicationService the service for accessing the scientific publications.
      */
@@ -88,17 +92,18 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
     }
 
 
-    /** Add a data in the chart, for example, the name of a chosen publication category
+    /**
+     * Add a data in the chart, for example, the name of a chosen publication category
      *
-     * @param item the name of the chosen item.
+     * @param chosenCategory the name of the chosen category.
      */
     public void addData(String chosenCategory) {
         Data data = new Data();
         Integer countTypePublicationV2;
         List<PublicationType> temporaryPublicationTypeList = publicationTypes.stream().filter(publicationType -> Objects.equals(publicationType.getCategory(true).toString(), chosenCategory)).toList();
         Integer totalYearCount = 0;
-        for(int x = 0; x < getYears().size(); x++){
-            for (PublicationType publicationType : temporaryPublicationTypeList ) {
+        for (int x = 0; x < getYears().size(); x++) {
+            for (PublicationType publicationType : temporaryPublicationTypeList) {
                 countTypePublicationV2 = this.publicationService.getCountPublicationByTypeByYear(publicationType, getYears().get(x));
                 totalYearCount += countTypePublicationV2;
                 totalPublication.set(x, countTypePublicationV2 + totalPublication.get(x));
@@ -119,16 +124,17 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
 
     }
 
-    /** Remove a data in the chart, for example, the name of a chosen publication category
+    /**
+     * Remove a data in the chart, for example, the name of a chosen publication category
      *
-     * @param item the name of the chosen item.
+     * @param chosenCategory the name of the chosen category.
      */
     public void removeData(String chosenCategory) {
         BarChart barChart = findBarChart(chosenCategory);
         Integer countTypePublicationV2;
         List<PublicationType> temporaryPublicationTypeList = publicationTypes.stream().filter(publicationType -> Objects.equals(publicationType.getCategory(true).toString(), chosenCategory)).toList();
-        for(int x = 0; x < getYears().size(); x++){
-            for (PublicationType publicationType : temporaryPublicationTypeList ) {
+        for (int x = 0; x < getYears().size(); x++) {
+            for (PublicationType publicationType : temporaryPublicationTypeList) {
                 countTypePublicationV2 = this.publicationService.getCountPublicationByTypeByYear(publicationType, getYears().get(x));
                 totalPublication.set(x, countTypePublicationV2 - totalPublication.get(x));
             }
@@ -136,7 +142,8 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
         barChartList.remove(barChart);
     }
 
-    /** Replies the created chart (from SOChart library). The multiple bar charts needs to be plotted on a Coordinate System
+    /**
+     * Replies the created chart (from SOChart library). The multiple bar charts needs to be plotted on a Coordinate System
      * in order to be displayed on the UI. Creation of a line chart in order to show the evolution of the number of publication.
      *
      * @return The created chart.
@@ -151,14 +158,15 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
         Data data = new Data();
         data.addAll(totalPublication);
 
-        lineChart = new LineChart(categoryData,data);
+        lineChart = new LineChart(categoryData, data);
         lineChart.setName("Total of publications");
         lineChart.plotOn(rectangularCoordinate);
 
         return this;
     }
 
-    /** Method called at the creation of the chart. It precises that a unique year is provided by the user. Initialising
+    /**
+     * Method called at the creation of the chart. It precises that a unique year is provided by the user. Initialising
      * the x-axis of the Coordinate System.
      *
      * @param start The year of study.
@@ -176,17 +184,18 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
 
         barChartList.clear();
 
-        for(int i = 0; i < getYears().size(); i++){
+        for (int i = 0; i < getYears().size(); i++) {
             totalPublication.add(0);
         }
 
     }
 
-    /** Method called at the creation of the chart. It precises that a unique year is provided by the user. Initialising
+    /**
+     * Method called at the creation of the chart. It precises that a unique year is provided by the user. Initialising
      * the x-axis of the Coordinate System.
      *
      * @param start The beginning of the period.
-     * @param end The end of the period.
+     * @param end   The end of the period.
      */
     @Override
     public void setPeriod(Integer start, Integer end) {
@@ -195,7 +204,7 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
         xValues = new Data();
 
         Integer imp = start;
-        while(imp <= end){
+        while (imp <= end) {
             getYears().add(imp);
             imp++;
         }
@@ -207,17 +216,18 @@ public class PublicationCategoryBarChart extends AbstractPublicationCategoryChar
 
         barChartList.clear();
 
-        for(int i = 0; i < getYears().size(); i++){
+        for (int i = 0; i < getYears().size(); i++) {
             totalPublication.add(0);
         }
 
     }
 
-    /** Method called for finding a bar chart in barChartList. Used in removeData().
+    /**
+     * Method called for finding a bar chart in barChartList. Used in removeData().
      *
      * @param item The chosen category.
      */
-    protected BarChart findBarChart(String item){
+    protected BarChart findBarChart(String item) {
         for (BarChart barChart : barChartList) {
             if (item.equals(barChart.getName())) {
                 return barChart;

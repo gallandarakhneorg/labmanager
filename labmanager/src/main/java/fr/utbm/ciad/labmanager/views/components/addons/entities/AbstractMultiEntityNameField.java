@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox.AutoExpandMode;
@@ -38,6 +34,10 @@ import com.vaadin.flow.function.SerializableConsumer;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /** Abstract implementation of a field for entering multiple entities, with auto-completion from the person JPA entities.
  * 

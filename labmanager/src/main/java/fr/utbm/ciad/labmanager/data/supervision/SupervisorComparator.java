@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.data.supervision;
 
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of supervisors.
  * 

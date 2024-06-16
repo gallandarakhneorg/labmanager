@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,10 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Editor of publication information that may be embedded. This editor does not provide
+/**
+ * Editor of publication information that may be embedded. This editor does not provide
  * the components for saving the information. It is the role of the component that
  * is embedding this editor to save the edited publication. This editor is used for a wizard.
- * 
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -46,42 +47,43 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEditorWizard {
 
-	private static final long serialVersionUID = 7233675942546351403L;
+    private static final long serialVersionUID = 7233675942546351403L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPublicationEditorWizard.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPublicationEditorWizard.class);
 
-	/** Constructor.
-	 *
-	 * @param context the context for editing the entity.
-	 * @param supportedTypes list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
-	 * @param enableTypeSelector indicates if the type selector is enabled or disabled.
-	 * @param fileManager the manager of files at the server-side.
-	 * @param publicationService the service for accessing the JPA entities for publications.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param userService the service for accessing the JPA entities for users.
-	 * @param journalService the service for accessing the JPA entities for journal.
-	 * @param conferenceService the service for accessing the JPA entities for conference.
-	 * @param axisService service for accessing to the JPA entities of scientific axes. 
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
-	 * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
-	 * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
-	 * @param personNullErrorKey the key that is used for retrieving the text of the author/editor null error.
-	 * @param personDuplicateErrorKey the key that is used for retrieving the text of the author/editor duplicate error.
-	 */
-	public EmbeddedPublicationEditorWizard(EntityEditingContext<Publication> context,
-										   PublicationType[] supportedTypes, boolean enableTypeSelector,
-										   DownloadableFileManager fileManager, PublicationService publicationService,
-										   PersonService personService, UserService userService,
-										   JournalService journalService, ConferenceService conferenceService,
-										   ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-										   String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
-										   String personNullErrorKey, String personDuplicateErrorKey) {
-		super(context, supportedTypes, false, enableTypeSelector, fileManager, publicationService, personService, userService,
-				journalService, conferenceService, axisService, authenticatedUser, messages, LOGGER, personCreationLabelKey,
-				personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
-		createEditorContentAndLinkBeans();
-	}
+    /**
+     * Constructor.
+     *
+     * @param context                   the context for editing the entity.
+     * @param supportedTypes            list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
+     * @param enableTypeSelector        indicates if the type selector is enabled or disabled.
+     * @param fileManager               the manager of files at the server-side.
+     * @param publicationService        the service for accessing the JPA entities for publications.
+     * @param personService             the service for accessing the JPA entities for persons.
+     * @param userService               the service for accessing the JPA entities for users.
+     * @param journalService            the service for accessing the JPA entities for journal.
+     * @param conferenceService         the service for accessing the JPA entities for conference.
+     * @param axisService               service for accessing to the JPA entities of scientific axes.
+     * @param authenticatedUser         the connected user.
+     * @param messages                  the accessor to the localized messages (Spring layer).
+     * @param personCreationLabelKey    the key that is used for retrieving the text for creating a new person and associating it to the publication.
+     * @param personFieldLabelKey       the key that is used for retrieving the text for the label of the author/editor field.
+     * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
+     * @param personNullErrorKey        the key that is used for retrieving the text of the author/editor null error.
+     * @param personDuplicateErrorKey   the key that is used for retrieving the text of the author/editor duplicate error.
+     */
+    public EmbeddedPublicationEditorWizard(EntityEditingContext<Publication> context,
+                                           PublicationType[] supportedTypes, boolean enableTypeSelector,
+                                           DownloadableFileManager fileManager, PublicationService publicationService,
+                                           PersonService personService, UserService userService,
+                                           JournalService journalService, ConferenceService conferenceService,
+                                           ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+                                           String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
+                                           String personNullErrorKey, String personDuplicateErrorKey) {
+        super(context, supportedTypes, false, enableTypeSelector, fileManager, publicationService, personService, userService,
+                journalService, conferenceService, axisService, authenticatedUser, messages, LOGGER, personCreationLabelKey,
+                personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+        createEditorContentAndLinkBeans();
+    }
 
 }

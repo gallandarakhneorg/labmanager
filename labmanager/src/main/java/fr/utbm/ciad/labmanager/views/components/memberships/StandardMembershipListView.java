@@ -375,7 +375,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	private static ResearchOrganization getService(Membership membership) {
 		assert membership != null;
 		final var employer = membership.getSuperResearchOrganization();
-		if (employer != null) {
+		if (employer != null) {	// TODO : Check function I think it should be employer == null
 			return membership.getDirectResearchOrganization();
 		}
 		return employer;

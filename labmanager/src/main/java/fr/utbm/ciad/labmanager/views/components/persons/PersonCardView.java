@@ -5,7 +5,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
-import fr.utbm.ciad.labmanager.data.member.MembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -22,8 +21,8 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
     private final AuthenticatedUser authenticatedUser;
     private final MessageSourceAccessor messages;
 
-    public PersonCardView(Person person, PersonService personService, UserService userService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, MembershipService membershipService, ChronoMembershipComparator membershipComparator){
-        super(new CardBuilder().setImageUrl(person.getPhotoURL() != null  ? person.getPhotoURL().toString() : null)
+    public PersonCardView(Person person, PersonService personService, UserService userService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, MembershipService membershipService, ChronoMembershipComparator membershipComparator) {
+        super(new CardBuilder().setImageUrl(person.getPhotoURL() != null ? person.getPhotoURL().toString() : null)
                 .setRole(membershipService.getRoleForPerson(person, membershipComparator))
                 .setName(person.getFullName()).setEmail(person.getEmail())
                 .setOfficePhone(person.getOfficePhone()).setMobilePhone(person.getMobilePhone())
@@ -37,7 +36,7 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
         this.messages = messages;
     }
 
-    protected void openPersonEditor(Person person, String title){
+    protected void openPersonEditor(Person person, String title) {
         final var personContext = this.personService.startEditing(person);
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
@@ -54,7 +53,7 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
 
     @Override
     protected void onClickEvent(Person entity) {
-        if (isAdminRole()){
+        if (isAdminRole()) {
             openPersonEditor(entity, getTranslation("views.persons.edit_person", entity.getFullName()));
         }
     }
@@ -62,7 +61,7 @@ public class PersonCardView extends AbstractPersonCardView<Person> {
     protected void refreshCard(Person entity) {
         Person updatedPerson = personService.getPersonById(entity.getId());
         CardBuilder cardBuilder = new CardBuilder()
-                .setImageUrl(updatedPerson.getPhotoURL() != null  ? updatedPerson.getPhotoURL().toString() : null)
+                .setImageUrl(updatedPerson.getPhotoURL() != null ? updatedPerson.getPhotoURL().toString() : null)
                 .setName(updatedPerson.getFullName())
                 .setEmail(updatedPerson.getEmail())
                 .setOfficePhone(updatedPerson.getOfficePhone())

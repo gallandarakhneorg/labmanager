@@ -19,25 +19,18 @@
 
 package fr.utbm.ciad.labmanager.data.conference;
 
-import java.io.IOException;
-import java.util.Locale;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.QualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.io.IOException;
+import java.util.Locale;
 
 /** History of the quality indicators for a conference.
  * 

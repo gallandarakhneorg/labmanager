@@ -1,14 +1,14 @@
 package fr.utbm.ciad.labmanager.views.components.charts.publicationcategory;
 
 import com.storedobject.chart.*;
-import com.storedobject.chart.Chart;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
-/** Implementation of a publication category nightingale rose chart.
+/**
+ * Implementation of a publication category nightingale rose chart.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$
@@ -23,70 +23,74 @@ public class PublicationCategoryNightingaleRoseChart extends AbstractPublication
 
     private NightingaleRoseChart nightingaleRoseChart;
 
-    private Map<String, Integer> publicationCategories;
+    private final Map<String, Integer> publicationCategories;
 
     private List<Integer> years;
 
     private Integer totalPublication;
 
-    /** Constructor.
+    /**
+     * Constructor.
      *
      * @param publicationService the service for accessing the scientific publications.
      */
-    public PublicationCategoryNightingaleRoseChart(@Autowired PublicationService publicationService){
+    public PublicationCategoryNightingaleRoseChart(@Autowired PublicationService publicationService) {
         super(publicationService);
         publicationCategories = new HashMap<>();
         years = new ArrayList<>();
         totalPublication = 0;
     }
 
-    /** Add a data in the chart, for example, the name of a chosen publication category
+    /**
+     * Add a data in the chart, for example, the name of a chosen publication category
      *
-     * @param item the name of the chosen item.
+     * @param chosenCategory the name of the chosen category.
      */
     public void addData(String chosenCategory) {
         Integer countTypePublicationV2;
         List<PublicationType> temporaryPublicationTypeList = getPublicationTypeList().stream().filter(publicationType -> Objects.equals(publicationType.getCategory(true).toString(), chosenCategory)).toList();
         Integer total = 0;
-        for(int x = 0; x < years.size(); x++){
-            for (PublicationType publicationType : temporaryPublicationTypeList ) {
+        for (int x = 0; x < years.size(); x++) {
+            for (PublicationType publicationType : temporaryPublicationTypeList) {
                 countTypePublicationV2 = this.publicationService.getCountPublicationByTypeByYear(publicationType, years.get(x));
                 total += countTypePublicationV2;
 
             }
         }
         totalPublication += total;
-        publicationCategories.put(chosenCategory,total);
+        publicationCategories.put(chosenCategory, total);
 
     }
 
-    /** Remove a data in the chart, for example, the name of a chosen publication category
+    /**
+     * Remove a data in the chart, for example, the name of a chosen publication category
      *
-     * @param item the name of the chosen item.
+     * @param chosenCategory the name of the chosen category.
      */
     public void removeData(String chosenCategory) {
         totalPublication -= publicationCategories.get(chosenCategory);
         publicationCategories.remove(chosenCategory);
     }
 
-    /** Replies the created chart (from SOChart library). The creation of the chart must be implemented in this method.
+    /**
+     * Replies the created chart (from SOChart library). The creation of the chart must be implemented in this method.
      *
      * @return The created chart.
      */
-    public SOChart createChart(){
+    public SOChart createChart() {
         categoryData = new CategoryData();
         Data data = new Data();
         data.addAll(publicationCategories.values());
 
         float percentage = 0;
         String toString;
-        for(var s : publicationCategories.entrySet()){
-            percentage = ((float) s.getValue() /totalPublication)*100;
-            toString = s.getKey() + " - " + String.format("%.2f",percentage) + "% ";
+        for (var s : publicationCategories.entrySet()) {
+            percentage = ((float) s.getValue() / totalPublication) * 100;
+            toString = s.getKey() + " - " + String.format("%.2f", percentage) + "% ";
             categoryData.add(toString);
         }
 
-        nightingaleRoseChart = new NightingaleRoseChart(categoryData,data);
+        nightingaleRoseChart = new NightingaleRoseChart(categoryData, data);
         Chart.Label label = nightingaleRoseChart.getLabel(true);
         label.setInside(false);
         label.setFormatter("{0} - {1}");
@@ -96,7 +100,8 @@ public class PublicationCategoryNightingaleRoseChart extends AbstractPublication
         return this;
     }
 
-    /** Method called at the creation of the chart. It precises that a unique year is provided by the user.
+    /**
+     * Method called at the creation of the chart. It precises that a unique year is provided by the user.
      *
      * @param start The year of study.
      */
@@ -113,10 +118,11 @@ public class PublicationCategoryNightingaleRoseChart extends AbstractPublication
 
     }
 
-    /** Method called at the creation of the chart. It precises that a period is provided by the user.
+    /**
+     * Method called at the creation of the chart. It precises that a period is provided by the user.
      *
      * @param start The beginning of the period.
-     * @param end The end of the period.
+     * @param end   The end of the period.
      */
     @Override
     public void setPeriod(Integer start, Integer end) {
@@ -124,7 +130,7 @@ public class PublicationCategoryNightingaleRoseChart extends AbstractPublication
         categoryData = new CategoryData();
 
         Integer imp = start;
-        while(imp <= end){
+        while (imp <= end) {
             years.add(imp);
             imp++;
         }

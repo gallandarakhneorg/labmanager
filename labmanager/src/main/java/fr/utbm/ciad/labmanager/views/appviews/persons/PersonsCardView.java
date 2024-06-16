@@ -1,15 +1,12 @@
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.OrderedList;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.function.SerializableBiConsumer;
@@ -26,7 +23,10 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.*;
+import fr.utbm.ciad.labmanager.views.components.persons.EmbeddedPersonEditorWizard;
+import fr.utbm.ciad.labmanager.views.components.persons.PaginationComponent;
+import fr.utbm.ciad.labmanager.views.components.persons.PersonCardView;
+import fr.utbm.ciad.labmanager.views.components.persons.SearchComponent;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -91,7 +91,7 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
 
         add(searchComponent);
         add(container, imageContainer);
-        this.numberOfPages = personService.countAllPersons() / cardsPerRow*numberOfRows;
+        this.numberOfPages = personService.countAllPersons() / cardsPerRow * numberOfRows;
         paginationComponent = new PaginationComponent(numberOfPages);
         add(paginationComponent);
         fetchCards(0);
@@ -114,38 +114,38 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
     }
 
     private void fetchCards(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, cardsPerRow*numberOfRows, Sort.by("lastName").and(Sort.by("firstName")));
+        Pageable pageable = PageRequest.of(pageNumber, cardsPerRow * numberOfRows, Sort.by("lastName").and(Sort.by("firstName")));
         Page<Person> persons;
-        if (filterQuery.equals(getTranslation("views.filters.include_names"))){
-            if (restrictToOrganization){
-                numberOfPages = (long) Math.ceil((double)personService.countPersonsByName(searchQuery, organization) / (cardsPerRow*numberOfRows));
+        if (filterQuery.equals(getTranslation("views.filters.include_names"))) {
+            if (restrictToOrganization) {
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByName(searchQuery, organization) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByName(searchQuery, organization, pageable);
             } else {
-                numberOfPages = (long) Math.ceil((double)personService.countPersonsByName(searchQuery) / (cardsPerRow*numberOfRows));
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByName(searchQuery) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByName(searchQuery, pageable);
             }
-        } else if (filterQuery.equals(getTranslation("views.filters.include_orcids"))){
-            if (restrictToOrganization){
-                numberOfPages = (long) Math.ceil((double)personService.countPersonsByOrcid(searchQuery, organization) / (cardsPerRow*numberOfRows));
+        } else if (filterQuery.equals(getTranslation("views.filters.include_orcids"))) {
+            if (restrictToOrganization) {
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcid(searchQuery, organization) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByOrcid(searchQuery, organization, pageable);
             } else {
-                numberOfPages = (long) Math.ceil((double)personService.countPersonsByOrcid(searchQuery) / (cardsPerRow*numberOfRows));
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcid(searchQuery) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByOrcid(searchQuery, pageable);
             }
-        } else if (filterQuery.equals(getTranslation("views.filters.include_organizations"))){
-            if (restrictToOrganization){
-                numberOfPages = (long) Math.ceil((double)personService.countPersonsByOrganization(searchQuery, organization) / (cardsPerRow*numberOfRows));
+        } else if (filterQuery.equals(getTranslation("views.filters.include_organizations"))) {
+            if (restrictToOrganization) {
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(searchQuery, organization) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByOrganization(searchQuery, organization, pageable);
             } else {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(searchQuery) / (cardsPerRow*numberOfRows));
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(searchQuery) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByOrganization(searchQuery, pageable);
             }
         } else {
-            if (restrictToOrganization){
-                numberOfPages = (long) Math.ceil((double)personService.countPersonsByOrganization(organization) / (cardsPerRow*numberOfRows));
+            if (restrictToOrganization) {
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(organization) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByOrganization(organization, pageable);
             } else {
-                numberOfPages = (long) Math.ceil((double)personService.countAllPersons() / (cardsPerRow*numberOfRows));
+                numberOfPages = (long) Math.ceil((double) personService.countAllPersons() / (cardsPerRow * numberOfRows));
                 persons = personService.getAllPersons(pageable);
             }
         }
@@ -157,7 +157,7 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
         UI.getCurrent().getPage().executeJs("window.scrollTo(0, 0);");
     }
 
-    private MenuBar createMenuBar(){
+    private MenuBar createMenuBar() {
         final var menu = new MenuBar();
         menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
         if (isAdminRole()) {
@@ -166,22 +166,23 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
         ComponentFactory.addIconItem(menu, LineAwesomeIcon.TH_LIST_SOLID, getTranslation("views.persons.switch_views"), null, it -> getUI().ifPresent(ui -> ui.navigate(PersonsListView.class)));
         return menu;
     }
-    
-    private void addEntity(){
+
+    private void addEntity() {
         openPersonWizardEditor(new Person(), getTranslation("views.persons.add_person"));
     }
 
-    /** Show the wizard editor of a person.
+    /**
+     * Show the wizard editor of a person.
      *
      * @param person the person to edit.
-     * @param title the title of the editor.
+     * @param title  the title of the editor.
      */
     protected void openPersonWizardEditor(Person person, String title) {
         final var personContext = this.personService.startEditing(person);
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
         final var editor = new EmbeddedPersonEditorWizard(
-                userContext, authenticatedUser, messages,personService);
+                userContext, authenticatedUser, messages, personService);
         final var newEntity = editor.isNewEntity();
         final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshPage();
         ComponentFactory.openEditionModalDialog(title, editor, true,

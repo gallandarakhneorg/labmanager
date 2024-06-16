@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.data.publication;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Objects;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
@@ -31,6 +27,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Objects;
 
 /** Abstract publication that is related to a conference.
  * 

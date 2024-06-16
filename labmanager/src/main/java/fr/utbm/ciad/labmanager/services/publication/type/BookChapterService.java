@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -42,6 +38,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
 
 /** Service for managing book chapters.
  * 

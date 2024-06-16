@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.journals;
 
-import static fr.utbm.ciad.labmanager.views.ViewConstants.SCIMAGO_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.SCIMAGO_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
-
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Span;
@@ -52,7 +48,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
-import java.util.List;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
 /** Abstract implementation for the editor of the information related to a scientific journal.
  * 

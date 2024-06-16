@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.util.Collection;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -28,6 +26,8 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
+
+import java.util.Collection;
 
 /** Utilities for exporting publications to JSON.
  * 

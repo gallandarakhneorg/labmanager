@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.data.teaching;
 
+import com.google.common.base.Strings;
+import org.springframework.context.support.MessageSourceAccessor;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Strings;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Innovative pedagogical practices are listing in this enumeration.
  * 

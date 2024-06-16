@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.indicators;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -34,6 +31,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import jakarta.annotation.security.PermitAll;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** Enable to show the indicators.
  * 

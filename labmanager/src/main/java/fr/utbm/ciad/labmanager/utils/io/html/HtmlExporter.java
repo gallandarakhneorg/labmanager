@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
-import java.util.Collection;
-
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import org.arakhne.afc.progress.Progression;
+
+import java.util.Collection;
 
 /** Utilities for exporting publications to HTML content.
  * This exporter is generic and not dedicated to a specific target.

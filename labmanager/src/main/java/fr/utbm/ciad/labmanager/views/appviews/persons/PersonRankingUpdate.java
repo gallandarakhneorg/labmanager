@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
+import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-
-import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 
 /** Data in the wizard for updating the person ranking.
  * 

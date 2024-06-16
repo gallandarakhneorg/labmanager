@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
-import static fr.utbm.ciad.labmanager.views.ViewConstants.CORE_PORTAL_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.CORE_PORTAL_ICON;
-
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Span;
@@ -49,6 +46,9 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyString
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import static fr.utbm.ciad.labmanager.views.ViewConstants.CORE_PORTAL_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.CORE_PORTAL_ICON;
 
 /** Abstract implementation for the editor of the information related to a scientific conference.
  * 

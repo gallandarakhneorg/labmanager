@@ -19,14 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.indicator;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import fr.utbm.ciad.labmanager.components.indicators.Indicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicators;
@@ -38,6 +30,14 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Service related to the global indicators.
  * 

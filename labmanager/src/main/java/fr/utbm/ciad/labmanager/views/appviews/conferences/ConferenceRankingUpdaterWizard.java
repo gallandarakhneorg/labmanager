@@ -19,14 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.conferences;
 
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
@@ -67,6 +59,14 @@ import jakarta.persistence.criteria.Predicate;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /** Wizard for updating the conference rankings.
  * 

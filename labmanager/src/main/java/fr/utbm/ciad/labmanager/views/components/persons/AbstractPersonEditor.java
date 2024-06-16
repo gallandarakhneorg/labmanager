@@ -19,25 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.persons;
 
-import static fr.utbm.ciad.labmanager.views.ViewConstants.ACADEMIA_EDU_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.ACADEMIA_EDU_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.ADSCIENTIFICINDEX_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.EU_CORDIS_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.EU_CORDIS_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.FACEBOOK_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.GITHUB_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.GRAVATAR_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.GSCHOLAR_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.LINKEDIN_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.ORCID_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.RESEARCHGATE_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.SCOPUS_ICON;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
-
-import java.util.function.Consumer;
-
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
@@ -83,6 +64,10 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.OrcidValidator
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.function.Consumer;
+
+import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
 /** Abstract implementation for the editor of the information related to a person.
  * 

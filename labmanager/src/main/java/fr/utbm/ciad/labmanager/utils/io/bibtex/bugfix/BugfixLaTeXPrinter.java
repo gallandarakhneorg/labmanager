@@ -19,18 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils.io.bibtex.bugfix;
 
+import org.jbibtex.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jbibtex.LaTeXCommand;
-import org.jbibtex.LaTeXGroup;
-import org.jbibtex.LaTeXObject;
-import org.jbibtex.LaTeXPrinter;
-import org.jbibtex.LaTeXString;
 
 /** Bugfix of {@link LaTeXPrinter}. This class should be removed as soon as the JBibtex library is fixed
  * (see {@link "https://github.com/jbibtex/jbibtex/pull/28"}.

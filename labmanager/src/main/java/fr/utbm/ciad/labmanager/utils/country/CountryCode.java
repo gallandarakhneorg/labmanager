@@ -19,77 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils.country;
 
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ALBANIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ARABIC;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ARMENIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.AZERBAIJANI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BENGALI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BOSNIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BULGARIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BURMESE;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.CATALAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.CROATIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.CZECH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DANISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DHIVEHI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DUTCH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DZONGHKHA;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ESTONIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.FILIPINO;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.FINNISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.GEORGIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.GREEK;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.HEBREW;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.HINDI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.HUNGARIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ICELANDIC;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.INDONESIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.KAZAKH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.KHMER;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.KYRGYZ;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.LATVIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.LITHUANIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.LUXEMBOURGISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MACEDONIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MALAY;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MALTESE;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MONGOLIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.NEPALI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.NORWEGIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.OROMO;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.PERSIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.POLISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.PORTUGUESE;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ROMANIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.RUSSIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SERBIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SINHALA;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SLOVAK;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SLOVENIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SPANNISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SWAHILI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SWEDISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TAJIK;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.THAI;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TIGRINYA;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TURKISH;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TURKMEN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.UKRAINIAN;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.URDU;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.UZBEK;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.VIETNAMESE;
-import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ZULU;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.springframework.context.i18n.LocaleContextHolder;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.*;
 
 /** This enumeration gives a list of countries with the official codes of the countries
  * given by the ISO 3166-1, and the phone prefix information that is provided by

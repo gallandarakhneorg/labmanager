@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.data.assostructure;
 
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of associated structure holders.
  * 

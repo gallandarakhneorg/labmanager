@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.data.jury;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.Comparator;
 
 /** Comparator of jury memberships. First the years are considered in the
  * sort, Then, types and the persons are used from the highest to the lowest.

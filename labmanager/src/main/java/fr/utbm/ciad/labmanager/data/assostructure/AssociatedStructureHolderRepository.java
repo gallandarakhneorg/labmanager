@@ -19,9 +19,9 @@
 
 package fr.utbm.ciad.labmanager.data.assostructure;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 
 /** JPA repository for the declarations of the holders of associated structures.
  * 

@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
-import java.net.URL;
-import java.util.function.Consumer;
-
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -45,11 +42,7 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationNameComparator;
-import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
-import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
-import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
-import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
+import fr.utbm.ciad.labmanager.data.project.*;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisComparator;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
@@ -71,12 +64,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideU
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImagesField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.powerpoint.ServerSideUploadablePowerpointField;
-import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
-import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
-import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
-import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
-import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
-import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.*;
 import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
 import fr.utbm.ciad.labmanager.views.components.addons.value.TextListField;
 import fr.utbm.ciad.labmanager.views.components.organizations.EmbeddedOrganizationEditor;
@@ -85,6 +73,9 @@ import fr.utbm.ciad.labmanager.views.components.scientificaxes.EmbeddedScientifi
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.net.URL;
+import java.util.function.Consumer;
 
 /** Abstract implementation for the editor of the information related to a project.
  * 

@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -43,6 +40,9 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractMultiEnt
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /** Implementation of a field for entering the names of projects, with auto-completion from the person JPA entities.
  * 

@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -48,6 +44,10 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /** List all the addresses.
  * 

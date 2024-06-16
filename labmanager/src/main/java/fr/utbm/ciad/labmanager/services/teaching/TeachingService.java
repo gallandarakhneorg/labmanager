@@ -19,28 +19,11 @@
 
 package fr.utbm.ciad.labmanager.services.teaching;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
-import fr.utbm.ciad.labmanager.data.teaching.PedagogicalPracticeType;
-import fr.utbm.ciad.labmanager.data.teaching.StudentType;
-import fr.utbm.ciad.labmanager.data.teaching.TeacherRole;
-import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
-import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
-import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
-import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
+import fr.utbm.ciad.labmanager.data.teaching.*;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -55,6 +38,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Consumer;
 
 /** Service for the teaching activities.
  * 

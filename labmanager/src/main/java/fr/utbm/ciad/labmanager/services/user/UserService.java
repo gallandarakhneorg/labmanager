@@ -19,11 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.user;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -42,6 +37,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /** Service for the application users.
  * 

@@ -19,15 +19,15 @@
 
 package fr.utbm.ciad.labmanager.utils.io.wos;
 
+import com.google.common.base.Strings;
+import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.Progression;
+
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
-
-import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
-import org.arakhne.afc.progress.Progression;
 
 /** Accessor to the online Web-of-Science platform.
  * 

@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.assocstructures;
 
-import java.util.HashSet;
-import java.util.List;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -43,6 +40,9 @@ import fr.utbm.ciad.labmanager.views.components.organizations.SingleOrganization
 import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.HashSet;
+import java.util.List;
 
 /** Implementation of a Vaadin component for input a list of associated structure holder using values in a grid row.
  *

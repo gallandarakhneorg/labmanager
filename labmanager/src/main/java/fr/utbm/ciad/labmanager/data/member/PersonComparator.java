@@ -19,13 +19,13 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.utils.Comparators;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of persons.
  * 

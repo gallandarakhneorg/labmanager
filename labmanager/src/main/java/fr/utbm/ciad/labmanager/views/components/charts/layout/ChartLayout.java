@@ -1,6 +1,7 @@
 package fr.utbm.ciad.labmanager.views.components.charts.layout;
 
-/** Interface that represents a chart.
+/**
+ * Interface that represents a chart.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$

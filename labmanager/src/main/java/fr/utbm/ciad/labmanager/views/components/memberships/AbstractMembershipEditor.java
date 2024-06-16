@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.memberships;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.function.Consumer;
-
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Component;
@@ -41,11 +37,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.data.member.Gender;
-import fr.utbm.ciad.labmanager.data.member.MemberStatus;
-import fr.utbm.ciad.labmanager.data.member.Membership;
-import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.member.Responsibility;
+import fr.utbm.ciad.labmanager.data.member.*;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
@@ -74,6 +66,10 @@ import fr.utbm.ciad.labmanager.views.components.scientificaxes.EmbeddedScientifi
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Collections;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 /** Abstract implementation for the editor of the information related to a membership.
  * 

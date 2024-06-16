@@ -19,22 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.assostructure;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
-import fr.utbm.ciad.labmanager.data.assostructure.HolderRole;
+import fr.utbm.ciad.labmanager.data.assostructure.*;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
@@ -50,6 +36,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
 
 /** Service for the associated structures.
  * 

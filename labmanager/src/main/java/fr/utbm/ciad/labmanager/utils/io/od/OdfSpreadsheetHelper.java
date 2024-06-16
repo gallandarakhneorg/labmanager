@@ -19,12 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.od;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.Resources;
 import org.odftoolkit.odfdom.doc.OdfDocument.OdfMediaType;
@@ -35,6 +29,12 @@ import org.odftoolkit.odfdom.doc.table.OdfTableRow;
 import org.odftoolkit.odfdom.dom.element.table.TableTableElement;
 import org.odftoolkit.odfdom.type.Color;
 import org.springframework.http.MediaType;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /** Utility class for creating ODF spreadsheet.
  * 

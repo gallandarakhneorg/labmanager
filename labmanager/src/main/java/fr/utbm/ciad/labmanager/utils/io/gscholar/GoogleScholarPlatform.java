@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io.gscholar;
 
+import org.arakhne.afc.progress.Progression;
+
 import java.io.Serializable;
 import java.net.URL;
-
-import org.arakhne.afc.progress.Progression;
 
 /** Accessor to the online Google Scholar platform.
  * 

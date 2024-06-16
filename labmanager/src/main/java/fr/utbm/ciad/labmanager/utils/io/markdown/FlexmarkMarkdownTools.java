@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.markdown;
 
-import java.util.Arrays;
-
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -28,6 +26,8 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 /** Utilities for manupilating markdown with the Flexmark API.
  * 

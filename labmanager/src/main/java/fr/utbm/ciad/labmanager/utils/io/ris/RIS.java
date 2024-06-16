@@ -19,18 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.ris;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
@@ -38,6 +26,14 @@ import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.ConferenceFake;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.JournalFake;
 import org.arakhne.afc.progress.Progression;
+
+import java.io.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Utilities for RIS.
  * RIS is a standardized tag format developed by Research Information Systems, Incorporated to enable citation programs

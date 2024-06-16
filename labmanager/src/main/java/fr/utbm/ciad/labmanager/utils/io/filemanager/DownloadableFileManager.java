@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
+import org.arakhne.afc.sizediterator.SizedIterator;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.arakhne.afc.sizediterator.SizedIterator;
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
-import org.springframework.web.multipart.MultipartFile;
 
 /** Utilities for managing the downloadable files.
  * 

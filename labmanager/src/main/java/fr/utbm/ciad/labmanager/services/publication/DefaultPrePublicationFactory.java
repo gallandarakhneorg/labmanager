@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
-import java.time.LocalDate;
-
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 /** Factory of a publication that is temporary and defined for pre-initialization of a real publication.
  * This class is not supposed to be used intensively or stored into the database.

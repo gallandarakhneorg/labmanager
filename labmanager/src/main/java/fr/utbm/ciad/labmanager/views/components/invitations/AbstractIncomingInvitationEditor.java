@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.invitations;
 
-import java.util.Arrays;
-
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
@@ -49,6 +47,8 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumera
 import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Arrays;
 
 /** Abstract implementation for the editor of the information related to an incoming invitation.
  * 

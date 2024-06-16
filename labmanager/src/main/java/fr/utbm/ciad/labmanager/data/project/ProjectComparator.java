@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.data.project;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 
 /** Comparator of projects based on local budgets, dates, acronyms, TRL, activity type, scientific title, global budget.
  * 

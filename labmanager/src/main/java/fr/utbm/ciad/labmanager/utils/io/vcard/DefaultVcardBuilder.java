@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.vcard;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -34,6 +30,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.net.URL;
+import java.util.Locale;
 
 /** A builder of a Virtual Card File (VCF) based on the description on {@link "https://en.wikipedia.org/wiki/VCard"}.
  * <p>Virtual Card Format (VCF) or vCard is a digital file format for storing contact information.

@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.appviews;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -30,13 +27,7 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -69,7 +60,6 @@ import fr.utbm.ciad.labmanager.views.appviews.memberships.MembershipsListView;
 import fr.utbm.ciad.labmanager.views.appviews.organizations.AddressesListView;
 import fr.utbm.ciad.labmanager.views.appviews.organizations.OrganizationsListView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.MyProfileView;
-import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsCardView;
 import fr.utbm.ciad.labmanager.views.appviews.persons.PersonsListView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.PatentsListView;
 import fr.utbm.ciad.labmanager.views.appviews.projects.ProjectsListView;
@@ -91,6 +81,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 /** The main view is a top-level placeholder for other views.
  * 

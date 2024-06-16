@@ -19,21 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.ris;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import ch.difty.kris.KRisIO;
 import ch.difty.kris.domain.RisRecord;
 import ch.difty.kris.domain.RisType;
@@ -44,29 +29,12 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
-import fr.utbm.ciad.labmanager.data.publication.type.Book;
-import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
-import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalEdition;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
-import fr.utbm.ciad.labmanager.data.publication.type.KeyNote;
-import fr.utbm.ciad.labmanager.data.publication.type.MiscDocument;
-import fr.utbm.ciad.labmanager.data.publication.type.Patent;
-import fr.utbm.ciad.labmanager.data.publication.type.Report;
-import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
+import fr.utbm.ciad.labmanager.data.publication.type.*;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PrePublicationFactory;
-import fr.utbm.ciad.labmanager.services.publication.type.BookChapterService;
-import fr.utbm.ciad.labmanager.services.publication.type.BookService;
-import fr.utbm.ciad.labmanager.services.publication.type.ConferencePaperService;
-import fr.utbm.ciad.labmanager.services.publication.type.JournalEditionService;
-import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
-import fr.utbm.ciad.labmanager.services.publication.type.KeyNoteService;
-import fr.utbm.ciad.labmanager.services.publication.type.MiscDocumentService;
-import fr.utbm.ciad.labmanager.services.publication.type.ReportService;
-import fr.utbm.ciad.labmanager.services.publication.type.ThesisService;
+import fr.utbm.ciad.labmanager.services.publication.type.*;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.ConferenceFake;
@@ -79,6 +47,14 @@ import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Utilities for RIS based on the Kris library.
  * 

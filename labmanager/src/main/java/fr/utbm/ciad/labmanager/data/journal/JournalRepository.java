@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.data.journal;
 
-import java.util.Optional;
-import java.util.Set;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.util.Optional;
+import java.util.Set;
 
 /** JPA repository for journals.
  * 

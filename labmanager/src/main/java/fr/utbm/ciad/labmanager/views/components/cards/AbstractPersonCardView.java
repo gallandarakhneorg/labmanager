@@ -3,30 +3,14 @@ package fr.utbm.ciad.labmanager.views.components.cards;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.vaadin.flow.theme.lumo.LumoUtility.AlignItems;
-import com.vaadin.flow.theme.lumo.LumoUtility.Background;
-import com.vaadin.flow.theme.lumo.LumoUtility.BorderRadius;
-import com.vaadin.flow.theme.lumo.LumoUtility.Display;
-import com.vaadin.flow.theme.lumo.LumoUtility.FlexDirection;
-import com.vaadin.flow.theme.lumo.LumoUtility.FontSize;
-import com.vaadin.flow.theme.lumo.LumoUtility.FontWeight;
-import com.vaadin.flow.theme.lumo.LumoUtility.JustifyContent;
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin;
-import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
-import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
-import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
-import com.vaadin.flow.theme.lumo.LumoUtility.Width;
+import com.vaadin.flow.theme.lumo.LumoUtility.*;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.List;
 
 public abstract class AbstractPersonCardView<T> extends ListItem {
@@ -38,12 +22,13 @@ public abstract class AbstractPersonCardView<T> extends ListItem {
     String officePhone;
     String officeRoom;
     List<String> labels;
+
     public AbstractPersonCardView(CardBuilder builder, T entity) {
         setData(builder);
         buildCard(entity);
     }
 
-    protected void updateCard(CardBuilder builder){
+    protected void updateCard(CardBuilder builder) {
         setData(builder);
         this.removeAll();
         buildCard(null);
@@ -54,7 +39,7 @@ public abstract class AbstractPersonCardView<T> extends ListItem {
      *
      * @param builder The builder containing the data
      */
-    private void setData(CardBuilder builder){
+    private void setData(CardBuilder builder) {
         imageUrl = builder.imageUrl;
         name = builder.name;
         role = builder.role;

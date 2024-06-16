@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.io.scimago;
 
+import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.Progression;
+
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
-
-import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
-import org.arakhne.afc.progress.Progression;
 
 /** Accessor to the online Scimago platform.
  * 

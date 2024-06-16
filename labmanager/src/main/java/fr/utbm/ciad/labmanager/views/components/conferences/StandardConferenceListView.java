@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -53,6 +49,10 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /** List all the conferences.
  * 
@@ -204,27 +204,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 		final var editor = new EmbeddedConferenceEditorWizard(
 				this.conferenceService.startEditing(conference),
 				getAuthenticatedUser(), this.conferenceService , getMessageSourceAccessor());
-		final var newEntity = editor.isNewEntity();
-		final SerializableBiConsumer<Dialog, Conference> refreshAll = (dialog, entity) -> {
-			// The number of papers should be loaded because it was not loaded before
-			this.conferenceService.inSession(session -> {
-				session.load(entity, Long.valueOf(entity.getId()));
-				initializeEntityFromJPA(entity);
-			});
-			refreshGrid();
-		};
-		final SerializableBiConsumer<Dialog, Conference> refreshOne = (dialog, entity) -> {
-			// The number of papers should be loaded because it was not loaded before
-			this.conferenceService.inSession(session -> {
-				session.load(entity, Long.valueOf(entity.getId()));
-				initializeEntityFromJPA(entity);
-			});
-			refreshItem(entity);
-		};
-		ComponentFactory.openEditionModalDialog(title, editor, false,
-				// Refresh the "old" item, even if its has been changed in the JPA database
-				newEntity ? refreshAll : refreshOne,
-				newEntity ? null : refreshAll);
+		openConferenceEditor(editor, title);
 	}
 
 	/** Show the editor of a conference.
@@ -237,6 +217,16 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 				this.conferenceService.startEditing(conference),
 				this.conferenceService,
 				getAuthenticatedUser(), getMessageSourceAccessor());
+		openConferenceEditor(editor, title);
+	}
+
+	/** Show the editor of a conference.
+	 *
+	 * @param editor the editor to show.
+	 * @param title the title of the editor.
+	 * @param <T> the type of the editor extending {@link AbstractConferenceEditor}.
+	 */
+	private <T extends AbstractConferenceEditor> void openConferenceEditor(T editor, String title) {
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Conference> refreshAll = (dialog, entity) -> {
 			// The number of papers should be loaded because it was not loaded before

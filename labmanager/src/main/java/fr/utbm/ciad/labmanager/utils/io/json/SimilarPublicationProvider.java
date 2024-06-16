@@ -19,9 +19,9 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.util.List;
-
 import fr.utbm.ciad.labmanager.data.publication.Publication;
+
+import java.util.List;
 
 /** Provider of publication that could be used for completing a given publication.
  * 

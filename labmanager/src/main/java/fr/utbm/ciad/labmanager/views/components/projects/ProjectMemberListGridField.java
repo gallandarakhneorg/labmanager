@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
-import java.util.HashSet;
-import java.util.List;
-
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -38,6 +35,9 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityLi
 import fr.utbm.ciad.labmanager.views.components.persons.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.HashSet;
+import java.util.List;
 
 /** Implementation of a Vaadin component for input a list of project members using values in a grid row.
  *

@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.funding;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** The enumeration {@code FundingScheme} provides a list of well-known funding sources.
  * The order of the items (their ordinal values) is frm the less important to the most important.

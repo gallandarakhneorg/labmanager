@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,11 +34,12 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** List all the scientific editions.
+/**
+ * List all the scientific editions.
  * Edition:
-	INTERNATIONAL_JOURNAL_EDITION
-	NATIONAL_JOURNAL_EDITION
- * 
+ * INTERNATIONAL_JOURNAL_EDITION
+ * NATIONAL_JOURNAL_EDITION
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -47,56 +48,57 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public class StandardScientificEditionListView extends AbstractPublicationListView {
 
-	private static final long serialVersionUID = -6005063592673684168L;
+    private static final long serialVersionUID = -6005063592673684168L;
 
-	private static final PublicationType[] SUPPORTED_PUBLICATION_TYPES = {
-			PublicationType.INTERNATIONAL_JOURNAL_EDITION,
-			PublicationType.NATIONAL_JOURNAL_EDITION,
-	};
+    private static final PublicationType[] SUPPORTED_PUBLICATION_TYPES = {
+            PublicationType.INTERNATIONAL_JOURNAL_EDITION,
+            PublicationType.NATIONAL_JOURNAL_EDITION,
+    };
 
-	/** Constructor.
-	 *
-	 * @param fileManager the manager of the filenames for the uploaded files.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param userService the service for accessing the JPA entities for users.
-	 * @param journalService the service for accessing the JPA entities for journal.
-	 * @param conferenceService the service for accessing the JPA entities for conferences.
-	 * @param axisService the service for accessing the JPA entities for scientific axes.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (spring layer).
-	 * @param publicationService the service for accessing the publications.
-	 * @param logger the logger to use.
-	 */
-	public StandardScientificEditionListView(
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PublicationService publicationService, PersonService personService,
-			UserService userService, JournalService journalService,
-			ConferenceService conferenceService,
-			ScientificAxisService axisService, Logger logger) {
-		super(fileManager, authenticatedUser, messages, publicationService, personService,
-				userService, journalService, conferenceService, axisService, logger,
-				"views.edition.delete.title", //$NON-NLS-1$
-				"views.edition.delete.message", //$NON-NLS-1$
-				"views.edition.delete.success_message", //$NON-NLS-1$
-				"views.edition.delete.error_message", //$NON-NLS-1$
-				"views.editors", //$NON-NLS-1$
-				"views.publication.new_editor", //$NON-NLS-1$
-				"views.publication.editors", //$NON-NLS-1$
-				"views.publication.editors.helper", //$NON-NLS-1$
-				"views.publication.editors.error.null", //$NON-NLS-1$
-				"views.publication.editors.error.duplicate"); //$NON-NLS-1$
-		setDataProvider((service, pageRequest, filters) -> {
-			return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
-					this::initializeEntityFromJPA);
-		});
-		postInitializeFilters();
-		initializeDataInGrid(getGrid(), getFilters());
-	}
-	
-	@Override
-	protected Stream<PublicationType> getSupportedPublicationTypes() {
-		return Arrays.asList(SUPPORTED_PUBLICATION_TYPES).stream();
-	}
+    /**
+     * Constructor.
+     *
+     * @param fileManager        the manager of the filenames for the uploaded files.
+     * @param personService      the service for accessing the JPA entities for persons.
+     * @param userService        the service for accessing the JPA entities for users.
+     * @param journalService     the service for accessing the JPA entities for journal.
+     * @param conferenceService  the service for accessing the JPA entities for conferences.
+     * @param axisService        the service for accessing the JPA entities for scientific axes.
+     * @param authenticatedUser  the connected user.
+     * @param messages           the accessor to the localized messages (spring layer).
+     * @param publicationService the service for accessing the publications.
+     * @param logger             the logger to use.
+     */
+    public StandardScientificEditionListView(
+            DownloadableFileManager fileManager,
+            AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+            PublicationService publicationService, PersonService personService,
+            UserService userService, JournalService journalService,
+            ConferenceService conferenceService,
+            ScientificAxisService axisService, Logger logger) {
+        super(fileManager, authenticatedUser, messages, publicationService, personService,
+                userService, journalService, conferenceService, axisService, logger,
+                "views.edition.delete.title", //$NON-NLS-1$
+                "views.edition.delete.message", //$NON-NLS-1$
+                "views.edition.delete.success_message", //$NON-NLS-1$
+                "views.edition.delete.error_message", //$NON-NLS-1$
+                "views.editors", //$NON-NLS-1$
+                "views.publication.new_editor", //$NON-NLS-1$
+                "views.publication.editors", //$NON-NLS-1$
+                "views.publication.editors.helper", //$NON-NLS-1$
+                "views.publication.editors.error.null", //$NON-NLS-1$
+                "views.publication.editors.error.duplicate"); //$NON-NLS-1$
+        setDataProvider((service, pageRequest, filters) -> {
+            return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
+                    this::initializeEntityFromJPA);
+        });
+        postInitializeFilters();
+        initializeDataInGrid(getGrid(), getFilters());
+    }
+
+    @Override
+    protected Stream<PublicationType> getSupportedPublicationTypes() {
+        return Arrays.asList(SUPPORTED_PUBLICATION_TYPES).stream();
+    }
 
 }

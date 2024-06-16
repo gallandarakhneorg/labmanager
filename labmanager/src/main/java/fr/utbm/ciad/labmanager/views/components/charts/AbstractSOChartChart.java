@@ -2,7 +2,8 @@ package fr.utbm.ciad.labmanager.views.components.charts;
 
 import com.storedobject.chart.SOChart;
 
-/** Abstract implementation of a chart from SOChart library.
+/**
+ * Abstract implementation of a chart from SOChart library.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$

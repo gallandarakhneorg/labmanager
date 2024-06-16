@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.supervision;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.util.List;
 
 /** JPA repository for surpervision declaration.
  * 

@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io;
 
-import java.util.Collection;
-
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import org.arakhne.afc.progress.Progression;
+
+import java.util.Collection;
 
 /** Exporter of publications.
  * 

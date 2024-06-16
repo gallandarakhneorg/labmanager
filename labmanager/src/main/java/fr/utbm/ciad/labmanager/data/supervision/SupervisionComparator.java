@@ -19,15 +19,15 @@
 
 package fr.utbm.ciad.labmanager.data.supervision;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-
 import fr.utbm.ciad.labmanager.data.member.MembershipComparator;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 
 /** Comparator of supervisions.
  * 

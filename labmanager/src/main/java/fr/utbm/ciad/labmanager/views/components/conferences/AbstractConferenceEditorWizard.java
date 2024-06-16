@@ -58,10 +58,10 @@ public abstract class AbstractConferenceEditorWizard extends AbstractConferenceE
     }
 
     /** Create the content of the editor.
-     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
+     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, Consumer, Consumer)}.
      *
      * @param rootContainer the container.
-     * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
+     * @see #createAdministrationComponents(VerticalLayout, Consumer, Consumer)
      */
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
@@ -214,42 +214,6 @@ public abstract class AbstractConferenceEditorWizard extends AbstractConferenceE
 
         verticalLayout.add(content);
         return verticalLayout;
-    }
-
-    @Override
-    protected String computeSavingSuccessMessage() {
-        return getTranslation("views.conferences.save_success", //$NON-NLS-1$
-                getEditedEntity().getName());
-    }
-
-    @Override
-    protected String computeValidationSuccessMessage() {
-        return getTranslation("views.conferences.validation_success", //$NON-NLS-1$
-                getEditedEntity().getName());
-    }
-
-    @Override
-    protected String computeDeletionSuccessMessage() {
-        return getTranslation("views.conferences.delete_success2", //$NON-NLS-1$
-                getEditedEntity().getName());
-    }
-
-    @Override
-    protected String computeSavingErrorMessage(Throwable error) {
-        return getTranslation("views.conferences.save_error", //$NON-NLS-1$
-                getEditedEntity().getName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeValidationErrorMessage(Throwable error) {
-        return getTranslation("views.conferences.validation_error", //$NON-NLS-1$
-                getEditedEntity().getName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeDeletionErrorMessage(Throwable error) {
-        return getTranslation("views.conferences.delete_error2", //$NON-NLS-1$
-                getEditedEntity().getName(), error.getLocalizedMessage());
     }
 
     @Override

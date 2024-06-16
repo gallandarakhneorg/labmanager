@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Locale;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -39,6 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Locale;
 
 /** Exporter of publications to JSON using the Jackson API.
  * 

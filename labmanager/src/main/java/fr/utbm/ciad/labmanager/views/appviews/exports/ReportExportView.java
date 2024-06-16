@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.exports;
 
-import java.time.LocalDate;
-import java.util.Locale;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Image;
@@ -45,6 +42,9 @@ import org.arakhne.afc.progress.Progression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
+import java.util.Locale;
 
 /** Enable to export annual reports.
  * 

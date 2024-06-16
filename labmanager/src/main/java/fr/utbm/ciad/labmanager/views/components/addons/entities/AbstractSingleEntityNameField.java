@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
-import java.util.function.Consumer;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -36,6 +34,8 @@ import com.vaadin.flow.function.SerializableConsumer;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.util.function.Consumer;
 
 /** Abstract implementation of a field for entering an entity, with auto-completion from the person JPA entities.
  * 

@@ -19,15 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.persons;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.Uses;
@@ -67,6 +58,9 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.*;
+import java.util.function.Supplier;
 
 /** Standard implementation of a list of persons.
  * 
@@ -198,13 +192,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 		final var userContext = this.userService.startEditing(user, personContext);
 		final var editor = new EmbeddedPersonEditorWizard(
 				userContext, getAuthenticatedUser(), getMessageSourceAccessor(),personService);
-		final var newEntity = editor.isNewEntity();
-		final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshGrid();
-		final SerializableBiConsumer<Dialog, Person> refreshOne = (dialog, entity) -> refreshItem(entity);
-		ComponentFactory.openEditionModalDialog(title, editor, true,
-				// Refresh the "old" item, even if its has been changed in the JPA database
-				newEntity ? refreshAll : refreshOne,
-				newEntity ? null : refreshAll);
+		openPersonEditor(editor, title);
 	}
 
 	/** Show the editor of a person.
@@ -218,6 +206,16 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 		final var userContext = this.userService.startEditing(user, personContext);
 		final var editor = new EmbeddedPersonEditor(
 				userContext, personService, getAuthenticatedUser(), getMessageSourceAccessor());
+		openPersonEditor(editor, title);
+	}
+
+	/** Open the person editor.
+	 *
+	 * @param editor the editor to open
+	 * @param title the title of the editor
+	 * @param <T> the type of the editor that extends {@link AbstractPersonEditor}
+	 */
+	private <T extends AbstractPersonEditor> void openPersonEditor(T editor, String title) {
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, Person> refreshOne = (dialog, entity) -> refreshItem(entity);
@@ -226,8 +224,6 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 				newEntity ? refreshAll : refreshOne,
 				newEntity ? null : refreshAll);
 	}
-
-
 
 	@Override
 	protected EntityDeletingContext<Person> createDeletionContextFor(Set<Person> entities) {

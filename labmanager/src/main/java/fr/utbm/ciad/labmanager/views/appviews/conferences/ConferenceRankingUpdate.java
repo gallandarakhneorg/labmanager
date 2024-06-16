@@ -19,16 +19,16 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.conferences;
 
+import fr.utbm.ciad.labmanager.data.conference.Conference;
+import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-
-import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 
 /** Data in the wizard for updating the conference ranking.
  * 

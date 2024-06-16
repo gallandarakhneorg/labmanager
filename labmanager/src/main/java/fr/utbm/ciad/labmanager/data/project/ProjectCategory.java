@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.project;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** Describe the category of a project.
  * The order of the items (their ordinal numbers) is from the less important to the more important.

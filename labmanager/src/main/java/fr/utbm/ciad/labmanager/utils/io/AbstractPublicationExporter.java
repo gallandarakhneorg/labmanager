@@ -19,16 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Consumer;
-
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationCategory;
@@ -36,6 +26,9 @@ import io.reactivex.functions.BiConsumer;
 import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.util.ListUtil;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 /** Provides tools for exporting publications.
  * 

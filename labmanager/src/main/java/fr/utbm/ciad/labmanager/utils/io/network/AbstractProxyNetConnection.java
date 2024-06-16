@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.utils.io.network;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,8 +27,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 /** A wrapper for the network connection that assumes a connection through a proxy.
  * 

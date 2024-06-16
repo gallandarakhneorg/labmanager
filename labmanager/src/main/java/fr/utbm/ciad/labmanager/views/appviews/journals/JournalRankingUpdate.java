@@ -19,18 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.journals;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Stream;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
+
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Stream;
 
 /** Data in the wizard for updating the journal ranking
  * 

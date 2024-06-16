@@ -12,7 +12,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.theme.lumo.LumoIcon;
@@ -25,12 +24,9 @@ import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -44,7 +40,8 @@ import java.util.function.Consumer;
 
 import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
-/** Implementation for the editor of the information related to a person. It is directly linked for
+/**
+ * Implementation for the editor of the information related to a person. It is directly linked for
  * using it with a wizard.
  *
  * @author $Author: sgalland$
@@ -70,7 +67,7 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
      * @param logger                 the logger to be used by this view.
      */
     public AbstractPersonEditorWizard(UserService.UserEditingContext userContext, boolean relinkEntityWhenSaving, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, @Autowired PersonService personService) {
-        super(userContext,personService,relinkEntityWhenSaving,authenticatedUser,messages,logger);
+        super(userContext, personService, relinkEntityWhenSaving, authenticatedUser, messages, logger);
 
     }
 
@@ -109,50 +106,16 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
                     getUserDataBinder().forField(this.userRole).bind(User::getRole, User::setRole);
                 };
             }
-            personAdditionWizard = new PersonEditorComponentWizard(createPersonalInformationComponents(),createContactInformationComponents(),createResearcherIdsComponents(),createBiographyComponents(),createIndexesComponents(),createSocialLinksComponents(),createAdministrationComponents( builderCallback, it -> it.bind(Person::isValidated, Person::setValidated)));
+            personAdditionWizard = new PersonEditorComponentWizard(createPersonalInformationComponents(), createContactInformationComponents(), createResearcherIdsComponents(), createBiographyComponents(), createIndexesComponents(), createSocialLinksComponents(), createAdministrationComponents(builderCallback, it -> it.bind(Person::isValidated, Person::setValidated)));
 
-        }else{
-            personAdditionWizard = new PersonEditorComponentWizard(createPersonalInformationComponents(),createContactInformationComponents(),createResearcherIdsComponents(),createBiographyComponents(),createIndexesComponents(),createSocialLinksComponents());
+        } else {
+            personAdditionWizard = new PersonEditorComponentWizard(createPersonalInformationComponents(), createContactInformationComponents(), createResearcherIdsComponents(), createBiographyComponents(), createIndexesComponents(), createSocialLinksComponents());
         }
         rootContainer.add(personAdditionWizard);
     }
 
-    @Override
-    protected String computeValidationSuccessMessage() {
-        return getTranslation("views.persons.validation_success", //$NON-NLS-1$
-                getEditedEntity().getFullName());
-    }
-
-    @Override
-    protected String computeDeletionSuccessMessage() {
-        return getTranslation("views.persons.delete_success2", //$NON-NLS-1$
-                getEditedEntity().getFullName());
-    }
-
-    @Override
-    protected String computeSavingErrorMessage(Throwable error) {
-        return getTranslation("views.persons.save_error", //$NON-NLS-1$
-                getEditedEntity().getFullName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeValidationErrorMessage(Throwable error) {
-        return getTranslation("views.persons.validation_error", //$NON-NLS-1$
-                getEditedEntity().getFullName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeSavingSuccessMessage() {
-        return getTranslation("views.persons.save_success", //$NON-NLS-1$
-                getEditedEntity().getFullName());
-    }
-    @Override
-    protected String computeDeletionErrorMessage(Throwable error) {
-        return getTranslation("views.persons.delete_error2", //$NON-NLS-1$
-                getEditedEntity().getFullName(), error.getLocalizedMessage());
-    }
-
-    /** Create the section for editing the description of the person.
+    /**
+     * Create the section for editing the description of the person.
      *
      * @return The content.
      */
@@ -215,7 +178,8 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
         return verticalLayout;
     }
 
-    /** Create the components for entering the contact informations.
+    /**
+     * Create the components for entering the contact informations.
      *
      * @return The content.
      */
@@ -264,7 +228,8 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
         return verticalLayout;
     }
 
-    /** Create the components for entering the researcher identifiers.
+    /**
+     * Create the components for entering the researcher identifiers.
      * The information includes:<ul>
      * <li>ORCID</li>
      * <li>Identifier on Scopus (Elsevier)</li>
@@ -320,7 +285,8 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
         return verticalLayout;
     }
 
-    /** Create the components for entering the researcher biography.
+    /**
+     * Create the components for entering the researcher biography.
      *
      * @return The content.
      */
@@ -368,11 +334,8 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
         }
     }
 
-    protected String getGenderLabel(Gender gender) {
-        return gender.getLabel(getMessageSourceAccessor(), getLocale());
-    }
-
-    /** Create the components for entering the researcher indicators and indexes.
+    /**
+     * Create the components for entering the researcher indicators and indexes.
      * The information includes:<ul>
      * <li>H-index on Web-of-Science (WoS)</li>
      * <li>H-index on Scopus</li>
@@ -452,7 +415,8 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
         return verticalLayout;
     }
 
-    /** Create the components for entering the social links.
+    /**
+     * Create the components for entering the social links.
      * The information includes:<ul>
      * <li>Identifier on Research Gate</li>
      * <li>Identifier on AD Scientific Index</li>
@@ -559,10 +523,6 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
 
     private String getUserRoleLabel(UserRole role) {
         return role.getLabel(getMessageSourceAccessor(), getLocale());
-    }
-
-    protected Binder<User> getUserDataBinder() {
-        return this.userBinder;
     }
 
 }

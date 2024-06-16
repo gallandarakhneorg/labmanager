@@ -19,27 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.project;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -48,17 +27,7 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
-import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
-import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
-import fr.utbm.ciad.labmanager.data.project.ProjectCategory;
-import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
-import fr.utbm.ciad.labmanager.data.project.ProjectMember;
-import fr.utbm.ciad.labmanager.data.project.ProjectMemberRepository;
-import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
-import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
-import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
-import fr.utbm.ciad.labmanager.data.project.Role;
+import fr.utbm.ciad.labmanager.data.project.*;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
@@ -86,6 +55,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Service for the research projects.
  * 

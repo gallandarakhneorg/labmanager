@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.assocstructures;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -59,6 +55,10 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /** List all the associated structures.
  * 

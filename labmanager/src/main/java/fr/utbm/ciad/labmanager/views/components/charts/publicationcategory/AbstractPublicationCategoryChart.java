@@ -1,6 +1,7 @@
 package fr.utbm.ciad.labmanager.views.components.charts.publicationcategory;
 
-import com.storedobject.chart.*;
+import com.storedobject.chart.Size;
+import com.storedobject.chart.Toolbox;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.charts.AbstractSOChartChart;
@@ -11,7 +12,8 @@ import java.util.List;
 
 import static com.storedobject.chart.Color.TRANSPARENT;
 
-/** Abstract implementation of a publication category chart.
+/**
+ * Abstract implementation of a publication category chart.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$
@@ -26,11 +28,12 @@ public abstract class AbstractPublicationCategoryChart extends AbstractSOChartCh
 
     protected Toolbox toolbox;
 
-    private List<PublicationType> publicationTypeList;
+    private final List<PublicationType> publicationTypeList;
 
-    private List<Integer> years;
+    private final List<Integer> years;
 
-    /** Constructor.
+    /**
+     * Constructor.
      *
      * @param publicationService the service for accessing the scientific publications.
      */
@@ -54,19 +57,21 @@ public abstract class AbstractPublicationCategoryChart extends AbstractSOChartCh
 
     }
 
-    /** Replies the list of publication types.
+    /**
+     * Replies the list of publication types.
      *
      * @return the list of publication types.
      */
-    public List<PublicationType> getPublicationTypeList(){
+    public List<PublicationType> getPublicationTypeList() {
         return publicationTypeList;
     }
 
-    /** Replies the list of years.
+    /**
+     * Replies the list of years.
      *
      * @return the list of years.
      */
-    public List<Integer> getYears(){
+    public List<Integer> getYears() {
         return years;
     }
 

@@ -19,12 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-
 import com.google.common.base.Strings;
 import com.ibm.icu.text.Normalizer2;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -32,6 +26,12 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.text.WordUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 
 /** Utilities for parsing person names with the format {@code FIRST LAST} or {@code LAST, FIRST}.
  * In the first format, the two components are separated by white spaces.

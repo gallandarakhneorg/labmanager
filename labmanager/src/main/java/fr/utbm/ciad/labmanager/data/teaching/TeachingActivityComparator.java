@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.data.teaching;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.Comparator;
 
 /** Comparator of teaching activities. The order of the activities depends on the implementation
  * of this interface.

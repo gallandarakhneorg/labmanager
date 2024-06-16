@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
-import java.util.Collection;
-
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
@@ -31,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
  * 

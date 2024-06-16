@@ -19,19 +19,18 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
-import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
-
 import fr.utbm.ciad.labmanager.data.project.Project;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.arakhne.afc.vmutil.Resources;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /** Utilities for managing the project images. This implementation is dedicated to the WordPress service
  * of the lab.

@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.data.project;
 
-import java.net.URI;
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilderFactory;
+
+import java.net.URI;
+import java.util.Locale;
 
 /** Type of webpage naming for projects. This type describes how the address of a project's webpage could be built up.
  * 

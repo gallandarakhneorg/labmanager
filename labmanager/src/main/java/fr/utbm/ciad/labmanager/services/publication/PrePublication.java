@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
-import java.time.LocalDate;
-
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+
+import java.time.LocalDate;
 
 /** Implementation of a publication that is temporary and defined for pre-initialization of a real publication.
  * This class is not supposed to be used intensively or stored into the database.

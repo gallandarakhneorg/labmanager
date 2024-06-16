@@ -19,16 +19,16 @@
 
 package fr.utbm.ciad.labmanager.views.components.messages;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.i18n.DefaultI18NProvider;
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 /** Provider of I18N messages for Vaadin. This providers is linked to the {@link BaseMessageSource Spring message source}.
  * 

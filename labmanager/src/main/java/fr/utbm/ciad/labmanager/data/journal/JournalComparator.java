@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.journal;
 
-import java.util.Comparator;
-
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of journals. First the names are considered in the
  * sort; then, the publisher.

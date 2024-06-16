@@ -6,15 +6,16 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.addons.customfield.YearRange;
-import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryChart;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
+import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryChart;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/** Abstract implementation of the layout for displaying charts about publication categories.
+/**
+ * Abstract implementation of the layout for displaying charts about publication categories.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$
@@ -23,28 +24,29 @@ import java.util.Set;
  * @mavenartifactid $ArtifactId$
  * @since 4.1
  */
-public abstract class AbstractPublicationCategoryLayout<T extends PublicationCategoryChart> extends AbstractChartLayout{
+public abstract class AbstractPublicationCategoryLayout<T extends PublicationCategoryChart> extends AbstractChartLayout {
 
-    private PublicationService publicationService;
+    private final PublicationService publicationService;
 
     private PublicationCategoryChartFactory<T> factory;
 
-    private MultiSelectComboBox multiSelectComboBox;
+    private final MultiSelectComboBox multiSelectComboBox;
 
     private Button validateButton;
 
     private T chart;
 
-    private HorizontalLayout horizontalLayout1;
+    private final HorizontalLayout horizontalLayout1;
 
-    private HorizontalLayout horizontalLayout2;
+    private final HorizontalLayout horizontalLayout2;
 
-    private YearRange yearRange;
+    private final YearRange yearRange;
 
-    /** Constructor.
+    /**
+     * Constructor.
      *
      * @param publicationService the service for accessing the scientific publications.
-     * @param factory the factory for creating publication category charts.
+     * @param factory            the factory for creating publication category charts.
      */
     public AbstractPublicationCategoryLayout(@Autowired PublicationService publicationService, PublicationCategoryChartFactory<T> factory) {
         super();
@@ -81,7 +83,7 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
             }
 
             if (!removedItems.isEmpty()) {
-                if(multiSelectComboBox.getSelectedItems().isEmpty()){
+                if (multiSelectComboBox.getSelectedItems().isEmpty()) {
                     validateButton.setEnabled(false);
                 }
             }
@@ -93,33 +95,33 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         validateButton = new Button(getTranslation("views.charts.create"));
         validateButton.setEnabled(false);
         validateButton.addClickListener(e -> {
-            if(Objects.equals(validateButton.getText(), getTranslation("views.charts.create"))){
-                if(yearRange.getEnd().isEmpty()){
+            if (Objects.equals(validateButton.getText(), getTranslation("views.charts.create"))) {
+                if (yearRange.getEnd().isEmpty()) {
                     chart.setYear(yearRange.getChosenStartValue());
-                }else{
+                } else {
                     chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
                 }
 
                 Set<String> items = multiSelectComboBox.getSelectedItems();
-                for(String item : items){
+                for (String item : items) {
                     this.chart.addData(item);
                 }
 
                 horizontalLayout1.add(this.chart.createChart());
                 validateButton.setText(getTranslation("views.charts.refresh"));
 
-            }else if(Objects.equals(validateButton.getText(), getTranslation("views.charts.refresh"))){
+            } else if (Objects.equals(validateButton.getText(), getTranslation("views.charts.refresh"))) {
                 horizontalLayout1.remove(this.chart.createChart());
                 this.chart = factory.create(this.publicationService);
 
-                if(yearRange.getEnd().isEmpty()){
+                if (yearRange.getEnd().isEmpty()) {
                     chart.setYear(yearRange.getChosenStartValue());
-                }else{
+                } else {
                     chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
                 }
 
                 Set<String> items = multiSelectComboBox.getSelectedItems();
-                for(String item : items){
+                for (String item : items) {
                     this.chart.addData(item);
                 }
                 horizontalLayout1.add(this.chart.createChart());
@@ -136,11 +138,12 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
 
     }
 
-    /** Replies the publication category chart factory.
+    /**
+     * Replies the publication category chart factory.
      *
      * @return the publication category chart factory.
      */
-    public PublicationCategoryChartFactory getPublicationCategoryChartFactory(){
+    public PublicationCategoryChartFactory getPublicationCategoryChartFactory() {
         return factory;
     }
 }

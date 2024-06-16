@@ -19,25 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
@@ -49,29 +30,11 @@ import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.publication.*;
-import fr.utbm.ciad.labmanager.data.publication.type.Book;
-import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
-import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalEdition;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
-import fr.utbm.ciad.labmanager.data.publication.type.KeyNote;
-import fr.utbm.ciad.labmanager.data.publication.type.MiscDocument;
-import fr.utbm.ciad.labmanager.data.publication.type.Patent;
-import fr.utbm.ciad.labmanager.data.publication.type.Report;
-import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
+import fr.utbm.ciad.labmanager.data.publication.type.*;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.publication.type.BookChapterService;
-import fr.utbm.ciad.labmanager.services.publication.type.BookService;
-import fr.utbm.ciad.labmanager.services.publication.type.ConferencePaperService;
-import fr.utbm.ciad.labmanager.services.publication.type.JournalEditionService;
-import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
-import fr.utbm.ciad.labmanager.services.publication.type.KeyNoteService;
-import fr.utbm.ciad.labmanager.services.publication.type.MiscDocumentService;
-import fr.utbm.ciad.labmanager.services.publication.type.PatentService;
-import fr.utbm.ciad.labmanager.services.publication.type.ReportService;
-import fr.utbm.ciad.labmanager.services.publication.type.ThesisService;
+import fr.utbm.ciad.labmanager.services.publication.type.*;
 import fr.utbm.ciad.labmanager.utils.ComposedException;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeX;
@@ -98,9 +61,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /** Service for managing the publications.
  * 

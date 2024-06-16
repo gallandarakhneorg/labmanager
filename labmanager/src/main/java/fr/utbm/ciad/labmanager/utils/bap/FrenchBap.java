@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.bap;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** The French BAP is a classification of the types of jobs that engineers, technicians and other
  * not researcher staff could do. BAP means "Branch d'activité professionnelle".

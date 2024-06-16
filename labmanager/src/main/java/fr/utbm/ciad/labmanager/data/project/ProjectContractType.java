@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.project;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** Describe the type of contract that is related to a project.
  * 

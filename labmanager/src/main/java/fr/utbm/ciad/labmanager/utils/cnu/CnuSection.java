@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.cnu;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** The CNU section is the part of the French public research community that is dedicated to
  * a specific domain. CNU means "Conseil National des Universités".

@@ -19,24 +19,17 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
 import fr.utbm.ciad.labmanager.views.components.addons.value.LeftRightListsField;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.util.function.Consumer;
 
@@ -81,10 +74,10 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
     }
 
     /** Create the content of the editor.
-     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
+     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, Consumer, Consumer)}.
      *
      * @param rootContainer the container.
-     * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
+     * @see #createAdministrationComponents(VerticalLayout, Consumer, Consumer)
      */
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
@@ -336,78 +329,7 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
     }
 
     @Override
-    protected void doSave() throws Exception {
-        getEditingContext().save(this.logo);
-    }
-
-    @Override
-    protected String computeSavingSuccessMessage() {
-        return getTranslation("views.organizations.save_success", //$NON-NLS-1$
-                getEditedEntity().getName());
-    }
-
-    @Override
-    protected String computeValidationSuccessMessage() {
-        return getTranslation("views.organizations.validation_success", //$NON-NLS-1$
-                getEditedEntity().getName());
-    }
-
-    @Override
-    protected String computeDeletionSuccessMessage() {
-        return getTranslation("views.organizations.delete_success2", //$NON-NLS-1$
-                getEditedEntity().getName());
-    }
-
-    @Override
-    protected String computeSavingErrorMessage(Throwable error) {
-        return getTranslation("views.organizations.save_error", //$NON-NLS-1$
-                getEditedEntity().getName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeValidationErrorMessage(Throwable error) {
-        return getTranslation("views.organizations.validation_error", //$NON-NLS-1$
-                getEditedEntity().getName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeDeletionErrorMessage(Throwable error) {
-        return getTranslation("views.organizations.delete_error2", //$NON-NLS-1$
-                getEditedEntity().getName(), error.getLocalizedMessage());
-    }
-
-    @Override
     public void localeChange(LocaleChangeEvent event) {
         super.localeChange(event);
     }
-
-    /** Specification that is validating any organization that has not the given identifier.
-     *
-     * @author $Author: sgalland$
-     * @version $Name$ $Revision$ $Date$
-     * @mavengroupid $GroupId$
-     * @mavenartifactid $ArtifactId$
-     * @since 4.0
-     */
-    public static class OtherOrganizationSpecification implements Specification<ResearchOrganization> {
-
-        private static final long serialVersionUID = 2689698051166694233L;
-
-        private final Long forbiddenId;
-
-        /** Constructor.
-         *
-         * @param id the identifier of the research organization that is forbidden.
-         */
-        public OtherOrganizationSpecification(long id) {
-            this.forbiddenId = Long.valueOf(id);
-        }
-
-        @Override
-        public Predicate toPredicate(Root<ResearchOrganization> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-            return criteriaBuilder.notEqual(root.get("id"), this.forbiddenId); //$NON-NLS-1$
-        }
-
-    }
-
 }

@@ -19,9 +19,9 @@
 
 package fr.utbm.ciad.labmanager.utils.io.network;
 
-import java.net.Proxy.Type;
-
 import org.springframework.stereotype.Component;
+
+import java.net.Proxy.Type;
 
 /** A wrapper for the network connection that assumes a connection from the UTBM network.
  * 

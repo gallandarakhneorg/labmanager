@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,11 +18,6 @@
  */
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
-
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiFunction;
 
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
@@ -62,8 +57,13 @@ import jakarta.persistence.criteria.Predicate;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+
 /** Wizard for updating the person rankings.
- * 
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -112,7 +112,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 	}
 
 	/** Wizard step to input configuration parameters.
-	 * 
+	 *
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
 	 * @mavengroupid $GroupId$
@@ -195,7 +195,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 
 
 	/** Wizard step for journal rank loading from the database.
-	 * 
+	 *
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
 	 * @mavengroupid $GroupId$
@@ -207,7 +207,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 		private static final long serialVersionUID = 4363978455050034273L;
 
 		private final PersonService personService;
-		
+
 		/** Constructor.
 		 *
 		 * @param context the data to be shared between the wizard steps.
@@ -261,7 +261,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 	}
 
 	/** Wizard step for downloading the ranking updates.
-	 * 
+	 *
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
 	 * @mavengroupid $GroupId$
@@ -383,7 +383,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 	}
 
 	/** Wizard step to summarize the updates of the person ranking informations.
-	 * 
+	 *
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
 	 * @mavengroupid $GroupId$
@@ -397,7 +397,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 		private Grid<PersonNewInformation> grid;
 
 		private Column<PersonNewInformation> nameColumn;
-		
+
 		private Column<PersonNewInformation> wosHindexColumn;
 
 		private Column<PersonNewInformation> wosCitationColumn;
@@ -462,7 +462,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 
 			return new Div(this.grid);
 		}
-		
+
 		@Override
 		public void localeChange(LocaleChangeEvent event) {
 			super.localeChange(event);
@@ -517,7 +517,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 	}
 
 	/** Wizard step for saving the ranking updates.
-	 * 
+	 *
 	 * @author $Author: sgalland$
 	 * @version $Name$ $Revision$ $Date$
 	 * @mavengroupid $GroupId$

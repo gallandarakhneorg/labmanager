@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils;
 
+import com.google.common.base.Strings;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
-
-import com.google.common.base.Strings;
 
 /** Utilities for text.
  * 

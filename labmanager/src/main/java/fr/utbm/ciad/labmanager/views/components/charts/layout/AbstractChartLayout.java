@@ -2,9 +2,9 @@ package fr.utbm.ciad.labmanager.views.components.charts.layout;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import fr.utbm.ciad.labmanager.views.components.charts.Chart;
 
-/** Abstract implementation of the layout for displaying charts.
+/**
+ * Abstract implementation of the layout for displaying charts.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$
@@ -15,9 +15,10 @@ import fr.utbm.ciad.labmanager.views.components.charts.Chart;
  */
 public abstract class AbstractChartLayout extends VerticalLayout implements ChartLayout {
 
-    /** Constructor.
+    /**
+     * Constructor.
      */
-    public AbstractChartLayout(){
+    public AbstractChartLayout() {
         setSizeFull();
         setHeight(1000, Unit.PIXELS);
     }

@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.jurys;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -58,6 +54,10 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /** List all the jury memberships.
  * 

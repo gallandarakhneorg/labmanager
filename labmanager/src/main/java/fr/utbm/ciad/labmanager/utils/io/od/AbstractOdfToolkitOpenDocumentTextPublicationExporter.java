@@ -19,24 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io.od;
 
-import java.io.ByteArrayOutputStream;
-import java.time.format.TextStyle;
-import java.util.Collection;
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.type.Book;
-import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
-import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalEdition;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
-import fr.utbm.ciad.labmanager.data.publication.type.KeyNote;
-import fr.utbm.ciad.labmanager.data.publication.type.MiscDocument;
-import fr.utbm.ciad.labmanager.data.publication.type.Patent;
-import fr.utbm.ciad.labmanager.data.publication.type.Report;
-import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
+import fr.utbm.ciad.labmanager.data.publication.type.*;
 import fr.utbm.ciad.labmanager.utils.io.AbstractPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -47,6 +33,11 @@ import org.odftoolkit.odfdom.dom.element.text.TextListElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.io.ByteArrayOutputStream;
+import java.time.format.TextStyle;
+import java.util.Collection;
+import java.util.Locale;
 
 /** Exporter of publications to Open Document Text based on the ODF toolkit.
  * 

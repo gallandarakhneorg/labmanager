@@ -19,18 +19,12 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.welcome;
 
-import java.nio.charset.Charset;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-
 import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -38,15 +32,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.SelectVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoIcon;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import jakarta.annotation.security.PermitAll;
 import org.arakhne.afc.progress.DefaultProgression;
-import org.springframework.util.FastByteArrayOutputStream;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.nio.charset.Charset;
 
 /** The default view of the labmanager application.
  * 

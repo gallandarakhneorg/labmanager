@@ -19,13 +19,13 @@
 
 package fr.utbm.ciad.labmanager.utils.io.gscholar;
 
-import java.net.URL;
-import java.util.concurrent.atomic.AtomicReference;
-
 import fr.utbm.ciad.labmanager.utils.io.AbstractWebScraper;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 /** Accessor to the online Web-of-Science platform.
  * 

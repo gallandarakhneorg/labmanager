@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.io.ris;
 
-import java.util.Random;
-import java.util.regex.Pattern;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.utils.IntegerRange;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Random;
+import java.util.regex.Pattern;
 
 /** Utilities for RIS.
  * RIS is a standardized tag format developed by Research Information Systems, Incorporated to enable citation programs

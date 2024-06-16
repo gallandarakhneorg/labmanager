@@ -19,19 +19,8 @@
 
 package fr.utbm.ciad.labmanager.utils.io.od;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.data.publication.type.Book;
-import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
-import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalEdition;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
-import fr.utbm.ciad.labmanager.data.publication.type.KeyNote;
-import fr.utbm.ciad.labmanager.data.publication.type.MiscDocument;
-import fr.utbm.ciad.labmanager.data.publication.type.Patent;
-import fr.utbm.ciad.labmanager.data.publication.type.Report;
-import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
+import fr.utbm.ciad.labmanager.data.publication.type.*;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
@@ -39,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.util.Locale;
 
 /** Exporter of publications to Open Document Text based on the ODF toolkit.
  * 

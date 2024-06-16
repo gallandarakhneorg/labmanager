@@ -15,7 +15,6 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.JournalAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
@@ -62,10 +61,10 @@ public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor 
     }
 
     /** Create the content of the editor.
-     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, boolean, Consumer)}.
+     * This function should invoke {@link #createAdministrationComponents(VerticalLayout, Consumer, Consumer)}.
      *
      * @param rootContainer the container.
-     * @see #createAdministrationComponents(VerticalLayout, boolean, Consumer)
+     * @see #createAdministrationComponents(VerticalLayout, Consumer, Consumer)
      */
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
@@ -235,42 +234,6 @@ public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor 
 
         verticalLayout.add(content);
         return verticalLayout;
-    }
-
-    @Override
-    protected String computeSavingSuccessMessage() {
-        return getTranslation("views.journals.save_success", //$NON-NLS-1$
-                getEditedEntity().getJournalName());
-    }
-
-    @Override
-    protected String computeValidationSuccessMessage() {
-        return getTranslation("views.journals.validation_success", //$NON-NLS-1$
-                getEditedEntity().getJournalName());
-    }
-
-    @Override
-    protected String computeDeletionSuccessMessage() {
-        return getTranslation("views.journals.delete_success2", //$NON-NLS-1$
-                getEditedEntity().getJournalName());
-    }
-
-    @Override
-    protected String computeSavingErrorMessage(Throwable error) {
-        return getTranslation("views.journals.save_error", //$NON-NLS-1$
-                getEditedEntity().getJournalName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeValidationErrorMessage(Throwable error) {
-        return getTranslation("views.journals.validation_error", //$NON-NLS-1$
-                getEditedEntity().getJournalName(), error.getLocalizedMessage());
-    }
-
-    @Override
-    protected String computeDeletionErrorMessage(Throwable error) {
-        return getTranslation("views.journals.delete_error2", //$NON-NLS-1$
-                getEditedEntity().getJournalName(), error.getLocalizedMessage());
     }
 
     @Override

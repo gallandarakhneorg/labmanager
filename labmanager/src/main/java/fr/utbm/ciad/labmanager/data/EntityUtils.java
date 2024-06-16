@@ -19,22 +19,13 @@
 
 package fr.utbm.ciad.labmanager.data;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.Set;
-
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureComparator;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderComparator;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceComparator;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationComparator;
 import fr.utbm.ciad.labmanager.data.journal.JournalComparator;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipComparator;
-import fr.utbm.ciad.labmanager.data.member.MemberStatus;
-import fr.utbm.ciad.labmanager.data.member.Membership;
-import fr.utbm.ciad.labmanager.data.member.MembershipComparator;
-import fr.utbm.ciad.labmanager.data.member.NameBasedMembershipComparator;
-import fr.utbm.ciad.labmanager.data.member.PersonComparator;
-import fr.utbm.ciad.labmanager.data.member.PersonListComparator;
+import fr.utbm.ciad.labmanager.data.member.*;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.data.project.ProjectBudgetComparator;
@@ -50,6 +41,10 @@ import fr.utbm.ciad.labmanager.data.supervision.SupervisorComparator;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityComparator;
 import fr.utbm.ciad.labmanager.data.user.UserComparator;
 import org.apache.commons.lang3.StringUtils;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Set;
 
 /** Tools and configuration for the JPA entities.
  * 

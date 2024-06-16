@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.data.scientificaxis;
 
-import java.time.LocalDate;
-import java.util.Comparator;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.Comparator;
 
 /** Comparator of scientific axes.
  * 

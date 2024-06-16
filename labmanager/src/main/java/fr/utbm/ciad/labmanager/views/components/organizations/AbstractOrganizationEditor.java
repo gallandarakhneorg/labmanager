@@ -19,11 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
-import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
-
-import java.util.function.Consumer;
-
 import com.google.common.base.Strings;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
@@ -67,6 +62,11 @@ import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.function.Consumer;
+
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
 
 /** Abstract implementation for the editor of the information related to an organization.
  * 

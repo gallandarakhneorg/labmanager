@@ -150,6 +150,11 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		return getEntityDataBinder().validate().isOk();
 	}
 
+	/** Replies if the data inside the editor is already in the database or not with a similarity error.
+	 * The default implementation replies {@link SimilarityError#NO_ERROR}.
+	 *
+	 * @return the similarity error.
+	 */
 	public SimilarityError isAlreadyInDatabase() {
 		return SimilarityError.NO_ERROR;
 	}
@@ -294,7 +299,6 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 
 	/** Create the components for administrator.
 	 *
-	 * @param receiver the receiver of the component
 	 * @param builderCallback the callback that is invoked to fill the administration form.
 	 * @param validationBinder invoked to bind the validation attributes of the entity.
 	 * @see #createAdministrationComponents(VerticalLayout, Consumer)

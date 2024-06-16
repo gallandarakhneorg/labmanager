@@ -19,14 +19,13 @@
 
 package fr.utbm.ciad.labmanager.utils.io.network;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
-
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 /** A wrapper for the network connection that assumes a direct connection to Internet.
  * 

@@ -19,12 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Predicate;
-
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -32,6 +26,12 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import org.springframework.web.util.UriBuilder;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Predicate;
 
 /** Configurator for an exporter.
  * 

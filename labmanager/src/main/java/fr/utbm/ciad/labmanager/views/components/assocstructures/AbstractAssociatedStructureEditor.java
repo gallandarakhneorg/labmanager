@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,9 +18,6 @@
  */
 
 package fr.utbm.ciad.labmanager.views.components.assocstructures;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
@@ -73,8 +70,11 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 /** Abstract implementation for the editor of the information related to an associated structure.
- * 
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -145,7 +145,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context, 
+	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
 			boolean relinkEntityWhenSaving, ProjectService projectService,
 			ResearchOrganizationService organizationService,
 			OrganizationAddressService addressService, PersonService personService,
@@ -153,7 +153,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 			ScientificAxisService axisService, MessageSourceAccessor messages,
 			Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
-				"views.associated_structure.administration_details", //$NON-NLS-1$ 
+				"views.associated_structure.administration_details", //$NON-NLS-1$
 				"views.associated_structure.administration.validated_structure", //$NON-NLS-1$
 				context, relinkEntityWhenSaving);
 		this.projectService = projectService;
@@ -223,7 +223,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	private String getTypeLabel(AssociatedStructureType type) {
 		return type.getLabel(getMessageSourceAccessor(), getLocale());
 	}
-	
+
 	/** Create the section for editing the creation of the associated structure.
 	 *
 	 * @param rootContainer the container.
@@ -314,7 +314,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 					AbstractAssociatedStructureEditor::initializeJPA).stream();
 		});
 		content.add(this.projects, 2);
-		
+
 		this.projectDetails = createDetailsWithErrorMark(rootContainer, content, "project"); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.projects)
@@ -323,7 +323,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	private static Specification<Project> createProjectFilter(Optional<String> filter) {
 		if (filter.isPresent()) {
-			return (root, query, criteriaBuilder) -> 
+			return (root, query, criteriaBuilder) ->
 			ComponentFactory.newPredicateContainsOneOf(filter.get(), root, query, criteriaBuilder,
 					(keyword, predicates, root0, criteriaBuilder0) -> {
 						predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("acronym")), keyword)); //$NON-NLS-1$
@@ -419,19 +419,19 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 
 	@Override
 	protected String computeSavingErrorMessage(Throwable error) {
-		return getTranslation("views.associated_structure.save_error", //$NON-NLS-1$ 
+		return getTranslation("views.associated_structure.save_error", //$NON-NLS-1$
 				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override
 	protected String computeValidationErrorMessage(Throwable error) {
-		return getTranslation("views.associated_structure.validation_error", //$NON-NLS-1$ 
+		return getTranslation("views.associated_structure.validation_error", //$NON-NLS-1$
 				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
 	@Override
 	protected String computeDeletionErrorMessage(Throwable error) {
-		return getTranslation("views.associated_structure.delete_error2", //$NON-NLS-1$ 
+		return getTranslation("views.associated_structure.delete_error2", //$NON-NLS-1$
 				getEditedEntity().getName(), error.getLocalizedMessage());
 	}
 
@@ -478,7 +478,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 * @since 4.0
 	 */
 	private class FundingOrganizationValidator implements Validator<ResearchOrganization> {
-		
+
 		private static final long serialVersionUID = 8523364404465641409L;
 
 		/**

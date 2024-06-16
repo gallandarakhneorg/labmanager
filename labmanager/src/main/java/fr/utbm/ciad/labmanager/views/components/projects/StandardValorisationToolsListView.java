@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
@@ -34,6 +31,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.publications.AbstractPublicationListView;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /** List all the valorisation tools that are not protected by patents.
  * 

@@ -19,12 +19,12 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.google.common.base.Strings;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 /** Abstract implementation of utilities for comparing person names.
  * 

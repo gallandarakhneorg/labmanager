@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.data;
 
-import java.io.IOException;
-import java.util.Locale;
-
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.io.IOException;
+import java.util.Locale;
 
 /** Interface that represents an object that could provides attributes.
  * 

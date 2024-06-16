@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io.scopus;
 
+import org.arakhne.afc.progress.Progression;
+
 import java.io.Serializable;
 import java.net.URL;
-
-import org.arakhne.afc.progress.Progression;
 
 /** Accessor to the online Elsevier Scopus platform.
  * 

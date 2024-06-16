@@ -19,9 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.journals;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
@@ -34,6 +31,9 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractSingleEntityNameField;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /** Implementation of a field for entering the name of a journal, with auto-completion from the conference JPA entities.
  * 

@@ -19,12 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.journals;
 
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -54,6 +48,12 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /** List all the journals.
  * 
@@ -257,27 +257,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 				this.journalService.startEditing(journal),
 				this.journalService,
 				getAuthenticatedUser(), getMessageSourceAccessor());
-		final var newEntity = editor.isNewEntity();
-		final SerializableBiConsumer<Dialog, Journal> refreshAll = (dialog, entity) -> {
-			// The number of papers should be loaded because it was not loaded before
-			this.journalService.inSession(session -> {
-				session.load(entity, Long.valueOf(entity.getId()));
-				initializeEntityFromJPA(entity);
-			});
-			refreshGrid();
-		};
-		final SerializableBiConsumer<Dialog, Journal> refreshOne = (dialog, entity) -> {
-			// The number of papers should be loaded because it was not loaded before
-			this.journalService.inSession(session -> {
-				session.load(entity, Long.valueOf(entity.getId()));
-				initializeEntityFromJPA(entity);
-			});
-			refreshItem(entity);
-		};
-		ComponentFactory.openEditionModalDialog(title, editor, false,
-				// Refresh the "old" item, even if its has been changed in the JPA database
-				newEntity ? refreshAll : refreshOne,
-				newEntity ? null : refreshAll);
+		openJournalEditor(editor, title);
 	}
 
 	/** Show the wizard editor of an journal.
@@ -289,6 +269,16 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 		final var editor = new EmbeddedJournalEditorWizard(
 				this.journalService.startEditing(journal), this.journalService,
 				getAuthenticatedUser(), getMessageSourceAccessor());
+		openJournalEditor(editor, title);
+	}
+
+	/** Show the editor of an journal.
+	 *
+	 * @param editor the editor to show.
+	 * @param title the title of the editor.
+	 * @param <T> the type of the editor extending {@link AbstractJournalEditor}.
+	 */
+	private <T extends AbstractJournalEditor> void openJournalEditor(T editor, String title) {
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Journal> refreshAll = (dialog, entity) -> {
 			// The number of papers should be loaded because it was not loaded before

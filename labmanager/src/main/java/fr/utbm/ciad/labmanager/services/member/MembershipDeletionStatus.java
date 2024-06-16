@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** Status for the membership deletion.
  * 

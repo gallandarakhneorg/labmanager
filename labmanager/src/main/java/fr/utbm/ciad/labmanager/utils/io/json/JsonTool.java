@@ -19,16 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.lang.reflect.Method;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
@@ -39,6 +29,12 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /** Definition of constants for the JSON tools.
  * 

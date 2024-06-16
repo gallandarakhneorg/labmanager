@@ -19,26 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -61,26 +41,13 @@ import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsReposi
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipRepository;
-import fr.utbm.ciad.labmanager.data.member.Gender;
-import fr.utbm.ciad.labmanager.data.member.Membership;
-import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
-import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.member.PersonRepository;
+import fr.utbm.ciad.labmanager.data.member.*;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
-import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
-import fr.utbm.ciad.labmanager.data.project.ProjectMember;
-import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
-import fr.utbm.ciad.labmanager.data.project.Role;
-import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.Authorship;
-import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+import fr.utbm.ciad.labmanager.data.project.*;
+import fr.utbm.ciad.labmanager.data.publication.*;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
@@ -111,6 +78,13 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.*;
 
 /** Importer of JSON data into the database.
  * 

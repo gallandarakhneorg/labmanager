@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.data.project;
 
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of project budgets.
  * 

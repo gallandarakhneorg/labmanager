@@ -19,10 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizations;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -57,6 +53,10 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /** List all the organizations.
  * 
@@ -234,7 +234,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 
 	/** Show the wizard editor of an address.
 	 *
-	 * @param address the address to edit.
+	 * @param organization the organization to edit.
 	 * @param title the title of the editor.
 	 */
 	protected void openOrganizationEditorWizard(ResearchOrganization organization, String title) {
@@ -244,19 +244,13 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 				getAuthenticatedUser(), getMessageSourceAccessor(),
 				this.organizationService,
 				this.addressService);
-		final var newEntity = editor.isNewEntity();
-		final SerializableBiConsumer<Dialog, ResearchOrganization> refreshAll = (dialog, entity) -> refreshGrid();
-		final SerializableBiConsumer<Dialog, ResearchOrganization> refreshOne = (dialog, entity) -> refreshItem(entity);
-		ComponentFactory.openEditionModalDialog(title, editor, false,
-				// Refresh the "old" item, even if its has been changed in the JPA database
-				newEntity ? refreshAll : refreshOne,
-				newEntity ? null : refreshAll);
+		openOrganizationEditor(editor, title);
 	}
 
 
 	/** Show the editor of an address.
 	 *
-	 * @param address the address to edit.
+	 * @param organization the organization to edit.
 	 * @param title the title of the editor.
 	 */
 	protected void openOrganizationEditor(ResearchOrganization organization, String title) {
@@ -266,6 +260,16 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 				getAuthenticatedUser(), getMessageSourceAccessor(),
 				this.organizationService,
 				this.addressService);
+		openOrganizationEditor(editor, title);
+	}
+
+	/**
+	 * Open the organization editor.
+	 * @param editor the editor to open
+	 * @param title the title of the editor
+	 * @param <T> the type of the editor extending {@link AbstractOrganizationEditor}
+	 */
+	private <T extends AbstractOrganizationEditor> void openOrganizationEditor(T editor, String title) {
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, ResearchOrganization> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, ResearchOrganization> refreshOne = (dialog, entity) -> refreshItem(entity);

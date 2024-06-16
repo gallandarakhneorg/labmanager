@@ -18,12 +18,6 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -39,6 +33,12 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Abstract implementation of a list of entities based on a tree grid view in which the root entity is of
  * a different type of the child entities. There is only two levels: root entities and child entities.

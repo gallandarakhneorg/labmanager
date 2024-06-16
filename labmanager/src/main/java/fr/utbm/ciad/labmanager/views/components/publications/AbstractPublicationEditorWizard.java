@@ -50,7 +50,8 @@ import java.util.function.Consumer;
 
 import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
-/** Implementation for the editor of the information related to a publication. It is directly linked for
+/**
+ * Implementation for the editor of the information related to a publication. It is directly linked for
  * using it with a wizard.
  *
  * @author $Author: sgalland$
@@ -66,27 +67,28 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
 
     private PublicationEditorComponentWizard publicationEditorComponentWizard;
 
-    /** Constructor.
+    /**
+     * Constructor.
      *
-     * @param context the context for editing the entity.
-     * @param supportedTypes list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
-     * @param relinkEntityWhenSaving indicates if the entity should be relinked when it is saved.
-     * @param enableTypeSelector indicates if the type selector is enabled or disabled.
-     * @param fileManager the manager of files at the server-side.
-     * @param publicationService the service for accessing the JPA entities for publications.
-     * @param personService the service for accessing the JPA entities for persons.
-     * @param userService the service for accessing the JPA entities for users.
-     * @param journalService the service for accessing the JPA entities for journal.
-     * @param conferenceService the service for accessing the JPA entities for conference.
-     * @param axisService service for accessing to the JPA entities of scientific axes.
-     * @param authenticatedUser the connected user.
-     * @param messages the accessor to the localized messages (Spring layer).
-     * @param logger the logger to use.
-     * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
-     * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
+     * @param context                   the context for editing the entity.
+     * @param supportedTypes            list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
+     * @param relinkEntityWhenSaving    indicates if the entity should be relinked when it is saved.
+     * @param enableTypeSelector        indicates if the type selector is enabled or disabled.
+     * @param fileManager               the manager of files at the server-side.
+     * @param publicationService        the service for accessing the JPA entities for publications.
+     * @param personService             the service for accessing the JPA entities for persons.
+     * @param userService               the service for accessing the JPA entities for users.
+     * @param journalService            the service for accessing the JPA entities for journal.
+     * @param conferenceService         the service for accessing the JPA entities for conference.
+     * @param axisService               service for accessing to the JPA entities of scientific axes.
+     * @param authenticatedUser         the connected user.
+     * @param messages                  the accessor to the localized messages (Spring layer).
+     * @param logger                    the logger to use.
+     * @param personCreationLabelKey    the key that is used for retrieving the text for creating a new person and associating it to the publication.
+     * @param personFieldLabelKey       the key that is used for retrieving the text for the label of the author/editor field.
      * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
-     * @param personNullErrorKey the key that is used for retrieving the text of the author/editor null error.
-     * @param personDuplicateErrorKey the key that is used for retrieving the text of the author/editor duplicate error.
+     * @param personNullErrorKey        the key that is used for retrieving the text of the author/editor null error.
+     * @param personDuplicateErrorKey   the key that is used for retrieving the text of the author/editor duplicate error.
      */
     public AbstractPublicationEditorWizard(AbstractEntityService.EntityEditingContext<Publication> context,
                                            PublicationType[] supportedTypes,
@@ -97,7 +99,7 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
                                            String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
                                            String personNullErrorKey, String personDuplicateErrorKey) {
 
-        super(context,supportedTypes,relinkEntityWhenSaving, enableTypeSelector, fileManager, publicationService, personService, userService, journalService, conferenceService, axisService, authenticatedUser, messages, logger, personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+        super(context, supportedTypes, relinkEntityWhenSaving, enableTypeSelector, fileManager, publicationService, personService, userService, journalService, conferenceService, axisService, authenticatedUser, messages, logger, personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
         this.supportedTypes = supportedTypes;
         // Sort types by their natural order, that corresponds to the weight of the type
         Arrays.sort(this.supportedTypes, (a, b) -> Integer.compare(a.ordinal(), b.ordinal()));
@@ -112,7 +114,7 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
         if (isBaseAdmin()) {
-            publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(),createGeneralDetails(),createIdentificationDetails(),createContentDetails(),createResourceDetails(),createReferenceDetails(), createAdministrationComponents(
+            publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(), createGeneralDetails(), createIdentificationDetails(), createContentDetails(), createResourceDetails(), createReferenceDetails(), createAdministrationComponents(
                     content -> {
                         this.manualValidationForced = new ToggleButton();
                         content.add(this.manualValidationForced, 2);
@@ -120,8 +122,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
                                 .bind(Publication::getManualValidationForced, Publication::setManualValidationForced);
                     },
                     it -> it.bind(Publication::isValidated, Publication::setValidated)));
-        }else{
-            publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(),createGeneralDetails(),createIdentificationDetails(),createContentDetails(),createResourceDetails(),createReferenceDetails());
+        } else {
+            publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(), createGeneralDetails(), createIdentificationDetails(), createContentDetails(), createResourceDetails(), createReferenceDetails());
         }
         rootContainer.add(publicationEditorComponentWizard);
 
@@ -142,8 +144,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
     }
 
 
-
-    /** Create the publication type selector at the top of the form.
+    /**
+     * Create the publication type selector at the top of the form.
      *
      * @return The content.
      */
@@ -170,7 +172,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
     }
 
 
-    /** Create the section for editing the general details.
+    /**
+     * Create the section for editing the general details.
      *
      * @return The content.
      */
@@ -228,7 +231,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         return date;
     }
 
-    /** Create the section for editing the identification details.
+    /**
+     * Create the section for editing the identification details.
      *
      * @return The content.
      */
@@ -298,7 +302,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         return verticalLayout;
     }
 
-    /** Replies if the ISBN and ISSN fields are activited for the current publication.
+    /**
+     * Replies if the ISBN and ISSN fields are activited for the current publication.
      *
      * @return {@code true} if the two fields are activited.
      */
@@ -307,7 +312,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         return !(entity instanceof JournalBasedPublication || entity instanceof ConferenceBasedPublication);
     }
 
-    /** Create the section for editing the content details.
+    /**
+     * Create the section for editing the content details.
      *
      * @return The content.
      */
@@ -350,7 +356,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         return language.getLabel(getLocale());
     }
 
-    /** Create the section for editing the resource details.
+    /**
+     * Create the section for editing the resource details.
      *
      * @return The content.
      */
@@ -399,7 +406,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         return verticalLayout;
     }
 
-    /** Create the section for editing the reference details.
+    /**
+     * Create the section for editing the reference details.
      *
      * @return The content.
      */
@@ -431,7 +439,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         return new Span(axis.getAcronymAndName());
     }
 
-    /** Invoked for creating a new scientific axis.
+    /**
+     * Invoked for creating a new scientific axis.
      *
      * @param saver the callback that is invoked when the scientific axis is saved as JPA entity.
      */
@@ -448,9 +457,10 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
     }
 
 
-    /** Update the form field according to the type of publication.
+    /**
+     * Update the form field according to the type of publication.
      *
-     * @param oldType the previous type. It may be {@code null}.
+     * @param oldType     the previous type. It may be {@code null}.
      * @param currentType the type that is currently selected. It is never {@code null}.
      */
     protected void updateFormContent(PublicationType oldType, PublicationType currentType) {
@@ -525,7 +535,7 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         this.scientificAxes.setDeletionTooltip(getTranslation("views.publication.scientific_axes.delete")); //$NON-NLS-1$
         this.scientificAxes.setCreationTooltip(getTranslation("views.publication.scientific_axes.create")); //$NON-NLS-1$
 
-        if (this.manualValidationForced!= null) {
+        if (this.manualValidationForced != null) {
             this.manualValidationForced.setLabel(getTranslation("views.publication.manual_validation_forced")); //$NON-NLS-1$
         }
 
@@ -581,7 +591,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
 
         private TextField editors;
 
-        /** Constructor.
+        /**
+         * Constructor.
          */
         public PublicationFieldBuilder() {
             //
@@ -600,9 +611,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
             localeChange();
         }
 
-        /** Change the localized text according to the given locale
-         *
-         * @param locale the locale to use.
+        /**
+         * Change the localized text according to the given locale
          */
         public void localeChange() {
             if (this.journal != null) {
@@ -1026,7 +1036,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
             }
         }
 
-        /** Update the form for the general details.
+        /**
+         * Update the form for the general details.
          *
          * @param publication the publication to edit.
          */
@@ -1440,7 +1451,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
             }
         }
 
-        /** Update the form for the identification details.
+        /**
+         * Update the form for the identification details.
          *
          * @param publication the publication to edit.
          */

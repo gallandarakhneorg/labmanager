@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.admin.utbm;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -38,6 +36,8 @@ import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+
+import java.util.Locale;
 
 /** A generator of an Excel file that contains the annual activity report with UTBM standard.
  * 

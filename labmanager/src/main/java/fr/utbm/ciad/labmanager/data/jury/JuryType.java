@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.jury;
 
-import java.util.Locale;
-
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
+
+import java.util.Locale;
 
 /** Type of jury.
  * 

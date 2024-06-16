@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
-import java.util.Collections;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -49,6 +47,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
+
+import java.util.Collections;
 
 /** Enable to edit the personal information for the user.
  * 

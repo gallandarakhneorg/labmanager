@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
-import java.util.Comparator;
-
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.utils.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
 
 /** Comparator of memberships. First the organizations are considered in the
  * sort, Then, dates are sorted from the highest to the lowest.

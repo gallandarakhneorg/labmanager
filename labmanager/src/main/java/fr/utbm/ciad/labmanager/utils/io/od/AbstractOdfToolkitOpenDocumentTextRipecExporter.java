@@ -19,10 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io.od;
 
-import java.io.ByteArrayOutputStream;
-
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
+
+import java.io.ByteArrayOutputStream;
 
 /** Utilities for exporting an activity report based on RIPEC-C3 standard to Open Document Text.
  * 

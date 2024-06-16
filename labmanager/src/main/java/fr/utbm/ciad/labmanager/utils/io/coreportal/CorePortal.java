@@ -19,11 +19,11 @@
 
 package fr.utbm.ciad.labmanager.utils.io.coreportal;
 
-import java.io.Serializable;
-import java.net.URL;
-
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import org.arakhne.afc.progress.Progression;
+
+import java.io.Serializable;
+import java.net.URL;
 
 /** Accessor to the online CORE Portal.
  * 
