@@ -716,7 +716,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.publicationDate.setHelperText(getTranslation("views.publication.date.helper")); //$NON-NLS-1$
 
 		if(this.identificationDetails != null){
-			this.identificationDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.identificationDetails.setSummaryText(getTranslation("views.publication.identification_informations")); //$NON-NLS-1$
 		}
 		this.doi.setLabel(getTranslation("views.publication.doi")); //$NON-NLS-1$
 		this.doi.setHelperText(getTranslation("views.publication.doi.helper")); //$NON-NLS-1$
@@ -731,7 +731,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		}
 
 		if(this.contentDetails != null){
-			this.contentDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.contentDetails.setSummaryText(getTranslation("views.publication.content_informations")); //$NON-NLS-1$
 		}
 		this.abstractText.setLabel(getTranslation("views.publication.abstract_text")); //$NON-NLS-1$
 		this.abstractText.setHelperText(getTranslation("views.publication.abstract_text.helper")); //$NON-NLS-1$
@@ -742,7 +742,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.language.setItemLabelGenerator(this::getLanguageLabel);
 
 		if(this.resourcesDetails != null){
-			this.resourcesDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.resourcesDetails.setSummaryText(getTranslation("views.publication.resources_informations")); //$NON-NLS-1$
 		}
 		this.uploadPdf.setLabel(getTranslation("views.publication.uploaded_pdf")); //$NON-NLS-1$
 		this.videoUrl.setLabel(getTranslation("views.publication.video_url")); //$NON-NLS-1$
@@ -750,7 +750,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.extraUrl.setLabel(getTranslation("views.publication.extra_url")); //$NON-NLS-1$
 
 		if(this.referencesDetails != null){
-			this.referencesDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.referencesDetails.setSummaryText(getTranslation("views.publication.references_informations")); //$NON-NLS-1$
 		}
 		this.scientificAxes.setLabel(getTranslation("views.publication.scientific_axes")); //$NON-NLS-1$
 		this.scientificAxes.setAdditionTooltip(getTranslation("views.publication.scientific_axes.insert")); //$NON-NLS-1$
