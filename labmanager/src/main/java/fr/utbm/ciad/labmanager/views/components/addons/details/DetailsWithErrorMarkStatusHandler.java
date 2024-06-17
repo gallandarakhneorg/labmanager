@@ -59,7 +59,9 @@ public class DetailsWithErrorMarkStatusHandler implements BindingValidationStatu
 		// Update the section message if needed
 		final var status = statusChange.getStatus();
 		if (status == Status.OK || status == Status.ERROR) {
-			this.section.updateStatus(this.field, message, null);
+			if (this.section != null){
+				this.section.updateStatus(this.field, message, null);
+			}
 		}
 	}
 

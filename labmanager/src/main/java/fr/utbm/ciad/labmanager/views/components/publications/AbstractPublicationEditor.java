@@ -970,7 +970,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			if (this.reportType != null) {
 				binder.removeBinding(this.reportType);
 			}
-			AbstractPublicationEditor.this.generalDetails.removeAllStatuses();
+			if(AbstractPublicationEditor.this.generalDetails != null) {
+				AbstractPublicationEditor.this.generalDetails.removeAllStatuses();
+			}
 		}
 
 		private void removeGeneralFields(Publication publication) {
@@ -1308,7 +1310,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			if (this.address != null) {
 				binder.removeBinding(this.address);
 			}
-			AbstractPublicationEditor.this.identificationDetails.removeAllStatuses();
+			if(AbstractPublicationEditor.this.identificationDetails != null) {
+				AbstractPublicationEditor.this.identificationDetails.removeAllStatuses();
+			}
 		}
 
 		private void removeIdentificationFields(Publication publication) {
