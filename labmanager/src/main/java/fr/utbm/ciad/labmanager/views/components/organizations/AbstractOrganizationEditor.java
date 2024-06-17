@@ -443,7 +443,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		super.localeChange(event);
 
 		if(this.descriptionDetails != null){
-			this.descriptionDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+			this.descriptionDetails.setSummaryText(getTranslation("views.organizations.description_informations")); //$NON-NLS-1$
 		}
 		this.acronym.setLabel(getTranslation("views.organizations.acronym")); //$NON-NLS-1$
 		this.name.setLabel(getTranslation("views.organizations.name")); //$NON-NLS-1$
@@ -453,7 +453,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.type.setItemLabelGenerator(this::getTypeLabel);
 
 		if(this.geographyDetails != null){
-			this.geographyDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+			this.geographyDetails.setSummaryText(getTranslation("views.organizations.geography_informations")); //$NON-NLS-1$
 		}
 		this.addresses.setLabel(getTranslation("views.organizations.addresses")); //$NON-NLS-1$
 		this.addresses.setAdditionTooltip(getTranslation("views.organizations.addresses.insert")); //$NON-NLS-1$
@@ -465,7 +465,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		ComponentFactory.updateCountryComboBoxItems(this.country, getLocale());
 
 		if(this.identificationDetails != null){
-			this.identificationDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+			this.identificationDetails.setSummaryText(getTranslation("views.organizations.identification_informations")); //$NON-NLS-1$
 		}
 		this.nationalIdentifier.setLabel(getTranslation("views.organizations.national_identifier")); //$NON-NLS-1$
 		this.nationalIdentifier.setHelperText(getTranslation("views.organizations.national_identifier.helper")); //$NON-NLS-1$
@@ -473,7 +473,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.rnsr.setHelperText(getTranslation("views.organizations.rnsr.helper")); //$NON-NLS-1$
 
 		if(this.superStructureDetails != null){
-			this.superStructureDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+			this.superStructureDetails.setSummaryText(getTranslation("views.organizations.super_structure_informations")); //$NON-NLS-1$
 		}
 		this.superStructures.setLabel(getTranslation("views.organizations.super_structures")); //$NON-NLS-1$
 		this.superStructures.setAdditionTooltip(getTranslation("views.organizations.super_structures.insert")); //$NON-NLS-1$
@@ -481,7 +481,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		this.superStructures.setCreationTooltip(getTranslation("views.organizations.super_structures.create")); //$NON-NLS-1$
 
 		if(this.communicationDetails != null){
-			this.communicationDetails.setSummaryText(getTranslation("views.persons.researcher_ids")); //$NON-NLS-1$
+			this.communicationDetails.setSummaryText(getTranslation("views.organizations.communication_informations")); //$NON-NLS-1$
 		}
 		this.organizationUrl.setLabel(getTranslation("views.organizations.url")); //$NON-NLS-1$
 		this.description.setLabel(getTranslation("views.organizations.description")); //$NON-NLS-1$

@@ -305,7 +305,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		super.localeChange(event);
 
 		if(this.descriptionDetails != null){
-			this.descriptionDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.descriptionDetails.setSummaryText(getTranslation("views.conferences.description_informations")); //$NON-NLS-1$
 		}
 		this.acronym.setLabel(getTranslation("views.conferences.acronym")); //$NON-NLS-1$
 		this.acronym.setHelperText(getTranslation("views.conferences.acronym.help")); //$NON-NLS-1$
@@ -317,7 +317,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.conferenceUrl.setLabel(getTranslation("views.conferences.url")); //$NON-NLS-1$
 
 		if(this.rankingDetails != null){
-			this.rankingDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.rankingDetails.setSummaryText(getTranslation("views.conferences.description_informations")); //$NON-NLS-1$
 		}
 		this.coreId.setLabel(getTranslation("views.conferences.core.id")); //$NON-NLS-1$
 		this.coreId.setHelperText(getTranslation("views.conferences.core.id.help")); //$NON-NLS-1$
@@ -325,7 +325,7 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 		this.rankings.setHelperText(getTranslation("views.conferences.rankings.help")); //$NON-NLS-1$
 
 		if(this.publicationDetails != null){
-			this.publicationDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
+			this.publicationDetails.setSummaryText(getTranslation("views.conferences.publisher_informations")); //$NON-NLS-1$
 		}
 		this.publisherName.setLabel(getTranslation("views.conferences.publisher_name")); //$NON-NLS-1$
 		this.publisherName.setHelperText(getTranslation("views.conferences.publisher_name.help")); //$NON-NLS-1$
