@@ -134,17 +134,9 @@ public class Constants {
 	 */
 	public static final String FORAJAX_ENDPOINT_PARAMETER = "forAjax"; //$NON-NLS-1$
 
-	/** Name of the endpoint parameter "organization".
-	 */
-	public static final String ORGANIZATION_ENDPOINT_PARAMETER = "organization"; //$NON-NLS-1$
-
 	/** Name of the endpoint parameter "includeSuborganization".
 	 */
 	public static final String INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER = "includeSuborganizations"; //$NON-NLS-1$
-
-	/** Name of the endpoint parameter "dbId".
-	 */
-	public static final String DBID_ENDPOINT_PARAMETER = "dbId"; //$NON-NLS-1$
 
 	/** Name of the endpoint parameter "webId".
 	 */
@@ -161,10 +153,6 @@ public class Constants {
 	/** Name of the endpoint parameter "address".
 	 */
 	public static final String ADDRESS_ENDPOINT_PARAMETER = "address"; //$NON-NLS-1$
-
-	/** Name of the endpoint parameter "inAttachment".
-	 */
-	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
 
 	/** Default basename of the files in attachment with DB content.
 	 * The name must be always lower case.
@@ -313,10 +301,6 @@ public class Constants {
 	/** Name of the endpoint for deleting a person supervision.
 	 */
 	public static final String SUPERVISION_DELETION_ENDPOINT = "deleteSupervision"; //$NON-NLS-1$
-
-	/** Name of the endpoint for obtaining the Vcard of a person.
-	 */
-	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$
 
 	/** Name of an endpoint parameter for representing a person.
 	 */

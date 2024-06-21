@@ -17,46 +17,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager;
+package fr.utbm.ciad.wprest.person;
 
-/** Constant definitions.
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import fr.utbm.ciad.labmanager.Constants;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+/** Testing endpoint.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 3.8
+ * @since 4.0
  */
-public final class Constants {
+@RestController
+@RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION)
+@ResponseBody
+@CrossOrigin
+public class TestEndPoint {
 
-	/** Major version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MAJOR_VERSION = "4"; //$NON-NLS-1$
-	
-	/** Minor version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MINOR_VERSION = "0"; //$NON-NLS-1$
-
-	/** Micro version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MICRO_VERSION = "0"; //$NON-NLS-1$
-
-	/** Version number of the Lab Manager API.
-	 */
-	public static final String MANAGER_VERSION = MANAGER_MAJOR_VERSION + "." + MANAGER_MINOR_VERSION + "." + MANAGER_MICRO_VERSION; //$NON-NLS-1$ //$NON-NLS-2$
-
-	/** Build id that is also the date of the release.
-	 */
-	public static final String MANAGER_BUILD_ID = "~"; //$NON-NLS-1$
-
-	private Constants() {
-		//
+	@GetMapping(value = "/hello")
+	public String hello() {
+		return "Hello, world!";
 	}
-	
+
 }

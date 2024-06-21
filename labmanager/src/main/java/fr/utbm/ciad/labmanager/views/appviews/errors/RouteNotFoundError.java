@@ -16,47 +16,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package fr.utbm.ciad.labmanager.views.appviews.errors;
 
-package fr.utbm.ciad.labmanager;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.NotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 
-/** Constant definitions.
+/** Handler for reacting to an invalid route.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 3.8
+ * @since 4.0
  */
-public final class Constants {
+public class RouteNotFoundError extends com.vaadin.flow.router.RouteNotFoundError {
 
-	/** Major version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MAJOR_VERSION = "4"; //$NON-NLS-1$
-	
-	/** Minor version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MINOR_VERSION = "0"; //$NON-NLS-1$
+    private static final long serialVersionUID = -1463864000043228305L;
 
-	/** Micro version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MICRO_VERSION = "0"; //$NON-NLS-1$
+	@Override
+	public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotFoundException> parameter) {
+        getElement().setText("Could not navigate to '" + event.getLocation().getPath() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+        return HttpServletResponse.SC_NOT_FOUND;
+    }
 
-	/** Version number of the Lab Manager API.
-	 */
-	public static final String MANAGER_VERSION = MANAGER_MAJOR_VERSION + "." + MANAGER_MINOR_VERSION + "." + MANAGER_MICRO_VERSION; //$NON-NLS-1$ //$NON-NLS-2$
-
-	/** Build id that is also the date of the release.
-	 */
-	public static final String MANAGER_BUILD_ID = "~"; //$NON-NLS-1$
-
-	private Constants() {
-		//
-	}
-	
 }

@@ -25,6 +25,7 @@ import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.Async;
 
 /**
@@ -43,7 +44,7 @@ import org.springframework.scheduling.annotation.Async;
 @Async
 @Push
 @Theme(value = "labmanager")
-public class LabManagerApplication implements AppShellConfigurator {
+public class LabManagerApplication extends SpringBootServletInitializer implements AppShellConfigurator {
 
 	private static final long serialVersionUID = 3672131574382734484L;
 

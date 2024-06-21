@@ -17,46 +17,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager;
+package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 
-/** Constant definitions.
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import jakarta.annotation.security.PermitAll;
+
+/** Dashboard for the lab manager application.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 3.8
+ * @since 4.0
  */
-public final class Constants {
+@Route(value = "", layout = MainLayout.class)
+@PermitAll
+@Uses(Icon.class)
+public class DashboardView extends Composite<VerticalLayout> implements HasDynamicTitle {
 
-	/** Major version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MAJOR_VERSION = "4"; //$NON-NLS-1$
-	
-	/** Minor version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MINOR_VERSION = "0"; //$NON-NLS-1$
+    private static final long serialVersionUID = -1583805930880620625L;
 
-	/** Micro version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MICRO_VERSION = "0"; //$NON-NLS-1$
-
-	/** Version number of the Lab Manager API.
-	 */
-	public static final String MANAGER_VERSION = MANAGER_MAJOR_VERSION + "." + MANAGER_MINOR_VERSION + "." + MANAGER_MICRO_VERSION; //$NON-NLS-1$ //$NON-NLS-2$
-
-	/** Build id that is also the date of the release.
-	 */
-	public static final String MANAGER_BUILD_ID = "~"; //$NON-NLS-1$
-
-	private Constants() {
-		//
+    /** Constructor.
+     */
+	public DashboardView() {
 	}
-	
+
+	@Override
+	public String getPageTitle() {
+		return getTranslation("views.dashboard.title"); //$NON-NLS-1$
+	}
 }

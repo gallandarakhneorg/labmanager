@@ -20,16 +20,19 @@
 package fr.utbm.ciad.labmanager.configuration.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import fr.utbm.ciad.labmanager.Constants;
 import fr.utbm.ciad.labmanager.views.appviews.login.AdaptiveLoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-/** Configuration of the security login.
+/** Configuration of the security for API and Vaadin.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -41,6 +44,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfiguration extends VaadinWebSecurity {
 
+	private static final String API_URL = "/api/v" + Constants.MANAGER_MAJOR_VERSION + "/**/*"; //$NON-NLS-1$ //$NON-NLS-2$
+
 	/** The default password encoder when using local security system.
 	 *
 	 * @return the encoder.
@@ -49,22 +54,25 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		/* TODO
-		return new BCryptPasswordEncoder();
-		*/
+	   		return new BCryptPasswordEncoder();
+		 */
 		return NoOpPasswordEncoder.getInstance();
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests(
-				authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
+		// Access to API is allowed and anonymous
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher(API_URL)).anonymous());
+		http.csrf(cfg -> cfg.ignoringRequestMatchers(new AntPathRequestMatcher(API_URL)));
+		
+        // Access to images is allowed
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
 
-		// Icons from the line-awesome addon
-		http.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
+		// Access to icons from the line-awesome addon
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
 
 		super.configure(http);
-		
+
 		setLoginView(http, AdaptiveLoginView.class);
 	}
 
