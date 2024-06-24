@@ -61,15 +61,18 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		// Access to API is allowed and anonymous
-		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher(API_URL)).anonymous());
-		http.csrf(cfg -> cfg.ignoringRequestMatchers(new AntPathRequestMatcher(API_URL)));
-		
-        // Access to images is allowed
-		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
+		http.authorizeHttpRequests(authorize -> {
+			// Access to API is allowed and anonymous
+			authorize.requestMatchers(new AntPathRequestMatcher(API_URL)).anonymous();
 
-		// Access to icons from the line-awesome addon
-		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
+	        // Access to images is allowed
+			authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll(); //$NON-NLS-1$
+
+			// Access to icons from the line-awesome addon
+			authorize.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll(); //$NON-NLS-1$
+		});
+
+		http.csrf(cfg -> cfg.ignoringRequestMatchers(new AntPathRequestMatcher(API_URL)));
 
 		super.configure(http);
 
