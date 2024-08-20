@@ -50,6 +50,7 @@ import fr.utbm.ciad.labmanager.views.appviews.assocstructures.AssociatedStructur
 import fr.utbm.ciad.labmanager.views.appviews.charts.ChartsView;
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferencesListView;
 import fr.utbm.ciad.labmanager.views.appviews.culture.ScientificCultureActionsListView;
+import fr.utbm.ciad.labmanager.views.appviews.dashboard.DashboardView;
 import fr.utbm.ciad.labmanager.views.appviews.database.DatabaseInputOutputView;
 import fr.utbm.ciad.labmanager.views.appviews.exports.ReportExportView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.IncomingInvitationsListView;
@@ -72,7 +73,6 @@ import fr.utbm.ciad.labmanager.views.appviews.scientificaxes.ScientificAxesListV
 import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsListView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesListView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingPublicationsListView;
-import fr.utbm.ciad.labmanager.views.appviews.welcome.WelcomeView;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
@@ -239,8 +239,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 * @param nav the navigation panel.
 	 */
 	protected void createWelcomeNavigation(SideNav nav) {
-		if (this.accessChecker.hasAccess(WelcomeView.class)) {
-			nav.addItem(new SideNavItem("Welcome", WelcomeView.class));
+		if (this.accessChecker.hasAccess(DashboardView.class)) {
+			nav.addItem(new SideNavItem("Welcome", DashboardView.class));
 		}
 	}
 

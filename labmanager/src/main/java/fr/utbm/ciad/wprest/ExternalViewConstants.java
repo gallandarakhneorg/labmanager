@@ -17,45 +17,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager;
+package fr.utbm.ciad.wprest;
 
-/** Constant definitions.
+/** Definition of global constants for external views.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 3.8
+ * @since 4.0
  */
-public final class Constants {
+public final class ExternalViewConstants {
 
-	/** Major version number of the Lab Manager API.
-	 *
-	 * @since 4.0
+	/** Name of the endpoint parameter "dbId".
 	 */
-	public static final String MANAGER_MAJOR_VERSION = "4"; //$NON-NLS-1$
-	
-	/** Minor version number of the Lab Manager API.
-	 *
-	 * @since 4.0
-	 */
-	public static final String MANAGER_MINOR_VERSION = "0"; //$NON-NLS-1$
+	public static final String DBID_ENDPOINT_PARAMETER = "dbId"; //$NON-NLS-1$
 
-	/** Micro version number of the Lab Manager API.
-	 *
-	 * @since 4.0
+	/** Name of the endpoint for obtaining the Vcard of a person.
 	 */
-	public static final String MANAGER_MICRO_VERSION = "0"; //$NON-NLS-1$
+	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$
 
-	/** Version number of the Lab Manager API.
+	/** Name of the endpoint parameter "inAttachment".
 	 */
-	public static final String MANAGER_VERSION = MANAGER_MAJOR_VERSION + "." + MANAGER_MINOR_VERSION + "." + MANAGER_MICRO_VERSION; //$NON-NLS-1$ //$NON-NLS-2$
+	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
 
-	/** Build id that is also the date of the release.
+	/** Name of the endpoint parameter "organization".
 	 */
-	public static final String MANAGER_BUILD_ID = "~"; //$NON-NLS-1$
+	public static final String ORGANIZATION_ENDPOINT_PARAMETER = "organization"; //$NON-NLS-1$
 
-	private Constants() {
+	private ExternalViewConstants() {
 		//
 	}
 	

@@ -20,36 +20,9 @@
 package fr.utbm.ciad.labmanager.configuration.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import fr.utbm.ciad.labmanager.configuration.security.entrypoint.CommonAuthenticationEntryPoint;
-import fr.utbm.ciad.labmanager.configuration.security.entrypoint.UbCasAuthenticationEntryPoint;
-import fr.utbm.ciad.labmanager.configuration.security.entrypoint.UtbmCasAuthenticationEntryPoint;
-import fr.utbm.ciad.labmanager.configuration.security.filter.CommonAuthenticationFilter;
-import fr.utbm.ciad.labmanager.configuration.security.filter.UbCasAuthenticationFilter;
-import fr.utbm.ciad.labmanager.configuration.security.filter.UtbmCasAuthenticationFilter;
-import fr.utbm.ciad.labmanager.configuration.security.provider.UbCasAuthenticationProvider;
-import fr.utbm.ciad.labmanager.configuration.security.provider.UtbmCasAuthenticationProvider;
-import org.apereo.cas.client.session.SingleSignOutFilter;
-import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
-import org.apereo.cas.client.validation.TicketValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-/**
- * Configuration of the security login.
- *
+/** Configuration of the security for API and Vaadin.
+ * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -63,12 +36,43 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     @Autowired
     private UserDetailsService userDetailsService;
 
-
     @Value("${labmanager.cas-servers.ub.base}")
     private String casServerUbBaseUrl;
 
     @Value("${labmanager.cas-servers.ub.login}")
     private String casServerUbLoginUrl;
+
+	private static final String API_URL = "/api/v" + Constants.MANAGER_MAJOR_VERSION + "/**/*"; //$NON-NLS-1$ //$NON-NLS-2$
+
+	/** The default password encoder when using local security system.
+	 *
+	 * @return the encoder.
+	 */
+	@SuppressWarnings("static-method")
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		/* TODO
+	   		return new BCryptPasswordEncoder();
+		 */
+		return NoOpPasswordEncoder.getInstance();
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		// Access to API is allowed and anonymous
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher(API_URL)).anonymous());
+		http.csrf(cfg -> cfg.ignoringRequestMatchers(new AntPathRequestMatcher(API_URL)));
+		
+        // Access to images is allowed
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
+
+		// Access to icons from the line-awesome addon
+		http.authorizeHttpRequests(authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
+
+		super.configure(http);
+
+		setLoginView(http, AdaptiveLoginView.class);
+	}
 
     @Value("${labmanager.cas-servers.ub.service}")
     private String casServerUbServiceUrl;
