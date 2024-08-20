@@ -19,6 +19,17 @@
 
 package fr.utbm.ciad.labmanager.data.organization;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -36,14 +47,22 @@ import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
 /** Research organization or group or researchers.
  * 
@@ -55,7 +74,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "ResearchOrgs")
-public class ResearchOrganization extends AbstractContextData implements Serializable, JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
+public class ResearchOrganization extends AbstractContextData implements JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
 	private static final long serialVersionUID = -450531251083286848L;
 

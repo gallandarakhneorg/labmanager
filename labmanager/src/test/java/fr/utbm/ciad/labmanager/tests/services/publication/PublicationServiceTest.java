@@ -64,6 +64,8 @@ import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
+import fr.utbm.ciad.labmanager.data.publication.comparators.PublicationTitleComparator;
+import fr.utbm.ciad.labmanager.data.publication.comparators.SorensenDicePublicationTitleComparator;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -88,8 +90,6 @@ import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentTextPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.DefaultPersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
-import fr.utbm.ciad.labmanager.utils.names.PublicationNameComparator;
-import fr.utbm.ciad.labmanager.utils.names.SorensenDice.SorensenDicePublicationNameComparator;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
@@ -137,7 +137,7 @@ public class PublicationServiceTest {
 
 	private PersonNameParser nameParser;
 
-	private PublicationNameComparator titleComparator;
+	private PublicationTitleComparator titleComparator;
 
 	private BibTeX bibtex;
 
@@ -187,7 +187,7 @@ public class PublicationServiceTest {
 		this.journalRepository = mock(JournalRepository.class);
 		this.conferenceRepository = mock(ConferenceRepository.class);
 		this.nameParser = new DefaultPersonNameParser();
-		this.titleComparator = new SorensenDicePublicationNameComparator();
+		this.titleComparator = new SorensenDicePublicationTitleComparator();
 		this.bibtex = mock(BibTeX.class);
 		this.ris = mock(RIS.class);
 		this.html = mock(HtmlDocumentExporter.class);

@@ -83,7 +83,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @param conferenceRepository the journal repository.
 	 * @param indicatorsRepository the repository for accessing to the quality indicators.
 	 * @param corePortal the accessor to the online CORE portal.
-	 * @param sessionFactory the factory for hibernate session.
+	 * @param conferenceNameComparator the comparator of conferences based on their names.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the Hibernate session factory.

@@ -32,12 +32,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationNameComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
+import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
@@ -148,16 +148,17 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 
 	@Override
 	public SimilarityError isAlreadyInDatabase() {
-		var organisation = getEditedEntity();
+		final var organisation = getEditedEntity();
 		if (organisation != null) {
-			long id = this.organizationService.getResearchOrganizationIdBySimilarAcronymOrName(organisation.getAcronym(), organisation.getName());
-			if (id == 0) {
+			final var orga = this.organizationService.getResearchOrganizationBySimilarAcronymOrName(organisation.getAcronym(), organisation.getName());
+			if (orga.isEmpty()) {
 				return SimilarityError.NO_ERROR;
-			} else if (id == organisation.getId()) {
-				return SimilarityError.NO_ERROR;
-			} else {
-				return SimilarityError.SAME_NAME_AND_ACRONYM;
 			}
+			final var id = orga.get().getId();
+			if (id == organisation.getId()) {
+				return SimilarityError.NO_ERROR;
+			}
+			return SimilarityError.SAME_NAME_AND_ACRONYM;
 		}
 		return SimilarityError.NO_ERROR;
 	}

@@ -65,7 +65,7 @@ import fr.utbm.ciad.labmanager.utils.io.network.NetConnection;
 import fr.utbm.ciad.labmanager.utils.io.scimago.OnlineScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
-import fr.utbm.ciad.labmanager.utils.names.JournalNameAndPublisherComparator;
+import fr.utbm.ciad.labmanager.utils.names.JournalNameOrPublisherComparator;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.hibernate.SessionFactory;
@@ -112,7 +112,7 @@ public class JournalServiceTest {
 
 	private NetConnection netConnection;
 
-	private JournalNameAndPublisherComparator journalNameAndPublisherComparator;
+	private JournalNameOrPublisherComparator journalNameAndPublisherComparator;
 
 	private JournalService test;
 
@@ -126,7 +126,7 @@ public class JournalServiceTest {
 		this.scimago = mock(ScimagoPlatform.class);
 		this.wos = mock(WebOfSciencePlatform.class);
 		this.netConnection = mock(NetConnection.class);
-		this.journalNameAndPublisherComparator = mock(JournalNameAndPublisherComparator.class);
+		this.journalNameAndPublisherComparator = mock(JournalNameOrPublisherComparator.class);
 		this.test = new JournalService(this.journalRepository,
 				this.indicatorRepository, this.publicationRepository, this.scimago, this.wos, this.netConnection, this.journalNameAndPublisherComparator,
 				this.messages, new Constants(), this.sessionFactory);

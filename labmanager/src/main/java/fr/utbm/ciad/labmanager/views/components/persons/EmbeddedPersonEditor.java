@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.persons;
 
-import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import org.slf4j.Logger;

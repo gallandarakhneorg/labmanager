@@ -13,6 +13,8 @@ public interface ConferenceNameComparator {
 
     /**
      * Compute and replies the similarity between the acronyms and names of two conferences.
+     * If a name or an acronym has the value {@code null}, it is assumed to be an empty
+     * string of characters.
      *
      * @param acronym1 the first acronym.
      * @param name1    the first name.
@@ -41,6 +43,8 @@ public interface ConferenceNameComparator {
 
     /**
      * Check name similarity between the names and the acronyms of two conferences.
+     * If a name or an acronym has the value {@code null}, it is assumed to be an empty
+     * string of characters.
      *
      * @param acronym1 the first acronym.
      * @param name1    the first name.

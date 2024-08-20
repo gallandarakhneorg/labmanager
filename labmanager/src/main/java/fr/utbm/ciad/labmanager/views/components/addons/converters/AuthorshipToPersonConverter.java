@@ -29,8 +29,8 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
-import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
 
 /** A converter that is removing the spaces at the ends of the input string.
  * 

@@ -19,6 +19,21 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -33,7 +48,7 @@ import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
-import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
+import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
@@ -41,17 +56,19 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /** Represent a person.
  * 
@@ -63,7 +80,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "Persons")
-public class Person extends AbstractContextData implements Serializable, JsonSerializable, AttributeProvider, Comparable<Person>, IdentifiableEntity {
+public class Person extends AbstractContextData implements JsonSerializable, AttributeProvider, Comparable<Person>, IdentifiableEntity {
 
 	private static final long serialVersionUID = -1312811718336186349L;
 

@@ -684,6 +684,7 @@ public final class ComponentFactory {
                 deleteDoneCallback);
     }
 
+    //TODO
     public static <T extends IdentifiableEntity> void openEditionModalDialog(
             String title,
             String saveTextPath,
@@ -798,7 +799,7 @@ public final class ComponentFactory {
         }
     }
 
-    private static <T extends IdentifiableEntity> @Nullable SerializableConsumer<Dialog> getDialogSerializableConsumer(AbstractEntityEditor<T> content, SerializableBiConsumer<Dialog, T> deleteDoneCallback) {
+    private static <T extends IdentifiableEntity> SerializableConsumer<Dialog> getDialogSerializableConsumer(AbstractEntityEditor<T> content, SerializableBiConsumer<Dialog, T> deleteDoneCallback) {
         final SerializableConsumer<Dialog> deleteCallback;
         if (deleteDoneCallback != null) {
             deleteCallback = dialog -> {

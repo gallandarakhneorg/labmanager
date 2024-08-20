@@ -40,6 +40,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;

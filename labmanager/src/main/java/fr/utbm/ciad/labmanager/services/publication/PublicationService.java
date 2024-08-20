@@ -30,6 +30,7 @@ import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.publication.*;
+import fr.utbm.ciad.labmanager.data.publication.comparators.PublicationTitleComparator;
 import fr.utbm.ciad.labmanager.data.publication.type.*;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
@@ -46,7 +47,6 @@ import fr.utbm.ciad.labmanager.utils.io.json.JsonExporter;
 import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentTextPublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.ris.RIS;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
-import fr.utbm.ciad.labmanager.utils.names.PublicationNameComparator;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.arakhne.afc.progress.DefaultProgression;
@@ -136,7 +136,7 @@ public class PublicationService extends AbstractPublicationService {
 
 	private ThesisService thesisService;
 
-	private PublicationNameComparator titleComparator;
+	private PublicationTitleComparator titleComparator;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
@@ -150,6 +150,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param journalRepository the repository of the journals.
 	 * @param conferenceRepository the repository of the conferences.
 	 * @param nameParser the parser of person names.
+	 * @param titleComparator a comparator used for comparing publications based on their titles.
 	 * @param bibtex the tool for managing BibTeX source.
 	 * @param ris the tool for managing RIS source.
 	 * @param html the tool for exporting to HTML.
@@ -179,7 +180,7 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired JournalRepository journalRepository,
 			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired PersonNameParser nameParser,
-			@Autowired PublicationNameComparator titleComparator,
+			@Autowired PublicationTitleComparator titleComparator,
 			@Autowired BibTeX bibtex,
 			@Autowired RIS ris,
 			@Autowired HtmlDocumentExporter html,

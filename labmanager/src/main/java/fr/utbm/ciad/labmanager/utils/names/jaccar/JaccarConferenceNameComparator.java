@@ -5,17 +5,28 @@ import info.debatty.java.stringsimilarity.Jaccard;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.springframework.stereotype.Component;
 
+/** Utilities for comparing conference names using the Jaccar algorithm.
+ * 
+ * @author $Author: jferlin$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 4.1
+ */
 @Component
 public class JaccarConferenceNameComparator extends AbstractConferenceNameComparator {
 
-    private static final double SIMILARITY_LEVEL = 0.7;
+	private static final double SIMILARITY_LEVEL = 0.7;
 
-    public JaccarConferenceNameComparator() {
-        setSimilarityLevel(SIMILARITY_LEVEL);
-    }
+	/** Constructor with default similarity level.
+	 */
+	public JaccarConferenceNameComparator() {
+		setSimilarityLevel(SIMILARITY_LEVEL);
+	}
 
-    @Override
-    protected NormalizedStringSimilarity createStringSimilarityComputer() {
-        return new Jaccard();
-    }
+	@Override
+	protected NormalizedStringSimilarity createStringSimilarityComputer() {
+		return new Jaccard();
+	}
+
 }

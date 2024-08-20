@@ -16,7 +16,7 @@
 
 package fr.utbm.ciad.labmanager.tests.data.publication;
 
-import fr.utbm.ciad.labmanager.data.publication.RatcliffObershelpPublicationComparator;
+import fr.utbm.ciad.labmanager.data.publication.comparators.RatcliffObershelpPublicationComparator;
 import org.junit.jupiter.api.BeforeEach;
 
 /** Tests for {@link RatcliffObershelpPublicationComparator}.

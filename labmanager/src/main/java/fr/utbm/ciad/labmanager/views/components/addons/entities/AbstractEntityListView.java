@@ -20,8 +20,8 @@ package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
-import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;

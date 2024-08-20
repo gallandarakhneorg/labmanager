@@ -19,8 +19,7 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
-import com.google.common.base.Strings;
-import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
+import fr.utbm.ciad.labmanager.utils.AbstractNormalizableStringComparator;
 
 /** Abstract implementation of utilities for comparing organization names.
  * 
@@ -30,53 +29,19 @@ import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
  * @mavenartifactid $ArtifactId$
  * @since 3.2
  */
-public abstract class AbstractOrganizationNameComparator implements OrganizationNameComparator {
-
-	private double similaritylevel;
-
-	@Override
-	public double getSimilarityLevel() {
-		return this.similaritylevel;
-	}
-
-	@Override
-	public void setSimilarityLevel(double similarityLevel) {
-		if (similarityLevel < 0.0) {
-			this.similaritylevel = 0.0;
-		} else {
-			this.similaritylevel = Math.min(similarityLevel, 1.0);
-		}
-	}
-
-	/** Create an instance of a string similarity computer.
-	 * This is a factory method.
-	 *
-	 * @return the string similarity computer.
-	 */
-	protected abstract NormalizedStringSimilarity createStringSimilarityComputer();
+public abstract class AbstractOrganizationNameComparator extends AbstractNormalizableStringComparator implements OrganizationNameComparator {
 
 	@Override
 	public double getSimilarity(String acronym1, String name1, String acronym2, String name2) {
-		final var similarityComputer = createStringSimilarityComputer();
-		final var s1 = similarityComputer.similarity(acronym1, acronym2);
-		final var s2 = similarityComputer.similarity(name1, name2);
-		return Math.max(s1, s2);
-	}
+		final var normedAcronym1 = normalizeString(acronym1);
+		final var normedName1 = normalizeString(name1);
+		final var normedAcronym2 = acronym1 != acronym2 ? normalizeString(acronym2) : normedAcronym1;
+		final var normedName2 = name1 != name2 ? normalizeString(name2) : normedName1;
 
-	/** Replies the similarity of the two strings.
-	 *
-	 * @param matcher the string similarity computer to be used.
-	 * @param str1 the first string to compare.
-	 * @param str2 the second string to compare.
-	 * @return the level of similarity. {@code 0} means that the strings are not
-	 *     similar, and {@code 1} means that they are totally equal.
-	 */
-	@SuppressWarnings("static-method")
-	protected double getSimilarity(NormalizedStringSimilarity matcher, String str1, String str2) {
-		if (Strings.isNullOrEmpty(str1) || Strings.isNullOrEmpty(str2)) {
-			return 1.0;
-		}
-		return matcher.similarity(str1, str2);
+		final var similarityComputer = getStringSimilarityComputer();
+		final var s1 = getSimilarity(similarityComputer, normedAcronym1, normedAcronym2);
+		final var s2 = getSimilarity(similarityComputer, normedName1, normedName2);
+		return Math.max(s1, s2);
 	}
 
 }

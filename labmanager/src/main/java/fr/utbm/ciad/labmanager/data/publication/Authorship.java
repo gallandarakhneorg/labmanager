@@ -27,6 +27,7 @@ import java.util.Objects;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

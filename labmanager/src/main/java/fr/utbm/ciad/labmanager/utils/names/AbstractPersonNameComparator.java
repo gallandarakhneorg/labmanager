@@ -19,14 +19,21 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
-import com.google.common.base.Strings;
+import java.util.Set;
+import java.util.TreeSet;
+
+import fr.utbm.ciad.labmanager.utils.AbstractNormalizableStringComparator;
+import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/** Abstract implementation of utilit
+
+stractNormalizableStringComparator;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
-import java.util.TreeSet;
-
-/** Abstract implementation of utilities for comparing person names.
+import java.utiies for comparing person names.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -34,11 +41,9 @@ import java.util.TreeSet;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public abstract class AbstractPersonNameComparator implements PersonNameComparator {
+public abstract class AbstractPersonNameComparator extends AbstractNormalizableStringComparator implements PersonNameComparator {
 
 	private final PersonNameParser nameParser;
-
-	private double similaritylevel;
 
 	/** Constructor.
 	 *
@@ -46,20 +51,6 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 	 */
 	public AbstractPersonNameComparator(@Autowired PersonNameParser nameParser) {
 		this.nameParser = nameParser;
-	}
-
-	@Override
-	public double getSimilarityLevel() {
-		return this.similaritylevel;
-	}
-
-	@Override
-	public void setSimilarityLevel(double similarityLevel) {
-		if (similarityLevel < 0.0) {
-			this.similaritylevel = 0.0;
-		} else {
-			this.similaritylevel = Math.min(similarityLevel, 1.0);
-		}
 	}
 
 	@Override
@@ -95,13 +86,6 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 				last2, lasts2);
 	}
 
-	/** Create an instance of a string similarity computer.
-	 * This is a factory method.
-	 *
-	 * @return the string similarity computer.
-	 */
-	protected abstract NormalizedStringSimilarity createStringSimilarityComputer();
-
 	/** Replies the similarity of the two names.
 	 * This function test if the two first names and last names are similar, or
 	 * if the first first name is similar to the second last name, and the
@@ -123,7 +107,7 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 			String lastName1, Set<String> lastNames1,
 			String firstName2, Set<String> firstNames2,
 			String lastName2, Set<String> lastNames2) {
-		final var similarityComputer = createStringSimilarityComputer();
+		final var similarityComputer = getStringSimilarityComputer();
 		
 		// FL vs. FL
 		var max = getSimilarity(similarityComputer, firstNames1, lastName1, firstNames2, lastName2);
@@ -210,22 +194,6 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 			}
 		}
 		return mmax;
-	}
-
-	/** Replies the similarity of the two names.
-	 *
-	 * @param matcher the string similarity computer to be used.
-	 * @param name1 the first name to compare.
-	 * @param name2 the second name to compare.
-	 * @return the level of similarity. {@code 0} means that the names are not
-	 *     similar, and {@code 1} means that they are totally equal.
-	 */
-	@SuppressWarnings("static-method")
-	protected double getSimilarity(NormalizedStringSimilarity matcher, String name1, String name2) {
-		if (Strings.isNullOrEmpty(name1) || Strings.isNullOrEmpty(name2)) {
-			return 1.0;
-		}
-		return matcher.similarity(name1, name2);
 	}
 
 }

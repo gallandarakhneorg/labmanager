@@ -143,7 +143,7 @@ public class OnlineWebOfSciencePlatformTest {
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());
 		WebOfScienceJournal data0 = this.test.getJournalRanking("2687", progress);
 		assertNotNull(data0);
-		assertEquals(7.5f, data0.impactFactor);
+		assertEquals(6.1f, data0.impactFactor);
 		assertSame(QuartileRanking.Q1, data0.quartiles.get("computer science, artificial intelligence"));
 		assertSame(QuartileRanking.Q1, data0.quartiles.get("engineering, biomedical"));
 		assertSame(QuartileRanking.Q2, data0.quartiles.get("medical informatics"));

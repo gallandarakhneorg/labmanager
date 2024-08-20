@@ -27,7 +27,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.function.SerializableFunction;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
-import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
+import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
 
 /** A validator that matches an authorship that is not {@code null}, not equals to other entities of the same type and with valid rank.
  *

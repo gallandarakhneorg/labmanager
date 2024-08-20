@@ -16,7 +16,7 @@
 
 package fr.utbm.ciad.labmanager.tests.data.publication;
 
-import fr.utbm.ciad.labmanager.data.publication.SorensenDicePublicationComparator;
+import fr.utbm.ciad.labmanager.data.publication.comparators.SorensenDicePublicationComparator;
 import org.junit.jupiter.api.BeforeEach;
 
 /** Tests for {@link SorensenDicePublicationComparator}.

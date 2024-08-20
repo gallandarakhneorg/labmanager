@@ -96,14 +96,10 @@ public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecif
 	 */
 	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(long id);
 
-
-	long count();
-
 	@Query("SELECT p FROM Person p LEFT JOIN FETCH p.authorships m WHERE p.id = :id")
 	Optional<Person> findByIdJoinAuthorships(long id);
 
 	@NotNull
-	@Modifying
 	@Query("SELECT p FROM Person p")
 	List<Person> findAll();
 

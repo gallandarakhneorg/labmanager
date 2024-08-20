@@ -35,7 +35,7 @@ import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.io.network.NetConnection;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
-import fr.utbm.ciad.labmanager.utils.names.JournalNameAndPublisherComparator;
+import fr.utbm.ciad.labmanager.utils.names.JournalNameOrPublisherComparator;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
@@ -80,7 +80,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 
 	private final NetConnection netConnection;
 
-	private final JournalNameAndPublisherComparator journalNameAndPublisherComparator;
+	private final JournalNameOrPublisherComparator journalNameAndPublisherComparator;
 
 	private final ScimagoPlatform scimago;
 
@@ -106,7 +106,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 			@Autowired ScimagoPlatform scimago,
 			@Autowired WebOfSciencePlatform wos,
 			@Autowired NetConnection netConnection,
-			@Autowired JournalNameAndPublisherComparator journalNameAndPublisherComparator,
+			@Autowired JournalNameOrPublisherComparator journalNameAndPublisherComparator,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired SessionFactory sessionFactory) {

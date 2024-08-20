@@ -16,7 +16,7 @@
 
 package fr.utbm.ciad.labmanager.tests.data.publication;
 
-import fr.utbm.ciad.labmanager.data.publication.LevenshteinPublicationComparator;
+import fr.utbm.ciad.labmanager.data.publication.comparators.LevenshteinPublicationComparator;
 import org.junit.jupiter.api.BeforeEach;
 
 /** Tests for {@link LevenshteinPublicationComparator}.

@@ -19,9 +19,23 @@
 
 package fr.utbm.ciad.labmanager.services.organization;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.organization.*;
+import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
+import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
@@ -39,10 +53,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Consumer;
 
 /** Service for research organizations.
  * 
@@ -69,6 +79,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @param addressRepository the address repository.
 	 * @param organizationRepository the organization repository.
 	 * @param fileManager the manager of the uploaded and downloadable files.
+	 * @param organizationComparator the comparator to use for comparing to organizations based on their names and acronyms.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the Hibernate session factory.
@@ -258,24 +269,22 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		return this.organizationRepository.findDistinctByAcronymOrName(text, text);
 	}
 
-	public long getResearchOrganizationIdBySimilarAcronymOrName(String acronyme, String name) {
-		var orga = getResearchOrganizationBySimilarAcronymOrName(acronyme, name);
-		if (orga != null) {
-			return orga.getId();
-		} else {
-			return 0;
-		}
-	}
-
-	public ResearchOrganization getResearchOrganizationBySimilarAcronymOrName(String acronyme, String name) {
-		if (!Strings.isNullOrEmpty(acronyme) || !Strings.isNullOrEmpty(name)) {
+	/** Replies the research organization that has an acronym or a name similar to the given ones.
+	 *
+	 * @param acronym the organization acronym to search for.
+	 * @param name the organization name to search for.
+	 * @return the research organization or nothing, but never {@code null}.
+	 * @since 4.0
+	 */
+	public Optional<ResearchOrganization> getResearchOrganizationBySimilarAcronymOrName(String acronym, String name) {
+		if (!Strings.isNullOrEmpty(acronym) || !Strings.isNullOrEmpty(name)) {
 			for (final var orga : this.organizationRepository.findAll()) {
-				if (this.organizationComparator.isSimilar(acronyme, name, orga.getAcronym(), orga.getName())) {
-					return orga;
+				if (this.organizationComparator.isSimilar(acronym, name, orga.getAcronym(), orga.getName())) {
+					return Optional.of(orga);
 				}
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	/** Create a research organization.

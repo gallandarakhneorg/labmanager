@@ -21,8 +21,8 @@ package fr.utbm.ciad.labmanager.views.appviews.scientificaxes;
 
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
+import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.StandardScientificAxisListView;

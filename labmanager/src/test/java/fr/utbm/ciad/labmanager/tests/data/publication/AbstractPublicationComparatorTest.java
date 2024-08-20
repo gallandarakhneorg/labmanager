@@ -22,8 +22,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationComparator;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+import fr.utbm.ciad.labmanager.data.publication.comparators.PublicationComparator;
 import org.junit.jupiter.api.Test;
 
 /** Abstract tests for {@link PublicationComparator}.

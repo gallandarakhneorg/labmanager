@@ -19,9 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.components.publications;
 
-import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
+import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;

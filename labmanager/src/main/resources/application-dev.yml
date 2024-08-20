@@ -112,7 +112,7 @@ labmanager:
   application-name: CIAD Lab Manager
   application-image: /images/ciadpicture.svg
   application-copyright: Copyright CIAD Laboratory, Université de Technologie de Belfort Montbéliard 2019-2024. This program is under the terms of the GNU Affero General Public License.
-  application-port: 8443
+  application-port: 8080
   application-url: https://localhost:${labmanager.application-port}/LabManager
   default-organization: CIAD
   default-super-organization: UTBM
