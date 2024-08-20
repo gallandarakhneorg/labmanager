@@ -1,5 +1,8 @@
 package fr.utbm.ciad.labmanager.views.components.publications;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -7,20 +10,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationImp;
-import fr.utbm.ciad.labmanager.data.publication.PublicationType;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.journals.SingleJournalNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.MultiPersonNameField;
 import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
-import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Wizard for adding a publication.
@@ -459,4 +454,35 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
 
 
     }
+
+    /**
+     *
+     * @author $Author: erenon$
+     * @version $Name$ $Revision$ $Date$
+     * @mavengroupid $GroupId$
+     * @mavenartifactid $ArtifactId$
+     * @since 4.1
+     */
+    public static class PublicationImp extends Publication{
+
+        public PublicationImp() {
+            super();
+        }
+
+        @Override
+        public boolean isRanked() {
+            return false;
+        }
+
+        @Override
+        public String getWherePublishedShortDescription() {
+            return "";
+        }
+
+        @Override
+        public String getPublicationTarget() {
+            return "";
+        }
+    }
+
 }

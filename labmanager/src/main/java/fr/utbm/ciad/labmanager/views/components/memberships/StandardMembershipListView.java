@@ -255,7 +255,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 			if (sinceDatePicker.isVisible()) {
 				if (sinceDatePicker.getValue().isBefore(toDatePicker.getValue())) {
 					try {
-						var newMembership = this.membershipService.copyMembership(membership);
+						var newMembership = membership.clone();
 
 						newMembership.setMemberSinceWhen(sinceDatePicker.getValue());
 						newMembership.setMemberToWhen(toDatePicker.getValue());

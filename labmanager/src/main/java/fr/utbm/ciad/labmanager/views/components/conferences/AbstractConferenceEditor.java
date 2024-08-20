@@ -111,14 +111,15 @@ public abstract class AbstractConferenceEditor extends AbstractEntityEditor<Conf
 	public SimilarityError isAlreadyInDatabase() {
 		var entity = getEditedEntity();
 		if (entity != null) {
-			var id = this.conferenceService.getConferenceIdBySimilarNameAndAcronyme(entity.getName(), entity.getAcronym());
-			if (id == 0) {
+			final var conference = this.conferenceService.getConferenceBySimilarNameAndAcronym(entity.getName(), entity.getAcronym());
+			if (conference.isEmpty()) {
 				return SimilarityError.NO_ERROR;
-			} else if (id == entity.getId()) {
-				return SimilarityError.NO_ERROR;
-			} else {
-				return SimilarityError.SAME_NAME_AND_ACRONYM;
 			}
+			final var id = conference.get().getId();
+			if (id == entity.getId()) {
+				return SimilarityError.NO_ERROR;
+			}
+			return SimilarityError.SAME_NAME_AND_ACRONYM;
 		}
 		return SimilarityError.NO_ERROR;
 	}

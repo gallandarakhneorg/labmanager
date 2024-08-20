@@ -24,9 +24,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 /** JPA repository for the authorship relations.
  * 
@@ -60,7 +57,4 @@ public interface AuthorshipRepository extends JpaRepository<Authorship, Long>, J
 	 */
 	int countDistinctByPersonId(long id);
 
-	@Modifying
-	@Query("DELETE FROM Authorship a WHERE a.id = :id")
-	void deleteById(@Param("id") long id);
 }

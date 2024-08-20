@@ -93,16 +93,18 @@ public class ServiceLogoDisplayer implements ApplicationListener<ApplicationRead
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
+		final var logger = getLogger();
 		final var lg = getLogo();
 		if (!Strings.isNullOrEmpty(lg)) {
 			final var lines = lg.split("\\n"); //$NON-NLS-1$
-			final var logger = getLogger();
 			for (final var line : lines) {
 				logger.info(line);
 			}
-			logger.info(" . version " + Constants.MANAGER_VERSION);//$NON-NLS-1$
-			logger.info(" . ready");//$NON-NLS-1$
+		} else {
+			logger.info("LabManager Application");//$NON-NLS-1$
 		}
+		logger.info(" . version " + Constants.MANAGER_VERSION);//$NON-NLS-1$
+		logger.info(" . ready");//$NON-NLS-1$
 	}
 
 }

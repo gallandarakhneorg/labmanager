@@ -49,7 +49,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "Memberships")
-public class Membership implements Serializable, AttributeProvider, Comparable<Membership>, IdentifiableEntity {
+public class Membership implements Serializable, AttributeProvider, Comparable<Membership>, IdentifiableEntity, Cloneable {
 
 	private static final long serialVersionUID = 297499358606685801L;
 
@@ -216,6 +216,32 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 				&& Objects.equals(this.memberSinceWhen, other.memberSinceWhen)
 				&& Objects.equals(this.memberToWhen, other.memberToWhen)
 				&& Objects.equals(this.responsibility, other.responsibility);
+	}
+
+	/** Create a copy of this membership without the supervision link.
+	 *
+	 * @return the copy of this membership.
+	 */
+	@Override
+	public Membership clone() {
+		final var newMembership = new Membership();
+		newMembership.setPerson(getPerson());
+		newMembership.setDirectResearchOrganization(getDirectResearchOrganization());
+		newMembership.setSuperResearchOrganization(getSuperResearchOrganization());
+		newMembership.setOrganizationAddress(getOrganizationAddress());
+		newMembership.setScientificAxes(getScientificAxes());
+
+		newMembership.setMemberSinceWhen(getMemberSinceWhen());
+		newMembership.setMemberToWhen(getMemberToWhen());
+		newMembership.setMemberStatus(getMemberStatus());
+		newMembership.setPermanentPosition(getMemberStatus().isPermanentPositionAllowed());
+		newMembership.setResponsibility(getResponsibility());
+		newMembership.setCnuSection(getCnuSection());
+		newMembership.setConrsSection(getConrsSection());
+		newMembership.setFrenchBap(getFrenchBap());
+		newMembership.setMainPosition(isMainPosition());
+
+		return newMembership;
 	}
 
 	@Override

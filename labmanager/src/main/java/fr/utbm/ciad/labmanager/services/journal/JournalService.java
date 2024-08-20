@@ -19,6 +19,22 @@
 
 package fr.utbm.ciad.labmanager.services.journal;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
@@ -39,7 +55,6 @@ import fr.utbm.ciad.labmanager.utils.names.JournalNameOrPublisherComparator;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
-import org.arakhne.afc.progress.ProgressionListener;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +65,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /** Service related to the journals.
  * 
@@ -71,7 +78,7 @@ import java.util.stream.Collectors;
 public class JournalService extends AbstractEntityService<Journal> {
 
 	private static final String NOT_RANKED_STR = "--"; //$NON-NLS-1$
-	
+
 	private final JournalRepository journalRepository;
 
 	private final JournalQualityAnnualIndicatorsRepository indicatorRepository;
@@ -95,6 +102,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param scimago the reference to the tool for accessing to the Scimago platform.
 	 * @param wos the reference to the tool for accessing to the Web-of-Science platform.
 	 * @param netConnection the tools for accessing the network.
+	 * @param journalNameAndPublisherComparator a comparator this is able to detect similarity between journals basedx on their names and publishers.
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param sessionFactory the Hibernate session factory.
@@ -279,23 +287,22 @@ public class JournalService extends AbstractEntityService<Journal> {
 		return 0;
 	}
 
-	public long getJournalIdBySimilarNameAndSimilarPublisher(String name, String publisher) {
-		var res = this.getJournalBySimilarNameAndSimilarPublisher(name, publisher);
-		if (res != null) {
-			return res.getId();
-		}
-		return 0;
-	}
-
-	public Journal getJournalBySimilarNameAndSimilarPublisher(String name, String publisher) {
+	/** Replies the journal that has a similar name or publisher.
+	 *
+	 * @param name the name of the journal to search for. It must be neither {@code null} nor empty.
+	 * @param publisher the name of the journal publisher to search for. It must be neither {@code null} nor empty.
+	 * @return the journal or nothing, never {@code null}.
+	 * @since 4.0
+	 */
+	public Optional<Journal> getJournalBySimilarNameAndSimilarPublisher(String name, String publisher) {
 		if (!Strings.isNullOrEmpty(name) || !Strings.isNullOrEmpty(publisher)) {
 			for (final var journal : this.journalRepository.findAll()) {
 				if (this.journalNameAndPublisherComparator.isSimilar(name, publisher, journal.getJournalName(), journal.getPublisher())) {
-					return journal;
+					return Optional.of(journal);
 				}
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	/** Create a journal into the database.
@@ -572,54 +579,6 @@ public class JournalService extends AbstractEntityService<Journal> {
 		if (indicators != null) {
 			this.indicatorRepository.delete(indicators);
 			this.journalRepository.save(journal);
-		}
-	}
-	
-	/** Update the journal rankings from Scimago indicators.
-	 * This function does not save the journals in the database.
-	 *
-	 * @param year the reference year for which the indicators must be extracted.
-	 * @param journals the list of the journals to be updated.
-	 * @param listener the listener on the task progression.
-	 * @throws Exception when Scimago indicators cannot be obtained.
-	 */
-	public void updateScimagoJournalIndicators(int year, List<Journal> journals, ProgressionListener listener) throws Exception {
-		final var progression = new DefaultProgression(0, journals.size());
-		try {
-			if (listener != null) {
-				progression.addProgressionListener(listener);
-			}
-			
-			/*for (final var journal : journals) {
-				final var subTask = progression.subTask(1);
-				final var rankings = this.scimago.getJournalRanking(year, journal.getScimagoId(), subTask);
-				if (rankings != null) {
-					QuartileRanking q = null;
-					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
-						q = rankings.get(journal.getScimagoCategory());
-					}
-					if (q == null) {
-						final var categories = scimagoNode.putArray("categories"); //$NON-NLS-1$
-						for (final var category : rankings.entrySet()) {
-							if (!ScimagoPlatform.BEST.equals(category.getKey())) {
-								final var categoryNode = categories.addObject();
-								categoryNode.put("name", category.getKey()); //$NON-NLS-1$
-								categoryNode.put("qindex", category.getValue().name()); //$NON-NLS-1$
-							}
-						}
-					} else {
-						scimagoNode.put("qindex", q.name()); //$NON-NLS-1$
-					}
-				} else {
-					scimagoNode.put("qindex", QuartileRanking.NR.name()); //$NON-NLS-1$
-				}
-				if (!scimagoNode.isEmpty()) {
-					journalNode.set("scimago", scimagoNode); //$NON-NLS-1$
-				}
-				progression.ensureNoSubTask();
-			}*/
-		} finally {
-			progression.end();
 		}
 	}
 
@@ -986,7 +945,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @since 4.0
 	 */
 	protected class EditingContext extends AbstractEntityEditingContext<Journal> {
-		
+
 		private static final long serialVersionUID = 2080175605368803970L;
 
 		/** Constructor.

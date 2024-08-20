@@ -118,32 +118,32 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
         Page<Person> persons;
         if (filterQuery.equals(getTranslation("views.filters.include_names"))) {
             if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByName(searchQuery, organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByName(searchQuery, organization, pageable);
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByNameAndOrganizationAcronym(searchQuery, organization) / (cardsPerRow * numberOfRows));
+                persons = personService.getPersonsByNameAndOrganizationAcronym(searchQuery, organization, pageable);
             } else {
                 numberOfPages = (long) Math.ceil((double) personService.countPersonsByName(searchQuery) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByName(searchQuery, pageable);
             }
         } else if (filterQuery.equals(getTranslation("views.filters.include_orcids"))) {
             if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcid(searchQuery, organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrcid(searchQuery, organization, pageable);
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcidAndOrganizationAcronym(searchQuery, organization) / (cardsPerRow * numberOfRows));
+                persons = personService.getPersonsByOrcidAndOrganizationAcronym(searchQuery, organization, pageable);
             } else {
                 numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcid(searchQuery) / (cardsPerRow * numberOfRows));
                 persons = personService.getPersonsByOrcid(searchQuery, pageable);
             }
         } else if (filterQuery.equals(getTranslation("views.filters.include_organizations"))) {
             if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(searchQuery, organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrganization(searchQuery, organization, pageable);
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganizationAcronyms(searchQuery, organization) / (cardsPerRow * numberOfRows));
+                persons = personService.getPersonsByOrganizationAcronyms(searchQuery, organization, pageable);
             } else {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(searchQuery) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrganization(searchQuery, pageable);
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganizationAcronym(searchQuery) / (cardsPerRow * numberOfRows));
+                persons = personService.getPersonsByOrganizationAcronym(searchQuery, pageable);
             }
         } else {
             if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganization(organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrganization(organization, pageable);
+                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganizationAcronym(organization) / (cardsPerRow * numberOfRows));
+                persons = personService.getPersonsByOrganizationAcronym(organization, pageable);
             } else {
                 numberOfPages = (long) Math.ceil((double) personService.countAllPersons() / (cardsPerRow * numberOfRows));
                 persons = personService.getAllPersons(pageable);

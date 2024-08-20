@@ -117,14 +117,15 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 	public SimilarityError isAlreadyInDatabase() {
 		var entity = getEditedEntity();
 		if (entity != null) {
-			long id = this.journalService.getJournalIdBySimilarNameAndSimilarPublisher(entity.getJournalName(), entity.getPublisher());
-			if (id == 0) {
+			final var journal = this.journalService.getJournalBySimilarNameAndSimilarPublisher(entity.getJournalName(), entity.getPublisher());
+			if (journal.isEmpty()) {
 				return SimilarityError.NO_ERROR;
-			} else if (id == entity.getId()) {
-				return SimilarityError.NO_ERROR;
-			} else {
-				return SimilarityError.SAME_TITLE_AND_PUBLISHER;
 			}
+			final var id = journal.get().getId();
+			if (id == entity.getId()) {
+				return SimilarityError.NO_ERROR;
+			}
+			return SimilarityError.SAME_TITLE_AND_PUBLISHER;
 		}
 		return SimilarityError.NO_ERROR;
 	}

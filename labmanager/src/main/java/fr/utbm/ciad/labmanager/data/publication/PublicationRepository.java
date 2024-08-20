@@ -19,13 +19,13 @@
 
 package fr.utbm.ciad.labmanager.data.publication;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
-import jakarta.validation.constraints.NotNull;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 /** JPA repository for a publication.
@@ -37,6 +37,12 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  */
 public interface PublicationRepository extends JpaRepository<Publication, Long>, JpaSpecificationExecutor<Publication> {
+
+	// TODO Is the left join needed?
+	//	@Override
+	//	@NotNull
+	//	@Query("SELECT p FROM Publication p LEFT JOIN FETCH p.authorships")
+	//	List<Publication> findAll();
 
 	/** Replies the list of publications for the person with the given identifier.
 	 *
@@ -105,9 +111,4 @@ public interface PublicationRepository extends JpaRepository<Publication, Long>,
 	@Query("SELECT COUNT(p) AS publicationCount FROM Publication p WHERE p.type = :type AND p.publicationYear = :year")
 	Integer countPublicationsForTypeAndYear(@Param("type") PublicationType type, @Param("year") Integer year);
 
-
-	@NotNull
-	@Modifying
-	@Query("SELECT p FROM Publication p LEFT JOIN FETCH p.authorships")
-	List<Publication> findAll();
 }

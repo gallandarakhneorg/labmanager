@@ -19,17 +19,15 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /** JPA Repository for the persons.
  * 
@@ -96,48 +94,124 @@ public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecif
 	 */
 	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(long id);
 
-	@Query("SELECT p FROM Person p LEFT JOIN FETCH p.authorships m WHERE p.id = :id")
-	Optional<Person> findByIdJoinAuthorships(long id);
-
-	@NotNull
-	@Query("SELECT p FROM Person p")
-	List<Person> findAll();
-
-	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	Page<Person> findAll(String organization, Pageable pageable);
-
+	/** Replies the list of the persons who have the given name (first name or last name).
+	 *
+	 * @param name the name to search for.
+	 * @param pageable the manager of pages.
+	 * @return the list of the persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT p FROM Person p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
 	Page<Person> findByName(String name, Pageable pageable);
+
+	/** Replies the list of the persons who have the given name (first name or last name) and associated to the organization with a similar acronym.
+	 *
+	 * @param name the name to search for.
+	 * @param organization the acronym of the organization to search for.
+	 * @param pageable the manager of pages.
+	 * @return the list of the persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :name, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	Page<Person> findByName(String name, String organization, Pageable pageable);
+	Page<Person> findByNameAndOrganizationAcronym(String name, String organization, Pageable pageable);
 
+	/** Replies the number of persons who have the given name (first name or last name).
+	 *
+	 * @param name the name to search for.
+	 * @return the number of persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT count(p) FROM Person p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
-	long countFindByName(String name);
+	long countByName(String name);
 
+	/** Replies the number of persons who have the given name (first name or last name) and associated to the organization with a similar acronym.
+	 *
+	 * @param name the name to search for.
+	 * @param organization the acronym of the organization to search for.
+	 * @return the number of persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT count(p) FROM Person p JOIN p.memberships m WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :name, '%'))  AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	long countFindByName(String name, String organization);
+	long countByNameAndOrganizationAcronym(String name, String organization);
 
+	/** Replies the list of the persons who have the given ORCID.
+	 *
+	 * @param orcid the ORCID to search for.
+	 * @param pageable the manager of pages.
+	 * @return the list of the persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT p FROM Person p WHERE LOWER(p.orcid) LIKE LOWER(CONCAT('%', :orcid, '%'))")
 	Page<Person> findByOrcid(String orcid, Pageable pageable);
 
+	/** Replies the list of the persons who have the given ORCID and associated to the organization with a similar acronym.
+	 *
+	 * @param orcid the ORCID to search for.
+	 * @param organization the acronym of the organization to search for.
+	 * @param pageable the manager of pages.
+	 * @return the list of the persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(p.orcid) LIKE LOWER(CONCAT('%', :orcid, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	Page<Person> findByOrcid(String orcid, String organization, Pageable pageable);
+	Page<Person> findByOrcidAndOrganizationAcronym(String orcid, String organization, Pageable pageable);
 
+	/** Replies the number of persons who have the given ORCID.
+	 *
+	 * @param orcid the ORCID to search for.
+	 * @return the number of persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT count(p) FROM Person p WHERE LOWER(p.orcid) ILIKE LOWER(CONCAT('%', :orcid, '%'))")
-	long countFindByOrcid(String orcid);
+	long countByOrcid(String orcid);
 
+	/** Replies the number of persons who have the given ORCID and associated to the organization with a similar acronym.
+	 *
+	 * @param orcid the ORCID to search for.
+	 * @param organization the acronym of the organization to search for.
+	 * @return the number of persons who fits the constraint.
+	 * @since 4.0
+	 */
 	@Query("SELECT count(p) FROM Person p JOIN p.memberships m WHERE LOWER(p.orcid) ILIKE LOWER(CONCAT('%', :orcid, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	long countFindByOrcid(String orcid, String organization);
+	long countByOrcidAndOrganizationAcronym(String orcid, String organization);
 
-	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :orgName, '%'))")
-	Page<Person> findByOrganization(String orgName, Pageable pageable);
+	/** Replies the list of the persons who are associated to an organization with the given acronym.
+	 *
+	 * @param acronym the organization acronym to search for.
+	 * @param pageable the manager of pages.
+	 * @return the list of the persons who fits the constraint.
+	 * @since 4.0
+	 */
+	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :acronym, '%'))")
+	Page<Person> findByOrganizationAcronym(String acronym, Pageable pageable);
 
-	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :orgName, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	Page<Person> findByOrganization(String orgName, String organization, Pageable pageable);
+	/** Replies the list of the persons who are associated to an organization with acronyms similar to the given acronyms.
+	 *
+	 * @param acronym1 the organization acronym to search for.
+	 * @param acronym2 the organization acronym to search for.
+	 * @param pageable the manager of pages.
+	 * @return the list of the persons who fits the constraint.
+	 * @since 4.0
+	 */
+	@Query("SELECT p FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :acronym1, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :acronym2, '%'))")
+	Page<Person> findByOrganizationAcronyms(String acronym1, String acronym2, Pageable pageable);
 
-	@Query("SELECT count(p) FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :orgName, '%'))")
-	long countFindByOrganization(String orgName);
+	/** Replies the number of persons who are associated to an organization with the given acronym.
+	 *
+	 * @param acronym the organization acronym to search for.
+	 * @return the number of persons who fits the constraint.
+	 * @since 4.0
+	 */
+	@Query("SELECT count(p) FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :acronym, '%'))")
+	long countByOrganizationAcronym(String acronym);
 
-	@Query("SELECT count(p) FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :orgName, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :organization, '%'))")
-	long countFindByOrganization(String orgName, String organization);
+	/** Replies the number of persons who are associated to an organization with acronyms similar to the given acronyms.
+	 *
+	 * @param acronym1 the organization acronym to search for.
+	 * @param acronym2 the organization acronym to search for.
+	 * @return the number of persons who fits the constraint.
+	 * @since 4.0
+	 */
+	@Query("SELECT count(p) FROM Person p JOIN p.memberships m WHERE LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :acronym1, '%')) AND LOWER(m.researchOrganization.acronym) LIKE LOWER(CONCAT('%', :acronym2, '%'))")
+	long countByOrganizationAcronyms(String acronym1, String acronym2);
+
 }

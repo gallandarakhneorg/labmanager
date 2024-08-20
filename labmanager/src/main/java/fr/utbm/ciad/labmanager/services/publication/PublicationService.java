@@ -72,6 +72,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Service for managing the publications.
  * 
@@ -479,24 +480,33 @@ public class PublicationService extends AbstractPublicationService {
 		return null;
 	}
 
-	public List<Long> getPublicationsIdBySimilarTitle(String title) {
-		var publications = getPublicationsBySimilarTitle(title);
-		if (publications.isEmpty()) {
-			return null;
+	/** Replies a stream of publications with a similar title to the given title.
+	 *
+	 * <p>The title matching is based on similarity of titles.
+	 * For using a strict equality test on names, see {@link #getPublicationsByTitle(String)}.
+	 *
+	 * @param title the title of the publication.
+	 * @return the publication, or {@code null} if not found.
+	 * @since 4.0
+	 */
+	public Stream<Publication> getPublicationStreamBySimilarTitle(String title) {
+		if (!Strings.isNullOrEmpty(title)) {
+			return Collections.<Publication>emptyList().stream();
 		}
-		return publications.stream().map(Publication::getId).collect(Collectors.toList());
+		return this.publicationRepository.findAll().stream().filter(it -> this.titleComparator.isSimilar(title, it.getTitle()));
 	}
 
+	/** Replies a list of publications with a similar title to the given title.
+	 *
+	 * <p>The title matching is based on similarity of titles.
+	 * For using a strict equality test on names, see {@link #getPublicationsByTitle(String)}.
+	 *
+	 * @param title the title of the publication.
+	 * @return the publication, or {@code null} if not found.
+	 * @since 4.0
+	 */
 	public List<Publication> getPublicationsBySimilarTitle(String title) {
-		List<Publication> publications = new ArrayList<>();
-		if (!Strings.isNullOrEmpty(title)) {
-			for (final var publication : this.publicationRepository.findAll()) {
-				if (this.titleComparator.isSimilar(title, publication.getTitle())) {
-					publications.add(publication);
-				}
-			}
-		}
-		return publications;
+		return getPublicationStreamBySimilarTitle(title).collect(Collectors.toList());
 	}
 
 	/** Replies the publications for the given year.
@@ -531,7 +541,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @return the years.
 	 * */
-	public List<Integer> getAllYears(){
+	public List<Integer> getAllYears() {
 		return this.publicationRepository.findDistinctPublicationYears();
 	}
 
@@ -539,15 +549,18 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @return the years.
 	 * */
-	public List<PublicationType> getAllType(){
+	public List<PublicationType> getAllType() {
 		return this.publicationRepository.findAllDistinctPublicationTypes();
 	}
 
-	/** Replies the publication types.
+	/** Replies the number of publicatation of the given type for the given year.
 	 *
-	 * @return the count of the type.
+	 * @param type the type of publication to search for.
+	 * @param year the year of the publications to be counted.
+	 * @return the count of the publications.
+	 * @since 4.0
 	 * */
-	public Integer getCountPublicationByTypeByYear(PublicationType type, Integer year){
+	public Integer countPublicationsByTypeAndYear(PublicationType type, Integer year){
 		return this.publicationRepository.countPublicationsForTypeAndYear(type,year);
 	}
 
@@ -555,7 +568,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @return the list of publication categories.
 	 * */
-	public List<String> getAllCategories(){
+	public List<String> getAllCategories() {
 		List<PublicationType> publicationTypes = getAllType();
 		List<String> publicationCategories = new ArrayList<>();
 		for(PublicationType publicationType : publicationTypes){
@@ -580,8 +593,6 @@ public class PublicationService extends AbstractPublicationService {
      *                                   If it is {@code false}, the given rank as argument is put into the authorship without change.
      * @return the added authorship
      */
-
-
     public Authorship addAuthorship(long personId, long publicationId, int rank, boolean updateOtherAuthorshipRanks) {
 		final var optPerson = this.personRepository.findById(Long.valueOf(personId));
 		if (optPerson.isPresent()) {
@@ -2342,7 +2353,7 @@ public class PublicationService extends AbstractPublicationService {
 		inSession(session -> {
 			for (final var publication : publications) {
 				if (publication.getId() != 0l) {
-					session.load(publication, publication.getId());
+					session.load(publication, Long.valueOf(publication.getId()));
 					Hibernate.initialize(publication.getAuthorships());
 					for (final var authorship : publication.getAuthorships()) {
 						Hibernate.initialize(authorship.getPerson());
@@ -2451,7 +2462,7 @@ public class PublicationService extends AbstractPublicationService {
 				// Unlink the authorships and author related entities
 				final var id = publication.getId();
                 for (Authorship authorship : publication.getAuthorships()) {
-                    PublicationService.this.authorshipRepository.deleteById(authorship.getId());
+                    PublicationService.this.authorshipRepository.deleteById(Long.valueOf(authorship.getId()));
                 }
 				publication.getAuthorshipsRaw().clear();
 				publication.setScientificAxes(null);

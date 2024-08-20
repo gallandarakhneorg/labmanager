@@ -222,23 +222,22 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		return null;
 	}
 
-	public long getConferenceIdBySimilarNameAndAcronyme(String name, String acronyme) {
-		Conference conference = getConferenceBySimilarNameAndAcronyme(name, acronyme);
-		if (conference != null) {
-			return conference.getId();
-		}
-		return 0;
-	}
-
-	public Conference getConferenceBySimilarNameAndAcronyme(String name, String acronyme) {
-		if (!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(acronyme)) {
+	/** Replies the first conference that has a similar name or acronym.
+	 *
+	 * @param name the conference name to search for. It must be neither {@code null} nor empty. 
+	 * @param acronym the conference acronym to search for. It must be neither {@code null} nor empty.
+	 * @return the conference or nothing, never {@code null}.
+	 * @since 4.0
+	 */
+	public Optional<Conference> getConferenceBySimilarNameAndAcronym(String name, String acronym) {
+		if (!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(acronym)) {
 			for (Conference conference : this.conferenceRepository.findAll()) {
-				if (this.conferenceNameComparator.isSimilar(name, acronyme, conference.getName(), conference.getAcronym())) {
-					return conference;
+				if (this.conferenceNameComparator.isSimilar(name, acronym, conference.getName(), conference.getAcronym())) {
+					return Optional.of(conference);
 				}
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	/** Create a conference.
