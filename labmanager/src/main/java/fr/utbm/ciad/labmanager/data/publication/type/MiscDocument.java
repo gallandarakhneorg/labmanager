@@ -25,7 +25,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
@@ -55,7 +55,7 @@ public class MiscDocument extends Publication {
 	@Column
 	private String address;
 
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String howPublished;
 
 	@Column

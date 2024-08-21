@@ -55,7 +55,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -212,7 +212,7 @@ public class PublicationServiceTest {
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
 				this.miscDocumentService, this.patentService, this.reportService,
-				this.thesisService, this.messages, new Constants(), mock(SessionFactory.class));
+				this.thesisService, this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

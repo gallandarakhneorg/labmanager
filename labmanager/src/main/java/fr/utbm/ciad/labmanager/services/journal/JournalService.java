@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
@@ -61,7 +61,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,7 +115,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 			@Autowired NetConnection netConnection,
 			@Autowired JournalNameOrPublisherComparator journalNameAndPublisherComparator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.journalRepository = journalRepository;
@@ -131,7 +130,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	/** Replies all the journals for the database.
 	 *
 	 * @return the list of journals.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Journal> getAllJournals() {
 		return this.journalRepository.findAll();
 	}
@@ -151,16 +152,6 @@ public class JournalService extends AbstractEntityService<Journal> {
 		return list;
 	}
 
-	/** Replies all the journals for the database.
-	 *
-	 * @param filter the filter of journals.
-	 * @return the list of journals.
-	 * @since 4.0
-	 */
-	public List<Journal> getAllJournals(Specification<Journal> filter) {
-		return this.journalRepository.findAll(filter);
-	}
-
 	/** Replies all the journals for the database and applying the given callback on all journals.
 	 *
 	 * @param filter the filter of journals.
@@ -175,37 +166,6 @@ public class JournalService extends AbstractEntityService<Journal> {
 			list.forEach(callback);
 		}
 		return list;
-	}
-
-	/** Replies all the journals for the database.
-	 *
-	 * @param filter the filter of journals.
-	 * @param sortOrder the order specification to use for sorting the journals.
-	 * @return the list of journals.
-	 * @since 4.0
-	 */
-	public List<Journal> getAllJournals(Specification<Journal> filter, Sort sortOrder) {
-		return this.journalRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the journals for the database.
-	 *
-	 * @param sortOrder the order specification to use for sorting the journals.
-	 * @return the list of journals.
-	 * @since 4.0
-	 */
-	public List<Journal> getAllJournals(Sort sortOrder) {
-		return this.journalRepository.findAll(sortOrder);
-	}
-
-	/** Replies all the journals for the database.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of journals.
-	 * @since 4.0
-	 */
-	public Page<Journal> getAllJournals(Pageable pageable) {
-		return this.journalRepository.findAll(pageable);
 	}
 
 	/** Replies all the journals for the database.
@@ -253,7 +213,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param name the name to search for.
 	 * @return the journal, or {@code null} if none is defined.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Journal getJournalByName(String name) {
 		final var res = getJournalsByName(name);
 		if (res.isEmpty()) {
@@ -275,7 +237,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param name the name to search for.
 	 * @return the journal identifier, or {@code 0} if none is defined.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public long getJournalIdByName(String name) {
 		final var res = this.journalRepository.findDistinctByJournalName(name);
 		if (!res.isEmpty()) {
@@ -320,7 +284,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
 	 * @param wosCategory the name of the scientific category on WoS for obtaining Q-index.
 	 * @return the created journal.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Journal createJournal(boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
 		final var res = new Journal();
@@ -345,7 +311,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param identifier the identifier of the journal to remove.
 	 * @throws AttachedJournalPaperException when the journal has attached papers.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeJournal(long identifier) throws AttachedJournalPaperException {
 		final var id = Long.valueOf(identifier);
@@ -375,7 +343,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
 	 * @param wosCategory the name of the scientific category on WoS for obtaining Q-index.
 	 * @return the updated journal.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Journal updateJournal(long identifier, boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
 		final var res = this.journalRepository.findById(Long.valueOf(identifier));
@@ -410,7 +380,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param journalId the identifier of the journal.
 	 * @param paperId the identifier of the paper.
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean linkPaper(long journalId, long paperId) {
 		final var idPaper = Long.valueOf(paperId);
 		final var optPaper = this.publicationRepository.findById(idPaper);
@@ -435,7 +407,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param paperId the identifier of the paper. 
 	 * @param applySave indicates if the changes must be committed into the database by this function.
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean unlinkPaper(long paperId, boolean applySave) {
 		final var optPaper = this.publicationRepository.findById(Long.valueOf(paperId));
 		if (optPaper.isPresent()) {
@@ -459,7 +433,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param paperId the identifier of the paper. 
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean unlinkPaper(long paperId) {
 		return unlinkPaper(paperId, true);
 	}
@@ -469,7 +445,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param journalId the identifier of the journal.
 	 * @param progression the progression indicator.
 	 * @return the quartile or {@code null} if none cannot be found.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public QuartileRanking downloadScimagoQuartileByJournalId(long journalId, Progression progression) {
 		final var res = this.journalRepository.findById(Long.valueOf(journalId));
 		if (res.isPresent()) {
@@ -496,7 +474,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param id the identifier of the journal on Scimago.
 	 * @return the URL of the journal on the Scimago website.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public URL getScimagoURLByJournalId(String id) {
 		try {
 			return this.scimago.getJournalUrl(id);
@@ -511,7 +491,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param journal the journal for which the quartile must be downloaded.
 	 * @param progression the progression indicator.
 	 * @return the quartile or {@code null} if none cannot be found.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public QuartileRanking downloadScimagoQuartileByJournal(Journal journal, Progression progression) {
 		try {
 			progression.setProperties(0, 0, 3, false);
@@ -558,7 +540,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param scimagoQIndex the Scimago Q-Index.
 	 * @param wosQIndex  the WoS Q-Index.
 	 * @return the indicators.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JournalQualityAnnualIndicators setQualityIndicators(Journal journal, int year, float impactFactor,
 			QuartileRanking scimagoQIndex, QuartileRanking wosQIndex) {
 		final JournalQualityAnnualIndicators indicators = journal.setImpactFactorByYear(year, impactFactor);
@@ -573,7 +557,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param journal the journal.
 	 * @param year the reference year.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void deleteQualityIndicators(Journal journal, int year) {
 		final JournalQualityAnnualIndicators indicators = journal.getQualityIndicators().remove(Integer.valueOf(year));
 		if (indicators != null) {
@@ -716,7 +702,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @return the JSON.
 	 * @throws Exception if an error occurred when reading the CSV streams.
 	 * @since 2.5
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JsonNode getJournalIndicatorUpdates(int referenceYear, InputStream wosCsv, Progression progress) throws Exception {
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		final var journals = this.journalRepository.findAll();
@@ -817,7 +805,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param changes the changes. Keys are the journal database id; and values are maps that map attribute names to
 	 *     values. Attribute names are: {@code id}, {@code impactFactor}, {@code scimagoQindex}, {@code scimagoCategory},
 	 *     {@code wosQindex}, {@code wosCategory}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateJournalIndicators(int referenceYear, Map<String, Map<String, ?>> changes) {
 		if (changes != null && !changes.isEmpty()) {
 			for (final var journalUpdate : changes.values()) {
@@ -852,7 +842,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 * @param scimagoCategory the name of the scientific category that is used on Scimago for retrieving the Q-index.
 	 * @param wosQindex the Q-index that is provided by WoS, or {@code null} if none.
 	 * @param wosCategory the name of the scientific category that is used on WoS for retrieving the Q-index.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateJournalIndicators(long id, int referenceYear, float impactFactor, QuartileRanking scimagoQindex,
 			String scimagoCategory, QuartileRanking wosQindex, String wosCategory) {
 		final var optJournal = this.journalRepository.findById(Long.valueOf(id));

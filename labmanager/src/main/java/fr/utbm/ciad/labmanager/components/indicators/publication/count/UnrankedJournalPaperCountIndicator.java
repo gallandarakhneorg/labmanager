@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
 import fr.utbm.ciad.labmanager.utils.Unit;
@@ -50,7 +50,7 @@ public class UnrankedJournalPaperCountIndicator extends AbstractAnnualIndicator 
 	 */
 	public UnrankedJournalPaperCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired JournalPaperService journalPaperService) {
 		super(messages, constants, AbstractAnnualIndicator::sum);
 		this.journalPaperService = journalPaperService;

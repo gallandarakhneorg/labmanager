@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.services.admin.spim;
 
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
@@ -62,7 +62,7 @@ public class SpimActivityReportGenerator extends AbstractComponent {
 	 */
 	public SpimActivityReportGenerator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired ResearchOrganizationService organizationService) {
 		super(messages, constants);
 		this.organizationService = organizationService;

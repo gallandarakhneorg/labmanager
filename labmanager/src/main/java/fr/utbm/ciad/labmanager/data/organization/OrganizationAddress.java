@@ -19,25 +19,37 @@
 
 package fr.utbm.ciad.labmanager.data.organization;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
 /** Address of an organization.
  * 
@@ -67,12 +79,12 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 
 	/** Complementatry information that may appear before the rest.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String complement;
 
 	/** Building number and street in the address.
 	 */
-	@Column(nullable = false, length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(nullable = false, length = EntityConstants.LARGE_TEXT_SIZE)
 	private String street;
 
 	/** The ZIP code of the address.
@@ -97,7 +109,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 
 	/** URL of a associated background if the address has one.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String pathToBackgroundImage;
 
 	/** Indicates if the address was validated by an authority.

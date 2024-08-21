@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -70,7 +70,7 @@ public class ConferencePaper extends AbstractConferenceBasedPublication {
 	/** List of names of the editors of the proceedings of the event.
 	 * The list of names is usually a sequence of names separated by {@code AND}, and each name has the format {@code LAST, VON, FIRST}.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String editors;
 
 	/** Name of the institution that has organized the event.

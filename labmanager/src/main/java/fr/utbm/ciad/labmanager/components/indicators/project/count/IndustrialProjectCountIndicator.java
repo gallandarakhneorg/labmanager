@@ -21,7 +21,7 @@ package fr.utbm.ciad.labmanager.components.indicators.project.count;
 
 import java.util.Locale;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectCategory;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
@@ -49,7 +49,7 @@ public class IndustrialProjectCountIndicator extends AbstractProjectCountIndicat
 	 */
 	public IndustrialProjectCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired ProjectService projectService) {
 		super(messages, constants, projectService);
 	}

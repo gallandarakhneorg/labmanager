@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.security;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
@@ -64,7 +64,7 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
 	public UserSecurityService(
 			@Autowired UserRepository userRepository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.userRepository = userRepository;

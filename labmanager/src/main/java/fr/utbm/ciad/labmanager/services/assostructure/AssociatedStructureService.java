@@ -19,8 +19,22 @@
 
 package fr.utbm.ciad.labmanager.services.assostructure;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.assostructure.*;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
+import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
+import fr.utbm.ciad.labmanager.data.assostructure.HolderRole;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
@@ -33,13 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
 
 /** Service for the associated structures.
  * 
@@ -69,7 +78,7 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 			@Autowired AssociatedStructureRepository structureRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.structureRepository = structureRepository;
@@ -80,7 +89,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 *
 	 * @param id the identifier of the expected structure.
 	 * @return the associated structure, or {@code null} if there is no associated structure with the given id.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public AssociatedStructure getAssociatedStructureById(int id) {
 		final var structureOpt = this.structureRepository.findById(Long.valueOf(id));
 		if (structureOpt.isPresent()) {
@@ -104,7 +115,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 * @param projects list of projects that are related to the creation of the associated structure.
 	 * @param confidential indicates if the project should be confidential or not.
 	 * @return the reference to the created structure.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<AssociatedStructure> createAssosiatedStructure(boolean validated, String acronym, String name,
 			AssociatedStructureType type, LocalDate creationDate, int creationDuration, long fundingOrganization,
 			Map<Long, HolderDescription> holders, String description, float budget,
@@ -137,7 +150,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 * @param projects list of projects that are related to the creation of the associated structure.
 	 * @param confidential indicates if the project should be confidential or not.
 	 * @return the reference to the created structure.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<AssociatedStructure> updateAssociatedStructure(long structureId, boolean validated, String acronym, String name,
 			AssociatedStructureType type, LocalDate creationDate, int creationDuration, long fundingOrganization,
 			Map<Long, HolderDescription> holders, String description, float budget,
@@ -170,7 +185,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 * @param budget the budget for creating the associated structure.
 	 * @param projects list of projects that are related to the creation of the associated structure.
 	 * @param confidential indicates if the structure should be confidential or not.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateAssociatedStructure(AssociatedStructure structure, boolean validated, String acronym, String name,
 			AssociatedStructureType type, LocalDate creationDate, int creationDuration, long fundingOrganization,
 			Map<Long, HolderDescription> holders, String description, float budget,
@@ -220,7 +237,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
 	 * @since 3.2
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public static class HolderDescription {
 
 		/** Holding person.
@@ -265,50 +284,11 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	/** Replies the list of all the associated structures.
 	 *
 	 * @return the list of all the associated structures.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<AssociatedStructure> getAllAssociatedStructures() {
 		return this.structureRepository.findAll();
-	}
-
-	/** Replies the list of all the associated structures.
-	 *
-	 * @param filter the filter of structures.
-	 * @return the list of all the associated structures.
-	 * @since 4.0
-	 */
-	public List<AssociatedStructure> getAllAssociatedStructures(Specification<AssociatedStructure> filter) {
-		return this.structureRepository.findAll(filter);
-	}
-
-	/** Replies the list of all the associated structures.
-	 *
-	 * @param filter the filter of structures.
-	 * @param sortOrder the order specification to use for sorting the associated structures.
-	 * @return the list of all the associated structures.
-	 * @since 4.0
-	 */
-	public List<AssociatedStructure> getAllAssociatedStructures(Specification<AssociatedStructure> filter, Sort sortOrder) {
-		return this.structureRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies the list of all the associated structures.
-	 *
-	 * @param sortOrder the order specification to use for sorting the associated structures.
-	 * @return the list of all the associated structures.
-	 * @since 4.0
-	 */
-	public List<AssociatedStructure> getAllAssociatedStructures(Sort sortOrder) {
-		return this.structureRepository.findAll(sortOrder);
-	}
-
-	/** Replies the list of all the associated structures.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of all the associated structures.
-	 * @since 4.0
-	 */
-	public Page<AssociatedStructure> getAllAssociatedStructures(Pageable pageable) {
-		return this.structureRepository.findAll(pageable);
 	}
 
 	/** Replies the list of all the associated structures.
@@ -336,7 +316,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 *
 	 * @param id the identifier of the person.
 	 * @return the list of associated structures.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<AssociatedStructure> getAssociatedStructuresByPersonId(long id) {
 		final var idObj = Long.valueOf(id);
 		return this.structureRepository.findDistinctPersonAssociatedStructures(Boolean.FALSE, idObj);
@@ -347,7 +329,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	 * @param id the identifier of the person.
 	 * @return {@code true} if the person is involved in an associated structure.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isInvolved(long id) {
 		return !getAssociatedStructuresByPersonId(id).isEmpty();
 	}

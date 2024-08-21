@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
@@ -47,7 +47,9 @@ import java.util.*;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @Deprecated no replacement.
  */
+@Deprecated(since = "4.0", forRemoval = true)
 @Service
 public class PersonMergingService extends AbstractService {
 
@@ -100,7 +102,7 @@ public class PersonMergingService extends AbstractService {
 			@Autowired AssociatedStructureHolderRepository structureHolderRepository,
 			@Autowired PersonNameComparator nameComparator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.personRepository = personRepository;

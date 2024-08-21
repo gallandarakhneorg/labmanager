@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
@@ -50,7 +50,7 @@ public abstract class AbstractProjectCountIndicator extends AbstractAnnualIndica
 	 */
 	public AbstractProjectCountIndicator(
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			ProjectService projectService) {
 		this(messages, constants, AbstractAnnualIndicator::sum, projectService);
 	}
@@ -65,7 +65,7 @@ public abstract class AbstractProjectCountIndicator extends AbstractAnnualIndica
 	 */
 	public AbstractProjectCountIndicator(
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
 			ProjectService projectService) {
 		super(messages, constants, mergingFunction);

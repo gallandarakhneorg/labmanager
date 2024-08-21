@@ -19,8 +19,15 @@
 
 package fr.utbm.ciad.labmanager.services.organization;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
@@ -33,14 +40,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.*;
 
 /** Service for organizations' addresses.
  * 
@@ -69,7 +72,7 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.fileManager = fileManager;
@@ -82,47 +85,6 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	 */
 	public List<OrganizationAddress> getAllAddresses() {
 		return this.addressRepository.findAll();
-	}
-
-	/** Replies all the organizations' addresses.
-	 *
-	 * @param filter the filter of addresses.
-	 * @return the address.
-	 * @since 4.0
-	 */
-	public List<OrganizationAddress> getAllAddresses(Specification<OrganizationAddress> filter) {
-		return this.addressRepository.findAll(filter);
-	}
-
-	/** Replies all the organizations' addresses.
-	 *
-	 * @param filter the filter of addresses.
-	 * @param sortOrder the order specification to use for sorting the addresses.
-	 * @return the address.
-	 * @since 4.0
-	 */
-	public List<OrganizationAddress> getAllAddresses(Specification<OrganizationAddress> filter, Sort sortOrder) {
-		return this.addressRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the organizations' addresses.
-	 *
-	 * @param sortOrder the order specification to use for sorting the addresses.
-	 * @return the address.
-	 * @since 4.0
-	 */
-	public List<OrganizationAddress> getAllAddresses(Sort sortOrder) {
-		return this.addressRepository.findAll(sortOrder);
-	}
-
-	/** Replies all the organizations' addresses.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the address.
-	 * @since 4.0
-	 */
-	public Page<OrganizationAddress> getAllAddresses(Pageable pageable) {
-		return this.addressRepository.findAll(pageable);
 	}
 
 	/** Replies all the organizations' addresses.
@@ -140,7 +102,9 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	 *
 	 * @param identifier the identifier of the address.
 	 * @return the address or {@code null} if none.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public OrganizationAddress getAddressById(long identifier) {
 		final var adr = this.addressRepository.findById(Long.valueOf(identifier));
 		if (adr.isPresent()) {
@@ -162,7 +126,9 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	 * @param backgroundImage the background image.
 	 * @return the created address in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<OrganizationAddress> createAddress(boolean validated,
 			String name, String complement, String street, String zipCode, String city,
 			String mapCoordinates, String googleLink, MultipartFile backgroundImage) throws IOException {
@@ -197,7 +163,9 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	 * @param removedBackgroundImage indicates if the background image should be removed.
 	 * @return the created address in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<OrganizationAddress> updateAddress(
 			long identifier, boolean validated, String name, String complement, String street, String zipCode,
 			String city, String mapCoordinates, String googleLink, MultipartFile backgroundImage, boolean removedBackgroundImage) throws IOException {
@@ -236,7 +204,9 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	 * @param backgroundImage the background image.
 	 * @param saveInDb indicates if the address should be saved in database by this function.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateUploadedImage(OrganizationAddress address, MultipartFile backgroundImage,
 			boolean removedBackgroundImage, boolean saveInDb) throws IOException {
 		// Treat the uploaded files
@@ -267,7 +237,9 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	/** Remove from the database the organization address with the given database identifier.
 	 *
 	 * @param identifier the database identifier of the address.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeAddress(long identifier) {
 		final var id = Long.valueOf(identifier);

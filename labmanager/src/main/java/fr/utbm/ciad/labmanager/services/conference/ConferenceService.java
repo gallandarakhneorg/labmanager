@@ -19,8 +19,25 @@
 
 package fr.utbm.ciad.labmanager.services.conference;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
@@ -42,18 +59,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /** Service related to the conferences.
  * 
@@ -94,7 +102,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 			@Autowired CorePortal corePortal,
 			@Autowired ConferenceNameComparator conferenceNameComparator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.conferenceRepository = conferenceRepository;
@@ -106,7 +114,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	/** Replies all the conferences for the database.
 	 *
 	 * @return the list of conferences.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Conference> getAllConferences() {
 		return this.conferenceRepository.findAll();
 	}
@@ -128,16 +138,6 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	/** Replies all the conferences for the database.
 	 *
 	 * @param filter the filter of conferences.
-	 * @return the list of conferences.
-	 * @since 4.0
-	 */
-	public List<Conference> getAllConferences(Specification<Conference> filter) {
-		return this.conferenceRepository.findAll(filter);
-	}
-
-	/** Replies all the conferences for the database.
-	 *
-	 * @param filter the filter of conferences.
 	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
 	 * @return the list of conferences.
 	 * @since 4.0
@@ -148,37 +148,6 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 			list.forEach(callback);
 		}
 		return list;
-	}
-
-	/** Replies all the conferences for the database.
-	 *
-	 * @param filter the filter of conferences.
-	 * @param sortOrder the order specification to use for sorting the conferences.
-	 * @return the list of conferences.
-	 * @since 4.0
-	 */
-	public List<Conference> getAllConferences(Specification<Conference> filter, Sort sortOrder) {
-		return this.conferenceRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the conferences for the database.
-	 *
-	 * @param sortOrder the order specification to use for sorting the conferences.
-	 * @return the list of conferences.
-	 * @since 4.0
-	 */
-	public List<Conference> getAllConferences(Sort sortOrder) {
-		return this.conferenceRepository.findAll(sortOrder);
-	}
-
-	/** Replies all the conferences for the database.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of conferences.
-	 * @since 4.0
-	 */
-	public Page<Conference> getAllConferences(Pageable pageable) {
-		return this.conferenceRepository.findAll(pageable);
 	}
 
 	/** Replies all the conferences for the database.
@@ -253,7 +222,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @param coreId the identifier of the conference on the CORE website.
 	 * @param enclosingConference the identifier of the conference that is enclosing the current conference.
 	 * @return the updated conference.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Conference> createConference(boolean validated, String acronym, String name,
 			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
 			Long enclosingConference) {
@@ -297,7 +268,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @param coreId the identifier of the conference on the CORE website.
 	 * @param enclosingConference the identifier of the conference that is enclosing the current conference.
 	 * @return the updated conference.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Conference> updateConference(long identifier, boolean validated, String acronym, String name,
 			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
 			Long enclosingConference) {
@@ -335,7 +308,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @param conferenceUrl the URL to the page of the conference.
 	 * @param coreId the identifier of the conference on the CORE website.
 	 * @param enclosingConference the reference to the enclosing conference.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateConference(Conference conference, boolean validated, String acronym, String name,
 			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
 			Conference enclosingConference) {
@@ -356,7 +331,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	/** Delete the conference with the given identifier
 	 * 
 	 * @param identifier the identifier of the conference to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeConference(long identifier) {
 		final Long id = Long.valueOf(identifier);
@@ -370,7 +347,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 *
 	 * @param conference the name or acronym of the conference.
 	 * @return the conference or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Conference getConferenceByName(String conference) {
 		if (!Strings.isNullOrEmpty(conference)) {
 			final Optional<Conference> opt = this.conferenceRepository.findByAcronymOrName(conference);
@@ -396,7 +375,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @param year the reference year of the quality indicators.
 	 * @param coreIndex the CORE index.
 	 * @return the indicators.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public ConferenceQualityAnnualIndicators setQualityIndicators(Conference conference, int year, CoreRanking coreIndex) {
 		final ConferenceQualityAnnualIndicators indicators = conference.setCoreIndexByYear(year, coreIndex);
 		this.indicatorsRepository.save(indicators);
@@ -408,7 +389,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 *
 	 * @param conference the conference.
 	 * @param year the reference year.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void deleteQualityIndicators(Conference conference, int year) {
 		final ConferenceQualityAnnualIndicators indicators = conference.getQualityIndicators().remove(Integer.valueOf(year));
 		if (indicators != null) {
@@ -421,7 +404,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 *
 	 * @param id the identifier of the conference on CORE.
 	 * @return the URL of the conference on the CORE portal website.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public URL getCoreURLByConferenceId(String id) {
 		try {
 			return this.corePortal.getConferenceUrl(id);
@@ -437,7 +422,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 * @param locale the locale to use.
 	 * @param progression the progress indicator.
 	 * @param callback the call back that is invoked on all the conferences with updates.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void computeConferenceRankingIndicatorUpdates(int year, Locale locale, DefaultProgression progression, BiConsumer<Conference, Map<String, Object>> callback) {
 		final Set<Conference> treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
 		inSession(session -> {
@@ -511,7 +498,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 *
 	 * @param year the reference year.
 	 * @param changes the changes to apply.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateConferenceIndicators(int year, Map<Long, CoreRanking> changes) {
 		if (changes != null) {
 			for (final Entry<Long, CoreRanking> entry : changes.entrySet()) {

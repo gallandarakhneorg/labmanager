@@ -19,23 +19,68 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
-import fr.utbm.ciad.labmanager.data.publication.*;
+import fr.utbm.ciad.labmanager.data.publication.Authorship;
+import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
+import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
+import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
+import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.publication.comparators.PublicationTitleComparator;
-import fr.utbm.ciad.labmanager.data.publication.type.*;
+import fr.utbm.ciad.labmanager.data.publication.type.Book;
+import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
+import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
+import fr.utbm.ciad.labmanager.data.publication.type.JournalEdition;
+import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
+import fr.utbm.ciad.labmanager.data.publication.type.KeyNote;
+import fr.utbm.ciad.labmanager.data.publication.type.MiscDocument;
+import fr.utbm.ciad.labmanager.data.publication.type.Patent;
+import fr.utbm.ciad.labmanager.data.publication.type.Report;
+import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.publication.type.*;
+import fr.utbm.ciad.labmanager.services.publication.type.BookChapterService;
+import fr.utbm.ciad.labmanager.services.publication.type.BookService;
+import fr.utbm.ciad.labmanager.services.publication.type.ConferencePaperService;
+import fr.utbm.ciad.labmanager.services.publication.type.JournalEditionService;
+import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
+import fr.utbm.ciad.labmanager.services.publication.type.KeyNoteService;
+import fr.utbm.ciad.labmanager.services.publication.type.MiscDocumentService;
+import fr.utbm.ciad.labmanager.services.publication.type.PatentService;
+import fr.utbm.ciad.labmanager.services.publication.type.ReportService;
+import fr.utbm.ciad.labmanager.services.publication.type.ThesisService;
 import fr.utbm.ciad.labmanager.utils.ComposedException;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeX;
@@ -59,20 +104,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Service for managing the publications.
  * 
@@ -200,7 +234,7 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.publicationRepository = publicationRepository;
@@ -294,48 +328,6 @@ public class PublicationService extends AbstractPublicationService {
 
 	/** Replies all the publications from the database.
 	 *
-	 * @param filter the filter of publications.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the publications.
-	 * @since 4.0
-	 */
-	public List<Publication> getAllPublications(Specification<Publication> filter, Sort sortOrder) {
-		return this.publicationRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the publications from the database.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the publications.
-	 * @since 4.0
-	 */
-	public List<Publication> getAllPublications(Sort sortOrder) {
-		return this.publicationRepository.findAll(sortOrder);
-	}
-
-	/** Replies all the publications from the database.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the publications.
-	 * @since 4.0
-	 */
-	public Page<Publication> getAllPublications(Pageable pageable) {
-		return this.publicationRepository.findAll(pageable);
-	}
-
-	/** Replies all the publications from the database.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of publications.
-	 * @return the publications.
-	 * @since 4.0
-	 */
-	public Page<Publication> getAllPublications(Pageable pageable, Specification<Publication> filter) {
-		return this.publicationRepository.findAll(filter, pageable);
-	}
-
-	/** Replies all the publications from the database.
-	 *
 	 * @param pageable the manager of pages.
 	 * @param filter the filter of publications.
 	 * @param callback is invoked on each entity in the context of the JPA session. It may be used for forcing the loading of some lazy-loaded data.
@@ -355,7 +347,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param maxAge the maximum age of the publications.
 	 * @return the publications.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Publication> getPublicationsOfAge(int maxAge) {
 		final var startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
 		final var endDate = LocalDate.now();
@@ -377,7 +371,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param identifier the identifier of the person.
 	 * @return the publications.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Publication> getPublicationsByPersonId(long identifier) {
 		return this.publicationRepository.findAllByAuthorshipsPersonId(identifier);
 	}
@@ -386,7 +382,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param identifier the identifier of the person's webpage.
 	 * @return the publications.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Publication> getPublicationsByPersonWebPageId(String identifier) {
 		return this.publicationRepository.findAllByAuthorshipsPersonWebPageId(identifier);
 	}
@@ -418,7 +416,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param identifier the identifier of the publication.
 	 * @return the publication, or {@code null} if not found.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Publication getPublicationById(long identifier) {
 		final var byId = this.publicationRepository.findById(Long.valueOf(identifier));
 		return byId.orElse(null);
@@ -428,7 +428,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param identifiers the identifiers of the publications.
 	 * @return the publications.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Publication> getPublicationsByIds(List<Long> identifiers) {
 		return this.publicationRepository.findAllById(identifiers);
 	}
@@ -437,7 +439,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param title the title of the publications.
 	 * @return the publications.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Publication> getPublicationsByTitle(String title) {
 		if (Strings.isNullOrEmpty(title)) {
 			return Collections.emptyList();
@@ -452,7 +456,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param title the title of the publication.
 	 * @return the identifier of the publication, or {@code 0} if not found.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public long getPublicationIdBySimilarTitle(String title) {
 		final var publication = getPublicationBySimilarTitle(title);
 		if (publication != null) {
@@ -468,7 +474,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param title the title of the publication.
 	 * @return the publication, or {@code null} if not found.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Publication getPublicationBySimilarTitle(String title) {
 		if (!Strings.isNullOrEmpty(title)) {
 			for (final var publication : this.publicationRepository.findAll()) {
@@ -514,7 +522,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param year the year of publication.
 	 * @return the list of publications.
 	 * @since 3.6
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Publication> getPublicationsByYear(int year) {
 		return this.publicationRepository.findAllByPublicationYear(Integer.valueOf(year));
 	}
@@ -523,7 +533,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * 
 	 * @param publicationId the identifier of the publication.
 	 * @return the authors.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Person> getAuthorsFor(long publicationId) {
 		return this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(publicationId);
 	}
@@ -532,7 +544,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * 
 	 * @param publicationId the identifier of the publication.
 	 * @return the authorships.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Authorship> getAuthorshipsFor(long publicationId) {
 		return this.authorshipRepository.findByPublicationId(publicationId);
 	}
@@ -549,7 +563,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @return the years.
 	 * */
-	public List<PublicationType> getAllType() {
+	public List<PublicationType> getAllTypes() {
 		return this.publicationRepository.findAllDistinctPublicationTypes();
 	}
 
@@ -569,7 +583,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @return the list of publication categories.
 	 * */
 	public List<String> getAllCategories() {
-		List<PublicationType> publicationTypes = getAllType();
+		List<PublicationType> publicationTypes = getAllTypes();
 		List<String> publicationCategories = new ArrayList<>();
 		for(PublicationType publicationType : publicationTypes){
 			if(!publicationCategories.contains(publicationType.getCategory(true).toString())){
@@ -686,7 +700,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param identifiers the identifiers of the publications to remove.
 	 * @param removeAssociatedFiles indicates if the associated files (PDF, Award...) should be also deleted.
 	 * @since 2.4
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removePublications(Collection<Long> identifiers, boolean removeAssociatedFiles) {
 		final var publications = this.publicationRepository.findAllByIdIn(identifiers);
@@ -725,43 +741,14 @@ public class PublicationService extends AbstractPublicationService {
 		}
 	}
 
-	/** Remove the publications with the given identifiers.
-	 *
-	 * @param identifiers the identifiers of the publications to remove.
-	 * @since 4.0
-	 */
-	@Transactional
-	public void removePublications(Collection<Long> identifiers) {
-		final var publications = this.publicationRepository.findAllByIdIn(identifiers);
-		if (!publications.isEmpty()) {
-			for (final var publication : publications) {
-				final var id = publication.getId();
-				final var iterator = publication.getAuthorships().iterator();
-				while (iterator.hasNext()) {
-					final var autship = iterator.next();
-					final var person = autship.getPerson();
-					if (person != null) {
-						person.getAuthorships().remove(autship);
-						autship.setPerson(null);
-						this.personRepository.save(person);
-					}
-					autship.setPublication(null);
-					iterator.remove();
-					this.authorshipRepository.save(autship);
-				}
-				publication.getAuthorshipsRaw().clear();
-				publication.setScientificAxes(null);
-				this.publicationRepository.deleteById(Long.valueOf(id));
-			}
-		}
-	}
-
 	/** Save the given publications into the database.
 	 * If one publication has a temporary list of authors, the corresponding authors are
 	 * explicitly created into the database.
 	 *
 	 * @param publications the list of publications to save in the database.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void save(Publication... publications) {
 		save(Arrays.asList(publications));
 	}
@@ -771,7 +758,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * explicitly created into the database.
 	 *
 	 * @param publications the list of publications to save in the database.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void save(List<? extends Publication> publications) {
 		for (final var publication : publications) {
 			save(publication);
@@ -902,7 +891,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Long> importBibTeXPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType,
 			boolean createMissedJournals, boolean createMissedConferences, Locale locale) throws Exception {
 		// Holds the publications that we are trying to import.
@@ -932,7 +923,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @see RIS
 	 * @see "https://en.wikipedia.org/wiki/RIS_(file_format)"
 	 * @since 3.8
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Long> importRISPublications(Reader ris, Map<String, PublicationType> importedEntriesWithExpectedType,
 			boolean createMissedJournals, boolean createMissedConferences, Locale locale) throws Exception {
 		// Holds the publications that we are trying to import.
@@ -1155,7 +1148,9 @@ public class PublicationService extends AbstractPublicationService {
 	 *     output into the last created node with the {@code rootKeys}.
 	 * @return the Jackson JSON description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the JSON for the publications.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JsonNode exportJsonAsTree(Collection<? extends Publication> publications, ExporterConfigurator configurator,
 			Progression progression, Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
 		if (publications == null) {
@@ -1171,7 +1166,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param attributes the set of attributes
 	 * @param name the name to search for.
 	 * @return the value
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected Journal ensureJournalInstance(Map<String, String> attributes, String name) {
 		final var journalIdStr = ensureString(attributes, name);
 		if (Strings.isNullOrEmpty(journalIdStr)) {
@@ -1199,7 +1196,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param attributes the set of attributes
 	 * @param name the name to search for.
 	 * @return the value
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected Conference ensureConferenceInstance(Map<String, String> attributes, String name) {
 		final var conferenceIdStr = ensureString(attributes, name);
 		if (Strings.isNullOrEmpty(conferenceIdStr)) {
@@ -1233,7 +1232,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @return the created publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Publication> createPublicationFromMap(
 			boolean validated,
 			Map<String, String> attributes,
@@ -1378,7 +1379,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @return the updated publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Publication> updatePublicationFromMap(long id, boolean validated, Map<String, String> attributes,
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate,
 			List<ScientificAxis> scientificAxes) throws IOException {
@@ -1448,7 +1451,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, boolean validated,
 			Map<String, String> attributes, List<String> authors, MultipartFile downloadablePDF,
 			MultipartFile downloadableAwardCertificate, List<ScientificAxis> scientificAxes) throws IOException {
@@ -1727,7 +1732,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @param saveInDb indicates if the changes must be saved in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateUploadedPDFs(Publication publication, Map<String, String> attributes,
 			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate, boolean saveInDb) throws IOException {
 		// Treat the uploaded files
@@ -1863,7 +1870,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param conferenceId the identifier of the conference.
 	 * @return the list of the associated publications.
 	 * @since 3.6
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<ConferenceBasedPublication> getPublicationsForConference(long conferenceId) {
 		return this.publicationRepository.findAll().stream()
 				.filter(it -> it instanceof ConferenceBasedPublication)
@@ -1877,7 +1886,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param id the identifier of the person.
 	 * @return {@code true} if the person is an author.
 	 * @since 3.6
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isAuthor(long id) {
 		return !this.publicationRepository.findAllByAuthorshipsPersonId(id).isEmpty();
 	}

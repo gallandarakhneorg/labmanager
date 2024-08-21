@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
@@ -78,7 +78,7 @@ public class CiadHtmlDocumentExporterTest {
 		when(this.doiTools.getDOIUrlFromDOINumber(any())).thenReturn(new URL("https://doi.org/XXX"));
 		this.halTools = mock(HalTools.class);
 		when(this.halTools.getHALUrlFromHALNumber(any())).thenReturn(new URL("https://hal.science/XXX"));
-		this.test = new CiadHtmlDocumentExporter(new Constants(), this.messages, this.doiTools, this.halTools);
+		this.test = new CiadHtmlDocumentExporter(new ConfigurationConstants(), this.messages, this.doiTools, this.halTools);
 	}
 
 	@Test

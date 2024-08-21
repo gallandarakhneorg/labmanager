@@ -19,19 +19,23 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.Set;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.publication.*;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
+import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
+import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.Set;
 
 /** Provides tool for the implemenation of a service for a specific type of publication.
  * 
@@ -64,7 +68,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 			DoiTools doiTools,
 			HalTools halTools,
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.downloadableFileManager = downloadableFileManager;
@@ -95,7 +99,9 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param awardContent the content of the publication award certificate that is encoded in {@link Base64}. The content will be saved into
 	 *     the dedicated folder for PDF files.
 	 * @param pathToVideo the path that allows to download the video of the publication.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
 			int year, String abstractText, String keywords, String doi, String halId, String isbn, String issn, URL dblpUrl,
 			URL extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
@@ -120,7 +126,9 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param type the publication type to test.
 	 * @param publication the publication to test.
 	 * @return {@code true} if the publication is of a valid instance regarding the publication type.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@SuppressWarnings("static-method")
 	protected boolean isValidPublicationType(PublicationType type, Publication publication) {
 		final var expectedType = type.getInstanceType();
@@ -148,7 +156,9 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param pathToPdfFile the path of the publication PDF.
 	 * @param pathToAwardCertificate the path of the publication award certificate.
 	 * @param pathToVideo the path that allows to download the video of the publication.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
 			int year, String abstractText, String keywords, String doi, String halId, String isbn, String issn, String dblpUrl,
 			String extraUrl, PublicationLanguage language, String pathToPdfFile, String pathToAwardCertificate,

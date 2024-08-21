@@ -19,8 +19,19 @@
 
 package fr.utbm.ciad.labmanager.data.supervision;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Gender;
@@ -30,13 +41,19 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.IntegerRange;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.*;
 
 /** Description of a person supervision.
  * 
@@ -71,7 +88,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 
 	/** Title of the works.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String title;
 
 	/** Funding scheme.
@@ -82,7 +99,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 
 	/** Some details on the funding scheme.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String fundingDetails;
 
 	/** Date of the defense. It may be different than the end date of the associated membership to the supervision object.
@@ -92,7 +109,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 
 	/** Description of the position of the supervised person after the supervision period.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String positionAfterSupervision;
 
 	/** Number of ATER positions given to the supervised person.

@@ -19,8 +19,13 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -33,16 +38,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
 
 /** Service for managing books.
  * 
@@ -74,7 +70,7 @@ public class BookService extends AbstractPublicationTypeService {
 			@Autowired HalTools halTools,
 			@Autowired BookRepository repository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -83,68 +79,20 @@ public class BookService extends AbstractPublicationTypeService {
 	/** Replies all the books.
 	 *
 	 * @return the books.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Book> getAllBooks() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the books.
-	 *
-	 * @param filter the filter of books.
-	 * @return the books.
-	 * @since 4.0
-	 */
-	public List<Book> getAllBooks(Specification<Book> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the books.
-	 *
-	 * @param filter the filter of books.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the books.
-	 * @since 4.0
-	 */
-	public List<Book> getAllBooks(Specification<Book> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the books.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the books.
-	 * @since 4.0
-	 */
-	public List<Book> getAllBooks(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the books.
-	 *
-	 * @param pageable the manager of pageS.
-	 * @return the books.
-	 * @since 4.0
-	 */
-	public Page<Book> getAllBooks(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the books.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of books.
-	 * @return the books.
-	 * @since 4.0
-	 */
-	public Page<Book> getAllBooks(Pageable pageable, Specification<Book> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the book with the given identifier.
 	 *
 	 * @param identifier the identifier of the book.
 	 * @return the book or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Book getBook(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -162,7 +110,9 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param publisher the name of the publisher of the book.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the created book chapter.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Book createBook(Publication publication, String volume, String number, String pages, String edition, String editors,
 			String series, String publisher, String address) {
 		return createBook(publication, volume, number, pages, edition, editors, series, publisher, address, true);
@@ -224,7 +174,9 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param publisher the name of the publisher of the book.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the updated book.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Book> updateBook(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
@@ -257,7 +209,9 @@ public class BookService extends AbstractPublicationTypeService {
 	/** Remove the book from the database.
 	 *
 	 * @param identifier the identifier of the book to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeBook(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

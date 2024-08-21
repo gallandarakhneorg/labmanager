@@ -19,8 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -36,17 +42,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Service for managing journal paper.
  * 
@@ -82,7 +78,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 			@Autowired JournalPaperRepository repository,
 			@Autowired MembershipService membershipService,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -92,68 +88,20 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	/** Replies all the journal papers.
 	 *
 	 * @return the journal papers.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<JournalPaper> getAllJournalPapers() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the journal papers.
-	 *
-	 * @param filter the filter of papers.
-	 * @return the journal papers.
-	 * @since 4.0
-	 */
-	public List<JournalPaper> getAllJournalPapers(Specification<JournalPaper> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the journal papers.
-	 *
-	 * @param filter the filter of papers.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the journal papers.
-	 * @since 4.0
-	 */
-	public List<JournalPaper> getAllJournalPapers(Specification<JournalPaper> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the journal papers.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the journal papers.
-	 * @since 4.0
-	 */
-	public List<JournalPaper> getAllJournalPapers(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the journal papers.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the journal papers.
-	 * @since 4.0
-	 */
-	public Page<JournalPaper> getAllJournalPapers(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the journal papers.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of papers.
-	 * @return the journal papers.
-	 * @since 4.0
-	 */
-	public Page<JournalPaper> getAllJournalPapers(Pageable pageable, Specification<JournalPaper> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the journal paper with the given identifier.
 	 *
 	 * @param identifier the identifier of the journal paper.
 	 * @return the journal paper or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JournalPaper getJournalPaper(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -162,7 +110,9 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 *
 	 * @param journalId the identifier of the journal.
 	 * @return the journal papers.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<JournalPaper> getJournalPapersByJournalId(long journalId) {
 		return this.repository.findAllByJournalId(journalId);
 	}
@@ -199,7 +149,9 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param series the series of the journal.
 	 * @param journal the associated journal.
 	 * @return the created journal paper.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages, String series, Journal journal) {
 		return createJournalPaper(publication, volume, number, pages, series, journal, true);
 	}
@@ -249,7 +201,9 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param pages the pages in the journal.
 	 * @param series the series of the journal.
 	 * @param journal the journal.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateJournalPaper(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String dblpUrl, String extraUrl,
@@ -278,7 +232,9 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	/** Remove the journal paper from the database.
 	 *
 	 * @param identifier the identifier of the journal paper to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeJournalPaper(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

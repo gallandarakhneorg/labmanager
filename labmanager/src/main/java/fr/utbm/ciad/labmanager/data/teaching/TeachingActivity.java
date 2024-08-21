@@ -19,12 +19,27 @@
 
 package fr.utbm.ciad.labmanager.data.teaching;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -32,16 +47,18 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.util.*;
 
 /** Description of a teaching activity for a person.
  * 
@@ -130,7 +147,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 
 	/** Explanation on the content of the teaching activity that may appear in the resume of the teacher.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String explanation;
 
 	/** Types of pedagogical activities that are carried in the teaching activities.

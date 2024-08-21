@@ -461,9 +461,11 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
-    public static class PublicationImp extends Publication{
+    public static class PublicationImp extends Publication {
+    	
+    	//TODO Is it the same class as PrePublication?
 
         public PublicationImp() {
             super();

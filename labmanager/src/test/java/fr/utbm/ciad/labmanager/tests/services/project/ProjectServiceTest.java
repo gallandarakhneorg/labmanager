@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
@@ -97,7 +97,7 @@ public class ProjectServiceTest {
 		this.sessionFactory = mock(SessionFactory.class);
 		this.test = new ProjectService(this.projectRepository, this.projectMemberRepository,
 				this.organizationRepository, this.personRepository, this.membershipService, this.fileManager,
-				this.messages, new Constants(), this.sessionFactory);
+				this.messages, new ConfigurationConstants(), this.sessionFactory);
 	}
 	
 	@Test

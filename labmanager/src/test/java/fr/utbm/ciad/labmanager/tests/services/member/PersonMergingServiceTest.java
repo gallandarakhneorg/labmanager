@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -120,7 +120,7 @@ public class PersonMergingServiceTest {
 				this.organizationMembershipService, this.organizationMembershipRepository,
 				this.juryMembershipService, this.supervisionService, this.invitationService,
 				this.projectMemberRepository,this.structureHolderRepository, this.nameComparator,
-				this.messages, new Constants(), this.sessionFactory);
+				this.messages, new ConfigurationConstants(), this.sessionFactory);
 	}
 
 	@Test

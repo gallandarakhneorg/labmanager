@@ -19,11 +19,28 @@
 
 package fr.utbm.ciad.labmanager.services.teaching;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
-import fr.utbm.ciad.labmanager.data.teaching.*;
+import fr.utbm.ciad.labmanager.data.teaching.PedagogicalPracticeType;
+import fr.utbm.ciad.labmanager.data.teaching.StudentType;
+import fr.utbm.ciad.labmanager.data.teaching.TeacherRole;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -33,17 +50,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Consumer;
 
 /** Service for the teaching activities.
  * 
@@ -73,7 +83,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 			@Autowired TeachingActivityRepository teachingActivityRepository,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.teachingActivityRepository = teachingActivityRepository;
@@ -84,7 +94,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 *
 	 * @param id the identifier of the person.
 	 * @return the list of teaching activities.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<TeachingActivity> getActivitiesByPersonId(long id) {
 		return this.teachingActivityRepository.findDistinctByPersonId(Long.valueOf(id));
 	}
@@ -92,62 +104,11 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	/** Replies all the known teaching activities.
 	 *
 	 * @return all the activities, never {@code null}.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<TeachingActivity> getAllActivities() {
 		return this.teachingActivityRepository.findAll();
-	}
-
-	/** Replies all the known teaching activities.
-	 *
-	 * @param filter the filter to apply to the activities.
-	 * @return all the activities, never {@code null}.
-	 * @since 4.0
-	 */
-	public List<TeachingActivity> getAllActivities(Specification<TeachingActivity> filter) {
-		return this.teachingActivityRepository.findAll(filter);
-	}
-
-	/** Replies all the known teaching activities.
-	 *
-	 * @param filter the filter to apply to the activities.
-	 * @param sortOrder the order specification to use for sorting the activities.
-	 * @return all the activities, never {@code null}.
-	 * @since 4.0
-	 */
-	public List<TeachingActivity> getAllActivities(Specification<TeachingActivity> filter, Sort sortOrder) {
-		return this.teachingActivityRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the known teaching activities.
-	 *
-	 * @param filter the filter to apply to the activities.
-	 * @param sortOrder the order specification to use for sorting the activities.
-	 * @return all the activities, never {@code null}.
-	 * @since 4.0
-	 */
-	public List<TeachingActivity> getAllActivities(Sort sortOrder) {
-		return this.teachingActivityRepository.findAll(sortOrder);
-	}
-
-	/** Replies all the known teaching activities.
-	 *
-	 * @param pageable a manager of pages.
-	 * @return all the activities, never {@code null}.
-	 * @since 4.0
-	 */
-	public Page<TeachingActivity> getAllActivities(Pageable pageable) {
-		return this.teachingActivityRepository.findAll(pageable);
-	}
-
-	/** Replies all the known teaching activities.
-	 *
-	 * @param pageable a manager of pages.
-	 * @param filter the filter to apply to the activities.
-	 * @return all the activities, never {@code null}.
-	 * @since 4.0
-	 */
-	public Page<TeachingActivity> getAllActivities(Pageable pageable, Specification<TeachingActivity> filter) {
-		return getAllActivities(pageable, filter, null);
 	}
 
 	/** Replies all the known teaching activities.
@@ -171,7 +132,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 *
 	 * @param id the identifier.
 	 * @return the activity or {@code null} if the activity cannot be found.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public TeachingActivity getActivityById(long id) {
 		final var opt = this.teachingActivityRepository.findById(Long.valueOf(id));
 		if (opt.isPresent()) {
@@ -184,7 +147,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 *
 	 * @param id the identifier.
 	 * @param removeAssociatedFiles indicates if the uploaded files that are associated to the activity should be deleted also.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeTeachingActivity(long id, boolean removeAssociatedFiles) {
 		final var identifier = Long.valueOf(id);
@@ -237,7 +202,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 * @param removePathToSlides indicates if previously uploaded slides must be removed.
 	 * @return the created activity, or nothing if the activity cannot be created.
 	 * @throws Exception if the slides cannot be uploaded.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<TeachingActivity> createTeachingActivity(Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
 			CountryCode language, String degree, ResearchOrganization university,
@@ -293,7 +260,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 * @param removePathToSlides indicates if previously uploaded slides must be removed.
 	 * @return the updated activity, or nothing if the activity cannot be created.
 	 * @throws Exception if the slides cannot be uploaded.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<TeachingActivity> updateTeachingActivity(
 			long activity, Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
@@ -343,7 +312,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 *     any previously uploaded slides are kept.
 	 * @param removePathToSlides indicates if previously uploaded slides must be removed.
 	 * @throws Exception if the slides cannot be uploaded.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateTeachingActivity(
 			TeachingActivity activity, Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
@@ -377,6 +348,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 		}
 	}
 
+	@Deprecated(since = "4.0", forRemoval = true)
 	private boolean updateSlides(TeachingActivity activity, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Teachnig activity's slides uploaded at: ", //$NON-NLS-1$
@@ -391,7 +363,9 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	 * @param id the identifier of the person.
 	 * @return {@code true} if the person is a teacher.
 	 * @since 3.6
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isTeacher(long id) {
 		return !this.teachingActivityRepository.findDistinctByPersonId(Long.valueOf(id)).isEmpty();
 	}

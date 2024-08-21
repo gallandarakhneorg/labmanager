@@ -19,6 +19,23 @@
 
 package fr.utbm.ciad.labmanager.views.components.publications;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.google.common.base.Strings;
 import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Component;
@@ -42,7 +59,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
@@ -56,6 +72,7 @@ import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
+import fr.utbm.ciad.labmanager.utils.io.IoConstants;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeXConstants;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentConstants;
@@ -82,14 +99,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Abstract implementation of a list all the publications whatever the type of publication.
  * 
@@ -499,7 +508,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	    	.withProgressIcon(new Image(icon, "")) //$NON-NLS-1$
 	    	.withProgressTitle(getTranslation("views.publication.export.json")) //$NON-NLS-1$
         	.withFilename(() -> JSON_FILENAME)
-        	.withMimeType(() -> Constants.JSON_MIME)
+        	.withMimeType(() -> IoConstants.JSON_MIME)
 	    	.withFailureListener(this::notifyExportError)
         	.withInputStreamFactory(progress -> exportJSON(entity == null ? getGrid().getSelectedItems() : Collections.singleton(entity), progress));
 	}

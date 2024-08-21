@@ -18,7 +18,7 @@ package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
 import java.util.Locale;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
 import fr.utbm.ciad.labmanager.utils.Unit;
@@ -46,7 +46,7 @@ public class PostdocScimagoJournalPaperCountIndicator extends AbstractRankedJour
 	 */
 	public PostdocScimagoJournalPaperCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired JournalPaperService journalPaperService) {
 		super(messages, constants, journalPaperService, it -> EntityUtils.hasPostdocAuthor(it));
 	}

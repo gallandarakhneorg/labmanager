@@ -19,11 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.components.conferences;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import com.google.common.base.Strings;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
@@ -31,9 +34,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractSingleEntityNameField;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /** Implementation of a field for entering the name of a conference, with auto-completion from the conference JPA entities.
  * 
@@ -120,7 +120,7 @@ public class SingleConferenceNameField extends AbstractSingleEntityNameField<Con
 		final var newConference = new Conference();
 		
 		if (!Strings.isNullOrEmpty(customName)) {
-			final var parts = customName.split("\\s*" + EntityUtils.ACRONYM_NAME_SEPARATOR + "\\s*", 2); //$NON-NLS-1$ //$NON-NLS-2$
+			final var parts = customName.split("\\s*" + EntityConstants.ACRONYM_NAME_SEPARATOR + "\\s*", 2); //$NON-NLS-1$ //$NON-NLS-2$
 			if (parts.length > 1) {
 				newConference.setAcronym(parts[0]);
 				newConference.setName(parts[1]);

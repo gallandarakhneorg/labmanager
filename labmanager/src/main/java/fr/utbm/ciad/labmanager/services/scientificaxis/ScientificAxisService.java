@@ -19,7 +19,15 @@
 
 package fr.utbm.ciad.labmanager.services.scientificaxis;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.project.Project;
@@ -37,14 +45,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
 
 /** Service for scientific axes.
  * 
@@ -82,7 +85,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.scientificAxisRepository = scientificAxisRepository;
@@ -94,50 +97,11 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	/** Replies the list of all the scientific axes.
 	 *
 	 * @return the list of all the scientific axes.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<ScientificAxis> getAllScientificAxes() {
 		return this.scientificAxisRepository.findAll();
-	}
-
-	/** Replies the list of all the scientific axes.
-	 *
-	 * @param filter the filter of the axes.
-	 * @return the list of all the scientific axes.
-	 * @since 4.0
-	 */
-	public List<ScientificAxis> getAllScientificAxes(Specification<ScientificAxis> filter) {
-		return this.scientificAxisRepository.findAll(filter);
-	}
-
-	/** Replies the list of all the scientific axes.
-	 *
-	 * @param filter the filter of the axes.
-	 * @param sortOrder the order specification to use for sorting the scientific axes.
-	 * @return the list of all the scientific axes.
-	 * @since 4.0
-	 */
-	public List<ScientificAxis> getAllScientificAxes(Specification<ScientificAxis> filter, Sort sortOrder) {
-		return this.scientificAxisRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies the list of all the scientific axes.
-	 *
-	 * @param sortOrder the order specification to use for sorting the scientific axes.
-	 * @return the list of all the scientific axes.
-	 * @since 4.0
-	 */
-	public List<ScientificAxis> getAllScientificAxes(Sort sortOrder) {
-		return this.scientificAxisRepository.findAll(sortOrder);
-	}
-
-	/** Replies the list of all the scientific axes.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of all the scientific axes.
-	 * @since 4.0
-	 */
-	public Page<ScientificAxis> getAllScientificAxes(Pageable pageable) {
-		return this.scientificAxisRepository.findAll(pageable);
 	}
 
 	/** Replies the list of all the scientific axes.
@@ -155,7 +119,9 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	 *
 	 * @param id the identifier of the axis.
 	 * @return the axis with the gien identifier, or {@code null} if there is no axis with this id.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public ScientificAxis getScientificAxisById(long id) {
 		return this.scientificAxisRepository.findById(Long.valueOf(id)).orElse(null);
 	}
@@ -163,7 +129,9 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	/** Delete the scientific axis with the given identifier.
 	 *
 	 * @param identifier the identifier of the axis to be deleted.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeScientificAxis(long identifier) {
 		final var id = Long.valueOf(identifier);
@@ -187,7 +155,9 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	 * @param publications the list of associated publications.
 	 * @param memberships the list of associated memberships.
 	 * @return the reference to the created axis.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ScientificAxis> createScientificAxis(boolean validated, String acronym, String name,
 			LocalDate startDate, LocalDate endDate, List<Project> projects, List<Publication> publications,
 			List<Membership> memberships) {
@@ -221,7 +191,9 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	 * @param publications the list of associated publications.
 	 * @param memberships the list of associated memberships.
 	 * @return the reference to the created axis.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ScientificAxis> updateScientificAxis(long axisId, boolean validated, String acronym,
 			String name, LocalDate startDate, LocalDate endDate, List<Project> projects,
 			List<Publication> publications, List<Membership> memberships) {
@@ -248,7 +220,9 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	 * @param projects the list of associated projects.
 	 * @param publications the list of associated publications.
 	 * @param memberships the list of associated memberships.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateScientificAxis(ScientificAxis axis, boolean validated, String acronym,
 			String name, LocalDate startDate, LocalDate endDate, List<Project> projects,
 			List<Publication> publications, List<Membership> memberships) {
@@ -267,6 +241,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 		updateProjects(axis, projects);
 	}
 
+	@Deprecated(since = "4.0", forRemoval = true)
 	private void updateMemberships(ScientificAxis axis, List<Membership> memberships) {
 		axis.setMemberships(memberships);
 		for (final var mbr : memberships) {
@@ -275,6 +250,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 		this.membershipRepository.saveAll(memberships);
 	}
 
+	@Deprecated(since = "4.0", forRemoval = true)
 	private void updatePublications(ScientificAxis axis, List<Publication> publications) {
 		axis.setPublications(publications);
 		for (final var pub : publications) {
@@ -283,6 +259,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 		this.publicationRepository.saveAll(publications);
 	}
 	
+	@Deprecated(since = "4.0", forRemoval = true)
 	private void updateProjects(ScientificAxis axis, List<Project> projects) {
 		axis.setProjects(projects);
 		for (final var prj : projects) {
@@ -295,7 +272,9 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	 *
 	 * @param identifiers the identifiers.
 	 * @return the axes.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<ScientificAxis> getScientificAxesFor(List<Long> identifiers) {
 		final var axes = this.scientificAxisRepository.findAllById(identifiers);
 		if (axes.size() != identifiers.size()) {

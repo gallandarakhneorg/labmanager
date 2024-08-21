@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
@@ -51,7 +51,7 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	 * @param doiTools the tools for managing DOI links.
 	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
-	public CiadHtmlDocumentExporter(@Autowired Constants constants, @Autowired MessageSourceAccessor messages,
+	public CiadHtmlDocumentExporter(@Autowired ConfigurationConstants constants, @Autowired MessageSourceAccessor messages,
 			@Autowired DoiTools doiTools, @Autowired HalTools halTools) {
 		super(constants, messages, doiTools, halTools);
 	}

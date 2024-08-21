@@ -23,6 +23,7 @@ import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -43,7 +44,7 @@ import org.springframework.scheduling.annotation.Async;
 @SpringBootApplication
 @Async
 @Push
-@Theme(value = "labmanager")
+@Theme(value = ViewConstants.DEFAULT_BACKEND_THEME)
 public class LabManagerApplication extends SpringBootServletInitializer implements AppShellConfigurator {
 
 	private static final long serialVersionUID = 3672131574382734484L;
@@ -59,8 +60,12 @@ public class LabManagerApplication extends SpringBootServletInitializer implemen
 
 	@Override
 	public void configurePage(AppShellSettings settings) {
-		settings.addLink("shortcut icon", "themes/labmanager/icons/favicon.ico"); //$NON-NLS-1$ //$NON-NLS-2$
-		settings.addFavIcon("icon", "themes/labmanager/icons/favicon.svg", "92x92"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		settings.addLink("shortcut icon", makeFavIconPath("ico")); //$NON-NLS-1$ //$NON-NLS-2$
+		settings.addFavIcon("icon", makeFavIconPath("svg"), "92x92"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	private static String makeFavIconPath(String fileExtension) {
+		return new StringBuilder().append("themes/").append(ViewConstants.DEFAULT_BACKEND_THEME).append("/favicon.").append(fileExtension).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

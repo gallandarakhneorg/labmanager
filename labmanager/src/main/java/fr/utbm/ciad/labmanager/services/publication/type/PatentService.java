@@ -19,8 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -33,15 +37,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
 
 /** Service for managing patents.
  * 
@@ -73,7 +69,7 @@ public class PatentService extends AbstractPublicationTypeService {
 			@Autowired HalTools halTools,
 			@Autowired PatentRepository repository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -82,68 +78,20 @@ public class PatentService extends AbstractPublicationTypeService {
 	/** Replies all the patents.
 	 *
 	 * @return the patents.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Patent> getAllPatents() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the patents.
-	 *
-	 * @param filter the filter of patents.
-	 * @return the patents.
-	 * @since 4.0
-	 */
-	public List<Patent> getAllPatents(Specification<Patent> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the patents.
-	 *
-	 * @param filter the filter of patents.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the patents.
-	 * @since 4.0
-	 */
-	public List<Patent> getAllPatents(Specification<Patent> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the patents.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the patents.
-	 * @since 4.0
-	 */
-	public List<Patent> getAllPatents(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the patents.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the patents.
-	 * @since 4.0
-	 */
-	public Page<Patent> getAllPatents(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the patents.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of patents.
-	 * @return the patents.
-	 * @since 4.0
-	 */
-	public Page<Patent> getAllPatents(Pageable pageable, Specification<Patent> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the patent with the given identifier.
 	 *
 	 * @param identifier the identifier of the patent.
 	 * @return the patent or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Patent getPatent(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -156,7 +104,9 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @param institution the name of the institution in which the patent was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
 	 * @return the created patent.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Patent createPatent(Publication publication,
 			String number, String type, String institution, String address) {
 		return createPatent(publication, number, type, institution, address, true);
@@ -207,7 +157,9 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @param patentType the type of patent.
 	 * @param institution the name of the institution in which the patent was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updatePatent(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
@@ -234,7 +186,9 @@ public class PatentService extends AbstractPublicationTypeService {
 	/** Remove the patent from the database.
 	 *
 	 * @param identifier the identifier of the patent to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removePatent(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

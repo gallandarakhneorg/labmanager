@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.time.LocalDate;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -421,7 +421,7 @@ public class AbstractPublicationTypeServiceTest {
 					new DefaultDoiTools(),
 					new DefaultHalTools(),
 					AbstractPublicationTypeServiceTest.this.messages,
-					new Constants(),
+					new ConfigurationConstants(),
 					mock(SessionFactory.class));
 		}
 

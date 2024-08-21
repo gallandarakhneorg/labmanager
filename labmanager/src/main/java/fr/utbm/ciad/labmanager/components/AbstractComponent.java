@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -70,7 +70,7 @@ public abstract class AbstractComponent {
 
 	/** Constants of the application.
 	 */
-	private Constants constants;
+	private ConfigurationConstants constants;
 
 	private MessageSourceAccessor messages;
 
@@ -86,7 +86,7 @@ public abstract class AbstractComponent {
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public AbstractComponent(MessageSourceAccessor messages, Constants constants) {
+	public AbstractComponent(MessageSourceAccessor messages, ConfigurationConstants constants) {
 		this.messages = messages;
 		this.constants = constants;
 	}
@@ -361,9 +361,9 @@ public abstract class AbstractComponent {
 	 * @return the constants.
 	 * @since 4.0
 	 */
-	public Constants getApplicationConstants() {
+	public ConfigurationConstants getApplicationConstants() {
 		if (this.constants == null) {
-			this.constants = new Constants();
+			this.constants = new ConfigurationConstants();
 		}
 		return this.constants;
 	}
@@ -373,7 +373,9 @@ public abstract class AbstractComponent {
 	 * @param journal the identifier or the name of the journal.
 	 * @param journalService the service that must be used for accessing the journal's object.
 	 * @return the journal or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected static Journal getJournalWith(String journal, JournalService journalService) {
 		if (!Strings.isNullOrEmpty(journal)) {
 			try {
@@ -397,7 +399,9 @@ public abstract class AbstractComponent {
 	 * @param conferenceService the service that must be used for accessing the conference's object.
 	 * @return the conference or {@code null}.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected static Conference getConferenceWith(String conference, ConferenceService conferenceService) {
 		if (!Strings.isNullOrEmpty(conference)) {
 			try {
@@ -474,7 +478,9 @@ public abstract class AbstractComponent {
 	 * @param organizationService the service that permits to access to the organization object.
 	 * @return the organization or {@code null}.
 	 * @since 3.2
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected static ResearchOrganization getOrganizationWith(Integer dbId, String name, ResearchOrganizationService organizationService) {
 		if (dbId != null && dbId.intValue() != 0) {
 			final var organizationOpt = organizationService.getResearchOrganizationById(dbId.intValue());

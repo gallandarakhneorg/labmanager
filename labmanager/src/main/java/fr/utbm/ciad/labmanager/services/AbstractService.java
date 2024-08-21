@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.services;
 
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,7 +46,7 @@ public abstract class AbstractService extends AbstractComponent {
 	 * @param sessionFactory the factory of JPA session.
 	 * @since 4.0
 	 */
-	public AbstractService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
+	public AbstractService(MessageSourceAccessor messages, ConfigurationConstants constants, SessionFactory sessionFactory) {
 		super(messages, constants);
 		this.sessionFactory = sessionFactory;
 	}

@@ -21,7 +21,7 @@ package fr.utbm.ciad.labmanager.services.admin.utbm;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
@@ -63,7 +63,7 @@ public class UtbmActivityReportGenerator extends AbstractComponent {
 	 */
 	public UtbmActivityReportGenerator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired PublicationService publicationService,
 			@Autowired ResearchOrganizationService organizationService) {
 		super(messages, constants);

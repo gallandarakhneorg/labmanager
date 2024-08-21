@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
@@ -98,12 +99,12 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 
 	/** Name of the research organization.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String name;
 
 	/** Textual description of the research organization.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	@Lob
 	private String description;
 
@@ -143,7 +144,7 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 
 	/** The URL of the organization.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String organizationUrl;
 
 	/** Reference to the sub organizations.
@@ -170,7 +171,7 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 	 *
 	 * @since 3.2
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String pathToLogo;
 
 	/** Indicates if the address was validated by an authority.
@@ -498,7 +499,7 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 	 * @since 4.0
 	 */
 	public String getAcronymAndName() {
-		return getAcronymAndName(EntityUtils.FULL_ACRONYM_NAME_SEPARATOR);
+		return getAcronymAndName(EntityConstants.FULL_ACRONYM_NAME_SEPARATOR);
 	}
 
 	/** Replies the acronym and the name of the research organization, if they exist.

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.publication.count.AbstractRankedJournalPaperCountIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -49,7 +49,7 @@ public abstract class AbstractRankedJournalPaperFteRatioIndicator extends Abstra
 	 */
 	public AbstractRankedJournalPaperFteRatioIndicator(
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			AbstractAnnualIndicator fteIndicator,
 			AbstractRankedJournalPaperCountIndicator paperCount) {
 		this(messages, constants, AbstractAnnualIndicator::average, fteIndicator, paperCount);
@@ -66,7 +66,7 @@ public abstract class AbstractRankedJournalPaperFteRatioIndicator extends Abstra
 	 */
 	public AbstractRankedJournalPaperFteRatioIndicator(
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
 			AbstractAnnualIndicator fteIndicator,
 			AbstractRankedJournalPaperCountIndicator paperCount) {

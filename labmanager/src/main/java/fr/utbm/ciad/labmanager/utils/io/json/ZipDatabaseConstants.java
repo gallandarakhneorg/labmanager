@@ -17,40 +17,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.components.indicators;
+package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.time.LocalDate;
-
-import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
-import org.springframework.context.support.MessageSourceAccessor;
-
-/** Abstract implementation of an indicator for the "current time".
+/** Definition of constants for the Zipped databases.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.3
+ * @since 4.0
  */
-public abstract class AbstractInstantIndicator extends AbstractIndicator {
+public final class ZipDatabaseConstants {
 
-	/** Constructor.
-	 *
-	 * @param messages the provider of messages.
-	 * @param constants the accessor to the constants.
+	/** Default basename of the files in attachment with DB content.
+	 * The name must be always lower case.
 	 */
-	public AbstractInstantIndicator(MessageSourceAccessor messages, ConfigurationConstants constants) {
-		super(messages, constants);
-	}
+	public static final String DEFAULT_DBCONTENT_ATTACHMENT_BASENAME = "dbcontent"; //$NON-NLS-1$
 
-	@Override
-	public LocalDate getReferencePeriodStart() {
-		return LocalDate.now();
+	private ZipDatabaseConstants() {
+		//
 	}
-
-	@Override
-	public LocalDate getReferencePeriodEnd() {
-		return LocalDate.now();
-	}
-
+	
 }

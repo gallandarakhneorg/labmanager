@@ -19,13 +19,16 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -40,9 +43,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractMultiEnt
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /** Implementation of a field for entering the names of projects, with auto-completion from the person JPA entities.
  * 
@@ -197,7 +197,7 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 		final var newProject = new Project();
 		
 		if (!Strings.isNullOrEmpty(customName)) {
-			final var parts = customName.split("\\s*" + EntityUtils.ACRONYM_NAME_SEPARATOR + "\\s*", 2); //$NON-NLS-1$ //$NON-NLS-2$
+			final var parts = customName.split("\\s*" + EntityConstants.ACRONYM_NAME_SEPARATOR + "\\s*", 2); //$NON-NLS-1$ //$NON-NLS-2$
 			if (parts.length > 1) {
 				newProject.setAcronym(parts[0]);
 				newProject.setScientificTitle(parts[1]);

@@ -19,6 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.exports;
 
+import java.time.LocalDate;
+import java.util.Locale;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Image;
@@ -29,10 +32,10 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.services.admin.DatabaseService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.DownloadableFileDescription;
+import fr.utbm.ciad.labmanager.utils.io.IoConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -42,9 +45,6 @@ import org.arakhne.afc.progress.Progression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDate;
-import java.util.Locale;
 
 /** Enable to export annual reports.
  * 
@@ -87,7 +87,7 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 				() -> new Image(ComponentFactory.newStreamImage(ViewConstants.UTBM_LOGO), null));
 		this.exportUtbmActivityReport.configure()
 			.withFilename(() -> "rapport_activite_utbm.xlsx") //$NON-NLS-1$
-			.withMimeType(() -> Constants.EXCEL_MIME)
+			.withMimeType(() -> IoConstants.EXCEL_MIME)
 			.withFailureListener(this::notifyExportError)
 			.withFileDescription(progress -> exportUtbmActivityReport(progress));
 
@@ -96,7 +96,7 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 				() -> new Image(ComponentFactory.newStreamImage(ViewConstants.SPIM_LOGO), null));
 		this.exportSpimActivityReport.configure()
 			.withFilename(() -> "rapport_activite_spim.xlsx") //$NON-NLS-1$
-			.withMimeType(() -> Constants.EXCEL_MIME)
+			.withMimeType(() -> IoConstants.EXCEL_MIME)
 			.withFailureListener(this::notifyExportError)
 			.withFileDescription(progress -> exportSpimActivityReport(progress));
 
@@ -105,7 +105,7 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 				() -> new Image(ComponentFactory.newStreamImage(ViewConstants.CARNOT_ARTS_LOGO), null));
 		this.exportIcartsActivityReport.configure()
 			.withFilename(() -> "rapport_activite_carnot_arts.xlsx") //$NON-NLS-1$
-			.withMimeType(() -> Constants.EXCEL_MIME)
+			.withMimeType(() -> IoConstants.EXCEL_MIME)
 			.withFailureListener(this::notifyExportError)
 			.withFileDescription(progress -> exportIcartsActivityReport(progress));
 

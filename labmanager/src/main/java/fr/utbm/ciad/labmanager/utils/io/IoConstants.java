@@ -17,40 +17,40 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.components.indicators;
+package fr.utbm.ciad.labmanager.utils.io;
 
-import java.time.LocalDate;
-
-import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
-import org.springframework.context.support.MessageSourceAccessor;
-
-/** Abstract implementation of an indicator for the "current time".
+/** Definition of constants for Inpout/Output.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.3
+ * @since 4.0
  */
-public abstract class AbstractInstantIndicator extends AbstractIndicator {
+public final class IoConstants {
 
-	/** Constructor.
-	 *
-	 * @param messages the provider of messages.
-	 * @param constants the accessor to the constants.
+	/** MIME for MS Excel file.
 	 */
-	public AbstractInstantIndicator(MessageSourceAccessor messages, ConfigurationConstants constants) {
-		super(messages, constants);
-	}
+	public static final String EXCEL_MIME = "application/ms-excel"; //$NON-NLS-1$
 
-	@Override
-	public LocalDate getReferencePeriodStart() {
-		return LocalDate.now();
-	}
+	/** MIME for JSON file.
+	 */
+	public static final String JSON_MIME = "application/json"; //$NON-NLS-1$
 
-	@Override
-	public LocalDate getReferencePeriodEnd() {
-		return LocalDate.now();
+	/** Filename extension for JSON file.
+	 */
+	public static final String JSON_FILENAME_EXTENSION = ".json"; //$NON-NLS-1$
+
+	/** MIME for ZIP file.
+	 */
+	public static final String ZIP_MIME = "application/zip"; //$NON-NLS-1$
+
+	/** Filename extension for ZIP file.
+	 */
+	public static final String ZIP_FILENAME_EXTENSION = ".zip"; //$NON-NLS-1$
+
+	private IoConstants() {
+		//
 	}
 
 }

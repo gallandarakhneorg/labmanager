@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.members.count.ResearcherCountIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -54,7 +54,7 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 	 */
 	public PermanentResearcherFteIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants) {
+			@Autowired ConfigurationConstants constants) {
 		super(messages, constants, AbstractAnnualIndicator::average);
 	}
 

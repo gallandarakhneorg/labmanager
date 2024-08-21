@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicatorsRepository;
@@ -95,7 +95,7 @@ public class ConferenceServiceTest {
 		lenient().when(session.getTransaction()).thenReturn(mock(Transaction.class));
 		lenient().when(this.sessionFactory.openSession()).thenReturn(session);
 		this.test = new ConferenceService(this.conferenceRepository,
-				this.indicatorRepository, this.core, this.conferenceNameComparator, this.messages, new Constants(), this.sessionFactory);
+				this.indicatorRepository, this.core, this.conferenceNameComparator, this.messages, new ConfigurationConstants(), this.sessionFactory);
 	}
 
 	@Test

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -66,7 +67,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 
 	/** Name of the structure
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String name;
 
 	/** Acronym of the structure.
@@ -76,7 +77,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 
 	/** Description of the structure
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String description;
 
 	/** Creation date of the structure.

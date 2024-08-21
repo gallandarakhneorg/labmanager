@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
@@ -88,7 +88,7 @@ public class ConferencePaperServiceTest {
 		this.repository = mock(ConferencePaperRepository.class);
 		this.membershipService = mock(MembershipService.class);
 		this.test = new ConferencePaperService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository,
-				this.membershipService, this.messages, new Constants(), mock(SessionFactory.class));
+				this.membershipService, this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

@@ -21,7 +21,7 @@ package fr.utbm.ciad.labmanager.services.admin.carnot;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -93,7 +93,7 @@ public class IcartsActivityReportGenerator extends AbstractComponent {
 	 */
 	public IcartsActivityReportGenerator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired SupervisionService supervisionService,
 			@Autowired MembershipService membershipService,

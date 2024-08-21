@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -121,7 +121,7 @@ public class PersonServiceTest {
 		this.nameComparator = new SorensenDicePersonNameComparator(this.nameParser);
 		this.test = new PersonService(this.publicationRepository, this.authorshipRepository, this.personRepository,
 				this.googlePlatfom, this.scopusPlatfom, this.wosPlatfom, this.nameParser, this.nameComparator,
-				this.messages, new Constants(), this.sessionFactory);
+				this.messages, new ConfigurationConstants(), this.sessionFactory);
 
 		// Prepare some persons to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

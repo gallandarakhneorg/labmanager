@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.utils.io.html;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.type.*;
@@ -50,7 +50,7 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 
 	/** Application constants.
 	 */
-	protected final Constants constants;
+	protected final ConfigurationConstants constants;
 
 	/** Tools for managing DOI.
 	 */
@@ -67,7 +67,7 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @param doiTools the accessor to the DOI tools.
 	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
-	public AbstractHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools, HalTools halTools) {
+	public AbstractHtmlExporter(ConfigurationConstants constants, MessageSourceAccessor messages, DoiTools doiTools, HalTools halTools) {
 		super(messages);
 		this.constants = constants;
 		this.doiTools = doiTools;

@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -49,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,7 +89,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired OrganizationNameComparator organizationComparator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.addressRepository = addressRepository;
@@ -111,50 +110,11 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	/** Replies all the research organizations.
 	 *
 	 * @return the research organizations.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<ResearchOrganization> getAllResearchOrganizations() {
 		return this.organizationRepository.findAll();
-	}
-
-	/** Replies all the research organizations.
-	 *
-	 * @param filter the filter of organizations.
-	 * @return the research organizations.
-	 * @since 4.0
-	 */
-	public List<ResearchOrganization> getAllResearchOrganizations(Specification<ResearchOrganization> filter) {
-		return this.organizationRepository.findAll(filter);
-	}
-
-	/** Replies all the research organizations.
-	 *
-	 * @param filter the filter of organizations.
-	 * @param sortOrder the order specification to use for sorting the organizations.
-	 * @return the research organizations.
-	 * @since 4.0
-	 */
-	public List<ResearchOrganization> getAllResearchOrganizations(Specification<ResearchOrganization> filter, Sort sortOrder) {
-		return this.organizationRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the research organizations.
-	 *
-	 * @param sortOrder the order specification to use for sorting the organizations.
-	 * @return the research organizations.
-	 * @since 4.0
-	 */
-	public List<ResearchOrganization> getAllResearchOrganizations(Sort sortOrder) {
-		return this.organizationRepository.findAll(sortOrder);
-	}
-
-	/** Replies all the research organizations.
-	 *
-	 * @param pageable the manager of the pages.
-	 * @return the research organizations.
-	 * @since 4.0
-	 */
-	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable) {
-		return this.organizationRepository.findAll(pageable);
 	}
 
 	/** Replies all the research organizations.
@@ -216,7 +176,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 *
 	 * @param acronym the acronym to search for.
 	 * @return the research organization.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ResearchOrganization> getResearchOrganizationByAcronym(String acronym) {
 		return this.organizationRepository.findDistinctByAcronym(acronym);
 	}
@@ -224,7 +186,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	/** Replies the default research organization. This function gets the acronym of the default organization from the application configuration.
 	 *
 	 * @return the default research organization, or {@code null} if it is not defined.
-	 * @see Constants#getDefaultOrganization()
+	 * @see ConfigurationConstants#getDefaultOrganization()
 	 * @since 4.0
 	 */
 	public ResearchOrganization getDefaultOrganization() {
@@ -234,7 +196,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	/** Replies the default research super organization. This function gets the acronym of the default organization from the application configuration.
 	 *
 	 * @return the default super organization, or {@code null} if it is not defined.
-	 * @see Constants#getDefaultSuperOrganization()
+	 * @see ConfigurationConstants#getDefaultSuperOrganization()
 	 * @since 4.0
 	 */
 	public ResearchOrganization getDefaultSuperOrganization() {
@@ -244,7 +206,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	/** Replies the default LEAR organization. This function gets the acronym of the default organization from the application configuration.
 	 *
 	 * @return the default LEAR organization, or {@code null} if it is not defined.
-	 * @see Constants#getDefaultLearOrganization()
+	 * @see ConfigurationConstants#getDefaultLearOrganization()
 	 * @since 4.0
 	 */
 	public ResearchOrganization getDefaultLearOrganization() {
@@ -255,7 +217,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 *
 	 * @param name the name to search for.
 	 * @return the research organization.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ResearchOrganization> getResearchOrganizationByName(String name) {
 		return this.organizationRepository.findDistinctByName(name);
 	}
@@ -304,7 +268,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @param pathToLogo the uploaded logo of the organization, if any.
 	 * @return the created organization in the database.
 	 * @throws IOException if the logo cannot be uploaded or removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ResearchOrganization> createResearchOrganization(boolean validated, String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
@@ -373,7 +339,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @param removePathToLogo indicates if the path to the logo in the database should be removed, possibly before saving a new logo.
 	 * @return the organization object that was updated.
 	 * @throws IOException if the logo cannot be uploaded or removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ResearchOrganization> updateResearchOrganization(long identifier, boolean validated, String acronym,
 			String name, boolean isMajor, String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Long> addresses,
@@ -450,7 +418,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @param superIdentifier the identifier of the super organization.
 	 * @param subIdentifier the identifier of the suborganization.
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean linkSubOrganization(long superIdentifier, long subIdentifier) {
 		if (superIdentifier != subIdentifier) {
 			final var superOrg = this.organizationRepository.findById(Long.valueOf(superIdentifier));
@@ -476,7 +446,9 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 * @param superIdentifier the identifier of the super organization.
 	 * @param subIdentifier the identifier of the suborganization.
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean unlinkSubOrganization(long superIdentifier, long subIdentifier) {
 		final var superOrg = this.organizationRepository.findById(Long.valueOf(superIdentifier));
 		if (superOrg.isPresent()) {

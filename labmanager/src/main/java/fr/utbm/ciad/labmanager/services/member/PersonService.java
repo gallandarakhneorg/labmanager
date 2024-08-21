@@ -19,8 +19,23 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -50,17 +65,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 /** Service for managing the persons.
  * 
@@ -121,7 +128,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonNameComparator personNameComparator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.publicationRepository = publicationRepository;
@@ -168,27 +175,6 @@ public class PersonService extends AbstractEntityService<Person> {
 	 */
 	public List<Person> getAllPersons(Specification<Person> filter) {
 		return this.personRepository.findAll(filter);
-	}
-
-	/** Replies the list of all the persons from the database.
-	 *
-	 * @param filter the filter of persons.
-	 * @param sortOrder the order specification to use for sorting the persons.
-	 * @return all the persons.
-	 * @since 4.0
-	 */
-	public List<Person> getAllPersons(Specification<Person> filter, Sort sortOrder) {
-		return this.personRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies the list of all the persons from the database.
-	 *
-	 * @param sortOrder the order specification to use for sorting the persons.
-	 * @return all the persons.
-	 * @since 4.0
-	 */
-	public List<Person> getAllPersons(Sort sortOrder) {
-		return this.personRepository.findAll(sortOrder);
 	}
 
 	/** Replies the list of all the persons from the database.
@@ -699,7 +685,9 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @param wosCitations the number of citations for the person on ResearchId/WOS/Publon.
 	 * @param scopusCitations the number of citations for the person on Scopus.
 	 * @return the updated person.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Person updatePerson(long identifier, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
 			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
 			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
@@ -752,7 +740,9 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @param identifier the identifier of the person in the database.
 	 * @return the removed person, disconnected from the JPA infrastructure; or {@code null} if
 	 *     the identifier does not correspond to a person.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public Person removePerson(long identifier) {
 		final var id = Long.valueOf(identifier);
@@ -911,7 +901,9 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @param useNameSimilarity indicates of the member search from their name is based on similar names, if {@code true};
 	 *     or on exact names, if {@code false}.
 	 * @return {@code true} if one person with a membership was found.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean containsAMember(List<String> authors, boolean useNameSimilarity) {
 		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 		try {
@@ -963,7 +955,9 @@ public class PersonService extends AbstractEntityService<Person> {
 	 *      THe keys are: {@code id}, {@code name}, {@code wosHindex}, {@code currentWosHindex},
 	 *      {@code scopusHindex}, {@code currentScopusHindex}, {@code scholarHindex}, {@code currentScholarHindex}.
 	 * @throws Exception if is it impossible to access to a remote resource.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void computePersonRankingIndicatorUpdates(ResearchOrganization organization,
 			Locale locale,
 			Progression progression,
@@ -1085,7 +1079,9 @@ public class PersonService extends AbstractEntityService<Person> {
 	/** Save person indicators. If a person is not mentionned in the given map, her/his associated indicators will be not changed.
 	 *
 	 * @param changes the changes to apply.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void setPersonIndicators(Map<Long, PersonIndicators> changes) {
 		if (changes != null) {
 			for (final var entry : changes.entrySet()) {

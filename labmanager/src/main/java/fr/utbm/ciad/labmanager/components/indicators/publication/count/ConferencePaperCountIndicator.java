@@ -18,7 +18,7 @@ package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
 import java.util.Locale;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.services.publication.type.ConferencePaperService;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ public class ConferencePaperCountIndicator extends AbstractConferencePaperCountI
 	 */
 	public ConferencePaperCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired ConferencePaperService conferencePaperService) {
 		super(messages, constants, conferencePaperService, null);
 	}

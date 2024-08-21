@@ -46,7 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
@@ -119,7 +119,7 @@ public class MembershipServiceTest {
 		this.personRepository = mock(PersonRepository.class);
 		this.sessionFactory = mock(SessionFactory.class);
 		this.test = new MembershipService(this.organizationRepository, this.membershipRepository, this.personRepository,
-				this.messages, new Constants(), this.sessionFactory);
+				this.messages, new ConfigurationConstants(), this.sessionFactory);
 
 		// Prepare some memberships to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

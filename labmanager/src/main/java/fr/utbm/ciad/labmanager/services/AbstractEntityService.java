@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.apache.commons.io.function.IOBiConsumer;
@@ -53,7 +53,7 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 	 * @param constants the accessor to the constants.
 	 * @param sessionFactory the factory of JPA session.
 	 */
-	public AbstractEntityService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
+	public AbstractEntityService(MessageSourceAccessor messages, ConfigurationConstants constants, SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 	}
 

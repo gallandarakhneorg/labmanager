@@ -35,7 +35,9 @@ import java.util.TreeSet;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
+ * @deprecated no replacement.
  */
+@Deprecated(since = "4.0", forRemoval = true)
 public final class TextUtils {
 
 	private final static Set<Character> APOSTROPHE = new TreeSet<>(Arrays.asList(

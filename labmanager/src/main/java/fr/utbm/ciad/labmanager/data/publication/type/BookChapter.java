@@ -25,7 +25,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
@@ -67,7 +67,7 @@ public class BookChapter extends Publication {
 	/** List of names of the editors of the book.
 	 * The list of names is usually a sequence of names separated by {@code AND}, and each name has the format {@code LAST, VON, FIRST}.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String editors;
 
 	/** Geographical location of the publisher of the book. It is usually a city and a country.
@@ -92,7 +92,7 @@ public class BookChapter extends Publication {
 
 	/** Title of the book in which the chapter was published.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String bookTitle;
 
 	/** Number of the chapter in the book.

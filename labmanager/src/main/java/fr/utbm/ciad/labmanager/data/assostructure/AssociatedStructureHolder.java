@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.assostructure;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -68,7 +69,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 
 	/** Role of the member.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String roleDescription;
 
 	/**

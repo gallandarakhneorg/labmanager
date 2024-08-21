@@ -19,8 +19,18 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.utils.io.UnclosableStream;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.progress.Progression;
@@ -28,13 +38,6 @@ import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.OutputStream;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /** Exporter of ZIP (JSON+files) archive from the database.
  * 
@@ -57,6 +60,8 @@ public class DatabaseToZipExporter {
 	private static final int EIGHTY = 80;
 
 	private static final int FIVE_HUNDRED = 500;
+
+	private static final int HUNDRED = 100;
 
 	private final MessageSourceAccessor messages;
 	
@@ -103,7 +108,7 @@ public class DatabaseToZipExporter {
 
 	private void writeJsonToZip(Map<String, Object> json, ZipOutputStream zos, Locale locale, Progression progress) throws Exception {
 		progress.setComment(getMessageSourceAccessor().getMessage("DatabaseToZipExporter.exporting.in_file", locale)); //$NON-NLS-1$
-		final var filename = Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json"; //$NON-NLS-1$
+		final var filename = ZipDatabaseConstants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json"; //$NON-NLS-1$
 		final var entry = new ZipEntry(filename);
 		zos.putNextEntry(entry);
 		final var mapper = JsonUtils.createMapper();
@@ -303,11 +308,11 @@ public class DatabaseToZipExporter {
 			this.progress.setProperties(0, 0, FIVE_HUNDRED + FIVE, false,
 					getMessageSourceAccessor().getMessage("DatabaseToZipExporter.exporting")); //$NON-NLS-1$
 			try (var zos = new ZipOutputStream(output)) {
-				writePublicationFilesToZip(this.content, zos, this.locale, this.progress.subTask(Constants.HUNDRED));
-				writeAddressFilesToZip(this.content, zos, this.locale, this.progress.subTask(Constants.HUNDRED));
-				writeOrganizationFilesToZip(this.content, zos, this.locale, this.progress.subTask(Constants.HUNDRED));
-				writeProjectFilesToZip(this.content, zos, this.locale, this.progress.subTask(Constants.HUNDRED));
-				writeTeachingActivityFilesToZip(this.content, zos, this.locale, this.progress.subTask(Constants.HUNDRED));
+				writePublicationFilesToZip(this.content, zos, this.locale, this.progress.subTask(HUNDRED));
+				writeAddressFilesToZip(this.content, zos, this.locale, this.progress.subTask(HUNDRED));
+				writeOrganizationFilesToZip(this.content, zos, this.locale, this.progress.subTask(HUNDRED));
+				writeProjectFilesToZip(this.content, zos, this.locale, this.progress.subTask(HUNDRED));
+				writeTeachingActivityFilesToZip(this.content, zos, this.locale, this.progress.subTask(HUNDRED));
 				writeJsonToZip(this.content, zos, this.locale, this.progress.subTask(FIVE));
 			}
 			this.progress.end();

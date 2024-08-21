@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -56,7 +56,7 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public AbstractIndicator(MessageSourceAccessor messages, Constants constants) {
+	public AbstractIndicator(MessageSourceAccessor messages, ConfigurationConstants constants) {
 		super(messages, constants);
 	}
 

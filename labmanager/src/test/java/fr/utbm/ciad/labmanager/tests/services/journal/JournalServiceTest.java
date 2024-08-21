@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
@@ -129,7 +129,7 @@ public class JournalServiceTest {
 		this.journalNameAndPublisherComparator = mock(JournalNameOrPublisherComparator.class);
 		this.test = new JournalService(this.journalRepository,
 				this.indicatorRepository, this.publicationRepository, this.scimago, this.wos, this.netConnection, this.journalNameAndPublisherComparator,
-				this.messages, new Constants(), this.sessionFactory);
+				this.messages, new ConfigurationConstants(), this.sessionFactory);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -670,7 +670,7 @@ public class JournalServiceTest {
 		this.netConnection = new DirectNetConnection();
 		this.test = new JournalService(this.journalRepository, this.indicatorRepository,
 				this.publicationRepository, this.scimago, this.wos, this.netConnection, this.journalNameAndPublisherComparator,
-				this.messages, new Constants(), this.sessionFactory);
+				this.messages, new ConfigurationConstants(), this.sessionFactory);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");

@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
-import fr.utbm.ciad.labmanager.data.EntityUtils;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
@@ -104,7 +104,7 @@ public class Conference extends AbstractContextData implements JsonSerializable,
 
 	/** URL to the page of the conference if it is independent of the annual occurrence.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String conferenceUrl;
 
 	/** Identifier of the conference on the Core ranking website.
@@ -346,7 +346,7 @@ public class Conference extends AbstractContextData implements JsonSerializable,
 	 * @since 4.0
 	 */
 	public String getAcronymAndName() {
-		return getAcronymAndName(EntityUtils.FULL_ACRONYM_NAME_SEPARATOR);
+		return getAcronymAndName(EntityConstants.FULL_ACRONYM_NAME_SEPARATOR);
 	}
 
 	/** Replies the acronym and the name of the conference, if they exist.

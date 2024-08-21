@@ -18,7 +18,7 @@ package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
 import java.util.Locale;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import fr.utbm.ciad.labmanager.utils.ranking.JournalRankingSystem;
@@ -45,7 +45,7 @@ public class WosJournalPaperCountIndicator extends AbstractRankedJournalPaperCou
 	 */
 	public WosJournalPaperCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired JournalPaperService journalPaperService) {
 		super(messages, constants, journalPaperService, null);
 	}

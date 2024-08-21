@@ -19,15 +19,46 @@
 
 package fr.utbm.ciad.labmanager.services.project;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
-import fr.utbm.ciad.labmanager.data.project.*;
+import fr.utbm.ciad.labmanager.data.project.Project;
+import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
+import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
+import fr.utbm.ciad.labmanager.data.project.ProjectCategory;
+import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
+import fr.utbm.ciad.labmanager.data.project.ProjectMember;
+import fr.utbm.ciad.labmanager.data.project.ProjectMemberRepository;
+import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
+import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
+import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
+import fr.utbm.ciad.labmanager.data.project.Role;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
@@ -51,19 +82,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Service for the research projects.
  * 
@@ -112,7 +133,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 			@Autowired MembershipService membershipService,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.projectRepository = projectRepository;
@@ -138,47 +159,6 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 */
 	public List<Project> getAllProjects() {
 		return this.projectRepository.findAll();
-	}
-
-	/** Replies the list of all the projects from the database.
-	 *
-	 * @param filter the filter of projects.
-	 * @return the list of projects, never {@code null}.
-	 * @since 4.0
-	 */
-	public List<Project> getAllProjects(Specification<Project> filter) {
-		return this.projectRepository.findAll(filter);
-	}
-
-	/** Replies the list of all the projects from the database.
-	 *
-	 * @param filter the filter of projects.
-	 * @param sortOrder the order specification to use for sorting the projects.
-	 * @return the list of projects, never {@code null}.
-	 * @since 4.0
-	 */
-	public List<Project> getAllProjects(Specification<Project> filter, Sort sortOrder) {
-		return this.projectRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies the list of all the projects from the database.
-	 *
-	 * @param sortOrder the order specification to use for sorting the projects.
-	 * @return the list of projects, never {@code null}.
-	 * @since 4.0
-	 */
-	public List<Project> getAllProjects(Sort sortOrder) {
-		return this.projectRepository.findAll(sortOrder);
-	}
-
-	/** Replies the list of all the projects from the database.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of projects, never {@code null}.
-	 * @since 4.0
-	 */
-	public Page<Project> getAllProjects(Pageable pageable) {
-		return this.projectRepository.findAll(pageable);
 	}
 
 	/** Replies the list of all the projects from the database.
@@ -213,39 +193,20 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * A public project is not confidential and has status "accepted".
 	 *
 	 * @return the list of public projects, never {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Project> getAllPublicProjects() {
 		return this.projectRepository.findDistinctByConfidentialAndStatus(Boolean.FALSE, ProjectStatus.ACCEPTED);
-	}
-
-	/** Replies the list of all the public projects from the database.
-	 * A public project is not confidential and has status "accepted".
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of public projects, never {@code null}.
-	 * @since 4.0
-	 */
-	public Page<Project> getAllPublicProjects(Pageable pageable) {
-		return this.projectRepository.findAll(PublicProjectSpecification.SINGLETON, pageable);
-	}
-
-	/** Replies the list of all the public projects from the database.
-	 * A public project is not confidential and has status "accepted".
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of projects.
-	 * @return the list of public projects, never {@code null}.
-	 * @since 4.0
-	 */
-	public Page<Project> getAllPublicProjects(Pageable pageable, Specification<Project> filter) {
-		return this.projectRepository.findAll(PublicProjectSpecification.SINGLETON.and(filter), pageable);
 	}
 
 	/** Replies the project with the given identifier.
 	 *
 	 * @param id the identifier of the project in the database.
 	 * @return the project or {@code null} if there is no project with the given id.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Project getProjectById(long id) {
 		final var projectOpt = this.projectRepository.findById(Long.valueOf(id));
 		if (projectOpt.isPresent()) {
@@ -273,7 +234,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 *
 	 * @param organizationId the identifier of he organization.
 	 * @return the list of public projects for the organization with the given id.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Project> getPublicProjectsByOrganizationId(long organizationId) {
 		final var idObj = Long.valueOf(organizationId);
 		return this.projectRepository.findDistinctOrganizationProjects(Boolean.FALSE, ProjectStatus.ACCEPTED, idObj);
@@ -293,7 +256,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 *
 	 * @param id the identifier of the person.
 	 * @return the public projects.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Project> getPublicProjectsByPersonId(long id) {
 		return this.projectRepository.findDistinctPersonProjects(
 				Boolean.FALSE, ProjectStatus.ACCEPTED, Long.valueOf(id));
@@ -337,7 +302,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
 	 * @param axes the scientific axes to which the project is associated to.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateProject(Project project,
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
@@ -631,7 +598,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param axes the scientific axes to which the project is associated to.
 	 * @return the reference to the created project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Project> createProject(
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
@@ -706,7 +675,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param axes the scientific axes to which the project is associated to.
 	 * @return the reference to the updated project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Project> updateProject(long projectId,
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
@@ -740,7 +711,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 *
 	 * @param identifier the identifier of the publication to remove.
 	 * @param removeAssociatedFiles indicates if the associated files should be also deleted.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeProject(long identifier, boolean removeAssociatedFiles) {
 		final var id = Long.valueOf(identifier);
 		final var projectOpt = this.projectRepository.findById(id);
@@ -801,7 +774,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param project the project for which the cruited persons should be extracted.
 	 * @return the list of involved persons.
 	 * @since 3.4
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Stream<Membership> getRecuitedPersonStream(Project project) {
 		final var sdt = project.getStartDate();
 		final var edt = project.getEndDate();
@@ -828,7 +803,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param project the project for which the cruited persons should be extracted.
 	 * @return the list of involved persons.
 	 * @since 3.4
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Membership> getRecuitedPersons(Project project) {
 		return getRecuitedPersonStream(project).collect(Collectors.toList());
 	}
@@ -838,7 +815,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param identifiers the list of identifiers.
 	 * @return the list of projects.
 	 * @since 3.5
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Project> getProjectsByIds(List<Long> identifiers) {
 		final var projects = this.projectRepository.findAllById(identifiers);
 		if (projects.size() != identifiers.size()) {
@@ -852,7 +831,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param projects the projects to analyze.
 	 * @return rows with: year, academic project count, not-academic project count, other projects.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@SuppressWarnings("static-method")
 	public List<List<Number>> getNumberOfStartingProjectsPerYear(List<Project> projects) {
 		final Map<Integer, Collection<Project>> projectsPerYear = projects.stream()
@@ -908,7 +889,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param projects the projects to analyze.
 	 * @return rows with: year, academic project count, not-academic project count, other projects.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@SuppressWarnings("static-method")
 	public List<List<Number>> getNumberOfOngoingProjectsPerYear(List<Project> projects) {
 		final Map<Integer, List<Project>> projectsPerYear = new HashMap<>();
@@ -963,7 +946,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param locale the  locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfProjectsPerType(Collection<? extends Project> projects, Locale locale) {
 		final Map<ProjectCategory, Integer> projectsPerCategory = projects.stream()
 				.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
@@ -990,7 +975,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfAcademicProjectsPerType(Collection<? extends Project> projects, Locale locale) {
 		final Map<FundingScheme, Integer> projectsPerScheme = projects.stream()
 				.filter(it -> it.getMajorFundingScheme().isCompetitive() && it.getStatus() == ProjectStatus.ACCEPTED)
@@ -1017,7 +1004,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfNotAcademicProjectsPerType(Collection<? extends Project> projects, Locale locale) {
 		final Map<FundingScheme, Integer> projectsPerScheme = projects.stream()
 				.filter(it -> (it.getMajorFundingScheme().isAcademicButContractual() || it.getMajorFundingScheme().isNotAcademic())
@@ -1045,7 +1034,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfProjectsPerActivityType(Collection<? extends Project> projects, Locale locale) {
 		final Map<ProjectActivityType, Integer> projectsPerType = projects.stream()
 				.filter(it -> it.getActivityType() != null && it.getStatus() == ProjectStatus.ACCEPTED)
@@ -1072,7 +1063,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfProjectsPerTRL(Collection<? extends Project> projects, Locale locale) {
 		final Map<TRL, Integer> projectsPerTRL = projects.stream()
 				.filter(it -> it.getTRL() != null && it.getStatus() == ProjectStatus.ACCEPTED)
@@ -1099,7 +1092,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param locale the locale to use.
 	 * @return rows with: axis, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfProjectsPerScientificAxis(Collection<? extends Project> projects, Locale locale) {
 		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
 		final AtomicInteger outsideAxis = new AtomicInteger(); 
@@ -1142,7 +1137,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param referenceOrganization the organization for which the associated members are ignored in the counting.
 	 * @return rows with: country name, count.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<List<Object>> getNumberOfProjectsPerCountry(Collection<? extends Project> projects, ResearchOrganization referenceOrganization) {
 		final var projectsPerCountry = new TreeMap<CountryCode, Integer>((a, b) -> {
 			if (a == b) {
@@ -1239,7 +1236,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param id the identifier of the person.
 	 * @return {@code true} if the person is participating to a project.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isInvolved(long id) {
 		return !this.projectRepository.findDistinctPersonProjects(Long.valueOf(id)).isEmpty();
 	}
@@ -1249,7 +1248,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param acronymOrName the acronym or the name of the project.
 	 * @return the project.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Project> getProjectByAcronymOrName(String acronymOrName) {
 		return this.projectRepository.findDistinctByAcronymOrScientificTitle(acronymOrName, acronymOrName);
 	}
@@ -1260,7 +1261,9 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @param acronymOrName the acronym or the name of the project.
 	 * @return the project.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<Project> getPublicProjectByAcronymOrName(String acronymOrName) {
 		final Optional<Project> project = this.projectRepository.findDistinctByAcronymOrScientificTitle(acronymOrName, acronymOrName);
 		if (project.isPresent()) {

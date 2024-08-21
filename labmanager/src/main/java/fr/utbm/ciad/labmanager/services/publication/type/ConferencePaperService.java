@@ -19,8 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -36,17 +42,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Service for managing papers for conferences and workshops.
  * 
@@ -82,7 +78,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 			@Autowired ConferencePaperRepository repository,
 			@Autowired MembershipService membershipService,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -92,68 +88,20 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	/** Replies all the conference papers.
 	 *
 	 * @return the papers.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<ConferencePaper> getAllConferencePapers() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the conference papers.
-	 *
-	 * @param filter the filter of papers.
-	 * @return the papers.
-	 * @since 4.0
-	 */
-	public List<ConferencePaper> getAllConferencePapers(Specification<ConferencePaper> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the conference papers.
-	 *
-	 * @param filter the filter of papers.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the papers.
-	 * @since 4.0
-	 */
-	public List<ConferencePaper> getAllConferencePapers(Specification<ConferencePaper> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the conference papers.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the papers.
-	 * @since 4.0
-	 */
-	public List<ConferencePaper> getAllConferencePapers(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the conference papers.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the papers.
-	 * @since 4.0
-	 */
-	public Page<ConferencePaper> getAllConferencePapers(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the conference papers.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of papers.
-	 * @return the papers.
-	 * @since 4.0
-	 */
-	public Page<ConferencePaper> getAllConferencePapers(Pageable pageable, Specification<ConferencePaper> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the conference paper with the given identifier.
 	 *
 	 * @param identifier the identifier of the conference paper.
 	 * @return the conference paper or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public ConferencePaper getConferencePaper(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -190,7 +138,9 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the created conference paper.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public ConferencePaper createConferencePaper(Publication publication, Conference conference, int conferenceOccurrenceNumber,
 			String volume, String number, String pages, String editors, String series, String orga, String address) {
 		return createConferencePaper(publication, conference, conferenceOccurrenceNumber, volume, number, pages, editors, series,
@@ -256,7 +206,9 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateConferencePaper(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
@@ -289,7 +241,9 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	/** Remove the conference paper from the database.
 	 *
 	 * @param identifier the identifier of the conference paper to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeConferencePaper(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

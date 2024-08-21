@@ -19,6 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.database;
 
+import java.io.InputStream;
+import java.util.Locale;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Image;
@@ -30,9 +33,10 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.components.start.JsonDatabaseInitializer;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.admin.DatabaseService;
+import fr.utbm.ciad.labmanager.utils.io.IoConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -42,9 +46,6 @@ import org.arakhne.afc.progress.Progression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.InputStream;
-import java.util.Locale;
 
 /** Enable to manage the database.
  * 
@@ -80,8 +81,8 @@ public class DatabaseInputOutputView extends Composite<FlexLayout> implements Ha
     			getTranslation("views.databases.io.export_json"), //$NON-NLS-1$
     			() -> new Image(ComponentFactory.newStreamImage(ViewConstants.EXPORT_JSON_BLACK_ICON), null));
     	this.exportJson.configure()
-        	.withFilename(() -> Constants.INITIALIZATION_JSON_DATA_FILENAME)
-        	.withMimeType(() -> Constants.JSON_MIME)
+        	.withFilename(() -> JsonDatabaseInitializer.INITIALIZATION_JSON_DATA_FILENAME)
+        	.withMimeType(() -> IoConstants.JSON_MIME)
 	    	.withFailureListener(this::notifyExportError)
         	.withInputStreamFactory(progress -> exportJson(progress));
 
@@ -93,8 +94,8 @@ public class DatabaseInputOutputView extends Composite<FlexLayout> implements Ha
     				return icon;
     			});
         this.exportZip.configure()
-        	.withFilename(() -> Constants.INITIALIZATION_ZIP_DATA_FILENAME)
-        	.withMimeType(() -> Constants.ZIP_MIME)
+        	.withFilename(() -> JsonDatabaseInitializer.INITIALIZATION_ZIP_DATA_FILENAME)
+        	.withMimeType(() -> IoConstants.ZIP_MIME)
 	    	.withFailureListener(this::notifyExportError)
         	.withInputStreamFactory(progress -> exportZip(progress));
 

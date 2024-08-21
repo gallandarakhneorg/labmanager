@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -51,7 +51,7 @@ public abstract class AbstractPublicationService extends AbstractEntityService<P
 	 * @param constants the accessor to the constants.
 	 * @param sessionFactory the factory of JPA session.
 	 */
-	public AbstractPublicationService(MessageSourceAccessor messages, Constants constants, SessionFactory sessionFactory) {
+	public AbstractPublicationService(MessageSourceAccessor messages, ConfigurationConstants constants, SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 	}
 

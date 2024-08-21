@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
@@ -100,18 +101,18 @@ public abstract class Publication extends AbstractContextData implements Product
 
 	/** Title of a publication.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String title;
 
 	/** Text that is the abstract of the publication.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	@Lob
 	private String abstractText;
 
 	/** List of keywords. The separator of the keywords may be a coma ({@code ,}) or a column (@code ;}).
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	@Lob
 	private String keywords;
 
@@ -149,27 +150,27 @@ public abstract class Publication extends AbstractContextData implements Product
 
 	/** Extra URL if the publication has one.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String extraUrl;
 
 	/** URL of a associated video if the publication has one.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String videoUrl;
 
 	/** URL of the publication page on the DBLP if the publication has one.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String dblpUrl;
 
 	/** URL of a associated video if the publication has one. It is preferred to have a local URL, i.e. without the host name.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String pathToDownloadablePDF;
 
 	/** URL of a associated award certificate if the publication has one. It is preferred to have a local URL, i.e. without the host name.
 	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityConstants.LARGE_TEXT_SIZE)
 	private String pathToDownloadableAwardCertificate;
 
 	/** Indicates if the administrator of the database content has manually validated this publication to be accepted in

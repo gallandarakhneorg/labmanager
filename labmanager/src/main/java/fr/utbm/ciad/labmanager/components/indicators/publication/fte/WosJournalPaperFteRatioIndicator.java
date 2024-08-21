@@ -20,7 +20,7 @@ import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PermanentResearcherFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.publication.count.WosJournalPaperCountIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,7 +46,7 @@ public class WosJournalPaperFteRatioIndicator extends AbstractRankedJournalPaper
 	 */
 	public WosJournalPaperFteRatioIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired PermanentResearcherFteIndicator fteIndicator,
 			@Autowired WosJournalPaperCountIndicator paperCount) {
 		super(messages, constants, fteIndicator, paperCount);

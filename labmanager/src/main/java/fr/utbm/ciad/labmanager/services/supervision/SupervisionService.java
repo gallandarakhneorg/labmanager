@@ -19,7 +19,17 @@
 
 package fr.utbm.ciad.labmanager.services.supervision;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionRepository;
@@ -36,14 +46,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Consumer;
 
 /** Service for the person supervisions.
  * 
@@ -81,7 +85,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired PersonService personService,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.supervisionRepository = supervisionRepository;
@@ -93,61 +97,11 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	/** Replies the list of all the supervisions.
 	 *
 	 * @return the list of all the supervisions.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Supervision> getAllSupervisions() {
 		return this.supervisionRepository.findAll();
-	}
-
-	/** Replies the list of all the supervisions.
-	 *
-	 * @param filter the filter of the supervisions.
-	 * @return the list of all the supervisions.
-	 * @since 4.0
-	 */
-	public List<Supervision> getAllSupervisions(Specification<Supervision> filter) {
-		return this.supervisionRepository.findAll(filter);
-	}
-
-	/** Replies the list of all the supervisions.
-	 *
-	 * @param filter the filter of the supervisions.
-	 * @param sortOrder the order specification to use for sorting the supervisions.
-	 * @return the list of all the supervisions.
-	 * @since 4.0
-	 */
-	public List<Supervision> getAllSupervisions(Specification<Supervision> filter, Sort sortOrder) {
-		return this.supervisionRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies the list of all the supervisions.
-	 *
-	 * @param sortOrder the order specification to use for sorting the supervisions.
-	 * @return the list of all the supervisions.
-	 * @since 4.0
-	 */
-	public List<Supervision> getAllSupervisions(Sort sortOrder) {
-		return this.supervisionRepository.findAll(sortOrder);
-	}
-
-	/** Replies the list of all the supervisions.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of all the supervisions.
-	 * @since 4.0
-	 */
-	public Page<Supervision> getAllSupervisions(Pageable pageable) {
-		return this.supervisionRepository.findAll(pageable);
-	}
-
-	/** Replies the list of all the supervisions.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of the supervisions.
-	 * @return the list of all the supervisions.
-	 * @since 4.0
-	 */
-	public Page<Supervision> getAllSupervisions(Pageable pageable, Specification<Supervision> filter) {
-		return this.supervisionRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the list of all the supervisions.
@@ -171,7 +125,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 *
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervised person.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Supervision> getSupervisionsForSupervisor(long supervisorId) {
 		return this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(supervisorId));
 	}
@@ -180,7 +136,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 *
 	 * @param supervisedPersonId the identifier of the supervised person.
 	 * @return the list of the supervisions for the supervised person.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Supervision> getSupervisionsForSupervisedPerson(long supervisedPersonId) {
 		return this.supervisionRepository.findAllBySupervisedPersonPersonId(Long.valueOf(supervisedPersonId));
 	}
@@ -212,7 +170,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 * @param numberOfAteRPositions the number of ATER positions that were given to the supervised person.
 	 * @param jointPosition indicates if the position of the supervised person is in the context of a joint agreement between institutions (co-tutelle, etc.).
 	 * @param entrepreneur indicates if the supervised person has also a position of entrepreneur in parallel. 
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void addSupervision(long membership, List<Map<String, String>> supervisors, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
@@ -242,7 +202,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 * @param numberOfAteRPositions the number of ATER positions that were given to the supervised person.
 	 * @param jointPosition indicates if the position of the supervised person is in the context of a joint agreement between institutions (co-tutelle, etc.).
 	 * @param entrepreneur indicates if the supervised person has also a position of entrepreneur in parallel. 
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateSupervision(long supervision, long membership, List<Map<String, String>> supervisors, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
@@ -259,6 +221,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 		}
 	}
 
+	@Deprecated(since = "4.0", forRemoval = true)
 	private void updateSupervisionWithoutSavingAndSupervisors(Supervision supervision, long membership, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
@@ -279,6 +242,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 		supervision.setEntrepreneur(entrepreneur);
 	}
 
+	@Deprecated(since = "4.0", forRemoval = true)
 	private List<Supervisor> makeSupervisorList(List<Map<String, String>> supervisors) {
 		final var supervisorList = new ArrayList<Supervisor>();
 		for (final var supervisorDesc : supervisors) {
@@ -323,7 +287,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	/** Remove the supervsion that has the given identifier.
 	 *
 	 * @param identifier the identifier of the supervision.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeSupervision(long identifier) {
 		final var mid = Long.valueOf(identifier);
@@ -337,7 +303,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	/** Save the given supervision into the database.
 	 *
 	 * @param supervision the supervision to save.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void save(Supervision supervision) {
 		this.supervisionRepository.save(supervision);
 	}
@@ -345,7 +313,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	/** Save the given supervisor into the database.
 	 *
 	 * @param supervisor the supervisor to save.
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void save(Supervisor supervisor) {
 		this.supervisorRepository.save(supervisor);
 	}
@@ -355,7 +325,9 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 * @param id the identifier of the person.
 	 * @return {@code true} if the person is a student or a supervisor involved in the supervision.
 	 * @since 3.6
+	 * @deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isInvolved(long id) {
 		return !this.supervisionRepository.findAllBySupervisedPersonPersonId(Long.valueOf(id)).isEmpty()
 				|| !!this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(id)).isEmpty();

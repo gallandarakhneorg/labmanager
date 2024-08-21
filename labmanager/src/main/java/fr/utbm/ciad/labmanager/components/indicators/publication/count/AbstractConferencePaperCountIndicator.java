@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
@@ -52,7 +52,7 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 	 */
 	public AbstractConferencePaperCountIndicator(
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			ConferencePaperService conferencePaperService,
 			Predicate<? super ConferencePaper> filter) {
 		this(messages, constants, AbstractAnnualIndicator::sum, conferencePaperService, filter);
@@ -69,7 +69,7 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 	 */
 	public AbstractConferencePaperCountIndicator(
 			MessageSourceAccessor messages,
-			Constants constants,
+			ConfigurationConstants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
 			ConferencePaperService conferencePaperService,
 			Predicate<? super ConferencePaper> filter) {

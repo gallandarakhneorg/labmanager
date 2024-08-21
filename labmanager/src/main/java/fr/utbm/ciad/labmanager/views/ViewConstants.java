@@ -30,6 +30,10 @@ import com.vaadin.flow.component.notification.Notification.Position;
  * @since 4.0
  */
 public final class ViewConstants {
+	
+	/** Default name fo the backend view theme.
+	 */
+	public static final String DEFAULT_BACKEND_THEME = "labmanager"; //$NON-NLS-1$
 
 	/** Duration of the pop-up notification in milliseconds.
 	 */

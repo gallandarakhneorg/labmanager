@@ -39,7 +39,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.internal.LocaleUtil;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
@@ -66,7 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,7 +102,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.organizationRepository = organizationRepository;
@@ -114,80 +113,13 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	/** Replies the list of all the memberships.
 	 *
 	 * @return the list of all the memberships.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Membership> getAllMemberships() {
 		return this.membershipRepository.findAll();
 	}
 
-	/** Replies the list of all the memberships.
-	 *
-	 * @param filter the filter of the memberships.
-	 * @return the list of all the memberships.
-	 * @since 4.0
-	 */
-	public List<Membership> getAllMemberships(Specification<Membership> filter) {
-		return this.membershipRepository.findAll(filter);
-	}
-
-	/** Replies the list of all the memberships.
-	 *
-	 * @param filter the filter of the memberships.
-	 * @param sortOrder the order specification to use for sorting the memberships.
-	 * @return the list of all the memberships.
-	 * @since 4.0
-	 */
-	public List<Membership> getAllMemberships(Specification<Membership> filter, Sort sortOrder) {
-		return this.membershipRepository.findAll(filter, sortOrder);
-	}
-
-	/** Replies the list of all the memberships.
-	 *
-	 * @param sortOrder the order specification to use for sorting the memberships.
-	 * @return the list of all the memberships.
-	 * @since 4.0
-	 */
-	public List<Membership> getAllMemberships(Sort sortOrder) {
-		return this.membershipRepository.findAll(sortOrder);
-	}
-
-	/** Replies the list of all the memberships.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of all the memberships.
-	 * @since 4.0
-	 */
-	public Page<Membership> getAllMemberships(Pageable pageable) {
-		return this.membershipRepository.findAll(pageable);
-	}
-
-	/** Replies the list of all the memberships.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of the memberships.
-	 * @return the list of all the memberships.
-	 * @since 4.0
-	 */
-	public Page<Membership> getAllMemberships(Pageable pageable, Specification<Membership> filter) {
-		return this.membershipRepository.findAll(filter, pageable);
-	}
-
-	/** Replies the list of all the memberships.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of the memberships.
-	 * @param callback the initializer that is applied on each loaded entity.
-	 * @return the list of all the memberships.
-	 * @since 4.0
-	 */
-	@Transactional
-	public Page<Membership> getAllMemberships(Pageable pageable, Specification<Membership> filter, Consumer<Membership> callback) {
-		final var page = this.membershipRepository.findAll(filter, pageable);
-		if (callback != null) {
-			page.forEach(callback);
-		}
-		return page;
-	}
-	
 	/** Replies the list of all the memberships that correspond to a supervisable position.
 	 *
 	 * @param pageable the manager of pages.
@@ -204,8 +136,6 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		}
 		return page;
 	}
-
-
 
 	/** Replies the list that is composed by a single memberships per person.
 	 *
@@ -247,7 +177,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param memberFilter describes how members are filtered.
 	 * @param statusFilter indicates how to filter according to the member status.
 	 * @return the list of the members.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@SuppressWarnings("static-method")
 	public List<Membership> getOrganizationMembers(ResearchOrganization organization, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
@@ -283,7 +215,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param memberFilter describes how members are filtered.
 	 * @param statusFilter indicates how to filter according to the member status.
 	 * @return the list of the members.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Membership> getOrganizationMembers(long identifier, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
 		final var optOrg = this.organizationRepository.findById(Long.valueOf(identifier));
@@ -298,7 +232,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param members the members to find into the organizations.
 	 * @param currentOrganizationName the current organization name in order to find *others* organizations.
 	 * @return map with the member identifiers as keys and the list of the other organizations as values.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@SuppressWarnings("static-method")
 	public Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
 			String currentOrganizationName) {
@@ -314,7 +250,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param members the members to find into the organizations.
 	 * @param currentOrganizationId the current organization name in order to find *others* organizations.
 	 * @return map with the member identifiers as keys and the list of the other organizations as values.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@SuppressWarnings("static-method")
 	public Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
 			long currentOrganizationId) {
@@ -342,7 +280,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param organizationId the identifier of the organization.
 	 * @param memberId the identifier of the member.
 	 * @return the membership or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Membership getMembership(long organizationId, long memberId) {
 		final var res = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(
 				organizationId, memberId);
@@ -395,7 +335,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @return a pair that contains the membership (created or not) and a boolean flag indicating
 	 *     if the replied membership is a new membership or not.
 	 * @throws Exception if the creation cannot be done.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Pair<Membership, Boolean> addMembership(long organizationId, Long superOrganizationId, Long organizationAddressId, long personId,
 			LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition,
@@ -475,7 +417,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param axes the scientific axes to which the project is associated to.
 	 * @return the updated membership.
 	 * @throws Exception if the given identifiers cannot be resolved to JPA entities.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Membership updateMembershipById(long membershipId, Long organizationId, Long superOrganizationId,
 			Long organizationAddressId, LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition, Responsibility responsibility,
@@ -528,7 +472,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 *
 	 * @param membershipId the identifier of the membership to be deleted.
 	 * @throws Exception in case of error.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removeMembership(long membershipId) throws Exception {
 		final var mid = Long.valueOf(membershipId);
@@ -598,7 +544,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param organizationName the name of the organization.
 	 * @param status the person status.
 	 * @return the persons
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Set<Person> getPersonsByOrganizationNameStatus(String organizationName, MemberStatus status) {
 		return this.personRepository.findDistinctByMembershipsResearchOrganizationNameAndMembershipsMemberStatus(
 				organizationName, status);
@@ -609,7 +557,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param organizationAcronym the acronym of the organization.
 	 * @param status the person status.
 	 * @return the persons
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Set<Person> getPersonsByOrganizationAcronymStatus(String organizationAcronym, MemberStatus status) {
 		return this.personRepository.findDistinctByMembershipsResearchOrganizationAcronymAndMembershipsMemberStatus(
 				organizationAcronym, status);
@@ -620,7 +570,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param identifiers the list of identifiers to search for.
 	 * @return the list of memberships for the given identifiers.
 	 * @since 3.5
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Membership> getMembershipsByIds(List<Long> identifiers) {
 		var memberships = this.membershipRepository.findAllById(identifiers);
 		if (memberships.size() != identifiers.size()) {
@@ -634,7 +586,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param maxAge the maximum age in years.
 	 * @return the memberships.
 	 * @since 3.5
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Membership> getMembershipsOfAge(int maxAge) {
 		final var startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
 		final var endDate = LocalDate.now();
@@ -648,7 +602,9 @@ public class MembershipService extends AbstractEntityService<Membership> {
 	 * @param id the identifier of a person.
 	 * @return {@code true} if the person is member of an organization.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isMember(long id) {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty();
 	}

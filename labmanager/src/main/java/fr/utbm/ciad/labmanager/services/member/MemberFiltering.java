@@ -26,7 +26,9 @@ package fr.utbm.ciad.labmanager.services.member;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @Deprecated no replacement.
  */
+@Deprecated(since = "4.0", forRemoval = true)
 public enum MemberFiltering {
 	/** All members.
 	 */

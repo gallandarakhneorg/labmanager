@@ -19,8 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -33,15 +37,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
 
 /** Service for managing book chapters.
  * 
@@ -73,7 +69,7 @@ public class BookChapterService extends AbstractPublicationTypeService {
 			@Autowired HalTools halTools,
 			@Autowired BookChapterRepository repository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -82,68 +78,20 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	/** Replies all the book chapters.
 	 *
 	 * @return the book chapters.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<BookChapter> getAllBookChapters() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the book chapters.
-	 *
-	 * @param filter the filter of chapters.
-	 * @return the book chapters.
-	 * @since 4.0
-	 */
-	public List<BookChapter> getAllBookChapters(Specification<BookChapter> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the book chapters.
-	 *
-	 * @param filter the filter of chapters.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the book chapters.
-	 * @since 4.0
-	 */
-	public List<BookChapter> getAllBookChapters(Specification<BookChapter> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the book chapters.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the book chapters.
-	 * @since 4.0
-	 */
-	public List<BookChapter> getAllBookChapters(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the book chapters.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the book chapters.
-	 * @since 4.0
-	 */
-	public Page<BookChapter> getAllBookChapters(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the book chapters.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of chapters.
-	 * @return the book chapters.
-	 * @since 4.0
-	 */
-	public Page<BookChapter> getAllBookChapters(Pageable pageable, Specification<BookChapter> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the book chapter with the given identifier.
 	 *
 	 * @param identifier the identifier of the book chapter.
 	 * @return the book chapter, or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public BookChapter getBookChapter(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -163,7 +111,9 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 * @param publisher the name of the publisher of the book.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the created book chapter.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public BookChapter createBookChapter(Publication publication, String bookTitle, String chapterNumber, String edition,
 			String volume, String number, String pages, String editors, String series,
 			String publisher, String address) {
@@ -232,7 +182,9 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param publisher the name of the publisher of the book.
 	 * @param address the geographical location of the event, usually a city and a country.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateBookChapter(long pubId, 
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
@@ -267,7 +219,9 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	/** Remove the book chapter with the given identifier.
 	 *
 	 * @param identifier the identifier if the chapter to remove.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeBookChapter(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

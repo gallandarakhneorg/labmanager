@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PhdStudentFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.publication.count.PhdConferencePaperCountIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class ConferencePaperPhdRatioIndicator extends AbstractAnnualIndicator {
 	 */
 	public ConferencePaperPhdRatioIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired PhdStudentFteIndicator fteIndicator,
 			@Autowired PhdConferencePaperCountIndicator paperCount) {
 		super(messages, constants, AbstractAnnualIndicator::average);

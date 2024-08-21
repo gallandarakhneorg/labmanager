@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.organization;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
@@ -44,7 +44,9 @@ import java.util.*;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 3.2
+ * @Deprecated no replacement.
  */
+@Deprecated(since = "4.0", forRemoval = true)
 @Service
 public class OrganizationMergingService extends AbstractEntityService<ResearchOrganization> {
 
@@ -85,7 +87,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 			@Autowired AssociatedStructureHolderRepository structureHolderRepository,
 			@Autowired OrganizationNameComparator nameComparator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {			
 		super(messages, constants, sessionFactory);
 		this.organizationService = organizationService;

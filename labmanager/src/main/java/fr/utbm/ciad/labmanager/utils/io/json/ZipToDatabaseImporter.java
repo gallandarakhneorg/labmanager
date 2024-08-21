@@ -19,19 +19,23 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.zip.ZipInputStream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter.FileCallback;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
-
-import java.io.*;
-import java.net.URL;
-import java.util.zip.ZipInputStream;
 
 /** Importer of ZIP (JSON+Files) data into the database.
  * 
@@ -58,7 +62,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	 */
 	public ZipToDatabaseImporter(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired JsonToDatabaseImporter jsonImporter,
 			@Autowired DownloadableFileManager download) {
 		super(messages, constants);
@@ -129,7 +133,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 					final var filename = entry.getName();
 					try (final var entryStream = new ZippedFileInputStream(zis)) {
 						final var lower = filename.toLowerCase();
-						if (lower.equals(Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json")) { //$NON-NLS-1$
+						if (lower.equals(ZipDatabaseConstants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json")) { //$NON-NLS-1$
 							if (content == null) {
 								content = readJson(entryStream);
 							} else {

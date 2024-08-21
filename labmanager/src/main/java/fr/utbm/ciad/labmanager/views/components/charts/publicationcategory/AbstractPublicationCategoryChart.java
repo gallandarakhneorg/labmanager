@@ -40,7 +40,7 @@ public abstract class AbstractPublicationCategoryChart extends AbstractSOChartCh
     public AbstractPublicationCategoryChart(@Autowired PublicationService publicationService) {
 
         this.publicationService = publicationService;
-        publicationTypeList = this.publicationService.getAllType();
+        publicationTypeList = this.publicationService.getAllTypes();
         years = new ArrayList<>();
 
         toolbox = new Toolbox();

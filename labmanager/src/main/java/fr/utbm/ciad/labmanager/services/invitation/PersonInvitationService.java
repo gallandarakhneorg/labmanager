@@ -19,7 +19,15 @@
 
 package fr.utbm.ciad.labmanager.services.invitation;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationRepository;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationType;
@@ -40,17 +48,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 
 /** Service for the person invitations.
  * 
@@ -84,73 +83,12 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 			@Autowired PersonService personService,
 			@Autowired PersonNameParser nameParser,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.invitationRepository = invitationRepository;
 		this.personService = personService;
 		this.nameParser = nameParser;
-	}
-
-	/** Replies the list of all the outgoing invitations.
-	 *
-	 * @return the list of all the outgoing invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllOutgoingInvitations() {
-		return this.invitationRepository.findAllDistinctByType(PersonInvitationType.OUTGOING_GUEST);
-	}
-
-	/** Replies the list of all the outgoing invitations.
-	 *
-	 * @param filter the filter of the invitations.
-	 * @return the list of all the outgoing invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllOutgoingIvitations(Specification<PersonInvitation> filter) {
-		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter));
-	}
-
-	/** Replies the list of all the outgoing invitations.
-	 *
-	 * @param filter the filter of the outgoing invitations.
-	 * @param sortOrder the order specification to use for sorting the outgoing invitations.
-	 * @return the list of all the outgoing invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllOutgoingInvitations(Specification<PersonInvitation> filter, Sort sortOrder) {
-		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter), sortOrder);
-	}
-
-	/** Replies the list of all the outgoing invitations.
-	 *
-	 * @param sortOrder the order specification to use for sorting the outgoing invitations.
-	 * @return the list of all the outgoing invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllOutgoingInvitations(Sort sortOrder) {
-		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON, sortOrder);
-	}
-
-	/** Replies the list of all the outgoing invitations.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of all the outgoing invitations.
-	 * @since 4.0
-	 */
-	public Page<PersonInvitation> getAllOutgoingInvitations(Pageable pageable) {
-		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON, pageable);
-	}
-
-	/** Replies the list of all the outgoing invitations.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of the axes.
-	 * @return the list of all the outgoing invitations.
-	 * @since 4.0
-	 */
-	public Page<PersonInvitation> getAllOutgoingInvitations(Pageable pageable, Specification<PersonInvitation> filter) {
-		return this.invitationRepository.findAll(OutgoingInvitationSpecification.SINGLETON.and(filter), pageable);
 	}
 
 	/** Replies the list of all the outgoing invitations.
@@ -168,67 +106,6 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 			page.forEach(callback);
 		}
 		return page;
-	}
-
-	/** Replies the list of all the incoming invitations.
-	 *
-	 * @return the list of all the incoming invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllIncomingInvitations() {
-		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON);
-	}
-
-	/** Replies the list of all the incoming invitations.
-	 *
-	 * @param filter the filter of the invitations.
-	 * @return the list of all the incoming invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllIncomingIvitations(Specification<PersonInvitation> filter) {
-		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter));
-	}
-
-	/** Replies the list of all the incoming invitations.
-	 *
-	 * @param filter the filter of the incoming invitations.
-	 * @param sortOrder the order specification to use for sorting the incoming invitations.
-	 * @return the list of all the incoming invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllIncomingInvitations(Specification<PersonInvitation> filter, Sort sortOrder) {
-		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter), sortOrder);
-	}
-
-	/** Replies the list of all the incoming invitations.
-	 *
-	 * @param sortOrder the order specification to use for sorting the incoming invitations.
-	 * @return the list of all the incoming invitations.
-	 * @since 4.0
-	 */
-	public List<PersonInvitation> getAllIncomingInvitations(Sort sortOrder) {
-		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON, sortOrder);
-	}
-
-	/** Replies the list of all the incoming invitations.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the list of all the incoming invitations.
-	 * @since 4.0
-	 */
-	public Page<PersonInvitation> getAllIncomingInvitations(Pageable pageable) {
-		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON, pageable);
-	}
-
-	/** Replies the list of all the incoming invitations.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of the axes.
-	 * @return the list of all the incoming invitations.
-	 * @since 4.0
-	 */
-	public Page<PersonInvitation> getAllIncomingInvitations(Pageable pageable, Specification<PersonInvitation> filter) {
-		return this.invitationRepository.findAll(IncomingInvitationSpecification.SINGLETON.and(filter), pageable);
 	}
 
 	/** Replies the list of all the incoming invitations.
@@ -252,7 +129,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 *
 	 * @param personId the identifier of the person to search for.
 	 * @return the invitations for the person.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<PersonInvitation> getInvitationsForPerson(long personId) {
 		return this.invitationRepository.findAllByGuestIdOrInviterId(personId, personId);
 	}
@@ -269,7 +148,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 * @param university the name of the university of the partner person.
 	 * @param country the country of the university.
 	 * @return the created invitation.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public PersonInvitation addPersonInvitation(long person,
 			String guest, String inviter,
 			LocalDate startDate, LocalDate endDate,
@@ -297,7 +178,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 * @param university the name of the university of the partner person.
 	 * @param country the country of the university.
 	 * @return the created invitation.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public PersonInvitation updatePersonInvitation(
 			long invitation,
 			long person,
@@ -332,7 +215,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 * @param title the title of the works.
 	 * @param university the name of the university of the partner person.
 	 * @param country the country of the university.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updatePersonInvitationWithoutSaving(
 			PersonInvitation invitation,
 			Person person,
@@ -360,7 +245,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 *
 	 * @param invitationId the identifier of the person invitation to be deleted.
 	 * @throws Exception in case of error.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public void removePersonInvitation(long invitationId) {
 		final var iid = Long.valueOf(invitationId);
@@ -374,7 +261,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	/** Save the given invitation into the database.
 	 *
 	 * @param invitation the invitation to save.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void save(PersonInvitation invitation) {
 		this.invitationRepository.save(invitation);
 	}
@@ -384,7 +273,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	 * @param id the identifier of the person.
 	 * @return {@code true} if the person is an inviter or an invitee.
 	 * @since 3.6
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public boolean isAssociated(long id) {
 		return !this.invitationRepository.findAllByGuestIdOrInviterId(id, id).isEmpty();
 	}

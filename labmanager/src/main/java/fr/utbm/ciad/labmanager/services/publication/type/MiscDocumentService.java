@@ -19,8 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -33,15 +37,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
 
 /** Service for managing miscellaneous documents.
  * 
@@ -73,7 +69,7 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 			@Autowired HalTools halTools,
 			@Autowired MiscDocumentRepository repository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -82,68 +78,20 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	/** Replies all the miscellaneous documents.
 	 *
 	 * @return the miscellaneous documents.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<MiscDocument> getAllMiscDocuments() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the miscellaneous documents.
-	 *
-	 * @param filter the filter of miscellaneous documents.
-	 * @return the miscellaneous documents.
-	 * @since 4.0
-	 */
-	public List<MiscDocument> getAllMiscDocuments(Specification<MiscDocument> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the miscellaneous documents.
-	 *
-	 * @param filter the filter of miscellaneous documents.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the miscellaneous documents.
-	 * @since 4.0
-	 */
-	public List<MiscDocument> getAllMiscDocuments(Specification<MiscDocument> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the miscellaneous documents.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the miscellaneous documents.
-	 * @since 4.0
-	 */
-	public List<MiscDocument> getAllMiscDocuments(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the miscellaneous documents.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the miscellaneous documents.
-	 * @since 4.0
-	 */
-	public Page<MiscDocument> getAllMiscDocuments(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the miscellaneous documents.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of miscellaneous documents.
-	 * @return the miscellaneous documents.
-	 * @since 4.0
-	 */
-	public Page<MiscDocument> getAllMiscDocuments(Pageable pageable, Specification<MiscDocument> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the miscellaneous document with the given identifier.
 	 *
 	 * @param identifier the identifier of the miscellaneous document.
 	 * @return the miscellaneous document or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public MiscDocument getMiscDocument(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -158,7 +106,9 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 * @param publisher the name of the publisher if any.
 	 * @param address the geographical location of the organization that has published the document. It is usually a city, country pair.
 	 * @return the created miscellaneous document.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public MiscDocument createMiscDocument(Publication publication,
 			String number, String howPublished, String type,
 			String organization, String publisher, String address) {
@@ -215,7 +165,9 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 * @param organization the name of the organization that has published the document.
 	 * @param publisher the name of the publisher if any.
 	 * @param address the geographical location of the organization that has published the document. It is usually a city, country pair.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateMiscDocument(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
@@ -245,7 +197,9 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	/** Remove the miscellaneous document from the database.
 	 *
 	 * @param identifier the identifier of the miscellaneous document to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeMiscDocument(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

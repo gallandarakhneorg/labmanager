@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -56,7 +56,7 @@ public abstract class AbstractAnnualIndicator extends AbstractIndicator implemen
 	 * @param mergingFunction the function that should be used for merging the annual values.
 	 *      If it is {@code null}, the {@link #sum(Map)} is used.
 	 */
-	public AbstractAnnualIndicator(MessageSourceAccessor messages, Constants constants,
+	public AbstractAnnualIndicator(MessageSourceAccessor messages, ConfigurationConstants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction) {
 		super(messages, constants);
 		this.mergingFunction = mergingFunction;

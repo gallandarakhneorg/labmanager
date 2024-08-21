@@ -19,8 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
@@ -33,15 +37,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
 
 /** Service for managing theses.
  * 
@@ -73,7 +69,7 @@ public class ThesisService extends AbstractPublicationTypeService {
 			@Autowired HalTools halTools,
 			@Autowired ThesisRepository repository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -82,68 +78,20 @@ public class ThesisService extends AbstractPublicationTypeService {
 	/** Replies all the theses.
 	 *
 	 * @return the theses.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Thesis> getAllTheses() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the theses.
-	 *
-	 * @param filter the filter of theses.
-	 * @return the theses.
-	 * @since 4.0
-	 */
-	public List<Thesis> getAllTheses(Specification<Thesis> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the theses.
-	 *
-	 * @param filter the filter of theses.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the theses.
-	 * @since 4.0
-	 */
-	public List<Thesis> getAllTheses(Specification<Thesis> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the theses.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the theses.
-	 * @since 4.0
-	 */
-	public List<Thesis> getAllTheses(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the theses.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the theses.
-	 * @since 4.0
-	 */
-	public Page<Thesis> getAllTheses(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the theses.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of theses.
-	 * @return the theses.
-	 * @since 4.0
-	 */
-	public Page<Thesis> getAllTheses(Pageable pageable, Specification<Thesis> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the thesis with the given identifier.
 	 *
 	 * @param identifier the identifier of the thesis.
 	 * @return the thesis or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Thesis getThesis(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -154,7 +102,9 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 * @param institution the name of the institution in which the report was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
 	 * @return the created thesis.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public Thesis createThesis(Publication publication,
 			String institution, String address) {
 		return createThesis(publication, institution, address, true);
@@ -200,7 +150,9 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 * @param institution the name of the institution in which the thesis was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateThesis(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
@@ -225,7 +177,9 @@ public class ThesisService extends AbstractPublicationTypeService {
 	/** Remove the thesis from the database.
 	 *
 	 * @param identifier the identifier of the thesis to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeThesis(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

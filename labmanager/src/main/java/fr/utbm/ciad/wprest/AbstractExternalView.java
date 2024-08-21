@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -49,7 +49,7 @@ public abstract class AbstractExternalView extends AbstractComponent {
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public AbstractExternalView(MessageSourceAccessor messages, Constants constants) {
+	public AbstractExternalView(MessageSourceAccessor messages, ConfigurationConstants constants) {
 		super(messages, constants);
 	}
 

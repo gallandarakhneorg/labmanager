@@ -19,8 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.publication.type;
 
+import java.time.LocalDate;
+import java.util.Base64;
+import java.util.List;
+
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
@@ -34,15 +38,7 @@ import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
 
 /** Service for managing editions of journal and journal special issues.
  * 
@@ -74,7 +70,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 			@Autowired HalTools halTools,
 			@Autowired JournalEditionRepository repository,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(downloadableFileManager, doiTools, halTools, messages, constants, sessionFactory);
 		this.repository = repository;
@@ -83,68 +79,20 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	/** Replies all the journal editions.
 	 *
 	 * @return the journal editions.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public List<JournalEdition> getAllJournalEditions() {
 		return this.repository.findAll();
-	}
-
-	/** Replies all the journal editions.
-	 *
-	 * @param filter the filter of journal editions.
-	 * @return the journal editions.
-	 * @since 4.0
-	 */
-	public List<JournalEdition> getAllJournalEditions(Specification<JournalEdition> filter) {
-		return this.repository.findAll(filter);
-	}
-
-	/** Replies all the journal editions.
-	 *
-	 * @param filter the filter of journal editions.
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the journal editions.
-	 * @since 4.0
-	 */
-	public List<JournalEdition> getAllJournalEditions(Specification<JournalEdition> filter, Sort sortOrder) {
-		return this.repository.findAll(filter, sortOrder);
-	}
-
-	/** Replies all the journal editions.
-	 *
-	 * @param sortOrder the order specification to use for sorting the publications.
-	 * @return the journal editions.
-	 * @since 4.0
-	 */
-	public List<JournalEdition> getAllJournalEditions(Sort sortOrder) {
-		return this.repository.findAll(sortOrder);
-	}
-
-	/** Replies all the journal editions.
-	 *
-	 * @param pageable the manager of pages.
-	 * @return the journal editions.
-	 * @since 4.0
-	 */
-	public Page<JournalEdition> getAllJournalEditions(Pageable pageable) {
-		return this.repository.findAll(pageable);
-	}
-
-	/** Replies all the journal editions.
-	 *
-	 * @param pageable the manager of pages.
-	 * @param filter the filter of journal editions.
-	 * @return the journal editions.
-	 * @since 4.0
-	 */
-	public Page<JournalEdition> getAllJournalEditions(Pageable pageable, Specification<JournalEdition> filter) {
-		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the journal edition with the given identifier.
 	 *
 	 * @param identifier the identifier of the journal edition.
 	 * @return the journal edition or {@code null}.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JournalEdition getJournalEdition(long identifier) {
 		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
@@ -177,7 +125,9 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param pages the pages in the journal.
 	 * @param journal the associated journal.
 	 * @return the created journal edition.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public JournalEdition createJournalEdition(Publication publication, String volume, String number, String pages, Journal journal) {
 		return createJournalEdition(publication, volume, number, pages, journal, true);
 	}
@@ -205,7 +155,9 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param number the number of the journal.
 	 * @param journal the associated journal.
 	 * @param pages the pages in the journal.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void updateJournalEdition(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String dblpUrl, String extraUrl,
@@ -233,7 +185,9 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	/** Remove the journal edition from the database.
 	 *
 	 * @param identifier the identifier of the journal edition to be removed.
+	 * @Deprecated no replacement.
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	public void removeJournalEdition(long identifier) {
 		this.repository.deleteById(Long.valueOf(identifier));
 	}

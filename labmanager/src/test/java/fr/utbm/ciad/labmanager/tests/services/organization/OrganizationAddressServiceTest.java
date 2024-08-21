@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
@@ -82,7 +82,7 @@ public class OrganizationAddressServiceTest {
 		this.fileManager = mock(DownloadableFileManager.class);
 		this.sessionFactory = mock(SessionFactory.class);
 		
-		this.test = new OrganizationAddressService(this.fileManager, this.addressRepository, this.messages, new Constants(), this.sessionFactory);
+		this.test = new OrganizationAddressService(this.fileManager, this.addressRepository, this.messages, new ConfigurationConstants(), this.sessionFactory);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

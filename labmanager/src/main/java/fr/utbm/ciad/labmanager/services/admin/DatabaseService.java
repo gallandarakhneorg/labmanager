@@ -19,13 +19,21 @@
 
 package fr.utbm.ciad.labmanager.services.admin;
 
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.Locale;
+
+import fr.utbm.ciad.labmanager.components.start.JsonDatabaseInitializer;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.admin.carnot.IcartsActivityReportGenerator;
 import fr.utbm.ciad.labmanager.services.admin.spim.SpimActivityReportGenerator;
 import fr.utbm.ciad.labmanager.services.admin.utbm.UtbmActivityReportGenerator;
 import fr.utbm.ciad.labmanager.utils.DownloadableFileDescription;
 import fr.utbm.ciad.labmanager.utils.io.AutomaticDeletionFileInputStream;
+import fr.utbm.ciad.labmanager.utils.io.IoConstants;
 import fr.utbm.ciad.labmanager.utils.io.json.DatabaseToJsonExporter;
 import fr.utbm.ciad.labmanager.utils.io.json.DatabaseToZipExporter;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
@@ -36,12 +44,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.Locale;
 
 /** Service for managing database.
  * 
@@ -84,7 +86,7 @@ public class DatabaseService extends AbstractService {
 			@Autowired SpimActivityReportGenerator spimActivityReportGenerator,
 			@Autowired IcartsActivityReportGenerator icartsActivityReportGenerator,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.jsonExporter = jsonExporter;
@@ -136,7 +138,7 @@ public class DatabaseService extends AbstractService {
 			return this.zipExporter.startExportFromDatabase(locale, progression);
 		});
 
-		final var tmpFile = File.createTempFile(Constants.INITIALIZATION_BASENAME, Constants.ZIP_FILENAME_EXTENSION);
+		final var tmpFile = File.createTempFile(JsonDatabaseInitializer.INITIALIZATION_BASENAME, IoConstants.ZIP_FILENAME_EXTENSION);
 		exporter.exportToZip(new FileOutputStream(tmpFile));
 		return new AutomaticDeletionFileInputStream(tmpFile);
 	}

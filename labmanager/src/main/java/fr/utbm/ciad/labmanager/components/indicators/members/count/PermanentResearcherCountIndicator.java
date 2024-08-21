@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractInstantIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PermanentResearcherFteIndicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -53,7 +53,7 @@ public class PermanentResearcherCountIndicator extends AbstractInstantIndicator 
 	 */
 	public PermanentResearcherCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants) {
+			@Autowired ConfigurationConstants constants) {
 		super(messages, constants);
 	}
 

@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.services.indicator;
 
 import fr.utbm.ciad.labmanager.components.indicators.Indicator;
-import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicators;
 import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
@@ -71,7 +71,7 @@ public class GlobalIndicatorsService extends AbstractService {
 			@Autowired GlobalIndicatorsRepository indicatorRepository,
 			@Autowired List<? extends Indicator> allIndicators,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
+			@Autowired ConfigurationConstants constants,
 			@Autowired SessionFactory sessionFactory) {
 		super(messages, constants, sessionFactory);
 		this.indicatorRepository = indicatorRepository;
