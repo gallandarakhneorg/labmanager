@@ -35,7 +35,7 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.CORE_PORTAL_ICON;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public abstract class AbstractConferenceEditorWizard extends AbstractConferenceEditor {
 
@@ -236,7 +236,7 @@ public abstract class AbstractConferenceEditorWizard extends AbstractConferenceE
 
         this.publisherName.setLabel(getTranslation("views.conferences.publisher_name")); //$NON-NLS-1$
         this.publisherName.setHelperText(getTranslation("views.conferences.publisher_name.help")); //$NON-NLS-1$
-        this.issn.setLabel(getTranslation("views.journals.issn")); //$NON-NLS-1$
-        this.isbn.setLabel(getTranslation("views.journals.isbn")); //$NON-NLS-1$
+        this.issn.setLabel(getTranslation("views.conferences.issn")); //$NON-NLS-1$
+        this.isbn.setLabel(getTranslation("views.conferences.isbn")); //$NON-NLS-1$
     }
 }

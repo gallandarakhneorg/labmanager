@@ -15,7 +15,7 @@ import java.util.*;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class PublicationCategoryNightingaleRoseChart extends AbstractPublicationCategoryChart {
 

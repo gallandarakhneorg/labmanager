@@ -20,7 +20,7 @@ import java.util.List;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class JournalEditorComponentWizard extends AbstractLabManagerWizard<Journal> {
 
@@ -93,7 +93,7 @@ public class JournalEditorComponentWizard extends AbstractLabManagerWizard<Journ
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class DescriptionDetailComponent extends AbstractFormWizardStep<Journal> {
 
@@ -147,7 +147,7 @@ public class JournalEditorComponentWizard extends AbstractLabManagerWizard<Journ
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class RankingInformationComponent extends AbstractFormWizardStep<Journal> {
 
@@ -188,7 +188,7 @@ public class JournalEditorComponentWizard extends AbstractLabManagerWizard<Journ
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PublisherInformationComponent extends AbstractFormWizardStep<Journal> {
 
@@ -240,7 +240,7 @@ public class JournalEditorComponentWizard extends AbstractLabManagerWizard<Journ
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class JournalAdministration extends AbstractFormWizardStep<Journal> {
 

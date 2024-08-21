@@ -11,7 +11,7 @@ import static fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory.g
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public enum SimilarityError {
 
@@ -21,7 +21,7 @@ public enum SimilarityError {
     NO_ERROR {
         @Override
         public String getSimilarityErrorMessage() {
-            return "";
+            return ""; //$NON-NLS-1$
         }
 
         @Override
@@ -41,7 +41,7 @@ public enum SimilarityError {
     SAME_TITLE {
         @Override
         public String getSimilarityErrorMessage() {
-            return getTranslation("views.import.error.same_title");
+            return getTranslation("views.import.error.same_title"); //$NON-NLS-1$
         }
 
         @Override
@@ -61,7 +61,7 @@ public enum SimilarityError {
     SAME_TITLE_AND_AUTHORS {
         @Override
         public String getSimilarityErrorMessage() {
-            return getTranslation("views.import.error.same_title_and_authors");
+            return getTranslation("views.import.error.same_title_and_authors"); //$NON-NLS-1$
         }
 
         @Override
@@ -81,7 +81,7 @@ public enum SimilarityError {
     SAME_TITLE_BUT_DIFFERENT_AUTHORS {
         @Override
         public String getSimilarityErrorMessage() {
-            return getTranslation("views.import.error.same_title_different_authors");
+            return getTranslation("views.import.error.same_title_different_authors"); //$NON-NLS-1$
         }
 
         @Override
@@ -101,7 +101,7 @@ public enum SimilarityError {
     SAME_TITLE_AND_PUBLISHER {
         @Override
         public String getSimilarityErrorMessage() {
-            return getTranslation("views.import.error.same_title_and_publisher");
+            return getTranslation("views.import.error.same_title_and_publisher"); //$NON-NLS-1$
         }
 
         @Override
@@ -121,7 +121,7 @@ public enum SimilarityError {
     SAME_NAME {
         @Override
         public String getSimilarityErrorMessage() {
-            return getTranslation("views.import.error.same_name");
+            return getTranslation("views.import.error.same_name"); //$NON-NLS-1$
         }
 
         @Override
@@ -141,7 +141,7 @@ public enum SimilarityError {
     SAME_NAME_AND_ACRONYM {
         @Override
         public String getSimilarityErrorMessage() {
-            return getTranslation("views.import.error.same_name_and_acronym");
+            return getTranslation("views.import.error.same_name_and_acronym"); //$NON-NLS-1$
         }
 
         @Override
@@ -175,4 +175,5 @@ public enum SimilarityError {
      * @return true if the error is a warning, false otherwise
      */
     public abstract boolean isSimilarityWarning();
+
 }

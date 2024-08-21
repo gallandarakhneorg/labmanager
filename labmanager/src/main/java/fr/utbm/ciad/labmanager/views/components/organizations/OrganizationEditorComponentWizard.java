@@ -20,7 +20,7 @@ import java.util.List;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<ResearchOrganization> {
 
@@ -104,7 +104,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class DescriptionDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
 
@@ -165,7 +165,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class GeographicalDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
 
@@ -206,7 +206,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class IdentificationDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
 
@@ -247,7 +247,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class SuperStructureDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
 
@@ -288,7 +288,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class CommunicationDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
 
@@ -329,7 +329,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class OrganizationAdministration extends AbstractFormWizardStep<ResearchOrganization> {
 

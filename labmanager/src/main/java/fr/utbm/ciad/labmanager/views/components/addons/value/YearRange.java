@@ -1,4 +1,4 @@
-package fr.utbm.ciad.labmanager.views.components.addons.customfield;
+package fr.utbm.ciad.labmanager.views.components.addons.value;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -13,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.awt.*;
 import java.util.List;
 
-/** Custom Field in order to set a period. (Was thought in order to be used by AbstractPublicationCategoryLayout
+/** Custom Field in order to set a period. It was thought in order to be used by {@code AbstractPublicationCategoryLayout}.
  *
  * @author $Author: sgalland$
  * @author $Author: erenon$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class YearRange extends CustomField<Integer> {
 

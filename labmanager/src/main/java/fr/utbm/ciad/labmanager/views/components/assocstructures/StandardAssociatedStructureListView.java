@@ -191,7 +191,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	@Override
 	protected void addEntity() {
-		openStructureEditor(new AssociatedStructure(), getTranslation("views.associated_structure.add_address")); //$NON-NLS-1$
+		openStructureEditor(new AssociatedStructure(), getTranslation("views.associated_structure.add_structure")); //$NON-NLS-1$
 	}
 
 	@Override

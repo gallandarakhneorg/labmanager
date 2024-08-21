@@ -11,7 +11,7 @@ import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.Publi
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class PublicationCategoryNightingaleRoseChartFactory implements PublicationCategoryChartFactory<PublicationCategoryNightingaleRoseChart> {
 

@@ -21,7 +21,7 @@ import java.util.List;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Conference> {
 
@@ -94,7 +94,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class DescriptionDetailComponent extends AbstractFormWizardStep<Conference> {
 
@@ -155,7 +155,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class RankingDetailComponent extends AbstractFormWizardStep<Conference> {
 
@@ -195,7 +195,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PublisherDetailComponent extends AbstractFormWizardStep<Conference> {
 
@@ -235,7 +235,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class ConferenceAdministration extends AbstractFormWizardStep<Conference> {
 

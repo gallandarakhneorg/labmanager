@@ -155,6 +155,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 *
 	 * @return the similarity error.
 	 */
+	@SuppressWarnings("static-method")
 	public SimilarityError isAlreadyInDatabase() {
 		return SimilarityError.NO_ERROR;
 	}
@@ -408,12 +409,24 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 		ComponentFactory.showWarningNotification(getTranslation("views.save_invalid_data")); //$NON-NLS-1$
 	}
 
+	/** Notify the user that the form is blocked because it contains information that is considered as similar to an information that is already in the database.
+	 *
+	 * @param message the explanation of the error.
+	 * @since 4.0
+	 */
+	@SuppressWarnings("static-method")
 	public void notifySimilarityError(String message) {
-		ComponentFactory.showErrorNotification(message); //$NON-NLS-1$
+		ComponentFactory.showErrorNotification(message);
 	}
 
+	/** Notify the user that the form contains information that is considered as similar to an information that is already in the database.
+	 *
+	 * @param message the explanation of the error.
+	 * @since 4.0
+	 */
+	@SuppressWarnings("static-method")
 	public void notifySimilarityWarning(String message) {
-		ComponentFactory.showWarningNotification(message); //$NON-NLS-1$
+		ComponentFactory.showWarningNotification(message);
 	}
 
 	/** Notify the user that the entity cannot be validated.

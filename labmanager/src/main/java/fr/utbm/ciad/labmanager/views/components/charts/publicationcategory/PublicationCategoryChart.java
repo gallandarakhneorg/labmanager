@@ -11,7 +11,7 @@ import fr.utbm.ciad.labmanager.views.components.charts.Chart;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public interface PublicationCategoryChart extends Chart {
 

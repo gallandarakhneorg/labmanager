@@ -10,7 +10,7 @@ import fr.utbm.ciad.labmanager.utils.AbstractNormalizableStringComparator;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$s
- * @since 4.1
+ * @since 4.0
  */
 public abstract class AbstractConferenceNameComparator extends AbstractNormalizableStringComparator implements ConferenceNameComparator {
 

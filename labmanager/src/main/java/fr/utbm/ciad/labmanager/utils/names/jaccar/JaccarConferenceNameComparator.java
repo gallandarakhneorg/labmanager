@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 @Component
 public class JaccarConferenceNameComparator extends AbstractConferenceNameComparator {

@@ -71,7 +71,7 @@ public enum ProjectCategory {
 		}
 	};
 
-	private static final String MESSAGE_PREFIX = "projectCateogry."; //$NON-NLS-1$
+	private static final String MESSAGE_PREFIX = "projectCategory."; //$NON-NLS-1$
 
 	/** Replies the label of the category in the given language.
 	 *

@@ -22,7 +22,7 @@ import java.util.List;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person> {
 
@@ -115,7 +115,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonalInformationComponents extends AbstractFormWizardStep<Person> {
 
@@ -177,7 +177,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonContactInformation extends AbstractFormWizardStep<Person> {
 
@@ -223,7 +223,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonResearcherIds extends AbstractFormWizardStep<Person> {
 
@@ -266,7 +266,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonBiography extends AbstractFormWizardStep<Person> {
 
@@ -309,7 +309,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonIndexes extends AbstractFormWizardStep<Person> {
 
@@ -352,7 +352,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonSocialLinks extends AbstractFormWizardStep<Person> {
 
@@ -395,7 +395,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PersonAdministration extends AbstractFormWizardStep<Person> {
 

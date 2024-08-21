@@ -35,7 +35,7 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor {
 

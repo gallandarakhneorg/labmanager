@@ -20,7 +20,7 @@ import static com.storedobject.chart.Color.TRANSPARENT;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public abstract class AbstractPublicationCategoryChart extends AbstractSOChartChart implements PublicationCategoryChart {
 

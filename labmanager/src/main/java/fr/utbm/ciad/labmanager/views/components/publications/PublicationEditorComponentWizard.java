@@ -25,7 +25,7 @@ import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<Publication> {
 
@@ -120,7 +120,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class ProductionTypeComponents extends AbstractFormWizardStep<Publication> {
 
@@ -164,7 +164,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class MinimalInformationComponent extends AbstractFormWizardStep<Publication> {
 
@@ -237,7 +237,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class WorldwideIdentificationComponent extends AbstractFormWizardStep<Publication> {
 
@@ -280,7 +280,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class ContentInformationComponent extends AbstractFormWizardStep<Publication> {
 
@@ -334,7 +334,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class AssociatedResourcesComponent extends AbstractFormWizardStep<Publication> {
 
@@ -377,7 +377,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class ReferenceInformationComponent extends AbstractFormWizardStep<Publication> {
 
@@ -420,7 +420,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @version $Name$ $Revision$ $Date$
      * @mavengroupid $GroupId$
      * @mavenartifactid $ArtifactId$
-     * @since 4.1
+     * @since 4.0
      */
     protected static class PublicationAdministration extends AbstractFormWizardStep<Publication> {
 

@@ -43,7 +43,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEditorWizard {
 

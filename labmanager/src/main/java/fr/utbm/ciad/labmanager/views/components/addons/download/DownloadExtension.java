@@ -136,7 +136,6 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 				});
 	}
 
-	@SuppressWarnings("resource")
 	private StreamResource buildStreamResource(Progression progression) throws Exception {
 		if (this.streamResourceSupplier != null) {
 			final var href = this.streamResourceSupplier.apply(progression);

@@ -359,7 +359,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 					return terminationMessage1;
 				};
 			case 2:
-				final var pattern2 = getWizard().orElseThrow().getTranslation("views.persons.updateRankings.step3.download_googlescolar"); //$NON-NLS-1$
+				final var pattern2 = getWizard().orElseThrow().getTranslation("views.persons.updateRankings.step3.download_googlescholar"); //$NON-NLS-1$
 				final var extendedProgression2 = ProgressExtension.withCommentFormatter(progression, it -> MessageFormat.format(pattern2, it));
 				final var terminationMessage2 = getWizard().orElseThrow().getTranslation("views.persons.updateRankings.step3.googlescholar_downloaded"); //$NON-NLS-1$
 				return () -> {

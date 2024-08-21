@@ -8,7 +8,7 @@ package fr.utbm.ciad.labmanager.views.components.charts;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 4.1
+ * @since 4.0
  */
 public interface Chart {
 }
