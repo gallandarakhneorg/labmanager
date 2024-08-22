@@ -608,7 +608,7 @@ project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"
 	                <plugin>
 	                    <groupId>com.vaadin</groupId>
 	                    <artifactId>vaadin-maven-plugin</artifactId>
-	                    <version>${project.version}</version>
+	                    <version>${vaadin.version}</version>
 	                    <executions>
 	                        <execution>
 	                            <goals>
