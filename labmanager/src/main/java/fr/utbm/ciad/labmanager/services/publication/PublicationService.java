@@ -551,9 +551,9 @@ public class PublicationService extends AbstractPublicationService {
 		return this.authorshipRepository.findByPublicationId(publicationId);
 	}
 
-	/** Replies the years.
+	/** Replies the years during which a publication was committed.
 	 *
-	 * @return the years.
+	 * @return the years of the publications sorted in ascending order.
 	 * */
 	public List<Integer> getAllYears() {
 		return this.publicationRepository.findDistinctPublicationYears();

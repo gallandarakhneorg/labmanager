@@ -26,7 +26,7 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.organizations.StandardAddressListView;
+import fr.utbm.ciad.labmanager.views.components.organizationaddresses.views.StandardAddressListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

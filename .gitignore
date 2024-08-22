@@ -48,6 +48,7 @@ workspace/
 #Others
 **/.DS_Store
 dbg.log
+labmanager/TODO.md
 
 # Local configuration files
 **/application-gal*.yml

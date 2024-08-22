@@ -30,7 +30,9 @@ import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.teaching.StandardTeachingActivitiesListView;
+import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.teaching.views.StandardTeachingActivitiesListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,17 +62,21 @@ public class TeachingActivitiesListView extends StandardTeachingActivitiesListVi
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
 	 * @param personService the service for accessing the persons.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the users.
 	 * @param organizationService the service for accessing the research organizations.
+	 * @param organizationEditorFactory the factory for creating organization editors.
 	 * @param addressService the service for accessing the organization addresses.
 	 */
 	public TeachingActivitiesListView(
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
 			@Autowired TeachingService teachingService, @Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService, @Autowired ResearchOrganizationService organizationService,
-			@Autowired OrganizationAddressService addressService) {
-		super(fileManager, authenticatedUser, messages, teachingService, personService, userService, organizationService, addressService, LOGGER);
+			@Autowired OrganizationEditorFactory organizationEditorFactory, @Autowired OrganizationAddressService addressService) {
+		super(fileManager, authenticatedUser, messages, teachingService, personService, personEditorFactory, userService, organizationService,
+				organizationEditorFactory, addressService, LOGGER);
 	}
 
 	@Override

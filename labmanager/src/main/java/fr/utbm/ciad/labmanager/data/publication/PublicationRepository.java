@@ -80,11 +80,11 @@ public interface PublicationRepository extends JpaRepository<Publication, Long>,
 	 */
 	List<Publication> findAllByTitleIgnoreCase(String title);
 
-	/** Replies the list of publication counts for each year.
+	/** Replies the years during which a publication was committed.
 	 *
-	 * @return the list of publications counts.
-	 */
-	@Query("SELECT DISTINCT p.publicationYear FROM Publication p")
+	 * @return the years of the publications sorted in ascending order.
+	 * */
+	@Query("SELECT DISTINCT p.publicationYear FROM Publication p ORDER BY p.publicationYear ASC")
 	List<Integer> findDistinctPublicationYears();
 
 	/** Replies the list of publication types.

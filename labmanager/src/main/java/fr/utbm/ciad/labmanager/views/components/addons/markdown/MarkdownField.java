@@ -47,7 +47,7 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 
-/** Vaadin component for input markdown text. This components is a rewriting of the {@codeMarkdownArea} that is available in Vaadin addons to be a real input field and not a simple component.
+/** Vaadin component for input markdown text. This components is a rewriting of the {@code MarkdownArea} that is available in Vaadin addons to be a real input field and not a simple component.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$

@@ -27,7 +27,8 @@ import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.jurys.StandardJuryMembershipListView;
+import fr.utbm.ciad.labmanager.views.components.jurys.views.StandardJuryMembershipListView;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ public class JuryMembershipsListView extends StandardJuryMembershipListView impl
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param membershipService the service for accessing the jury memberships.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the JPA entities for users.
 	 */
 	public JuryMembershipsListView(
@@ -63,8 +65,9 @@ public class JuryMembershipsListView extends StandardJuryMembershipListView impl
 			@Autowired MessageSourceAccessor messages,
 			@Autowired JuryMembershipService membershipService,
 			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService) {
-		super(authenticatedUser, messages, membershipService, personService, userService, LOGGER);
+		super(authenticatedUser, messages, membershipService, personService, personEditorFactory, userService, LOGGER);
 	}
 
 	@Override

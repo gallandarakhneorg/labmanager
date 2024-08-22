@@ -17,9 +17,6 @@
 	* No DOI for publications
   * Access rights to pages
     * Review the access rights to the Vaadin pages according to the role of the authenticated user
-* Cleaning:
-  * Clean code `fr.utbm.ciad.labmanager.configuration.Constants`
-  * Remove unnecessary functions from services
 * Front-end components:
   * Person's card for the public page
   * Person biography (if public biography)
@@ -64,7 +61,34 @@
 
 # To-Do for production
 
+* Update exports:
+  * Application users
+  
+	   "applicationUsers": [
+	      {
+	         "@id": "/auser#0",
+	         "login": "sgalland",
+	         "role": "admin",
+	         "person": {
+	            "@id": "/pers#8"
+	         }
+	      }
+	   ],  
+  
+  * Super organizations of CIAD
+  
+       "superOrganizations" : [
+            {
+               "@id" : "/ro#1"
+            },
+            {
+               "@id" : "/ro#2"
+            }
+         ],
+  
 * Memberships for CN, AB and SG (direction change)
 * Review and update of all the organizations in memberships
 * Add idhal
-* PIA -> France 2030
+* Remplacer dans certains projets recents le financement PIA par France 2030
+* Revoir la structure entre les organizations UBFC, UTBM, UB, UFC
+

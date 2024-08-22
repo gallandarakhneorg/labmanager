@@ -27,7 +27,8 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.organizations.StandardOrganizationListView;
+import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.organizations.views.StandardOrganizationListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +58,16 @@ public class OrganizationsListView extends StandardOrganizationListView implemen
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param organizationService the service for accessing the organizations.
 	 * @param addressService the service for accessing the organization addresses.
+	 * @param organizationEditorFactory the factory of the organization editors.
 	 */
 	public OrganizationsListView(
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired ResearchOrganizationService organizationService,
-			@Autowired OrganizationAddressService addressService) {
-		super(fileManager, authenticatedUser, messages, organizationService, addressService, LOGGER);
+			@Autowired OrganizationAddressService addressService,
+			@Autowired OrganizationEditorFactory organizationEditorFactory) {
+		super(fileManager, authenticatedUser, messages, organizationService, addressService, organizationEditorFactory, LOGGER);
 	}
 
 	@Override

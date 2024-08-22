@@ -27,7 +27,8 @@ import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.invitations.StandardIncomingInvitationListView;
+import fr.utbm.ciad.labmanager.views.components.invitations.views.StandardIncomingInvitationListView;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ public class IncomingInvitationsListView extends StandardIncomingInvitationListV
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param invitationService the service for accessing the incoming invitations.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the JPA entities for users.
 	 */
 	public IncomingInvitationsListView(
@@ -63,8 +65,9 @@ public class IncomingInvitationsListView extends StandardIncomingInvitationListV
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PersonInvitationService invitationService,
 			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService) {
-		super(authenticatedUser, messages, invitationService, personService, userService, LOGGER);
+		super(authenticatedUser, messages, invitationService, personService, personEditorFactory, userService, LOGGER);
 	}
 
 	@Override

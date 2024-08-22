@@ -31,7 +31,9 @@ import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.supervisions.StandardSupervisionListView;
+import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.supervisions.views.StandardSupervisionListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +63,10 @@ public class SupervisionsListView extends StandardSupervisionListView implements
 	 * @param supervisionService the service for accessing the supervisions.
 	 * @param membershipService the service for accessing the membership JPA entities.
 	 * @param personService the service for accessing the person JPA entities.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the connected user JPA entities.
 	 * @param organizationService the service for accessing the organization JPA entities.
+	 * @param organizationEditorFactory the factory for creating organization editors.
 	 * @param addressService the service for accessing the organization address JPA entities.
 	 * @param axisService the service for accessing the scientific axis JPA entities.
 	 */
@@ -72,12 +76,14 @@ public class SupervisionsListView extends StandardSupervisionListView implements
 			@Autowired SupervisionService supervisionService,
 			@Autowired MembershipService membershipService,
 			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired OrganizationAddressService addressService,
+			@Autowired OrganizationEditorFactory organizationEditorFactory,
 			@Autowired ScientificAxisService axisService) {
-		super(authenticatedUser, messages, supervisionService, membershipService, personService, userService,
-				organizationService, addressService, axisService, LOGGER);
+		super(authenticatedUser, messages, supervisionService, membershipService, personService, personEditorFactory, userService,
+				organizationService, organizationEditorFactory, addressService, axisService, LOGGER);
 	}
 
 	@Override

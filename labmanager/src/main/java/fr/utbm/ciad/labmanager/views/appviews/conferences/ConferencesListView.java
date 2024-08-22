@@ -30,7 +30,8 @@ import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import fr.utbm.ciad.labmanager.views.components.conferences.StandardConferenceListView;
+import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.conferences.views.StandardConferenceListView;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +62,12 @@ public class ConferencesListView extends StandardConferenceListView implements H
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param conferenceService the service for accessing the conferences.
+	 * @param conferenceEditorFactory the factory for creating the conference editors.
 	 */
 	public ConferencesListView(
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
-			@Autowired ConferenceService conferenceService) {
-		super(authenticatedUser, messages, conferenceService, LOGGER);
+			@Autowired ConferenceService conferenceService, @Autowired ConferenceEditorFactory conferenceEditorFactory) {
+		super(authenticatedUser, messages, conferenceService, conferenceEditorFactory, LOGGER);
 	}
 
 	@Override

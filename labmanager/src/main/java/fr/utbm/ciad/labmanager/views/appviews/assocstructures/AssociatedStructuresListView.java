@@ -31,7 +31,9 @@ import fr.utbm.ciad.labmanager.services.project.ProjectService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.assocstructures.StandardAssociatedStructureListView;
+import fr.utbm.ciad.labmanager.views.components.assocstructures.views.StandardAssociatedStructureListView;
+import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +63,10 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 	 * @param structureService the service for accessing the associated structures.
 	 * @param projectService the service for accessing the JPA entities for projects.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param organizationEditorFactory  the factory for creating organization editors.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the JPA entities for users.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param constants the application constants.
@@ -73,12 +77,15 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 			@Autowired AssociatedStructureService structureService,
 			@Autowired ProjectService projectService,
 			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationEditorFactory organizationEditorFactory,
 			@Autowired OrganizationAddressService addressService,
 			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService,
 			@Autowired ScientificAxisService axisService) {
-		super(authenticatedUser, messages, structureService, projectService, organizationService, addressService,
-				personService, userService, axisService, LOGGER);
+		super(authenticatedUser, messages, structureService, projectService, organizationService,
+				addressService, personService, personEditorFactory, userService, axisService, organizationEditorFactory,
+				LOGGER);
 	}
 
 	@Override

@@ -30,7 +30,8 @@ import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import fr.utbm.ciad.labmanager.views.components.journals.StandardJournalListView;
+import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.journals.views.StandardJournalListView;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,12 +62,14 @@ public class JournalsListView extends StandardJournalListView implements HasDyna
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param journalService the service for accessing the journals.
+	 * @param journalEditorFactory the factory for creating journal editors.
 	 */
 	public JournalsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired JournalService journalService) {
-		super(authenticatedUser, messages, journalService, LOGGER);
+			@Autowired JournalService journalService,
+			@Autowired JournalEditorFactory journalEditorFactory) {
+		super(authenticatedUser, messages, journalService, journalEditorFactory, LOGGER);
 	}
 
 	@Override

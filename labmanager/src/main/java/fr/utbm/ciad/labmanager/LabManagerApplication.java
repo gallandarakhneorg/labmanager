@@ -65,7 +65,7 @@ public class LabManagerApplication extends SpringBootServletInitializer implemen
 	}
 
 	private static String makeFavIconPath(String fileExtension) {
-		return new StringBuilder().append("themes/").append(ViewConstants.DEFAULT_BACKEND_THEME).append("/favicon.").append(fileExtension).toString(); //$NON-NLS-1$ //$NON-NLS-2$
+		return new StringBuilder().append("themes/").append(ViewConstants.DEFAULT_BACKEND_THEME).append("/icons/favicon.").append(fileExtension).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

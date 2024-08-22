@@ -27,7 +27,7 @@ import fr.utbm.ciad.labmanager.security.cas.DirectCasAuthenticationEntryPoint;
 import fr.utbm.ciad.labmanager.security.cas.DirectCasAuthenticationFilter;
 import fr.utbm.ciad.labmanager.security.cas.MultiAuthenticationEntryPoint;
 import fr.utbm.ciad.labmanager.security.cas.MultiAuthenticationFilter;
-import fr.utbm.ciad.labmanager.views.appviews.login.AdaptiveLoginView;
+import fr.utbm.ciad.labmanager.views.appviews.login.DevelopperLoginView;
 import org.apereo.cas.client.session.SingleSignOutFilter;
 import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
 import org.apereo.cas.client.validation.TicketValidator;
@@ -113,7 +113,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
 			super.configure(http);
 
-			setLoginView(http, AdaptiveLoginView.class);
+			setLoginView(http, DevelopperLoginView.class);
 		} else {
 			//
 			// Override the default configuration to permit access to the login page bypass the vaadin configure.

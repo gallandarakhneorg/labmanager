@@ -31,7 +31,9 @@ import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.projects.StandardProjectListView;
+import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.projects.views.StandardProjectListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +63,10 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param projectService the service for accessing the projects.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
+	 * @param organizationEditorFactory the factory for creating the organization editors.
 	 * @param addressService the service for accessing the JPA entities for organization addresses.
 	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the JPA entities for users.
 	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 */
@@ -71,12 +75,15 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
 			@Autowired ProjectService projectService,
 			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationEditorFactory organizationEditorFactory,
 			@Autowired OrganizationAddressService addressService,
 			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService,			
 			@Autowired ScientificAxisService axisService) {
 		super(fileManager, authenticatedUser, messages, projectService, organizationService,
-				addressService, personService, userService, axisService, LOGGER);
+				addressService, personService, personEditorFactory, userService,
+				axisService, organizationEditorFactory, LOGGER);
 	}
 
 	@Override

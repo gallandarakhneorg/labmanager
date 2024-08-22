@@ -36,7 +36,8 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import fr.utbm.ciad.labmanager.views.components.persons.StandardPersonListView;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.views.StandardPersonListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	/** Constructor.
 	 *
 	 * @param personService the service for accessing the person JPA.
+	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param userService the service for accessing the user JPA.
 	 * @param organizationService the service for accessing to the research organizations.
 	 * @param membershipService the service for accessing the membership JPA.
@@ -79,6 +81,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	 */
     public PersonsListView(
 			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired UserService userService,
 			@Autowired MembershipService membershipService,
 			@Autowired ResearchOrganizationService organizationService,
@@ -87,7 +90,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 			@Autowired MessageSourceAccessor messages) {
     	super(personService, userService, membershipService, organizationService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
-    			authenticatedUser, messages, LOGGER);
+    			personEditorFactory, authenticatedUser, messages, LOGGER);
 		this.personService = personService;
 	}
 

@@ -23,10 +23,11 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.EmbeddedPersonEditorWizard;
-import fr.utbm.ciad.labmanager.views.components.persons.PaginationComponent;
-import fr.utbm.ciad.labmanager.views.components.persons.PersonCardView;
-import fr.utbm.ciad.labmanager.views.components.persons.SearchComponent;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.wizard.EmbeddedPersonEditorWizard;
+import fr.utbm.ciad.labmanager.views.components.persons.views.PaginationComponent;
+import fr.utbm.ciad.labmanager.views.components.persons.views.PersonCardView;
+import fr.utbm.ciad.labmanager.views.components.persons.views.SearchComponent;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -44,6 +45,7 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
     private static final int numberOfRows = 4;
     private final OrderedList imageContainer;
     private final PersonService personService;
+    private final PersonEditorFactory personEditorFactory;
     private final UserService userService;
     private final AuthenticatedUser authenticatedUser;
     private final ResearchOrganizationService organizationService;
@@ -58,8 +60,9 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
     private final PaginationComponent paginationComponent;
 
 
-    public PersonsCardView(@Autowired PersonService personService, @Autowired UserService userService, @Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages, @Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator chronoMembershipComparator, @Autowired ResearchOrganizationService organizationService) {
+    public PersonsCardView(@Autowired PersonService personService, @Autowired PersonEditorFactory personEditorFactory, @Autowired UserService userService, @Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages, @Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator chronoMembershipComparator, @Autowired ResearchOrganizationService organizationService) {
         this.personService = personService;
+        this.personEditorFactory = personEditorFactory;
         this.userService = userService;
         this.authenticatedUser = authenticatedUser;
         this.organizationService = organizationService;
@@ -151,7 +154,7 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
         }
         imageContainer.removeAll();
         for (Person person : persons) {
-            imageContainer.add(new PersonCardView(person, personService, userService, authenticatedUser, messages, membershipService, chronoMembershipComparator));
+            imageContainer.add(new PersonCardView(person, personService, this.personEditorFactory, userService, authenticatedUser, messages, membershipService, chronoMembershipComparator));
         }
         paginationComponent.setTotalPages(numberOfPages);
         UI.getCurrent().getPage().executeJs("window.scrollTo(0, 0);");
@@ -181,8 +184,7 @@ public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, 
         final var personContext = this.personService.startEditing(person);
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
-        final var editor = new EmbeddedPersonEditorWizard(
-                userContext, authenticatedUser, messages, personService);
+        final var editor = this.personEditorFactory.createAdditionEditor(userContext, this.personService, authenticatedUser, messages);
         final var newEntity = editor.isNewEntity();
         final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshPage();
         ComponentFactory.openEditionModalDialog(title, editor, true,
