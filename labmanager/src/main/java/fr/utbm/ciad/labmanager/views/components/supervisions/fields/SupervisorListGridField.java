@@ -33,11 +33,8 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisorType;
-import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListGridField;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -56,13 +53,7 @@ public class SupervisorListGridField extends AbstractEntityListGridField<Supervi
 
 	private static final String PERCENTAGE_FORMAT = "{0} %"; //$NON-NLS-1$
 	
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
-	
-	private final AuthenticatedUser authenticatedUser;
+	private final PersonFieldFactory personFieldFactory;
 
 	private final Logger logger;
 	
@@ -74,20 +65,14 @@ public class SupervisorListGridField extends AbstractEntityListGridField<Supervi
 
 	/** Constructor.
 	 *
-	 * @param personService the service for accessing the person entities from the JPA database.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the user entities from the JPA database.
-	 * @param authenticatedUser the connected user.
+	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param messages accessor to the localized messages.
 	 * @param logger the logger to be used by the component.
 	 */
-	public SupervisorListGridField(PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+	public SupervisorListGridField(PersonFieldFactory personFieldFactory, MessageSourceAccessor messages, Logger logger) {
 		super(messages,
 				"views.supervisor.edit"); //$NON-NLS-1$
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
-		this.authenticatedUser = authenticatedUser;
+		this.personFieldFactory = personFieldFactory;
 		this.logger = logger;
 	}
 
@@ -119,8 +104,7 @@ public class SupervisorListGridField extends AbstractEntityListGridField<Supervi
 	}
 
 	private SinglePersonNameField createPersonEditor(Supervisor item) {
-		final var field = new SinglePersonNameField(this.personService, this.personEditorFactory, this.userService, this.authenticatedUser,
-				getTranslation("views.supervisor.create_supervisor"), //$NON-NLS-1$
+		final var field = this.personFieldFactory.createSingleNameField(getTranslation("views.supervisor.create_supervisor"), //$NON-NLS-1$
 				this.logger);
 		final var binder = getGridEditor().getBinder();
 		binder.forField(field).bind(Supervisor::getSupervisor, Supervisor::setSupervisor);

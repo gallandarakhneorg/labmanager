@@ -38,24 +38,22 @@ import org.springframework.data.repository.query.Param;
  */
 public interface PublicationRepository extends JpaRepository<Publication, Long>, JpaSpecificationExecutor<Publication> {
 
-	// TODO Is the left join needed?
-	//	@Override
-	//	@NotNull
-	//	@Query("SELECT p FROM Publication p LEFT JOIN FETCH p.authorships")
-	//	List<Publication> findAll();
-
 	/** Replies the list of publications for the person with the given identifier.
 	 *
 	 * @param personId the identifier of the person.
 	 * @return the list of publications.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Publication> findAllByAuthorshipsPersonId(long personId);
 
 	/** Replies the list of publications for the person with the given webpage identifier.
 	 *
 	 * @param webpageId the identifier of the webpage of the person.
 	 * @return the list of publications.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Publication> findAllByAuthorshipsPersonWebPageId(String webpageId);
 
 	/** Replies the list of publications for the persons with the given identifiers.
@@ -70,14 +68,18 @@ public interface PublicationRepository extends JpaRepository<Publication, Long>,
 	 * @param identifiers the identifiers to search for.
 	 * @return the publications.
 	 * @since 2.5
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Set<Publication> findAllByIdIn(Collection<Long> identifiers);
 
 	/** Replies the list of publications with the given title.
 	 *
 	 * @param title the title to search for, with case insensitive test.
 	 * @return the set of publications with the given title.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Publication> findAllByTitleIgnoreCase(String title);
 
 	/** Replies the years during which a publication was committed.
@@ -99,7 +101,9 @@ public interface PublicationRepository extends JpaRepository<Publication, Long>,
 	 * @param year the year of publication.
 	 * @return the set of publications for the given year.
 	 * @since 3.6
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Publication> findAllByPublicationYear(Integer year);
 
 	/** Replies the count of publications for the given type and year.

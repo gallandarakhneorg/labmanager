@@ -22,9 +22,11 @@ package fr.utbm.ciad.labmanager.views.components.persons.editors;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.EmbeddedPersonEditor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
@@ -39,16 +41,48 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPersonEditorFactory implements PersonEditorFactory {
 
-	@Override
-	public AbstractEntityEditor<Person> createAdditionEditor(UserEditingContext userContext, PersonService personService, AuthenticatedUser authenticatedUser,
-            MessageSourceAccessor messages) {
-		return new EmbeddedPersonEditor(userContext, personService, authenticatedUser, messages);
+	private final PersonService personService;
+
+	private final UserService userService;
+
+	private final AuthenticatedUser authenticatedUser;
+
+	private final MessageSourceAccessor messages;
+
+	/** Constructor.
+	 *
+	 * @param personService the service for accessing to the person entities.
+	 * @param userService the service for accessing to the user entities.
+     * @param authenticatedUser the connected user.
+     * @param messages the accessor to the localized messages (Spring layer).
+	 */
+	public DefaultPersonEditorFactory(
+			@Autowired PersonService personService,
+			@Autowired UserService userService,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages) {
+		this.personService = personService;
+		this.userService = userService;
+		this.authenticatedUser = authenticatedUser;
+		this.messages = messages;
 	}
 
 	@Override
-	public AbstractEntityEditor<Person> createUpdateEditor(UserEditingContext userContext, PersonService personService, AuthenticatedUser authenticatedUser,
-            MessageSourceAccessor messages) {
-		return new EmbeddedPersonEditor(userContext, personService, authenticatedUser, messages);
+	public UserEditingContext createUserContextFor(Person person) {
+        final var personContext = this.personService.startEditing(person);
+        final var user = this.userService.getUserFor(person);
+        final var userContext = this.userService.startEditing(user, personContext);
+        return userContext;
+	}
+
+	@Override
+	public AbstractEntityEditor<Person> createAdditionEditor(UserEditingContext userContext) {
+		return new EmbeddedPersonEditor(userContext, this.personService, this.authenticatedUser, this.messages);
+	}
+
+	@Override
+	public AbstractEntityEditor<Person> createUpdateEditor(UserEditingContext userContext) {
+		return new EmbeddedPersonEditor(userContext, this.personService, this.authenticatedUser, this.messages);
 	}
 
 }

@@ -46,7 +46,9 @@ public interface JournalRepository extends JpaRepository<Journal, Long>, JpaSpec
 	 *
 	 * @param name the name of the journal to search for.
 	 * @return the journal with the given name.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<Journal> findByJournalName(String name);
 
 }

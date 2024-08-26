@@ -19,29 +19,22 @@
 
 package fr.utbm.ciad.labmanager.views.components.memberships.fields;
 
+import java.util.Locale;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractSingleEntityNameField;
-import fr.utbm.ciad.labmanager.views.components.memberships.editors.EmbeddedMembershipEditor;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.memberships.editors.MembershipEditorFactory;
 import org.slf4j.Logger;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.Locale;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /** Implementation of a field for entering an organization membership, with auto-completion from the membership JPA entities.
  * 
@@ -86,13 +79,7 @@ public class SingleMembershipNameField extends AbstractSingleEntityNameField<Mem
 	/** Constructor.
 	 *
 	 * @param membershipService the service for accessing the membership JPA entities.
-	 * @param personService the service for accessing the person JPA entities.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the connected user JPA entities.
-	 * @param organizationService the service for accessing the research organization JPA entities.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
-	 * @param addressService the service for accessing the organization address JPA entities.
-	 * @param axisService the service for accessing the scientific axis JPA entities.
+	 * @param membershipEditorFactory the factory for creating the person membership editors.
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
@@ -100,19 +87,11 @@ public class SingleMembershipNameField extends AbstractSingleEntityNameField<Mem
 	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
 	 * @since 4.0
 	 */
-	public SingleMembershipNameField(MembershipService membershipService, PersonService personService, PersonEditorFactory personEditorFactory, UserService userService,
-			ResearchOrganizationService organizationService, OrganizationEditorFactory organizationEditorFactory,
-			OrganizationAddressService addressService, ScientificAxisService axisService, AuthenticatedUser authenticatedUser,
-			String creationTitle, Logger logger, Supplier<Locale> locale, Consumer<Membership> entityInitializer) {
+	public SingleMembershipNameField(MembershipService membershipService, MembershipEditorFactory membershipEditorFactory,
+			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger, Supplier<Locale> locale, Consumer<Membership> entityInitializer) {
 		this(membershipService, locale,
 				(newMembership, saver) -> {
-					final var membershipContext = membershipService.startEditing(newMembership);
-					final var editor = new EmbeddedMembershipEditor(
-							membershipContext,
-							true,
-							personService, personEditorFactory, userService, organizationService,
-							organizationEditorFactory, addressService, axisService,
-							authenticatedUser, membershipService.getMessageSourceAccessor());
+					final var editor = membershipEditorFactory.createAdditionEditor(newMembership, true);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);

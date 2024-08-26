@@ -20,11 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.journals.editors;
 
 import fr.utbm.ciad.labmanager.data.journal.Journal;
-import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
-import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Factory that is providing a journal editor according to the editing context.
  * 
@@ -36,26 +33,45 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public interface JournalEditorFactory {
 
+	/** Replies the editing context for the given journal.
+	 *
+	 * @param journal the journal to be edited.
+	 * @return the editing context.
+	 */
+	EntityEditingContext<Journal> createContextFor(Journal journal);
+
 	/** Create an editor that may be used for creating a new journal.
 	 * 
 	 * @param context the editing context for the conference.
-	 * @param journalService the service to have access to all the journal entities.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<Journal> createAdditionEditor(EntityEditingContext<Journal> context,
-			JournalService journalService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages);
+	AbstractEntityEditor<Journal> createAdditionEditor(EntityEditingContext<Journal> context);
+
+	/** Create an editor that may be used for creating a new journal.
+	 * 
+	 * @param journal the journal to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<Journal> createAdditionEditor(Journal journal) {
+		final var context = createContextFor(journal);
+		return createAdditionEditor(context);
+	}
 
 	/** Create an editor that may be used for updating an existing journal.
 	 * 
 	 * @param context the editing context for the conference.
-	 * @param journalService the service to have access to all the journal entities.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<Journal> createUpdateEditor(EntityEditingContext<Journal> context,
-			JournalService journalService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages);
+	AbstractEntityEditor<Journal> createUpdateEditor(EntityEditingContext<Journal> context);
+
+	/** Create an editor that may be used for updating an existing journal.
+	 * 
+	 * @param journal the journal to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<Journal> createUpdateEditor(Journal journal) {
+		final var context = createContextFor(journal);
+		return createUpdateEditor(context);
+	}
 
 }

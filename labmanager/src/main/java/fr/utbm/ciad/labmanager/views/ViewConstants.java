@@ -31,7 +31,27 @@ import com.vaadin.flow.component.notification.Notification.Position;
  */
 public final class ViewConstants {
 	
+	/** Default number of cards in a person card grid's row.
+	 *
+	 * @since 4.0
+	 */
+	public static final int DEFAULT_PERSON_CARDS_PER_ROW = 5;
+
+	/** Default number of rows in a person card grid.
+	 *
+	 * @since 4.0
+	 */
+	public static final int DEFAULT_ROWS_IN_PERSON_CARD_GRID = 4;
+
+	/** Default size of a photo when it is used in a grid of person cards.
+	 *
+	 * @since 4.0
+	 */
+	public static final int PHOTO_SIZE_IN_PERSON_CARD_GRID = 256;
+
 	/** Default name fo the backend view theme.
+	 *
+	 * @since 4.0
 	 */
 	public static final String DEFAULT_BACKEND_THEME = "labmanager"; //$NON-NLS-1$
 

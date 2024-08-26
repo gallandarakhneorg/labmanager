@@ -25,6 +25,7 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.views.StandardScientificAxisListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -53,12 +54,14 @@ public class ScientificAxesListView extends StandardScientificAxisListView imple
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param axisService the service for accessing the scientific axes.
+	 * @param axisEditorFactory the factory for creating the scientific axis editors.
 	 */
 	public ScientificAxesListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
-			@Autowired ScientificAxisService axisService) {
-		super(authenticatedUser, messages, axisService, LOGGER);
+			@Autowired ScientificAxisService axisService,
+			@Autowired ScientificAxisEditorFactory axisEditorFactory) {
+		super(authenticatedUser, messages, axisService, axisEditorFactory, LOGGER);
 	}
 
 	@Override

@@ -19,6 +19,10 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizations.views;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -37,7 +41,6 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -46,6 +49,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.AbstractOrganizationEditor;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -56,10 +60,6 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /** List all the organizations.
  * 
@@ -76,8 +76,6 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	private final OrganizationDataProvider dataProvider;
 
 	private final ResearchOrganizationService organizationService;
-
-	private final OrganizationAddressService addressService;
 
 	private Column<ResearchOrganization> nameColumn;
 
@@ -101,7 +99,6 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param organizationService the service for accessing the organizations.
-	 * @param addressService the service for accessing the organization addresses.
 	 * @param organizationEditorFactory the factory to be used for creating the organization editors.
 	 * @param logger the logger to use.
 	 * @sin e4.0
@@ -110,7 +107,6 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService,
 			OrganizationEditorFactory organizationEditorFactory,
 			Logger logger) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger,
@@ -122,7 +118,6 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 		this.organizationEditorFactory = organizationEditorFactory;
 		this.fileManager = fileManager;
 		this.organizationService = organizationService;
-		this.addressService = addressService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllResearchOrganizations(query, filters,
 				it -> {
 					Hibernate.initialize(it.getSubOrganizations());
@@ -250,19 +245,9 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	protected void openOrganizationEditor(ResearchOrganization organization, String title, boolean isCreation) {
 		final AbstractEntityEditor<ResearchOrganization> editor;
 		if (isCreation) {
-			editor = this.organizationEditorFactory.createAdditionEditor(
-					this.organizationService.startEditing(organization),
-					this.fileManager,
-					getAuthenticatedUser(), getMessageSourceAccessor(),
-					this.organizationService,
-					this.addressService);
+			editor = this.organizationEditorFactory.createAdditionEditor(organization);
 		} else {
-			editor = this.organizationEditorFactory.createUpdateEditor(
-					this.organizationService.startEditing(organization),
-					this.fileManager,
-					getAuthenticatedUser(), getMessageSourceAccessor(),
-					this.organizationService,
-					this.addressService);
+			editor = this.organizationEditorFactory.createUpdateEditor(organization);
 		}
 		openOrganizationEditor(editor, title);
 	}

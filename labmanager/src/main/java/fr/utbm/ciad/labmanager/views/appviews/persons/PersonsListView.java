@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
 import com.vaadin.flow.component.contextmenu.MenuItem;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -48,6 +47,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 /** List all the persons.
  * 
  * @author $Author: sgalland$
+ * @author $Author: callaire$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
@@ -60,10 +60,9 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	private static final long serialVersionUID = 1616874715478139507L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsListView.class);
-	private final PersonService personService;
 
 	private MenuItem updateRankingsButton;
-	private MenuItem editNew;
+
 	private MenuItem switchView;
 
 
@@ -91,7 +90,6 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
     	super(personService, userService, membershipService, organizationService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
     			personEditorFactory, authenticatedUser, messages, LOGGER);
-		this.personService = personService;
 	}
 
 	@Override
@@ -107,8 +105,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 			menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
 		}
 		this.updateRankingsButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openRankingsUpdateWizard());
-		this.editNew = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openEditWizard());
-		this.switchView = ComponentFactory.addIconItem(menu, LineAwesomeIcon.TH_LIST_SOLID, getTranslation("views.persons.switch_views"), null, it -> getUI().ifPresent(ui -> ui.navigate(PersonsCardView.class)));
+		this.switchView = ComponentFactory.addIconItem(menu, LineAwesomeIcon.ID_CARD_SOLID, getTranslation("views.persons.switch_to_card_view"), null, it -> getUI().ifPresent(ui -> ui.navigate(PersonsCardView.class))); //$NON-NLS-1$
 		return menu;
 	}
 
@@ -124,18 +121,14 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 		}
 	}
 
-	protected void openEditWizard() {
-		Dialog dialog = new Dialog();
-
-		dialog.setSizeFull();
-		dialog.open();
-	}
-
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 		if (this.updateRankingsButton != null) {
 			ComponentFactory.setIconItemText(this.updateRankingsButton, getTranslation("views.persons.updateRankings")); //$NON-NLS-1$
+		}
+		if (this.switchView != null) {
+			ComponentFactory.setIconItemText(this.switchView, getTranslation("views.persons.switch_to_card_view")); //$NON-NLS-1$
 		}
 	}
 

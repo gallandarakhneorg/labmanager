@@ -31,20 +31,12 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractMultiEntityNameField;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.projects.editors.EmbeddedProjectEditor;
+import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
 import org.slf4j.Logger;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
 
 /** Implementation of a field for entering the names of projects, with auto-completion from the person JPA entities.
@@ -112,33 +104,19 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 	/** Constructor.
 	 *
 	 * @param projectService the service for accessing the project JPA entities.
-	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param addressService the service for accessing the address JPA entities.
-	 * @param personService the service for accessing the person JPA entities.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the user JPA entities.
+	 * @param projectEditorFactory the factory for creating the project editors.
 	 * @param authenticatedUser the user that is currently authenticated.
-	 * @param axisService the service for accessing the scientific axis JPA entities.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
 	 * @param creationTitle the title of the dialog box for creating the project.
-	 * @param messages the accessor to the localized messages.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 * @param initializer the initializer of the loaded projects. It may be {@code null}.
 	 * @since 4.0
 	 */
-	public MultiProjectNameField(ProjectService projectService,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, AuthenticatedUser authenticatedUser,
-			ScientificAxisService axisService, OrganizationEditorFactory organizationEditorFactory, String creationTitle,
-			MessageSourceAccessor messages, Logger logger, Consumer<Project> initializer) {
+	public MultiProjectNameField(ProjectService projectService, ProjectEditorFactory projectEditorFactory,
+			AuthenticatedUser authenticatedUser, String creationTitle,
+			Logger logger, Consumer<Project> initializer) {
 		this(projectService,
 				(newProject, saver) -> {
-					final var projectContext = projectService.startEditing(newProject);
-					final var editor = new EmbeddedProjectEditor(
-							projectContext, organizationService, addressService,
-							personService, personEditorFactory, userService, axisService,
-							organizationEditorFactory, projectService.getFileManager(),
-							authenticatedUser, messages);
+					final var editor = projectEditorFactory.createAdditionEditor(newProject);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);
@@ -160,26 +138,15 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 	/** Constructor.
 	 *
 	 * @param projectService the service for accessing the project JPA entities.
-	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param addressService the service for accessing the address JPA entities.
-	 * @param personService the service for accessing the person JPA entities.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the user JPA entities.
+	 * @param projectEditorFactory the factory for creating the project editors.
 	 * @param authenticatedUser the user that is currently authenticated.
-	 * @param axisService the service for accessing the scientific axis JPA entities.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
 	 * @param creationTitle the title of the dialog box for creating the project.
-	 * @param messages the accessor to the localized messages.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 * @since 4.0
 	 */
-	public MultiProjectNameField(ProjectService projectService,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, AuthenticatedUser authenticatedUser,
-			ScientificAxisService axisService, OrganizationEditorFactory organizationEditorFactory, String creationTitle,
-			MessageSourceAccessor messages, Logger logger) {
-		this(projectService, organizationService, addressService, personService, personEditorFactory, userService,
-				authenticatedUser, axisService, organizationEditorFactory, creationTitle, messages, logger, null);
+	public MultiProjectNameField(ProjectService projectService, ProjectEditorFactory projectEditorFactory,
+			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger) {
+		this(projectService, projectEditorFactory, authenticatedUser, creationTitle, logger, null);
 	}
 
 	private static SerializableFunction<Project, Component> createProjectRender(FileManager fileManager) {

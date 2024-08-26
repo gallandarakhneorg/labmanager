@@ -19,6 +19,11 @@
 
 package fr.utbm.ciad.labmanager.views.components.invitations.views;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -39,13 +44,12 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.invitations.editors.EmbeddedOutgoingInvitationEditor;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.invitations.editors.InvitationEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -55,11 +59,6 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /** List all the outgoing invitations.
  * 
@@ -77,11 +76,7 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 
 	private PersonInvitationService invitationService;
 
-	private final PersonEditorFactory personEditorFactory;
-
-	private final PersonService personService;
-
-	private final UserService userService;
+	private InvitationEditorFactory invitationEditorFactory;
 
 	private Column<PersonInvitation> inviterColumn;
 
@@ -98,24 +93,19 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param invitationService the service for accessing the outgoing invitations.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
+	 * @param invitationEditorFactory the factory for creating the invitation editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardOutgoingInvitationListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PersonInvitationService invitationService, PersonService personService,
-			PersonEditorFactory personEditorFactory, UserService userService, Logger logger) {
+			PersonInvitationService invitationService, InvitationEditorFactory invitationEditorFactory, Logger logger) {
 		super(PersonInvitation.class, authenticatedUser, messages, logger,
 				"views.outgoing_invitation.delete.title", //$NON-NLS-1$
 				"views.outgoing_invitation.delete.message", //$NON-NLS-1$
 				"views.outgoing_invitation.delete_success", //$NON-NLS-1$
 				"views.outgoing_invitation.delete_error"); //$NON-NLS-1$
 		this.invitationService = invitationService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
+		this.invitationEditorFactory = invitationEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllOutgoingInvitations(query, filters, this::initializeEntityFromJPA);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -232,24 +222,27 @@ public class StandardOutgoingInvitationListView extends AbstractEntityListView<P
 
 	@Override
 	protected void addEntity() {
-		openInvitationEditor(new PersonInvitation(), getTranslation("views.outgoing_invitation.add_invitation")); //$NON-NLS-1$
+		openInvitationEditor(new PersonInvitation(), getTranslation("views.outgoing_invitation.add_invitation"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(PersonInvitation invitation) {
-		openInvitationEditor(invitation, getTranslation("views.outgoing_invitation.edit_invitation", invitation.getTitle())); //$NON-NLS-1$
+		openInvitationEditor(invitation, getTranslation("views.outgoing_invitation.edit_invitation", invitation.getTitle()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a outgoing invitation.
 	 *
 	 * @param invitation the outgoing invitation to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openInvitationEditor(PersonInvitation invitation, String title) {
-		final var editor = new EmbeddedOutgoingInvitationEditor(
-				this.invitationService.startEditing(invitation),
-				this.personService, this.personEditorFactory, this.userService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openInvitationEditor(PersonInvitation invitation, String title, boolean isCreation) {
+		final AbstractEntityEditor<PersonInvitation> editor;
+		if (isCreation) {
+			editor = this.invitationEditorFactory.createOutgoingInvitationAdditionEditor(invitation);
+		} else {
+			editor = this.invitationEditorFactory.createOutgoingInvitationUpdateEditor(invitation);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, PersonInvitation> refreshAll = (dialog, entity) -> {
 			// The person should be loaded because it was not loaded before

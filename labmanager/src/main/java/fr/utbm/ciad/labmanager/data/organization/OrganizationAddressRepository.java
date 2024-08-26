@@ -40,7 +40,9 @@ public interface OrganizationAddressRepository extends JpaRepository<Organizatio
 	 *
 	 * @param name the symbolic name to search for.
 	 * @return the result of the search.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<OrganizationAddress> findDistinctByName(String name);
 
 	
@@ -48,7 +50,9 @@ public interface OrganizationAddressRepository extends JpaRepository<Organizatio
 	 *
 	 * @param addresses the identifiers to match.
 	 * @return the list of addresses with the given identifiers.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Set<OrganizationAddress> findAllByIdIn(List<Long> addresses);
 
 }

@@ -38,7 +38,9 @@ public interface SupervisionRepository extends JpaRepository<Supervision, Long>,
 	 *
 	 * @param supervisedPersonId the identifier of the supervised person.
 	 * @return the list of the supervisions for the supervised person.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Supervision> findAllBySupervisedPersonPersonId(Long supervisedPersonId);
 
 	/** Replies all the supervisions associated to the membership with the given identifier.
@@ -53,14 +55,18 @@ public interface SupervisionRepository extends JpaRepository<Supervision, Long>,
 	 *
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervisor.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Supervision> findAllDisctinctBySupervisorsSupervisorId(Long supervisorId);
 
 	/** Count the number of supervisions for the supervisor with the given id.
 	 *
 	 * @param id the identifier of the supervisor.
 	 * @return the count of supervisions.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	int countDistinctBySupervisedPersonPersonId(long id);
 
 }

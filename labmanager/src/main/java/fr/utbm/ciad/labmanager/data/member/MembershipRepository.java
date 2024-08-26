@@ -45,7 +45,9 @@ public interface MembershipRepository extends JpaRepository<Membership, Long>, J
 	 * @param researchoOrganizationId the identifier of the organization.
 	 * @param personId the identifier of the member.
 	 * @return the membership.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<Membership> findDistinctByResearchOrganizationIdAndPersonId(long researchoOrganizationId, long personId);
 
 	/** Find the memberships by their organization and member identifiers.
@@ -67,7 +69,9 @@ public interface MembershipRepository extends JpaRepository<Membership, Long>, J
 	 *
 	 * @param id the identifier of the person.
 	 * @return the count of memberships.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	int countDistinctByPersonId(long id);
 
 	/** Replies the list of memberships for the given research organization.
@@ -75,7 +79,9 @@ public interface MembershipRepository extends JpaRepository<Membership, Long>, J
 	 * @param organizationId the identifier of the organization.
 	 * @return the list of memberships.
 	 * @since 3.2
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<Membership> findDistinctByResearchOrganizationId(long organizationId);
 
 	/** Replies the persons that have memberships fitting the given filter.

@@ -39,7 +39,9 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Lo
 	 * @param id the identifier of the person.
 	 * @return the list of the project members.
 	 * @since 3.2
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<ProjectMember> findDistinctByPersonId(long id);
 
 }

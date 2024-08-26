@@ -53,7 +53,9 @@ public interface AssociatedStructureRepository extends JpaRepository<AssociatedS
 	 * @param confidential indicates the expected confidentiality flag for the associated structures.
 	 * @param id the identifier for the person.
 	 * @return the list of associated structures.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Query("SELECT DISTINCT s FROM AssociatedStructure s, AssociatedStructureHolder h WHERE h.person.id = :id AND h MEMBER OF s.holders AND s.confidential = :confidential")
 	List<AssociatedStructure> findDistinctPersonAssociatedStructures(
 			@Param("confidential") Boolean confidential, @Param("id") Long id);

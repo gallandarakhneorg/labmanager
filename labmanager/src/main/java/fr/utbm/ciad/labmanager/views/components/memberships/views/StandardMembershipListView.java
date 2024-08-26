@@ -19,6 +19,13 @@
 
 package fr.utbm.ciad.labmanager.views.components.memberships.views;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -47,18 +54,15 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractDefaultOrganizationDataFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
-import fr.utbm.ciad.labmanager.views.components.memberships.editors.EmbeddedMembershipEditor;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.memberships.editors.MembershipEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -67,13 +71,6 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /** List all the organization memberships.
  *
@@ -89,19 +86,9 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	private final MembershipService membershipService;
 
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
+	private final MembershipEditorFactory membershipEditorFactory;
 
 	private final ResearchOrganizationService organizationService;
-
-	private final OrganizationAddressService addressService;
-
-	private final ScientificAxisService axisService;
-
-	private final OrganizationEditorFactory organizationEditorFactory;
 
 	private MenuItem extendsContractButton;
 
@@ -116,21 +103,14 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param membershipService the service for accessing the memberships.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
+	 * @param membershipEditorFactory the factory for creating the person membership editors.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
-	 * @param addressService the service for accessing the JPA entities for organization addresses.
-	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param logger the logger to use.
 	 */
 	public StandardMembershipListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			MembershipService membershipService, PersonService personService,
-			PersonEditorFactory personEditorFactory, UserService userService, ResearchOrganizationService organizationService,
-			OrganizationEditorFactory organizationEditorFactory,
-			OrganizationAddressService addressService, ScientificAxisService axisService,
+			MembershipService membershipService, MembershipEditorFactory membershipEditorFactory,
+			ResearchOrganizationService organizationService,
 			Logger logger) {
 		super(Person.class, Membership.class, authenticatedUser, messages, logger,
 				"views.memberships.delete.title", //$NON-NLS-1$
@@ -138,13 +118,8 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 				"views.membership.delete_success", //$NON-NLS-1$
 				"views.membership.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
+		this.membershipEditorFactory = membershipEditorFactory;
 		this.organizationService = organizationService;
-		this.addressService = addressService;
-		this.axisService = axisService;
-		this.organizationEditorFactory = organizationEditorFactory;
 		setHoverMenu(isAdminRole());
 		setRootEntityFetcher(
 				(parentId, pageRequest, filters) -> {
@@ -430,28 +405,27 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	@Override
 	protected void addEntity() {
-		openMembershipEditor(new Membership(), getTranslation("views.membership.add_membership")); //$NON-NLS-1$
+		openMembershipEditor(new Membership(), getTranslation("views.membership.add_membership"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void editChildEntity(Membership membership) {
-		openMembershipEditor(membership, getTranslation("views.membership.edit_membership", membership.getPerson().getFullName())); //$NON-NLS-1$
+		openMembershipEditor(membership, getTranslation("views.membership.edit_membership", membership.getPerson().getFullName()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a membership.
 	 *
 	 * @param membership the membership to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openMembershipEditor(Membership membership, String title) {
-		final var editor = new EmbeddedMembershipEditor(
-				this.membershipService.startEditing(membership),
-				membership.getPerson() == null,
-				this.personService, this.personEditorFactory, this.userService,
-				this.organizationService, this.organizationEditorFactory,
-				this.addressService,
-				this.axisService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openMembershipEditor(Membership membership, String title, boolean isCreation) {
+		final AbstractEntityEditor<Membership> editor;
+		if (isCreation) {
+			editor = this.membershipEditorFactory.createAdditionEditor(membership, membership.getPerson() == null);
+		} else {
+			editor = this.membershipEditorFactory.createUpdateEditor(membership, membership.getPerson() == null);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Membership> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, Membership> refreshOne = (dialog, entity) -> refreshItem(TreeListEntity.child(entity));

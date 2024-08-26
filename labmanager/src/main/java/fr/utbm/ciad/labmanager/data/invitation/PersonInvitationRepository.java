@@ -39,23 +39,9 @@ public interface PersonInvitationRepository extends JpaRepository<PersonInvitati
 	 * @param guestId the identifier of the guest.
 	 * @param inviterId the identifier of the inviter.
 	 * @return the invitations for the person.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<PersonInvitation> findAllByGuestIdOrInviterId(long guestId, long inviterId);
-
-	/** Count the number of persons in the invitations whatever if he/she is invitee or inviter.
-	 *
-	 * @param guestId the identifier of the guest.
-	 * @param inviterId the identifier of the inviter.
-	 * @return the count of invitations
-	 */
-	int countDistinctByGuestIdOrInviterId(long guestId, long inviterId);
-
-	/** Replies the outgoing of the given type.
-	 *
-	 * @param type the invitation type to search for.
-	 * @return the list of invitations.
-	 * @since 4.0
-	 */
-	List<PersonInvitation> findAllDistinctByType(PersonInvitationType type);
 
 }

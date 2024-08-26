@@ -19,6 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects.fields;
 
+import java.util.HashSet;
+import java.util.List;
+
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
@@ -28,17 +31,11 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.Role;
-import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListGridField;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.SinglePersonNameField;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.HashSet;
-import java.util.List;
 
 /** Implementation of a Vaadin component for input a list of project members using values in a grid row.
  *
@@ -52,13 +49,7 @@ public class ProjectMemberListGridField extends AbstractEntityListGridField<Proj
 	
 	private static final long serialVersionUID = 806904868753372410L;
 
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
-	
-	private final AuthenticatedUser authenticatedUser;
+	private final PersonFieldFactory personFieldFactory;
 
 	private final Logger logger;
 	
@@ -68,21 +59,14 @@ public class ProjectMemberListGridField extends AbstractEntityListGridField<Proj
 
 	/** Constructor.
 	 *
-	 * @param personService the service for accessing the person entities from the JPA database.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the user entities from the JPA database.
-	 * @param authenticatedUser the connected user.
+	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param messages accessor to the localized messages.
 	 * @param logger the logger to be used by the component.
 	 */
-	public ProjectMemberListGridField(PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
+	public ProjectMemberListGridField(PersonFieldFactory personFieldFactory, MessageSourceAccessor messages, Logger logger) {
 		super(messages,
 				"views.projects.members.edit"); //$NON-NLS-1$
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
-		this.authenticatedUser = authenticatedUser;
+		this.personFieldFactory = personFieldFactory;
 		this.logger = logger;
 	}
 
@@ -110,7 +94,7 @@ public class ProjectMemberListGridField extends AbstractEntityListGridField<Proj
 	}
 
 	private SinglePersonNameField createPersonEditor(ProjectMember member) {
-		final var field = new SinglePersonNameField(this.personService, this.personEditorFactory, this.userService, this.authenticatedUser,
+		final var field = this.personFieldFactory.createSingleNameField(
 				getTranslation("views.projects.members.create"), //$NON-NLS-1$
 				this.logger);
 		final var binder = getGridEditor().getBinder();

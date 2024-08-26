@@ -1,209 +1,68 @@
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
-import com.vaadin.flow.component.HasComponents;
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.OrderedList;
-import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.function.SerializableBiConsumer;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
-import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.wizard.EmbeddedPersonEditorWizard;
-import fr.utbm.ciad.labmanager.views.components.persons.views.PaginationComponent;
-import fr.utbm.ciad.labmanager.views.components.persons.views.PersonCardView;
-import fr.utbm.ciad.labmanager.views.components.persons.views.SearchComponent;
+import fr.utbm.ciad.labmanager.views.components.persons.views.AbstractPersonCardView;
+import fr.utbm.ciad.labmanager.views.components.persons.views.StandardPersonCardGridItemFactory;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
+/** View for showing person's information in a virtual card that could be included in a grid of cards.
+ *  
+ * @author $Author: callaire$
+ * @author $Author: sgalland$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 4.0
+ */
 @Route(value = "persons_cards", layout = MainLayout.class)
 @RolesAllowed({UserRole.RESPONSIBLE_GRANT, UserRole.ADMIN_GRANT})
-public class PersonsCardView extends VerticalLayout implements HasDynamicTitle, HasComponents, HasStyle {
-    private static final long serialVersionUID = 1616874715478139507L;
-    private static final int cardsPerRow = 4;
-    private static final int numberOfRows = 4;
-    private final OrderedList imageContainer;
-    private final PersonService personService;
-    private final PersonEditorFactory personEditorFactory;
-    private final UserService userService;
-    private final AuthenticatedUser authenticatedUser;
-    private final ResearchOrganizationService organizationService;
-    private final MessageSourceAccessor messages;
-    private final MembershipService membershipService;
-    private final ChronoMembershipComparator chronoMembershipComparator;
-    private String searchQuery = "";
-    private String filterQuery = "";
-    private Boolean restrictToOrganization;
-    private String organization;
-    private long numberOfPages;
-    private final PaginationComponent paginationComponent;
+public class PersonsCardView extends AbstractPersonCardView implements HasDynamicTitle {
 
+	private static final long serialVersionUID = -5194134794074230569L;
 
-    public PersonsCardView(@Autowired PersonService personService, @Autowired PersonEditorFactory personEditorFactory, @Autowired UserService userService, @Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages, @Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator chronoMembershipComparator, @Autowired ResearchOrganizationService organizationService) {
-        this.personService = personService;
-        this.personEditorFactory = personEditorFactory;
-        this.userService = userService;
-        this.authenticatedUser = authenticatedUser;
-        this.organizationService = organizationService;
-        this.messages = messages;
-        this.membershipService = membershipService;
-        this.chronoMembershipComparator = chronoMembershipComparator;
-        this.organization = organizationService.getDefaultOrganization().getAcronym();
+	/** Constructor.
+	 *
+	 * @param cardsPerRow the number of cards in a row in the grid. It must be greater or equal to 1.
+	 * @param numberOfRows the number of rows to show in the cards' viewer. It must be greater or equal to 1.
+	 * @param initialPageIndex the index of the card page to show up at startup. It must be greater or equal to zero.
+	 * @param organizationService the service for accessing the JPA entities of the research organizations.
+	 * @param personService the service for accessing the JPA entities of the persons.
+	 * @param personEditorFactory the factory for creating the person editors.
+	 * @param cardFactory the factory for creating the person cards.
+	 * @param authenticatedUser the user who is connected to the application.
+	 */
+	public PersonsCardView(
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
+			@Autowired StandardPersonCardGridItemFactory cardFactory,
+			@Autowired AuthenticatedUser authenticatedUser) {
+		super(
+				ViewConstants.DEFAULT_PERSON_CARDS_PER_ROW,
+				ViewConstants.DEFAULT_ROWS_IN_PERSON_CARD_GRID,
+				0,
+				organizationService, personService, personEditorFactory,
+				cardFactory, authenticatedUser);
+	}
 
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        getStyle().set("padding-left", "75px");
-        getStyle().set("padding-right", "75px");
+	@Override
+	public String getPageTitle() {
+		return getTranslation("views.persons.list_title.all"); //$NON-NLS-1$
+	}
 
-        HorizontalLayout container = new HorizontalLayout();
-        container.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.JustifyContent.BETWEEN);
+	@Override
+	protected Class<? extends Component> getListViewType() {
+		return PersonsListView.class;
+	}
 
-        SearchComponent searchComponent = new SearchComponent(new String[]{getTranslation("views.filters.include_names"), getTranslation("views.filters.include_orcids"), getTranslation("views.filters.include_organizations")}, organizationService::getDefaultOrganization, this.organizationService::getFileManager);
-        this.restrictToOrganization = searchComponent.getRestrictToOrganizationValue();
-
-        MenuBar menu = createMenuBar();
-        if (menu != null) {
-            container.add(menu);
-        }
-
-        imageContainer = new OrderedList();
-        imageContainer.setWidthFull();
-        imageContainer.addClassNames(LumoUtility.Gap.MEDIUM, LumoUtility.Display.GRID, LumoUtility.ListStyleType.NONE, LumoUtility.Margin.NONE, LumoUtility.Padding.NONE);
-        String gridTemplateColumns = "repeat(" + cardsPerRow + ", 1fr)";
-        imageContainer.getStyle().set("grid-template-columns", gridTemplateColumns);
-
-        add(searchComponent);
-        add(container, imageContainer);
-        this.numberOfPages = personService.countAllPersons() / cardsPerRow * numberOfRows;
-        paginationComponent = new PaginationComponent(numberOfPages);
-        add(paginationComponent);
-        fetchCards(0);
-
-        // Add a listener to the PaginationComponent
-        paginationComponent.addPageChangeListener(event -> {
-            int newPageNumber = event.getPageNumber();
-            fetchCards(newPageNumber);
-            paginationComponent.setCurrentPage(newPageNumber);
-        });
-
-        // Add a listener to the searchComponent
-        searchComponent.addSearchComponentListener(event -> {
-            searchQuery = searchComponent.getSearchValue();
-            filterQuery = searchComponent.getFilterValue();
-            restrictToOrganization = searchComponent.getRestrictToOrganizationValue();
-            fetchCards(0);
-            paginationComponent.setCurrentPage(0);
-        });
-    }
-
-    private void fetchCards(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, cardsPerRow * numberOfRows, Sort.by("lastName").and(Sort.by("firstName")));
-        Page<Person> persons;
-        if (filterQuery.equals(getTranslation("views.filters.include_names"))) {
-            if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByNameAndOrganizationAcronym(searchQuery, organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByNameAndOrganizationAcronym(searchQuery, organization, pageable);
-            } else {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByName(searchQuery) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByName(searchQuery, pageable);
-            }
-        } else if (filterQuery.equals(getTranslation("views.filters.include_orcids"))) {
-            if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcidAndOrganizationAcronym(searchQuery, organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrcidAndOrganizationAcronym(searchQuery, organization, pageable);
-            } else {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrcid(searchQuery) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrcid(searchQuery, pageable);
-            }
-        } else if (filterQuery.equals(getTranslation("views.filters.include_organizations"))) {
-            if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganizationAcronyms(searchQuery, organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrganizationAcronyms(searchQuery, organization, pageable);
-            } else {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganizationAcronym(searchQuery) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrganizationAcronym(searchQuery, pageable);
-            }
-        } else {
-            if (restrictToOrganization) {
-                numberOfPages = (long) Math.ceil((double) personService.countPersonsByOrganizationAcronym(organization) / (cardsPerRow * numberOfRows));
-                persons = personService.getPersonsByOrganizationAcronym(organization, pageable);
-            } else {
-                numberOfPages = (long) Math.ceil((double) personService.countAllPersons() / (cardsPerRow * numberOfRows));
-                persons = personService.getAllPersons(pageable);
-            }
-        }
-        imageContainer.removeAll();
-        for (Person person : persons) {
-            imageContainer.add(new PersonCardView(person, personService, this.personEditorFactory, userService, authenticatedUser, messages, membershipService, chronoMembershipComparator));
-        }
-        paginationComponent.setTotalPages(numberOfPages);
-        UI.getCurrent().getPage().executeJs("window.scrollTo(0, 0);");
-    }
-
-    private MenuBar createMenuBar() {
-        final var menu = new MenuBar();
-        menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
-        if (isAdminRole()) {
-            ComponentFactory.addIconItem(menu, LineAwesomeIcon.PLUS_SOLID, getTranslation("views.persons.add_person"), null, it -> addEntity());
-        }
-        ComponentFactory.addIconItem(menu, LineAwesomeIcon.TH_LIST_SOLID, getTranslation("views.persons.switch_views"), null, it -> getUI().ifPresent(ui -> ui.navigate(PersonsListView.class)));
-        return menu;
-    }
-
-    private void addEntity() {
-        openPersonWizardEditor(new Person(), getTranslation("views.persons.add_person"));
-    }
-
-    /**
-     * Show the wizard editor of a person.
-     *
-     * @param person the person to edit.
-     * @param title  the title of the editor.
-     */
-    protected void openPersonWizardEditor(Person person, String title) {
-        final var personContext = this.personService.startEditing(person);
-        final var user = this.userService.getUserFor(person);
-        final var userContext = this.userService.startEditing(user, personContext);
-        final var editor = this.personEditorFactory.createAdditionEditor(userContext, this.personService, authenticatedUser, messages);
-        final var newEntity = editor.isNewEntity();
-        final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshPage();
-        ComponentFactory.openEditionModalDialog(title, editor, true,
-                // Refresh the "old" item, even if its has been changed in the JPA database
-                newEntity ? refreshAll : null,
-                newEntity ? null : refreshAll);
-    }
-
-    private void refreshPage() {
-        UI.getCurrent().getPage().reload();
-    }
-
-    protected boolean isAdminRole() {
-        return this.authenticatedUser != null && this.authenticatedUser.get().isPresent()
-                && this.authenticatedUser.get().get().getRole().hasBaseAdministrationRights();
-    }
-
-    @Override
-    public String getPageTitle() {
-        return getTranslation("views.persons.list_title.all"); //$NON-NLS-1$
-    }
 }

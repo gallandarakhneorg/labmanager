@@ -20,13 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.organizations.editors;
 
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
-import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Factory that is providing an organization editor according to the editing context.
  * 
@@ -38,36 +33,45 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public interface OrganizationEditorFactory {
 
+	/** Replies the editing context for the given organization.
+	 *
+	 * @param organization the organization to be edited.
+	 * @return the editing context.
+	 */
+	EntityEditingContext<ResearchOrganization> createContextFor(ResearchOrganization organization);
+
 	/** Create an editor that may be used for creating a new organization.
 	 * 
 	 * @param context the context for editing the entity.
-	 * @param fileManager the manager of files at the server-side.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param organizationService the service for accessing the organizations.
-	 * @param addressService the service for accessing the organization addresses.
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<ResearchOrganization> createAdditionEditor(EntityEditingContext<ResearchOrganization> context,
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService);
+	AbstractEntityEditor<ResearchOrganization> createAdditionEditor(EntityEditingContext<ResearchOrganization> context);
+
+	/** Create an editor that may be used for creating a new organization.
+	 * 
+	 * @param organization the organization to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<ResearchOrganization> createAdditionEditor(ResearchOrganization organization) {
+		final var context = createContextFor(organization);
+		return createAdditionEditor(context);
+	}
 
 	/** Create an editor that may be used for updating an existing organization.
 	 * 
 	 * @param context the context for editing the entity.
-	 * @param fileManager the manager of files at the server-side.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param organizationService the service for accessing the organizations.
-	 * @param addressService the service for accessing the organization addresses.
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<ResearchOrganization> createUpdateEditor(EntityEditingContext<ResearchOrganization> context,
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService);
+	AbstractEntityEditor<ResearchOrganization> createUpdateEditor(EntityEditingContext<ResearchOrganization> context);
+
+	/** Create an editor that may be used for updating an existing organization.
+	 * 
+	 * @param organization the organization to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<ResearchOrganization> createUpdateEditor(ResearchOrganization organization) {
+		final var context = createContextFor(organization);
+		return createUpdateEditor(context);
+	}
 
 }

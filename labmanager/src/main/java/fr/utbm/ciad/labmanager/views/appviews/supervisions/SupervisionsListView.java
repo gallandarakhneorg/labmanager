@@ -23,16 +23,9 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.MembershipService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.supervisions.editors.SupervisionEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.views.StandardSupervisionListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -61,29 +54,14 @@ public class SupervisionsListView extends StandardSupervisionListView implements
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param supervisionService the service for accessing the supervisions.
-	 * @param membershipService the service for accessing the membership JPA entities.
-	 * @param personService the service for accessing the person JPA entities.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the connected user JPA entities.
-	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param organizationEditorFactory the factory for creating organization editors.
-	 * @param addressService the service for accessing the organization address JPA entities.
-	 * @param axisService the service for accessing the scientific axis JPA entities.
+	 * @param supervisionEditorFactory the factory for creating the person supervision editors.
 	 */
 	public SupervisionsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired SupervisionService supervisionService,
-			@Autowired MembershipService membershipService,
-			@Autowired PersonService personService,
-			@Autowired PersonEditorFactory personEditorFactory,
-			@Autowired UserService userService,
-			@Autowired ResearchOrganizationService organizationService,
-			@Autowired OrganizationAddressService addressService,
-			@Autowired OrganizationEditorFactory organizationEditorFactory,
-			@Autowired ScientificAxisService axisService) {
-		super(authenticatedUser, messages, supervisionService, membershipService, personService, personEditorFactory, userService,
-				organizationService, organizationEditorFactory, addressService, axisService, LOGGER);
+			@Autowired SupervisionEditorFactory supervisionEditorFactory) {
+		super(authenticatedUser, messages, supervisionService, supervisionEditorFactory, LOGGER);
 	}
 
 	@Override

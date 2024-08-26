@@ -19,6 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects.views;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
@@ -35,9 +38,6 @@ import fr.utbm.ciad.labmanager.views.components.publications.editors.Publication
 import fr.utbm.ciad.labmanager.views.components.publications.views.AbstractPublicationListView;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 /** List all the reports and expertises.
  * Reports and expertises:

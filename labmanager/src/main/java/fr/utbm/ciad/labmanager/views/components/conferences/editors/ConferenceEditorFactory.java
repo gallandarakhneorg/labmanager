@@ -20,11 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.conferences.editors;
 
 import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
-import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Factory that is providing a conference editor according to the editing context.
  * 
@@ -36,26 +33,45 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public interface ConferenceEditorFactory {
 
+	/** Replies the editing context for the given conference.
+	 *
+	 * @param conference the conference to be edited.
+	 * @return the editing context.
+	 */
+	EntityEditingContext<Conference> createContextFor(Conference conference);
+
 	/** Create an editor that may be used for creating a new conference.
 	 * 
 	 * @param context the editing context for the conference.
-	 * @param conferenceService the service for accessing to the conference entities.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<Conference> createAdditionEditor(EntityEditingContext<Conference> context, ConferenceService conferenceService,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages);
+	AbstractEntityEditor<Conference> createAdditionEditor(EntityEditingContext<Conference> context);
+
+	/** Create an editor that may be used for creating a new conference.
+	 * 
+	 * @param conference the conference to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<Conference> createAdditionEditor(Conference conference) {
+		final var context = createContextFor(conference);
+		return createAdditionEditor(context);
+	}
 
 	/** Create an editor that may be used for updating an existing conference.
 	 * 
 	 * @param context the editing context for the conference.
-	 * @param conferenceService the service for accessing to the conference entities.
-	 * @param authenticatedUser the connected user.
-	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<Conference> createUpdateEditor(EntityEditingContext<Conference> context, ConferenceService conferenceService,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages);
+	AbstractEntityEditor<Conference> createUpdateEditor(EntityEditingContext<Conference> context);
+
+	/** Create an editor that may be used for creating an exsiting conference.
+	 * 
+	 * @param conference the conference to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<Conference> createUpdateEditor(Conference conference) {
+		final var context = createContextFor(conference);
+		return createAdditionEditor(context);
+	}
 
 }

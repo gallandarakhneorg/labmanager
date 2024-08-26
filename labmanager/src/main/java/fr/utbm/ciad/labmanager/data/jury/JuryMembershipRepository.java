@@ -39,21 +39,27 @@ public interface JuryMembershipRepository extends JpaRepository<JuryMembership, 
 	 *
 	 * @param personId the identifier of the person.
 	 * @return the list of memberships.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<JuryMembership> findAllByPersonId(long personId);
 
 	/** Replies the list of memberships that are associated to the candidate with the given identifier.
 	 *
 	 * @param candidateId the identifier of the candidate.
 	 * @return the list of memberships.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<JuryMembership> findAllByCandidateId(long candidateId);
 
 	/** Replies the list of memberships that are associated to the promoter with the given identifier.
 	 *
 	 * @param promoterId the identifier of the promoter.
 	 * @return the list of memberships.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<JuryMembership> findAllByPromotersId(long promoterId);
 
 	/** Replies a membership that corresponds to the person, candidate and type.
@@ -62,14 +68,18 @@ public interface JuryMembershipRepository extends JpaRepository<JuryMembership, 
 	 * @param candidateId the identifier of the candidate.
 	 * @param type the type of membership.
 	 * @return the membership from the database.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<JuryMembership> findByPersonIdAndCandidateIdAndType(long personId, long candidateId, JuryMembershipType type);
 
 	/** Count the number of jury memberships for the participant with the given id.
 	 *
 	 * @param id the identifier of the participant.
 	 * @return the count of supervisions.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	int countDistinctByPersonId(long id);
 
 }

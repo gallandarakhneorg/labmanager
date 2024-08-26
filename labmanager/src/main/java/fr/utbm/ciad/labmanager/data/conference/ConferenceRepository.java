@@ -44,7 +44,9 @@ public interface ConferenceRepository extends JpaRepository<Conference, Long>, J
 	 *
 	 * @param conference the name or acronym.
 	 * @return the conference, or nothing.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	@Query("SELECT DISTINCT c FROM Conference c WHERE c.acronym = :name OR c.name = :name")
 	Optional<Conference> findByAcronymOrName(@Param("name") String conference);
 

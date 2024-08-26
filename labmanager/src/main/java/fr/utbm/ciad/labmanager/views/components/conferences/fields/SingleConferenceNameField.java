@@ -85,9 +85,7 @@ public class SingleConferenceNameField extends AbstractSingleEntityNameField<Con
 	public SingleConferenceNameField(ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, AuthenticatedUser authenticatedUser, String creationTitle, Logger logger) {
 		this(conferenceService,
 				(newConference, saver) -> {
-					final var conferenceContext = conferenceService.startEditing(newConference);
-					final var editor = conferenceEditorFactory.createAdditionEditor(
-							conferenceContext, conferenceService, authenticatedUser, conferenceService.getMessageSourceAccessor());
+					final var editor = conferenceEditorFactory.createAdditionEditor(newConference);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedConference) -> saver.accept(changedConference),
 							null);

@@ -26,17 +26,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
@@ -46,7 +43,6 @@ import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
@@ -54,18 +50,13 @@ import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.AbstractPersonEditor;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -201,14 +192,11 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	 * @param isCreation indicates if the editor must be opened for creating an entity or editing an entity.
 	 */
 	protected void openPersonEditor(Person person, String title, boolean isCreation) {
-		final var personContext = this.personService.startEditing(person);
-		final var user = this.userService.getUserFor(person);
-		final var userContext = this.userService.startEditing(user, personContext);
 		final AbstractEntityEditor<Person> editor;
 		if (isCreation) {
-			editor = this.personEditorFactory.createAdditionEditor(userContext, this.personService, getAuthenticatedUser(), getMessageSourceAccessor());
+			editor = this.personEditorFactory.createAdditionEditor(person);
 		} else {
-			editor = this.personEditorFactory.createUpdateEditor(userContext, this.personService, getAuthenticatedUser(), getMessageSourceAccessor());
+			editor = this.personEditorFactory.createUpdateEditor(person);
 		}
 		openPersonEditor(editor, title);
 	}
@@ -321,96 +309,6 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 		this.nameColumn.setHeader(getTranslation("views.name")); //$NON-NLS-1$
 		this.orcidColumn.setHeader(getTranslation("views.orcid")); //$NON-NLS-1$
 		this.organizationColumn.setHeader(getTranslation("views.organizations")); //$NON-NLS-1$
-	}
-
-	/** UI and JPA filters for {@link StandardPersonListView}.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 4.0
-	 */
-	protected static class PersonFilters extends AbstractDefaultOrganizationDataFilters<Person> {
-
-		private static final long serialVersionUID = -127264050870541315L;
-
-		private Checkbox includeNames;
-
-		private Checkbox includeOrcids;
-
-		private Checkbox includeOrganizations;
-
-		/** Constructor.
-		 *
-		 * @param defaultOrganizationSupplier the provider of the default organization.
-		 * @param fileManager the manager of files on the server.
-		 * @param onSearch the callback function for running the filtering.
-		 */
-		public PersonFilters(Supplier<ResearchOrganization> defaultOrganizationSupplier, Supplier<FileManager> fileManager, Runnable onSearch) {
-			super(defaultOrganizationSupplier, fileManager, onSearch);
-		}
-		
-		@Override
-		protected void buildOptionsComponent(HorizontalLayout options) {
-			this.includeNames = new Checkbox(true);
-			this.includeOrcids = new Checkbox(true);
-			this.includeOrganizations = new Checkbox(false);
-
-			options.add(this.includeNames, this.includeOrcids, this.includeOrganizations);
-		}
-		
-		@Override
-		protected void resetFilters() {
-			this.includeNames.setValue(Boolean.TRUE);
-			this.includeOrcids.setValue(Boolean.TRUE);
-			this.includeOrganizations.setValue(Boolean.TRUE);
-		}
-		
-		@Override
-		protected Predicate buildPredicateForDefaultOrganization(Root<Person> root, CriteriaQuery<?> query,
-				CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization) {
-			return criteriaBuilder.equal(root.get("memberships").get("researchOrganization"), defaultOrganization); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		@Override
-		protected void buildQueryFor(String keywords, List<Predicate> predicates, Root<Person> root,
-				CriteriaBuilder criteriaBuilder) {
-			if (this.includeNames.getValue() == Boolean.TRUE) {
-				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), keywords)); //$NON-NLS-1$
-				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), keywords)); //$NON-NLS-1$
-			}
-
-			if (this.includeOrcids.getValue() == Boolean.TRUE) {
-				predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("orcid")), keywords)); //$NON-NLS-1$
-			}
-			if (this.includeOrganizations.getValue() == Boolean.TRUE) {
-				final Predicate startPeriodPredicate = criteriaBuilder.or(
-						criteriaBuilder.isNull(root.get("memberships").get("memberSinceWhen")), //$NON-NLS-1$ //$NON-NLS-2$
-						criteriaBuilder.lessThanOrEqualTo(root.get("memberships").get("memberSinceWhen"), criteriaBuilder.localDate())); //$NON-NLS-1$ //$NON-NLS-2$
-
-				final Predicate endPeriodPredicate = criteriaBuilder.or(
-						criteriaBuilder.isNull(root.get("memberships").get("memberToWhen")), //$NON-NLS-1$ //$NON-NLS-2$
-						criteriaBuilder.greaterThanOrEqualTo(root.get("memberships").get("memberToWhen"), criteriaBuilder.localDate())); //$NON-NLS-1$ //$NON-NLS-2$
-
-				final Predicate textPredicate = criteriaBuilder.or(
-						criteriaBuilder.like(criteriaBuilder.lower(root.get("memberships").get("researchOrganization").get("acronym")), keywords), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						criteriaBuilder.like(criteriaBuilder.lower(root.get("memberships").get("researchOrganization").get("name")), keywords)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-				final Predicate gpredicate = criteriaBuilder.and(startPeriodPredicate, endPeriodPredicate, textPredicate);
-
-				predicates.add(gpredicate);
-			}
-		}
-
-		@Override
-		public void localeChange(LocaleChangeEvent event) {
-			super.localeChange(event);
-			this.includeNames.setLabel(getTranslation("views.filters.include_names")); //$NON-NLS-1$
-			this.includeOrcids.setLabel(getTranslation("views.filters.include_orcids")); //$NON-NLS-1$
-			this.includeOrganizations.setLabel(getTranslation("views.filters.include_organizations")); //$NON-NLS-1$
-		}
-
 	}
 
 	/** Provider of data for persons to be displayed in the list of persons view.

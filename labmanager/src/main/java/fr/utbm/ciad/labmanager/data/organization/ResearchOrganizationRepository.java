@@ -51,14 +51,18 @@ public interface ResearchOrganizationRepository extends JpaRepository<ResearchOr
 	 *
 	 * @param acronym the acronym to search for.
 	 * @return the research organization.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<ResearchOrganization> findDistinctByAcronym(String acronym);
 
 	/** Find a research organization with the given name. This function is case sensitive.
 	 *
 	 * @param name the name to search for.
 	 * @return the research organization.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<ResearchOrganization> findDistinctByName(String name);
 
 	/** Replies the super organizations of the given organization.

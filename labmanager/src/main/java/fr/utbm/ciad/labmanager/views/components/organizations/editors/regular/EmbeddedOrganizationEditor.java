@@ -25,6 +25,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,14 +56,17 @@ public final class EmbeddedOrganizationEditor extends AbstractOrganizationEditor
 	 * @param organizationService the service for accessing the organizations.
 	 * @param addressService the service for accessing the organization addresses.
 	 * @param organizationEditorFactory the factory of the organization editor.
+	 * @param addressEditorFactory the factory of the organization address editor.
 	 */
 	public EmbeddedOrganizationEditor(EntityEditingContext<ResearchOrganization> context,
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ResearchOrganizationService organizationService,
 			OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory) {
-		super(context, false, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService, organizationEditorFactory);
+			OrganizationEditorFactory organizationEditorFactory,
+			AddressEditorFactory addressEditorFactory) {
+		super(context, false, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService,
+				organizationEditorFactory, addressEditorFactory);
 		createEditorContentAndLinkBeans();
 	}
 

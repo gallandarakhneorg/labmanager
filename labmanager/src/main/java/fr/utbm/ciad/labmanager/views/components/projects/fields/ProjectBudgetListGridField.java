@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects.fields;
 
+import java.util.List;
+
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -35,8 +37,6 @@ import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatWithPrecisionConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListGridField;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.List;
 
 /** Implementation of a Vaadin component for input a list of project budgets using values in a grid row.
  *

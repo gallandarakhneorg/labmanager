@@ -44,8 +44,10 @@ import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.EmbeddedScientificAxisEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -68,7 +70,9 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 
 	private final ScientificAxisDataProvider dataProvider;
 
-	private ScientificAxisService axisService;
+	private final ScientificAxisService axisService;
+
+	private final ScientificAxisEditorFactory axisEditorFactory;
 
 	private Column<ScientificAxis> nameColumn;
 
@@ -83,17 +87,19 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param axisService the service for accessing the scientific axes.
+	 * @param axisEditorFactory the factory for creating scientific axis editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardScientificAxisListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ScientificAxisService axisService, Logger logger) {
+			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory, Logger logger) {
 		super(ScientificAxis.class, authenticatedUser, messages, logger,
 				"views.scientific_axes.delete.title", //$NON-NLS-1$
 				"views.scientific_axes.delete.message", //$NON-NLS-1$
 				"views.scientific_axes.delete_success", //$NON-NLS-1$
 				"views.scientific_axes.delete_error"); //$NON-NLS-1$
 		this.axisService = axisService;
+		this.axisEditorFactory = axisEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllScientificAxes(query, filters);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -162,12 +168,12 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 
 	@Override
 	protected void addEntity() {
-		openAxisEditor(new ScientificAxis(), getTranslation("views.scientific_axes.add_axis")); //$NON-NLS-1$
+		openAxisEditor(new ScientificAxis(), getTranslation("views.scientific_axes.add_axis"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(ScientificAxis axis) {
-		openAxisEditor(axis, getTranslation("views.scientific_axes.edit_axis", axis.getAcronymOrName())); //$NON-NLS-1$
+		openAxisEditor(axis, getTranslation("views.scientific_axes.edit_axis", axis.getAcronymOrName()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of an axis.
@@ -175,10 +181,13 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 	 * @param axis the axis to edit.
 	 * @param title the title of the editor.
 	 */
-	protected void openAxisEditor(ScientificAxis axis, String title) {
-		final var editor = new EmbeddedScientificAxisEditor(
-				this.axisService.startEditing(axis),
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openAxisEditor(ScientificAxis axis, String title, boolean isCreation) {
+		final AbstractEntityEditor<ScientificAxis> editor;
+		if (isCreation) {
+			editor = this.axisEditorFactory.createAdditionEditor(axis);
+		} else {
+			editor = this.axisEditorFactory.createUpdateEditor(axis);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, ScientificAxis> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, ScientificAxis> refreshOne = (dialog, entity) -> refreshItem(entity);

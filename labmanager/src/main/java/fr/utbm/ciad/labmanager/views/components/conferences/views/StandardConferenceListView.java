@@ -46,6 +46,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.AbstractAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -211,15 +212,9 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	protected void openConferenceEditor(Conference conference, String title, boolean isCreation) {
 		final AbstractEntityEditor<Conference> editor;
 		if (isCreation) {
-			editor = this.conferenceEditorFactory.createAdditionEditor(
-				this.conferenceService.startEditing(conference),
-				this.conferenceService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+			editor = this.conferenceEditorFactory.createAdditionEditor(conference);
 		} else {
-			editor = this.conferenceEditorFactory.createUpdateEditor(
-					this.conferenceService.startEditing(conference),
-					this.conferenceService,
-					getAuthenticatedUser(), getMessageSourceAccessor());
+			editor = this.conferenceEditorFactory.createUpdateEditor(conference);
 		}
 		openConferenceEditor(editor, title);
 	}

@@ -31,7 +31,6 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -105,24 +104,17 @@ public class MultiOrganizationNameField extends AbstractMultiEntityNameField<Res
 	/** Constructor.
 	 *
 	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param addressService the service for accessing the address JPA entities.
 	 * @param organizationEditorFactory the factory for creating the organization editors.
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the organization.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 * @param initializer the initializer of the loaded organizations. It may be {@code null}.
 	 */
-	public MultiOrganizationNameField(ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory, AuthenticatedUser authenticatedUser,
-			String creationTitle, Logger logger, Consumer<ResearchOrganization> initializer) {
+	public MultiOrganizationNameField(ResearchOrganizationService organizationService, OrganizationEditorFactory organizationEditorFactory,
+			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger, Consumer<ResearchOrganization> initializer) {
 		this(organizationService,
 				(newOrganization, saver) -> {
-					final var organizationContext = organizationService.startEditing(newOrganization);
-					final var editor = organizationEditorFactory.createAdditionEditor(
-							organizationContext,
-							organizationService.getFileManager(),
-							authenticatedUser, organizationService.getMessageSourceAccessor(),
-							organizationService, addressService);
+					final var editor = organizationEditorFactory.createAdditionEditor(newOrganization);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);
@@ -144,16 +136,14 @@ public class MultiOrganizationNameField extends AbstractMultiEntityNameField<Res
 	/** Constructor.
 	 *
 	 * @param organizationService the service for accessing the person JPA entities.
-	 * @param addressService the service for accessing the address JPA entities.
 	 * @param organizationEditorFactory the factory for creating the organization editors.
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 */
-	public MultiOrganizationNameField(ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory, AuthenticatedUser authenticatedUser,
+	public MultiOrganizationNameField(ResearchOrganizationService organizationService, OrganizationEditorFactory organizationEditorFactory, AuthenticatedUser authenticatedUser,
 			String creationTitle, Logger logger) {
-		this(organizationService, addressService, organizationEditorFactory, authenticatedUser, creationTitle, logger, null);
+		this(organizationService, organizationEditorFactory, authenticatedUser, creationTitle, logger, null);
 	}
 
 	private static SerializableFunction<ResearchOrganization, Component> createOrganizationRender(FileManager fileManager) {

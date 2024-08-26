@@ -48,6 +48,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -262,15 +263,9 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	protected void openJournalEditor(Journal journal, String title, boolean isCreation) {
 		final AbstractEntityEditor<Journal> editor;
 		if (isCreation) {
-			editor = this.journalEditorFactory.createAdditionEditor(
-				this.journalService.startEditing(journal),
-				this.journalService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+			editor = this.journalEditorFactory.createAdditionEditor(journal);
 		} else {
-			editor = this.journalEditorFactory.createUpdateEditor(
-					this.journalService.startEditing(journal),
-					this.journalService,
-					getAuthenticatedUser(), getMessageSourceAccessor());
+			editor = this.journalEditorFactory.createUpdateEditor(journal);
 		}
 		openJournalEditor(editor, title);
 	}

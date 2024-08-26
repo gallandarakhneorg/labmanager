@@ -41,19 +41,13 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.services.project.ProjectService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.assocstructures.editors.EmbeddedAssociatedStructureEditor;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.assocstructures.editors.AssociatedStructureEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -79,21 +73,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	private final AssociatedStructureService structureService;
 
-	private final ProjectService projectService;
-
-	private final ResearchOrganizationService organizationService;
-
-	private final OrganizationAddressService addressService;
-
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
-
-	private final ScientificAxisService axisService;
-
-	private final OrganizationEditorFactory organizationEditorFactory;
+	private final AssociatedStructureEditorFactory associatedStructureEditorFactory;
 
 	private Column<AssociatedStructure> nameColumn;
 
@@ -106,36 +86,19 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param structureService the service for accessing the associated structures.
-	 * @param projectService the service for accessing the JPA entities for projects.
-	 * @param organizationService the service for accessing the JPA entities for research organizations.
-	 * @param addressService the service for accessing the JPA entities for organization addresses.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
-	 * @param axisService the service for accessing the JPA entities for scientific axes.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
+	 * @param associatedStructureEditorFactory the factory for creating the associated-structure editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardAssociatedStructureListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			AssociatedStructureService structureService, ProjectService projectService,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, ScientificAxisService axisService,
-			OrganizationEditorFactory organizationEditorFactory, Logger logger) {
+			AssociatedStructureService structureService, AssociatedStructureEditorFactory associatedStructureEditorFactory, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
 				"views.associated_structure.delete.title", //$NON-NLS-1$
 				"views.associated_structure.delete.message", //$NON-NLS-1$
 				"views.associated_structure.delete_success", //$NON-NLS-1$
 				"views.associated_structure.delete_error"); //$NON-NLS-1$
 		this.structureService = structureService;
-		this.projectService = projectService;
-		this.organizationService = organizationService;
-		this.addressService = addressService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
-		this.axisService = axisService;
-		this.organizationEditorFactory = organizationEditorFactory;
+		this.associatedStructureEditorFactory = associatedStructureEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAssociatedStructures(query, filters);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -202,26 +165,27 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	@Override
 	protected void addEntity() {
-		openStructureEditor(new AssociatedStructure(), getTranslation("views.associated_structure.add_structure")); //$NON-NLS-1$
+		openStructureEditor(new AssociatedStructure(), getTranslation("views.associated_structure.add_structure"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(AssociatedStructure structure) {
-		openStructureEditor(structure, getTranslation("views.associated_structure.edit_structure", structure.getAcronymOrName())); //$NON-NLS-1$
+		openStructureEditor(structure, getTranslation("views.associated_structure.edit_structure", structure.getAcronymOrName()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a structure.
 	 *
 	 * @param structure the structure to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openStructureEditor(AssociatedStructure structure, String title) {
-		final var editor = new EmbeddedAssociatedStructureEditor(
-				this.structureService.startEditing(structure),
-				this.projectService, this.organizationService, this.addressService,
-				this.personService, this.personEditorFactory, this.userService,
-				getAuthenticatedUser(), this.axisService,
-				this.organizationEditorFactory, getMessageSourceAccessor());
+	protected void openStructureEditor(AssociatedStructure structure, String title, boolean isCreation) {
+		final AbstractEntityEditor<AssociatedStructure> editor;
+		if (isCreation) {
+			editor = this.associatedStructureEditorFactory.createAdditionEditor(structure);
+		} else {
+			editor = this.associatedStructureEditorFactory.createUpdateEditor(structure);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshOne = (dialog, entity) -> refreshItem(entity);

@@ -94,9 +94,7 @@ public class SingleJournalNameField extends AbstractSingleEntityNameField<Journa
 	public SingleJournalNameField(JournalService journalService, JournalEditorFactory journalEditorFactory, AuthenticatedUser authenticatedUser, String creationTitle, Logger logger) {
 		this(journalService,
 				(newJournal, saver) -> {
-					final var journalContext = journalService.startEditing(newJournal);
-					final var editor = journalEditorFactory.createAdditionEditor(
-							journalContext, journalService, authenticatedUser, journalService.getMessageSourceAccessor());
+					final var editor = journalEditorFactory.createAdditionEditor(newJournal);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedJournal) -> saver.accept(changedJournal),
 							null);

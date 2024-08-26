@@ -32,9 +32,14 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.conferences.fields.ConferenceFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.journals.fields.JournalFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.EmbeddedPublicationEditor;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
@@ -49,34 +54,121 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPublicationEditorFactory implements PublicationEditorFactory {
 
+	private final DownloadableFileManager fileManager;
+
+	private final PublicationService publicationService;
+
+	private final PersonService personService;
+
+	private final PersonEditorFactory personEditorFactory;
+
+	private final PersonFieldFactory personFieldFactory;
+
+	private final UserService userService;
+
+	private final JournalService journalService;
+	
+	private final JournalEditorFactory journalEditorFactory;
+
+	private final JournalFieldFactory journalFieldFactory;
+
+	private final ConferenceService conferenceService;
+
+	private final ConferenceEditorFactory conferenceEditorFactory;
+
+	private final ConferenceFieldFactory conferenceFieldFactory;
+
+	private final ScientificAxisService axisService;
+
+	private final ScientificAxisEditorFactory axisEditorFactory;
+
+	private final AuthenticatedUser authenticatedUser;
+
+	private final MessageSourceAccessor messages;
+
+	/** Constructors.
+	 * 
+	 * @param fileManager the manager of files at the server-side.
+	 * @param publicationService the service for accessing the JPA entities for publications.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param personEditorFactory the factory for creating the person editors.
+	 * @param personFieldFactory the factory for creating the person fields.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param journalService the service for accessing the JPA entities for journal.
+	 * @param journalEditorFactory the factory for creating journal editors.
+	 * @param journalFieldFactory the factory for creating journal fields.
+	 * @param conferenceService the service for accessing the JPA entities for conference.
+	 * @param conferenceEditorFactory the factory for creating the conference editors.
+	 * @param conferenceFieldFactory the factory for creating the conference fields.
+	 * @param axisService service for accessing to the JPA entities of scientific axes. 
+	 * @param axisEditorFactory the factory for creating the scientific axis editors.
+	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (Spring layer).
+	 */
+	public DefaultPublicationEditorFactory(
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired PublicationService publicationService,
+			@Autowired PersonService personService,
+			@Autowired PersonEditorFactory personEditorFactory,
+			@Autowired PersonFieldFactory personFieldFactory,
+			@Autowired UserService userService,
+			@Autowired JournalService journalService,
+			@Autowired JournalEditorFactory journalEditorFactory,
+			@Autowired JournalFieldFactory journalFieldFactory,
+			@Autowired ConferenceService conferenceService,
+			@Autowired ConferenceEditorFactory conferenceEditorFactory, 
+			@Autowired ConferenceFieldFactory conferenceFieldFactory, 
+			@Autowired ScientificAxisService axisService,
+			@Autowired ScientificAxisEditorFactory axisEditorFactory,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages) {
+		this.fileManager = fileManager;
+		this.publicationService = publicationService;
+		this.personService = personService;
+		this.personEditorFactory = personEditorFactory;
+		this.personFieldFactory = personFieldFactory;
+		this.userService = userService;
+		this.journalService = journalService;
+		this.journalEditorFactory = journalEditorFactory;
+		this.journalFieldFactory = journalFieldFactory;
+		this.conferenceService = conferenceService;
+		this.conferenceEditorFactory = conferenceEditorFactory; 
+		this.conferenceFieldFactory = conferenceFieldFactory; 
+		this.axisService = axisService;
+		this.axisEditorFactory = axisEditorFactory;
+		this.authenticatedUser = authenticatedUser;
+		this.messages = messages;
+	}
+
+	@Override
+	public EntityEditingContext<Publication> createContextFor(Publication publication) {
+		return this.publicationService.startEditing(publication);
+	}
+
 	@Override
 	public AbstractEntityEditor<Publication> createAdditionEditor(EntityEditingContext<Publication> context,
 			PublicationType[] supportedTypes, boolean enableTypeSelector,
-			DownloadableFileManager fileManager, PublicationService publicationService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService,
-			JournalService journalService, JournalEditorFactory journalEditorFactory,
-			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, 
-			ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
 			String personNullErrorKey, String personDuplicateErrorKey) {
-		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, fileManager, publicationService, personService, personEditorFactory, userService,
-				journalService, journalEditorFactory, conferenceService, conferenceEditorFactory, axisService, authenticatedUser, messages, personCreationLabelKey,
+		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, this.fileManager,
+				this.publicationService, this.personService, this.personEditorFactory, this.personFieldFactory, this.userService,
+				this.journalService, this.journalEditorFactory, this.journalFieldFactory, this.conferenceService,
+				this.conferenceEditorFactory, this.conferenceFieldFactory,
+				this.axisService, this.axisEditorFactory, this.authenticatedUser, this.messages, personCreationLabelKey,
 				personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
 	}
 
 	@Override
 	public AbstractEntityEditor<Publication> createUpdateEditor(EntityEditingContext<Publication> context,
 			PublicationType[] supportedTypes, boolean enableTypeSelector,
-			DownloadableFileManager fileManager, PublicationService publicationService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService,
-			JournalService journalService, JournalEditorFactory journalEditorFactory,
-			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, 
-			ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
 			String personNullErrorKey, String personDuplicateErrorKey) {
-		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, fileManager, publicationService, personService, personEditorFactory, userService,
-				journalService, journalEditorFactory, conferenceService, conferenceEditorFactory, axisService, authenticatedUser, messages,
-				personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, this.fileManager,
+				this.publicationService, this.personService, this.personEditorFactory, this.personFieldFactory, this.userService,
+				this.journalService, this.journalEditorFactory, this.journalFieldFactory, this.conferenceService,
+				this.conferenceEditorFactory, this.conferenceFieldFactory,
+				this.axisService, this.axisEditorFactory, this.authenticatedUser, this.messages, personCreationLabelKey,
+				personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
 	}
 
 }

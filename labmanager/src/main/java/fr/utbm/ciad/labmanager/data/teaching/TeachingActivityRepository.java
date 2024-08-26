@@ -38,7 +38,9 @@ public interface TeachingActivityRepository extends JpaRepository<TeachingActivi
 	 *
 	 * @param id the identifier.
 	 * @return the list of activities.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<TeachingActivity> findDistinctByPersonId(Long id);
 
 }

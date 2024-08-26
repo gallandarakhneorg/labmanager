@@ -22,14 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
-import com.google.common.base.Strings;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.Uses;
@@ -38,14 +33,12 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
@@ -54,10 +47,8 @@ import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
@@ -65,10 +56,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.jpa.domain.Specification;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Abstract implementation of a list of entities based on a grid-based view.
@@ -562,100 +551,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		}
 	}
 
-	/** UI and JPA filters for {@link AbstractGridBaseEntityListView}.
-	 * 
-	 * @param <T> the type of the entities to be filtered.
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 4.0
-	 */
-	protected static abstract class AbstractFilters<T> extends Div implements Specification<T>, LocaleChangeObserver {
-
-		private static final long serialVersionUID = 1052687254355760397L;
-
-		private final TextField keywords;
-
-		private final Button resetButton;
-
-		private final Button searchButton;
-
-		/** Constructor.
-		 *
-		 * @param onSearch the callback function for running the filtering.
-		 */
-		public AbstractFilters(Runnable onSearch) {
-			setWidthFull();
-			addClassName("filter-layout"); //$NON-NLS-1$
-			addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM, LumoUtility.BoxSizing.BORDER);
-
-			this.keywords = new TextField();
-			
-			this.resetButton = new Button();
-			this.resetButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-			this.resetButton.addClickListener(event -> {
-				this.keywords.clear();
-				resetFilters();
-				onSearch.run();
-			});
-			this.resetButton.addClickShortcut(Key.ESCAPE);
-			this.resetButton.addClickShortcut(Key.CANCEL);
-			this.resetButton.addClickShortcut(Key.CLEAR);
-
-			this.searchButton = new Button();
-			this.searchButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-			this.searchButton.addClickListener(event -> onSearch.run());
-			this.searchButton.addClickShortcut(Key.ENTER);
-			this.searchButton.addClickShortcut(Key.FIND);
-			this.searchButton.addClickShortcut(Key.EXECUTE);
-
-			final var actions = new Div(this.resetButton, this.searchButton);
-			actions.addClassName(LumoUtility.Gap.SMALL);
-			actions.addClassName("actions"); //$NON-NLS-1$
-
-			final var options = new HorizontalLayout();
-			options.setSpacing(false);
-			buildOptionsComponent(options);
-
-			add(this.keywords, options, actions);
-		}
-
-		/** Build the component for filtering options.
-		 *
-		 * @param options the component that should receive the options, never {@code null}.
-		 */
-		protected abstract void buildOptionsComponent(HorizontalLayout options);
-		
-		/** Reset the filters.
-		 */
-		protected abstract void resetFilters();
-
-		/** Build the HQL query for the filtering.
-		 * 
-		 * @param keywords the keywords to search for.
-		 * @param predicates the list of filtering criteria with "or" semantic, being filled by this function.
-		 * @param root the root not for the search.
-		 * @param criteriaBuilder the criteria builder. It is the Hibernate version in order to
-		 *     have access to extra functions, e.g. {@code collate}.
-		 */
-		protected abstract void buildQueryFor(String keywords, List<Predicate> predicates, Root<T> root, CriteriaBuilder criteriaBuilder);
-
-		@Override
-		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			return ComponentFactory.newPredicateContainsOneOf(this.keywords.getValue(), root, query,
-					criteriaBuilder, this::buildQueryFor);
-		}
-
-		@Override
-		public void localeChange(LocaleChangeEvent event) {
-			this.keywords.setLabel(getTranslation("views.filters.keywords")); //$NON-NLS-1$
-			this.resetButton.setText(getTranslation("views.filters.reset")); //$NON-NLS-1$
-			this.searchButton.setText(getTranslation("views.filters.apply")); //$NON-NLS-1$
-		}
-
-	}
-
 	/** Authenticated user filtering inside the standard JPA filters for {@link AbstractGridBaseEntityListView}.
 	 * This filter panel adds the toggle button for enabling or disabling the filtering of data for the authenticated user.
 	 * 
@@ -800,150 +695,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			if (this.authenticatedUserAvatar != null) {
 				this.authenticatedUserAvatar.setHeading(getTranslation("views.filters.authenticated_user_filter")); //$NON-NLS-1$
 			}
-		}
-
-	}
-
-	/** Default organization filtering inside the standard JPA filters for {@link AbstractGridBaseEntityListView}.
-	 * This filter panel adds the toggle button for enabling or disabling the filtering of data for the default organization.
-	 * 
-	 * @param <T> the type of the entities to be filtered.
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 4.0
-	 */
-	protected static abstract class AbstractDefaultOrganizationDataFilters<T> extends AbstractFilters<T> {
-
-		private static final long serialVersionUID = 7953654886013901370L;
-
-		private static final boolean DEFAULT_ORGANIZATION_FILTERING = true;
-
-		private final Supplier<ResearchOrganization> defaultOrganization;
-
-		private final Supplier<FileManager> fileManager;
-
-		private ToggleButton restrictToOrganization;
-
-		private AvatarItem defaultOrganizationAvatar;
-
-
-		/** Constructor.
-		 *
-		 * @param defaultOrganizationSupplier the provider of the default organization.
-		 * @param fileManager the manager of files on the server.
-		 * @param onSearch the callback function for running the filtering.
-		 */
-		public AbstractDefaultOrganizationDataFilters(Supplier<ResearchOrganization> defaultOrganizationSupplier, Supplier<FileManager> fileManager, Runnable onSearch) {
-			super(onSearch);
-			
-			this.defaultOrganization = defaultOrganizationSupplier;
-			this.fileManager = fileManager;
-
-			final var session = VaadinService.getCurrentRequest().getWrappedSession();
-			final var attr = session.getAttribute(buildPreferenceSectionKeyForDefaultOrganizationFiltering());
-			var checked = DEFAULT_ORGANIZATION_FILTERING;
-			if (attr != null) {
-				if (attr instanceof Boolean bvalue) {
-					checked = bvalue.booleanValue();
-				} else if (attr instanceof String svalue) {
-					checked = Boolean.parseBoolean(svalue);
-				}
-			}
-			this.restrictToOrganization = new ToggleButton(checked);
-
-			this.defaultOrganizationAvatar = new AvatarItem();
-			this.restrictToOrganization.setLabelComponent(this.defaultOrganizationAvatar);
-			this.restrictToOrganization.addValueChangeListener(it -> onDefaultOrganizationFilteringChange(it.getValue() == null ? DEFAULT_ORGANIZATION_FILTERING : it.getValue().booleanValue(), onSearch));
-
-			addComponentAsFirst(this.restrictToOrganization);
-		}
-
-		/** Invoked to update the icon of the organization in the toggle button.
-		 */
-		final void updateDefaultOrganizationIconInToggleButton() {
-			updateDefaultOrganizationIconInToggleButton(this.defaultOrganizationAvatar, this.defaultOrganization.get(), this.fileManager.get());
-		}
-
-		/** Invoked to update the icon of the organization in the toggle button.
-		 *
-		 * @param organizationAvatar the avatar of the research organization.
-		 * @param defaultOrganization the default organization to be considered.
-		 * @param fileManager the manager of files on the server.
-		 */
-		@SuppressWarnings("static-method")
-		protected void updateDefaultOrganizationIconInToggleButton(AvatarItem organizationAvatar, ResearchOrganization defaultOrganization, FileManager fileManager) {
-			final var logo = defaultOrganization.getPathToLogo();
-			if (!Strings.isNullOrEmpty(logo)) {
-				var logoFile = FileSystem.convertStringToFile(logo);
-				if (logoFile != null) {
-					logoFile = fileManager.normalizeForServerSide(logoFile);
-					if (logoFile != null) {
-						organizationAvatar.setAvatarResource(ComponentFactory.newStreamImage(logoFile));
-					}
-				}
-			}
-		}
-
-		private String buildPreferenceSectionKeyForDefaultOrganizationFiltering() {
-			return new StringBuilder().append(ViewConstants.DEFAULT_ORGANIZATION_FILTER_ROOT).append(getClass().getName()).toString();
-		}
-
-		/** Invoked when the filtering on the default organization has changed.
-		 *
-		 * @param enableOrganizationFilter indicates if the filtering is enable or disable.
-		 * @param onSearch the callback function for running the filtering.
-		 */
-		protected void onDefaultOrganizationFilteringChange(boolean enableOrganizationFilter, Runnable onSearch) {
-			final var session0 = VaadinService.getCurrentRequest().getWrappedSession();
-			session0.setAttribute(buildPreferenceSectionKeyForDefaultOrganizationFiltering(), Boolean.valueOf(enableOrganizationFilter));
-			if (onSearch != null) {
-				onSearch.run();
-			}
-		}
-
-		private boolean isRestrictedToDefaultOrganization() {
-			if (this.restrictToOrganization != null) {
-				final var bvalue = this.restrictToOrganization.getValue();
-				if (bvalue == null) {
-					return DEFAULT_ORGANIZATION_FILTERING;
-				}
-				return bvalue.booleanValue();
-			}
-			return false;
-		}
-		
-		/** Build the predicate for filtering the JPE entities that corresponds to the default organization with
-		 * the given identifier.
-		 * 
-		 * @param root the root element to filter.
-		 * @param query the top-level query.
-		 * @param criteriaBuilder the tool for building a filtering criteria.
-		 * @param defaultOrganization the default organization.
-		 * @return the predicate or {@code null} if there is no need for this predicate.
-		 */
-		protected abstract Predicate buildPredicateForDefaultOrganization(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization);
-
-		@Override
-		public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			final var keywordFilter = super.toPredicate(root, query, criteriaBuilder);
-			if (isRestrictedToDefaultOrganization()) {
-				final var organizationPredicate = buildPredicateForDefaultOrganization(root, query, criteriaBuilder, this.defaultOrganization.get());
-				if (organizationPredicate != null) {
-					if (keywordFilter != null) {
-						return criteriaBuilder.and(organizationPredicate, keywordFilter);
-					}
-					return organizationPredicate;
-				}
-			}
-			return keywordFilter;
-		}
-
-		@Override
-		public void localeChange(LocaleChangeEvent event) {
-			super.localeChange(event);
-			this.defaultOrganizationAvatar.setHeading(getTranslation("views.filters.default_organization_filter")); //$NON-NLS-1$
 		}
 
 	}

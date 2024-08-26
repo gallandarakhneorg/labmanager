@@ -99,12 +99,15 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityV
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.conferences.fields.ConferenceFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.conferences.fields.SingleConferenceNameField;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.journals.fields.JournalFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.fields.SingleJournalNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.MultiPersonNameField;
-import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.EmbeddedScientificAxisEditor;
+import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -140,19 +143,27 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	protected final PersonEditorFactory personEditorFactory;
 
+	protected final PersonFieldFactory personFieldFactory;
+
 	protected final JournalService journalService;
 
 	protected final JournalEditorFactory journalEditorFactory;
 
+	protected final JournalFieldFactory journalFieldFactory;
+
 	protected final ConferenceService conferenceService;
 
 	protected final ConferenceEditorFactory conferenceEditorFactory;
+
+	protected final ConferenceFieldFactory conferenceFieldFactory;
 
 	protected final PublicationService publicationService;
 
 	protected final UserService userService;
 
 	protected final ScientificAxisService axisService;
+
+	protected final ScientificAxisEditorFactory axisEditorFactory;
 
 	protected final PublicationFieldBuilder fieldBuilder;
 
@@ -219,12 +230,16 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 * @param publicationService the service for accessing the JPA entities for publications.
 	 * @param personService the service for accessing the JPA entities for persons.
 	 * @param personEditorFactory the factory for creating the person editors.
+	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param userService the service for accessing the JPA entities for users.
 	 * @param journalService the service for accessing the JPA entities for journal.
-	 * @param journalEditorFactory the factory for creating jorunal editors.
+	 * @param journalEditorFactory the factory for creating journal  editors.
+	 * @param journalFieldFactory the factory for creating journal fields.
 	 * @param conferenceService the service for accessing the JPA entities for conference.
 	 * @param conferenceEditorFactory the factory for creating the conference editors.
-	 * @param axisService service for accessing to the JPA entities of scientific axes. 
+	 * @param conferenceFieldFactory the factory for creating the conference fields.
+	 * @param axisService service for accessing to the JPA entities of scientific axes.
+	 * @param axisEditorFactory the factory for creating scientific axis editors.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
@@ -237,9 +252,10 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	public AbstractPublicationEditor(EntityEditingContext<Publication> context,
 			PublicationType[] supportedTypes,
 			boolean relinkEntityWhenSaving, boolean enableTypeSelector, DownloadableFileManager fileManager, PublicationService publicationService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, JournalService journalService, JournalEditorFactory journalEditorFactory,
-			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ScientificAxisService axisService,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory,
+			UserService userService, JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
+			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory, ScientificAxisService axisService,
+			ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
 			String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
 			String personNullErrorKey, String personDuplicateErrorKey) {
 		super(Publication.class, authenticatedUser, messages, logger,
@@ -259,12 +275,16 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.fileManager = fileManager;
 		this.personService = personService;
 		this.personEditorFactory = personEditorFactory;
+		this.personFieldFactory = personFieldFactory;
 		this.userService = userService;
 		this.journalService = journalService;
 		this.journalEditorFactory = journalEditorFactory;
+		this.journalFieldFactory = journalFieldFactory;
 		this.conferenceService = conferenceService;
 		this.conferenceEditorFactory = conferenceEditorFactory;
+		this.conferenceFieldFactory = conferenceFieldFactory;
 		this.axisService = axisService;
+		this.axisEditorFactory = axisEditorFactory;
 
 		// Special case when the publication is a PrePublication (or fake publication)
 		final var currentEntity = getEditingContext().getEntity();
@@ -421,8 +441,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.title.setClearButtonVisible(true);
 		this.generalLayout.add(this.title, 2);
 
-		this.authors = new MultiPersonNameField(this.personService, this.personEditorFactory, this.userService, getAuthenticatedUser(),
-				getTranslation(this.personCreationLabelKey), getLogger(),
+		this.authors = this.personFieldFactory.createMultiNameField(getTranslation(this.personCreationLabelKey), getLogger(),
 				// Force the loading of the JPA entity's components
 				it -> {
 					// Loading the authorships is needed when the person is added as author.
@@ -668,9 +687,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 */
 	protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
 		final var newAxis = new ScientificAxis();
-		final var editor = new EmbeddedScientificAxisEditor(
-				this.axisService.startEditing(newAxis),
-				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis);
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.membership.scientific_axes.create"), //$NON-NLS-1$
 				editor, false,
@@ -1080,8 +1097,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		private void addGeneralFields(Publication publication) {
 			if (publication instanceof AbstractJournalBasedPublication journalPublication) {
 				if (this.journal == null) {
-					this.journal = new SingleJournalNameField(AbstractPublicationEditor.this.journalService,
-							AbstractPublicationEditor.this.journalEditorFactory, getAuthenticatedUser(),
+					this.journal = AbstractPublicationEditor.this.journalFieldFactory.createSingleNameField(
 							getTranslation("views.publication.journal.new_journal"), getLogger()); //$NON-NLS-1$
 					this.journal.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 					this.journal.setRequiredIndicatorVisible(true);
@@ -1091,8 +1107,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				}
 			} else if (publication instanceof AbstractConferenceBasedPublication conferencePublication) {
 				if (this.conference == null) {
-					this.conference = new SingleConferenceNameField(AbstractPublicationEditor.this.conferenceService,
-							AbstractPublicationEditor.this.conferenceEditorFactory, getAuthenticatedUser(),
+					this.conference = AbstractPublicationEditor.this.conferenceFieldFactory.createSingleNameField(
 							getTranslation("views.publication.conference.new_conference"), getLogger()); //$NON-NLS-1$
 					this.conference.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 					this.conference.setRequiredIndicatorVisible(true);

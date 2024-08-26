@@ -31,8 +31,12 @@ import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.conferences.fields.ConferenceFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.journals.fields.JournalFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -64,12 +68,16 @@ public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEd
      * @param publicationService        the service for accessing the JPA entities for publications.
      * @param personService             the service for accessing the JPA entities for persons.
 	 * @param personEditorFactory the factory for creating the person editors.
+	 * @param personFieldFactory the factory for creating the person fields.
      * @param userService               the service for accessing the JPA entities for users.
      * @param journalService            the service for accessing the JPA entities for journal.
      * @param journalEditorFactory the factory for creating journal editors.
+     * @param journalFieldFactory the factory for creating journal fields.
      * @param conferenceService         the service for accessing the JPA entities for conference.
      * @param conferenceEditorFactory the factory for creating the conference editors.
+     * @param conferenceFieldFactory the factory for creating the conference fields.
      * @param axisService               service for accessing to the JPA entities of scientific axes.
+     * @param axisEditorFactory the factory for creating the scientific axis editors.
      * @param authenticatedUser         the connected user.
      * @param messages                  the accessor to the localized messages (Spring layer).
      * @param personCreationLabelKey    the key that is used for retrieving the text for creating a new person and associating it to the publication.
@@ -81,15 +89,16 @@ public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEd
     public EmbeddedPublicationEditorWizard(EntityEditingContext<Publication> context,
                                            PublicationType[] supportedTypes, boolean enableTypeSelector,
                                            DownloadableFileManager fileManager, PublicationService publicationService,
-                                           PersonService personService, PersonEditorFactory personEditorFactory, UserService userService,
-                                           JournalService journalService, JournalEditorFactory journalEditorFactory,
-                                           ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory,
-                                           ScientificAxisService axisService, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+                                           PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory, UserService userService,
+                                           JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
+                                           ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory,
+                                           ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory,
+                                           AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
                                            String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
                                            String personNullErrorKey, String personDuplicateErrorKey) {
-        super(context, supportedTypes, false, enableTypeSelector, fileManager, publicationService, personService, personEditorFactory, userService,
-                journalService, journalEditorFactory, conferenceService, conferenceEditorFactory, axisService, authenticatedUser, messages, LOGGER,
-                personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+        super(context, supportedTypes, false, enableTypeSelector, fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService,
+                journalService, journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory, conferenceFieldFactory, axisService, axisEditorFactory,
+                authenticatedUser, messages, LOGGER, personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
         createEditorContentAndLinkBeans();
     }
 

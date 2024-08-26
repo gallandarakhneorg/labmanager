@@ -42,19 +42,15 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.teaching.editors.EmbeddedTeachingActivityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.teaching.editors.TeachingActivityEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -82,15 +78,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 	private final TeachingService teachingService;
 
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
-
-	private final ResearchOrganizationService organizationService;
-
-	private final OrganizationAddressService addressService;
+	private final TeachingActivityEditorFactory teachingEditorFactory;
 
 	private Column<TeachingActivity> titleColumn;
 
@@ -106,28 +94,20 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 	private final DownloadableFileManager fileManager;
 
-	private final OrganizationEditorFactory organizationEditorFactory;
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the downloadable files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
-	 * @param organizationService the service for accessing the JPA entities for research organizations.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
-	 * @param addressService the service for accessing the JPA entities for organization addresses.
+	 * @param teachingEditorFactory the factory for creating the teaching activity editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardTeachingActivitiesListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			TeachingService teachingService, PersonService personService, PersonEditorFactory personEditorFactory,
-			UserService userService, ResearchOrganizationService organizationService,
-			OrganizationEditorFactory organizationEditorFactory, OrganizationAddressService addressService, Logger logger) {
+			TeachingService teachingService, TeachingActivityEditorFactory teachingEditorFactory,
+			Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
 				"views.teaching_activities.delete.title", //$NON-NLS-1$
 				"views.teaching_activities.delete.message", //$NON-NLS-1$
@@ -135,12 +115,7 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 				"views.teaching_activities.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.teachingService = teachingService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
-		this.organizationService = organizationService;
-		this.addressService = addressService;
-		this.organizationEditorFactory = organizationEditorFactory;
+		this.teachingEditorFactory = teachingEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllActivities(query, filters, this::initializeEntityFromJPA);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -292,24 +267,27 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 
 	@Override
 	protected void addEntity() {
-		openActivityEditor(new TeachingActivity(), getTranslation("views.teaching_activities.add_activity")); //$NON-NLS-1$
+		openActivityEditor(new TeachingActivity(), getTranslation("views.teaching_activities.add_activity"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(TeachingActivity activity) {
-		openActivityEditor(activity, getTranslation("views.teaching_activities.edit_activity", activity.getCodeOrTitle())); //$NON-NLS-1$
+		openActivityEditor(activity, getTranslation("views.teaching_activities.edit_activity", activity.getCodeOrTitle()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a teaching activity.
 	 *
 	 * @param activity the teaching activity to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openActivityEditor(TeachingActivity activity, String title) {
-		final var editor = new EmbeddedTeachingActivityEditor(
-				this.teachingService.startEditing(activity),
-				this.fileManager, this.personService, this.personEditorFactory, this.userService,
-				this.organizationService, this.organizationEditorFactory, this.addressService, getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openActivityEditor(TeachingActivity activity, String title, boolean isCreation) {
+		final AbstractEntityEditor<TeachingActivity> editor;
+		if (isCreation) {
+			editor = this.teachingEditorFactory.createAdditionEditor(activity);
+		} else {
+			editor = this.teachingEditorFactory.createUpdateEditor(activity);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, TeachingActivity> refreshAll = (dialog, entity) -> {
 			// The person should be loaded because it was not loaded before

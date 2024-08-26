@@ -20,11 +20,8 @@
 package fr.utbm.ciad.labmanager.views.components.persons.editors;
 
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Factory that is providing a person editor according to the editing context.
  * 
@@ -36,26 +33,45 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public interface PersonEditorFactory {
 
+	/** Replies the editing context for the given person.
+	 *
+	 * @param person the person to be edited.
+	 * @return the editing context.
+	 */
+	UserEditingContext createUserContextFor(Person person);
+	
 	/** Create an editor that may be used for creating a new person.
 	 * 
      * @param userContext the editing context for the user.
-	 * @param personService the service for accessing to the person entities.
-     * @param authenticatedUser the connected user.
-     * @param messages the accessor to the localized messages (Spring layer).
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<Person> createAdditionEditor(UserEditingContext userContext, PersonService personService, AuthenticatedUser authenticatedUser,
-            MessageSourceAccessor messages);
+	AbstractEntityEditor<Person> createAdditionEditor(UserEditingContext userContext);
+
+	/** Create an editor that may be used for creating a new person.
+	 * 
+     * @param person the person to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<Person> createAdditionEditor(Person person) {
+		final var userContext = createUserContextFor(person);
+		return createAdditionEditor(userContext);
+	}
 
 	/** Create an editor that may be used for updating an existing person.
 	 * 
      * @param userContext the editing context for the user.
-	 * @param personService the service for accessing to the person entities.
-     * @param authenticatedUser the connected user.
-     * @param messages the accessor to the localized messages (Spring layer).
 	 * @return the editor, never {@code null}.
 	 */
-	AbstractEntityEditor<Person> createUpdateEditor(UserEditingContext userContext, PersonService personService, AuthenticatedUser authenticatedUser,
-            MessageSourceAccessor messages);
+	AbstractEntityEditor<Person> createUpdateEditor(UserEditingContext userContext);
+
+	/** Create an editor that may be used for updating an existing person.
+	 * 
+     * @param person the person to be edited.
+	 * @return the editor, never {@code null}.
+	 */
+	default AbstractEntityEditor<Person> createUpdateEditor(Person person) {
+		final var userContext = createUserContextFor(person);
+		return createUpdateEditor(userContext);
+	}
 
 }

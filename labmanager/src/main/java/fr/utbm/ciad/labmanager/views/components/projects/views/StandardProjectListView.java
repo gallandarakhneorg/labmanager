@@ -44,20 +44,15 @@ import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.projects.editors.EmbeddedProjectEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -84,15 +79,13 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	private static final int ORIGIN_YEAR = 2000;
 	
+	private final DownloadableFileManager fileManager;
+
 	private final ProjectDataProvider dataProvider;
 
 	private final ProjectService projectService;
 
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-	
-	private final UserService userService;
+	private final ProjectEditorFactory projectEditorFactory;
 
 	private Column<Project> nameColumn;
 
@@ -110,36 +103,19 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	private Column<Project> validationColumn;
 
-	private final ResearchOrganizationService organizationService;
-
-	private final OrganizationAddressService addressService;
-
-	private final ScientificAxisService axisService;
-
-	private final DownloadableFileManager fileManager;
-
-	private final OrganizationEditorFactory organizationEditorFactory;
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the filenames for the uploaded files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param projectService the service for accessing the projects.
-	 * @param organizationService the service for accessing the JPA entities for research organizations.
-	 * @param addressService the service for accessing the JPA entities for organization addresses.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
-	 * @param axisService the service for accessing the JPA entities for scientific axes.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
+	 * @param projectEditorFactory the factory for creating the project editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardProjectListView(
-			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ProjectService projectService, ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, ScientificAxisService axisService,
-			OrganizationEditorFactory organizationEditorFactory, Logger logger) {
+			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages, ProjectService projectService,
+			ProjectEditorFactory projectEditorFactory, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
 				"views.projects.delete.title", //$NON-NLS-1$
 				"views.projects.delete.message", //$NON-NLS-1$
@@ -147,13 +123,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 				"views.projects.delete_error"); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.projectService = projectService;
-		this.organizationService = organizationService;
-		this.addressService = addressService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
-		this.axisService = axisService;
-		this.organizationEditorFactory = organizationEditorFactory;
+		this.projectEditorFactory = projectEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllProjects(query, filters, this::initializeEntityFromJPA);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -329,26 +299,27 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	@Override
 	protected void addEntity() {
-		openProjectEditor(new Project(), getTranslation("views.projects.add_project")); //$NON-NLS-1$
+		openProjectEditor(new Project(), getTranslation("views.projects.add_project"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(Project project) {
-		openProjectEditor(project, getTranslation("views.projects.edit_project", project.getAcronym())); //$NON-NLS-1$
+		openProjectEditor(project, getTranslation("views.projects.edit_project", project.getAcronym()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of an project.
 	 *
 	 * @param project the project to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openProjectEditor(Project project, String title) {
-		final var editor = new EmbeddedProjectEditor(
-				this.projectService.startEditing(project),
-				this.organizationService, this.addressService,
-				this.personService, this.personEditorFactory, this.userService, this.axisService,
-				this.organizationEditorFactory, this.fileManager,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openProjectEditor(Project project, String title, boolean isCreation) {
+		final AbstractEntityEditor<Project> editor;
+		if (isCreation) {
+			editor = this.projectEditorFactory.createAdditionEditor(project);
+		} else {
+			editor = this.projectEditorFactory.createUpdateEditor(project);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Project> refreshAll = (dialog, entity) -> {
 			// The number of papers should be loaded because it was not loaded before

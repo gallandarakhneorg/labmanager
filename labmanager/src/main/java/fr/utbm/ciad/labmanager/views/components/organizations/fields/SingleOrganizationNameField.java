@@ -31,7 +31,6 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -107,7 +106,6 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 	/** Constructor with the standard creation method based on regular editors.
 	 *
 	 * @param organizationService the service for accessing the research organization JPA entities.
-	 * @param addressService the service for accessing the organization address JPA entities.
 	 * @param organizationEditorFactory the factory for creating the organization editors.
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
@@ -115,18 +113,11 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 	 * @param entityInitializer the callback function for initializing the properties of each loaded research organization.
 	 * @since 4.0
 	 */
-	public SingleOrganizationNameField(ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory,
-			AuthenticatedUser authenticatedUser,
-			String creationTitle, Logger logger, Consumer<ResearchOrganization> entityInitializer) {
+	public SingleOrganizationNameField(ResearchOrganizationService organizationService, OrganizationEditorFactory organizationEditorFactory,
+			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger, Consumer<ResearchOrganization> entityInitializer) {
 		this(organizationService,
 				(newOrganization, saver) -> {
-					final var organizationContext = organizationService.startEditing(newOrganization);
-					final var editor = organizationEditorFactory.createAdditionEditor(
-							organizationContext,
-							organizationService.getFileManager(),
-							authenticatedUser, organizationService.getMessageSourceAccessor(),
-							organizationService, addressService);
+					final var editor = organizationEditorFactory.createAdditionEditor(newOrganization);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);

@@ -19,6 +19,10 @@
 
 package fr.utbm.ciad.labmanager.views.components.organizationaddresses.views;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -32,12 +36,13 @@ import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.EmbeddedAddressEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -45,10 +50,6 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /** List all the addresses.
  * 
@@ -64,6 +65,8 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 
 	private final AddressDataProvider dataProvider;
 
+	private final AddressEditorFactory addressEditorFactory;
+	
 	private OrganizationAddressService addressService;
 
 	private Column<OrganizationAddress> nameColumn;
@@ -72,27 +75,25 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 
 	private Column<OrganizationAddress> validationColumn;
 
-	private final DownloadableFileManager fileManager;
-
 	/** Constructor.
 	 *
-	 * @param fileManager the manager of the filenames for the app.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param addressService the service for accessing the addresses.
+	 * @param addressEditorFactory the factory for creating the address editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardAddressListView(
-			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			OrganizationAddressService addressService, Logger logger) {
+			OrganizationAddressService addressService, AddressEditorFactory addressEditorFactory,
+			Logger logger) {
 		super(OrganizationAddress.class, authenticatedUser, messages, logger,
 				"views.addresses.delete.title", //$NON-NLS-1$
 				"views.addresses.delete.message", //$NON-NLS-1$
 				"views.addresses.delete_success", //$NON-NLS-1$
 				"views.addresses.delete_error"); //$NON-NLS-1$
-		this.fileManager = fileManager;
 		this.addressService = addressService;
+		this.addressEditorFactory = addressEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAddresses(query, filters);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -144,24 +145,27 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 
 	@Override
 	protected void addEntity() {
-		openAddressEditor(new OrganizationAddress(), getTranslation("views.addresses.add_address")); //$NON-NLS-1$
+		openAddressEditor(new OrganizationAddress(), getTranslation("views.addresses.add_address"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(OrganizationAddress address) {
-		openAddressEditor(address, getTranslation("views.addresses.edit_address", address.getName())); //$NON-NLS-1$
+		openAddressEditor(address, getTranslation("views.addresses.edit_address", address.getName()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of an address.
 	 *
 	 * @param address the address to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating an entity or editing it.
 	 */
-	protected void openAddressEditor(OrganizationAddress address, String title) {
-		final var editor = new EmbeddedAddressEditor(
-				this.addressService.startEditing(address),
-				this.fileManager,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openAddressEditor(OrganizationAddress address, String title, boolean isCreation) {
+		final AbstractEntityEditor<OrganizationAddress> editor;
+		if (isCreation) {
+			editor = this.addressEditorFactory.createAdditionEditor(address);
+		} else {
+			editor = this.addressEditorFactory.createUpdateEditor(address);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, OrganizationAddress> refreshAll = (dialog, entity) -> refreshGrid();
 		final SerializableBiConsumer<Dialog, OrganizationAddress> refreshOne = (dialog, entity) -> refreshItem(entity);

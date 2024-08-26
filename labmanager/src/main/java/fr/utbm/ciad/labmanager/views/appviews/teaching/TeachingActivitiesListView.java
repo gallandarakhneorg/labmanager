@@ -23,15 +23,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.teaching.editors.TeachingActivityEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.teaching.views.StandardTeachingActivitiesListView;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
@@ -57,26 +52,19 @@ public class TeachingActivitiesListView extends StandardTeachingActivitiesListVi
 
 	/** Constructor.
 	 *
-	 * @param fileManager the manager of filenames for uploaded files.
+	 * @param fileManager the manager of the downloadable files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param teachingService the service for accessing the teaching activities.
-	 * @param personService the service for accessing the persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the users.
-	 * @param organizationService the service for accessing the research organizations.
-	 * @param organizationEditorFactory the factory for creating organization editors.
-	 * @param addressService the service for accessing the organization addresses.
+	 * @param teachingEditorFactory the factory for creating the teaching activity editors.
 	 */
 	public TeachingActivitiesListView(
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
-			@Autowired TeachingService teachingService, @Autowired PersonService personService,
-			@Autowired PersonEditorFactory personEditorFactory,
-			@Autowired UserService userService, @Autowired ResearchOrganizationService organizationService,
-			@Autowired OrganizationEditorFactory organizationEditorFactory, @Autowired OrganizationAddressService addressService) {
-		super(fileManager, authenticatedUser, messages, teachingService, personService, personEditorFactory, userService, organizationService,
-				organizationEditorFactory, addressService, LOGGER);
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired TeachingService teachingService,
+			@Autowired TeachingActivityEditorFactory teachingEditorFactory) {
+		super(fileManager, authenticatedUser, messages, teachingService, teachingEditorFactory, LOGGER);
 	}
 
 	@Override

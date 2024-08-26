@@ -53,7 +53,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 	 *
 	 * @param role the role to search for.
 	 * @return the list of users.
+	 * @deprecated no replacement
 	 */
+	@Deprecated(since = "4.0", forRemoval = true)
 	List<User> findDistinctByRole(UserRole role);
 
 }

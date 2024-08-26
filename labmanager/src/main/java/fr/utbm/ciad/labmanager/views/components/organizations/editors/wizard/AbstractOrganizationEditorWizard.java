@@ -1,5 +1,10 @@
 package fr.utbm.ciad.labmanager.views.components.organizations.editors.wizard;
 
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
+
+import java.util.function.Consumer;
+
 import com.google.common.base.Strings;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
@@ -28,16 +33,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyString
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.value.ComboListField;
 import fr.utbm.ciad.labmanager.views.components.addons.value.LeftRightListsField;
-import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.EmbeddedAddressEditor;
+import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.AbstractOrganizationEditor;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.function.Consumer;
-
-import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
-import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
 
 /** Implementation for the editor of the information related to an organization. It is directly linked for
  * using it with a wizard.
@@ -68,13 +68,15 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	 * @param organizationService the service for accessing the organizations.
 	 * @param addressService the service for accessing the organization addresses.
 	 * @param organizationEditorFactory the factory of the organization editor.
+	 * @param addressEditorFactory the factory of the organization address editor.
 	 */
 	public AbstractOrganizationEditorWizard(AbstractEntityService.EntityEditingContext<ResearchOrganization> context, boolean relinkEntityWhenSaving,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory) {
-		super(context, relinkEntityWhenSaving, fileManager, authenticatedUser, messages, logger, organizationService, addressService, organizationEditorFactory);
+			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory) {
+		super(context, relinkEntityWhenSaving, fileManager, authenticatedUser, messages, logger,
+				organizationService, addressService, organizationEditorFactory, addressEditorFactory);
 	}
 
 	/** Create the content of the editor.
@@ -176,10 +178,7 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	@Override
 	protected void openAddressEditor(Consumer<OrganizationAddress> saver) {
 		final var newAddress = new OrganizationAddress();
-		final var editor = new EmbeddedAddressEditor(
-				this.addressService.startEditing(newAddress),
-				this.fileManager,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+		final var editor = this.addressEditorFactory.createAdditionEditor(newAddress);
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_address"), //$NON-NLS-1$
 				editor, false,
@@ -249,12 +248,7 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	@Override
 	protected void openOrganizationEditor(Consumer<ResearchOrganization> saver) {
 		final var newOrganization = new ResearchOrganization();
-		final var editor = getOrganizationEditorFactory().createAdditionEditor(
-				this.organizationService.startEditing(newOrganization),
-				this.fileManager,
-				getAuthenticatedUser(), getMessageSourceAccessor(),
-				this.organizationService,
-				this.addressService);
+		final var editor = getOrganizationEditorFactory().createAdditionEditor(newOrganization);
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_organization"), //$NON-NLS-1$
 				editor, false,

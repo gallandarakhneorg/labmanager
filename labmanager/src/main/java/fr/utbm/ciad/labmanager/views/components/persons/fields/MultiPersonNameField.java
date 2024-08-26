@@ -29,7 +29,6 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractMultiEntityNameField;
@@ -103,21 +102,16 @@ public class MultiPersonNameField extends AbstractMultiEntityNameField<Person> {
 	 *
 	 * @param personService the service for accessing the person JPA entities.
 	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the user JPA entities.
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 * @param initializer the initializer of the loaded persons. It may be {@code null}.
 	 */
-	public MultiPersonNameField(PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, AuthenticatedUser authenticatedUser,
+	public MultiPersonNameField(PersonService personService, PersonEditorFactory personEditorFactory, AuthenticatedUser authenticatedUser,
 			String creationTitle, Logger logger, Consumer<Person> initializer) {
 		this(personService,
 				(newPerson, saver) -> {
-					final var personContext = personService.startEditing(newPerson);
-					final var user = userService.getUserFor(newPerson);
-					final var userContext = userService.startEditing(user, personContext);
-					final var editor = personEditorFactory.createAdditionEditor(
-							userContext, personService, authenticatedUser, personService.getMessageSourceAccessor());
+					final var editor = personEditorFactory.createAdditionEditor(newPerson);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedPerson) -> saver.accept(changedPerson),
 							null);
@@ -140,14 +134,13 @@ public class MultiPersonNameField extends AbstractMultiEntityNameField<Person> {
 	 *
 	 * @param personService the service for accessing the person JPA entities.
 	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the user JPA entities.
 	 * @param authenticatedUser the user that is currently authenticated.
 	 * @param creationTitle the title of the dialog box for creating the person.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 */
-	public MultiPersonNameField(PersonService personService, PersonEditorFactory personEditorFactory, UserService userService, AuthenticatedUser authenticatedUser,
+	public MultiPersonNameField(PersonService personService, PersonEditorFactory personEditorFactory, AuthenticatedUser authenticatedUser,
 			String creationTitle, Logger logger) {
-		this(personService, personEditorFactory, userService, authenticatedUser, creationTitle, logger, null);
+		this(personService, personEditorFactory, authenticatedUser, creationTitle, logger, null);
 	}
 
 	private static Specification<Person> createPersonFilter(Optional<String> filter) {

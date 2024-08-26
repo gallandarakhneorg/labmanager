@@ -26,7 +26,9 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.EmbeddedOrganizationEditor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
@@ -41,22 +43,57 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultOrganizationEditorFactory implements OrganizationEditorFactory {
 
-	@Override
-	public AbstractEntityEditor<ResearchOrganization> createAdditionEditor(EntityEditingContext<ResearchOrganization> context,
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService) {
-		return new EmbeddedOrganizationEditor(context, fileManager, authenticatedUser, messages, organizationService, addressService, this);
+	private final DownloadableFileManager fileManager;
+
+	private final AuthenticatedUser authenticatedUser;
+
+	private final MessageSourceAccessor messages;
+
+	private final ResearchOrganizationService organizationService;
+
+	private final OrganizationAddressService addressService;
+
+	private final AddressEditorFactory addressEditorFactory;
+
+	/** Constructor.
+	 * 
+	 * @param fileManager the manager of files at the server-side.
+	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (Spring layer).
+	 * @param organizationService the service for accessing the organizations.
+	 * @param addressService the service for accessing the organization addresses.
+	 * @param addressEditorFactory the factory for creating the address editors.
+	 */
+	public DefaultOrganizationEditorFactory(
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired OrganizationAddressService addressService,
+			@Autowired AddressEditorFactory addressEditorFactory) {
+		this.fileManager = fileManager;
+		this.authenticatedUser = authenticatedUser;
+		this.messages = messages;
+		this.organizationService = organizationService;
+		this.addressService = addressService;
+		this.addressEditorFactory = addressEditorFactory;
 	}
 
 	@Override
-	public AbstractEntityEditor<ResearchOrganization> createUpdateEditor(EntityEditingContext<ResearchOrganization> context,
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ResearchOrganizationService organizationService,
-			OrganizationAddressService addressService) {
-		return new EmbeddedOrganizationEditor(context, fileManager, authenticatedUser, messages, organizationService, addressService, this);
+	public EntityEditingContext<ResearchOrganization> createContextFor(ResearchOrganization organization) {
+		return this.organizationService.startEditing(organization);
+	}
+	
+	@Override
+	public AbstractEntityEditor<ResearchOrganization> createAdditionEditor(EntityEditingContext<ResearchOrganization> context) {
+		return new EmbeddedOrganizationEditor(context, this.fileManager, this.authenticatedUser, this.messages,
+				this.organizationService, this.addressService, this, this.addressEditorFactory);
+	}
+
+	@Override
+	public AbstractEntityEditor<ResearchOrganization> createUpdateEditor(EntityEditingContext<ResearchOrganization> context) {
+		return new EmbeddedOrganizationEditor(context, this.fileManager, this.authenticatedUser, this.messages,
+				this.organizationService, this.addressService, this, this.addressEditorFactory);
 	}
 
 }

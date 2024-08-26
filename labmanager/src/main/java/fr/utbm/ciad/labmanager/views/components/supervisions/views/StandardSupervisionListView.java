@@ -40,18 +40,12 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
-import fr.utbm.ciad.labmanager.services.member.MembershipService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
-import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.supervisions.editors.EmbeddedSupervisionEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.supervisions.editors.SupervisionEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -77,22 +71,8 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	private final SupervisionDataProvider dataProvider;
 
 	private final SupervisionService supervisionService;
-
-	private final MembershipService membershipService;
 	
-	private final PersonService personService;
-
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
-	
-	private final ResearchOrganizationService organizationService;
-	
-	private final OrganizationAddressService addressService;
-
-	private final ScientificAxisService axisService;
-
-	private final OrganizationEditorFactory organizationEditorFactory;
+	private final SupervisionEditorFactory supervisionEditorFactory;
 
 	private Column<Supervision> supervisedPersonColumn;
 
@@ -107,23 +87,13 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param supervisionService the service for accessing the supervisions.
-	 * @param membershipService the service for accessing the membership JPA entities.
-	 * @param personService the service for accessing the person JPA entities.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the connected user JPA entities.
-	 * @param organizationService the service for accessing the organization JPA entities.
-	 * @param organizationEditorFactory the factory for creating the organization editors.
-	 * @param addressService the service for accessing the organization address JPA entities.
-	 * @param axisService the service for accessing the scientific axis JPA entities.
+	 * @param supervisionEditorFactory the factory for creating the person supervision editors.
 	 * @param logger the logger to use.
 	 * @since 4.0
 	 */
 	public StandardSupervisionListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			SupervisionService supervisionService, MembershipService membershipService, PersonService personService,
-			PersonEditorFactory personEditorFactory, UserService userService,
-			ResearchOrganizationService organizationService, OrganizationEditorFactory organizationEditorFactory,
-			OrganizationAddressService addressService, ScientificAxisService axisService,
+			SupervisionService supervisionService, SupervisionEditorFactory supervisionEditorFactory,
 			Logger logger) {
 		super(Supervision.class, authenticatedUser, messages, logger,
 				"views.supervision.delete.title", //$NON-NLS-1$
@@ -131,14 +101,7 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 				"views.supervision.delete_success", //$NON-NLS-1$
 				"views.supervision.delete_error"); //$NON-NLS-1$
 		this.supervisionService = supervisionService;
-		this.membershipService = membershipService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
-		this.organizationService = organizationService;
-		this.addressService = addressService;
-		this.axisService = axisService;
-		this.organizationEditorFactory = organizationEditorFactory;
+		this.supervisionEditorFactory = supervisionEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllSupervisions(query, filters, this::initializeEntityFromJPA);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -237,26 +200,27 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 
 	@Override
 	protected void addEntity() {
-		openSupervisionEditor(new Supervision(), getTranslation("views.supervision.add_supervision")); //$NON-NLS-1$
+		openSupervisionEditor(new Supervision(), getTranslation("views.supervision.add_supervision"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(Supervision supervision) {
-		openSupervisionEditor(supervision, getTranslation("views.supervision.edit_supervision", supervision.getTitle())); //$NON-NLS-1$
+		openSupervisionEditor(supervision, getTranslation("views.supervision.edit_supervision", supervision.getTitle()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a supervision.
 	 *
 	 * @param supervision the supervision to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openSupervisionEditor(Supervision supervision, String title) {
-		final var editor = new EmbeddedSupervisionEditor(
-				this.supervisionService.startEditing(supervision),
-				this.membershipService, this.personService, this.personEditorFactory, this.userService,
-				this.organizationService, this.organizationEditorFactory,
-				this.addressService, this.axisService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openSupervisionEditor(Supervision supervision, String title, boolean isCreation) {
+		final AbstractEntityEditor<Supervision> editor;
+		if (isCreation) {
+			editor = this.supervisionEditorFactory.createAdditionEditor(supervision);
+		} else {
+			editor = this.supervisionEditorFactory.createUpdateEditor(supervision);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Supervision> refreshAll = (dialog, entity) -> {
 			// The person should be loaded because it was not loaded before

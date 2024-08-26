@@ -19,6 +19,10 @@
 
 package fr.utbm.ciad.labmanager.views.components.jurys.views;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -40,13 +44,12 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
-import fr.utbm.ciad.labmanager.views.components.jurys.editors.EmbeddedJuryMembershipEditor;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.jurys.editors.JuryMembershipEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -56,10 +59,6 @@ import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 /** List all the jury memberships.
  * 
@@ -75,13 +74,9 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 
 	private final JuryMembershipDataProvider dataProvider;
 
-	private final PersonService personService;
+	private final JuryMembershipService membershipService;
 
-	private final PersonEditorFactory personEditorFactory;
-
-	private final UserService userService;
-
-	private JuryMembershipService membershipService;
+	private final JuryMembershipEditorFactory juryMembershipEditorFactory;
 
 	private Column<JuryMembership> candidateColumn;
 
@@ -102,24 +97,19 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param membershipService the service for accessing the jury memberships.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
+	 * @param juryMembershipEditorFactory the factory for creating the jury membership editors.
 	 * @param logger the logger to use.
 	 */
 	public StandardJuryMembershipListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			JuryMembershipService membershipService, PersonService personService,
-			PersonEditorFactory personEditorFactory, UserService userService,Logger logger) {
+			JuryMembershipService membershipService, JuryMembershipEditorFactory juryMembershipEditorFactory, Logger logger) {
 		super(JuryMembership.class, authenticatedUser, messages, logger,
 				"views.jury_membership.delete.title", //$NON-NLS-1$
 				"views.jury_membership.delete.message", //$NON-NLS-1$
 				"views.jury_membership.delete_success", //$NON-NLS-1$
 				"views.jury_membership.delete_error"); //$NON-NLS-1$
 		this.membershipService = membershipService;
-		this.personService = personService;
-		this.personEditorFactory = personEditorFactory;
-		this.userService = userService;
+		this.juryMembershipEditorFactory = juryMembershipEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters, this::initializeEntityFromJPA);
 		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
@@ -237,24 +227,27 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 
 	@Override
 	protected void addEntity() {
-		openMembershipEditor(new JuryMembership(), getTranslation("views.jury_membership.add_membership")); //$NON-NLS-1$
+		openMembershipEditor(new JuryMembership(), getTranslation("views.jury_membership.add_membership"), true); //$NON-NLS-1$
 	}
 
 	@Override
 	protected void edit(JuryMembership membership) {
-		openMembershipEditor(membership, getTranslation("views.jury_membership.edit_membership", membership.getTitle())); //$NON-NLS-1$
+		openMembershipEditor(membership, getTranslation("views.jury_membership.edit_membership", membership.getTitle()), false); //$NON-NLS-1$
 	}
 
 	/** Show the editor of a jury membership.
 	 *
 	 * @param membership the jury membership to edit.
 	 * @param title the title of the editor.
+	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
-	protected void openMembershipEditor(JuryMembership membership, String title) {
-		final var editor = new EmbeddedJuryMembershipEditor(
-				this.membershipService.startEditing(membership),
-				this.personService, this.personEditorFactory, this.userService,
-				getAuthenticatedUser(), getMessageSourceAccessor());
+	protected void openMembershipEditor(JuryMembership membership, String title, boolean isCreation) {
+		final AbstractEntityEditor<JuryMembership>  editor;
+		if (isCreation) {
+			editor = this.juryMembershipEditorFactory.createAdditionEditor(membership);
+		} else {
+			editor = this.juryMembershipEditorFactory.createUpdateEditor(membership);
+		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, JuryMembership> refreshAll = (dialog, entity) -> {
 			// The person should be loaded because it was not loaded before

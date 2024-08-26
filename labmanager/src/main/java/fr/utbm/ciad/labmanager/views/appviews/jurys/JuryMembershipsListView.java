@@ -24,11 +24,9 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.jurys.editors.JuryMembershipEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.jurys.views.StandardJuryMembershipListView;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,18 +54,14 @@ public class JuryMembershipsListView extends StandardJuryMembershipListView impl
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param membershipService the service for accessing the jury memberships.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
+	 * @param juryMembershipEditorFactory the factory for creating the jury membership editors.
 	 */
 	public JuryMembershipsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired JuryMembershipService membershipService,
-			@Autowired PersonService personService,
-			@Autowired PersonEditorFactory personEditorFactory,
-			@Autowired UserService userService) {
-		super(authenticatedUser, messages, membershipService, personService, personEditorFactory, userService, LOGGER);
+			@Autowired JuryMembershipEditorFactory juryMembershipEditorFactory) {
+		super(authenticatedUser, messages, membershipService, juryMembershipEditorFactory, LOGGER);
 	}
 
 	@Override

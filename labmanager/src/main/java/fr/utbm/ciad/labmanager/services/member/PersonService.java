@@ -150,6 +150,16 @@ public class PersonService extends AbstractEntityService<Person> {
 		return this.personRepository.count();
 	}
 
+	/** Replies the number of persons who are inside the database, and who are fitting the given filter.
+	 *
+	 * @param filter the filter to apply for counting.
+	 * @return the total number of persons.
+	 * @since 4.0
+	 */
+	public long countAllPersons(Specification<Person> filter) {
+		return this.personRepository.count(filter);
+	}
+
 	/** Replies the name parser that is used by this service.
 	 *
 	 * @return the name parser.
@@ -214,138 +224,6 @@ public class PersonService extends AbstractEntityService<Person> {
 			page.forEach(initializer);
 		}
 		return page;
-	}
-
-	/** Replies the list of the persons who have the given name (first name or last name).
-	 *
-	 * @param name the name to search for.
-	 * @param pageable the manager of pages.
-	 * @return the list of the persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public Page<Person> getPersonsByName(String name, Pageable pageable) {
-		return this.personRepository.findByName(name, pageable);
-	}
-
-	/** Replies the list of the persons who have the given name (first name or last name) and associated to the organization with a similar acronym.
-	 *
-	 * @param name the name to search for.
-	 * @param organization the acronym of the organization to search for.
-	 * @param pageable the manager of pages.
-	 * @return the list of the persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public Page<Person> getPersonsByNameAndOrganizationAcronym(String name, String organization, Pageable pageable) {
-		return this.personRepository.findByNameAndOrganizationAcronym(name, organization, pageable);
-	}
-
-	/** Replies the list of the persons who have the given ORCID.
-	 *
-	 * @param orcid the ORCID to search for.
-	 * @param pageable the manager of pages.
-	 * @return the list of the persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public Page<Person> getPersonsByOrcid(String orcid, Pageable pageable) {
-		return this.personRepository.findByOrcid(orcid, pageable);
-	}
-
-	/** Replies the list of the persons who have the given ORCID and associated to the organization with a similar acronym.
-	 *
-	 * @param orcid the ORCID to search for.
-	 * @param organization the acronym of the organization to search for.
-	 * @param pageable the manager of pages.
-	 * @return the list of the persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public Page<Person> getPersonsByOrcidAndOrganizationAcronym(String orcid, String organization, Pageable pageable) {
-		return this.personRepository.findByOrcidAndOrganizationAcronym(orcid, organization, pageable);
-	}
-	
-	/** Replies the list of the persons who are associated to an organization with the given acronym.
-	 *
-	 * @param acronym the organization acronym to search for.
-	 * @param pageable the manager of pages.
-	 * @return the list of the persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public Page<Person> getPersonsByOrganizationAcronym(String acronym, Pageable pageable) {
-		return this.personRepository.findByOrganizationAcronym(acronym, pageable);
-	}
-
-	/** Replies the list of the persons who are associated to an organization with acronyms similar to the given acronyms.
-	 *
-	 * @param acronym1 the organization acronym to search for.
-	 * @param acronym2 the organization acronym to search for.
-	 * @param pageable the manager of pages.
-	 * @return the list of the persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public Page<Person> getPersonsByOrganizationAcronyms(String acronym1, String acronym2,  Pageable pageable) {
-		return this.personRepository.findByOrganizationAcronyms(acronym1, acronym2, pageable);
-	}
-
-	/** Replies the number of persons who have the given name (first name or last name).
-	 *
-	 * @param name the name to search for.
-	 * @return the number of persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public long countPersonsByName(String name) {
-		return this.personRepository.countByName(name);
-	}
-
-	/** Replies the number of persons who have the given name (first name or last name) and associated to the organization with a similar acronym.
-	 *
-	 * @param name the name to search for.
-	 * @param organization the acronym of the organization to search for.
-	 * @return the number of persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public long countPersonsByNameAndOrganizationAcronym(String name, String organization) {
-		return this.personRepository.countByNameAndOrganizationAcronym(name, organization);
-	}
-
-	/** Replies the number of persons who have the given ORCID.
-	 *
-	 * @param orcid the ORCID to search for.
-	 * @return the number of persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public long countPersonsByOrcid(String orcid) {
-		return this.personRepository.countByOrcid(orcid);
-	}
-
-	/** Replies the number of persons who have the given ORCID and associated to the organization with a similar acronym.
-	 *
-	 * @param orcid the ORCID to search for.
-	 * @param organization the acronym of the organization to search for.
-	 * @return the number of persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public long countPersonsByOrcidAndOrganizationAcronym(String orcid, String organization) {
-		return this.personRepository.countByOrcidAndOrganizationAcronym(orcid, organization);
-	}
-
-	/** Replies the number of persons who are associated to an organization with the given acronym.
-	 *
-	 * @param acronym the organization acronym to search for.
-	 * @return the number of persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public long countPersonsByOrganizationAcronym(String acronym) {
-		return this.personRepository.countByOrganizationAcronym(acronym);
-	}
-
-	/** Replies the number of persons who are associated to an organization with acronyms similar to the given acronyms.
-	 *
-	 * @param acronym1 the organization acronym to search for.
-	 * @param acronym2 the organization acronym to search for.
-	 * @return the number of persons who fits the constraint.
-	 * @since 4.0
-	 */
-	public long countPersonsByOrganizationAcronyms(String acronym1, String acronym2) {
-		return this.personRepository.countByOrganizationAcronyms(acronym1, acronym2);
 	}
 
 	/** Replies the person with the given identifier.

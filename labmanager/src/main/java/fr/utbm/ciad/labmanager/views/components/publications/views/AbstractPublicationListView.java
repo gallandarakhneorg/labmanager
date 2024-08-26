@@ -85,6 +85,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
@@ -697,21 +698,9 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 	private AbstractEntityEditor<Publication> createPublicationUpdateEditor(Publication publication) {
 		return this.publicationEditorFactory.createUpdateEditor(
-				this.publicationService.startEditing(publication),
+				publication,
 				getSupportedPublicationTypeArray(),
 				true,
-				this.fileManager,
-				this.publicationService,
-				this.personService,
-				this.personEditorFactory,
-				this.userService,
-				this.journalService,
-				this.journalEditorFactory,
-				this.conferenceService,
-				this.conferenceEditorFactory,
-				this.axisService,
-				getAuthenticatedUser(),
-				getMessageSourceAccessor(),
 				this.personCreationLabelKey,
 				this.personFieldLabelKey,
 				this.personFieldHelperLabelKey,
@@ -1022,29 +1011,17 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	protected void openPublicationEditor(Publication publication, String title, boolean saveInDatabase, boolean isCreation, SerializableBiConsumer<Dialog, Publication> refreshAll) {
 		final AbstractEntityEditor<Publication> editor;
 		if (isCreation) {
-			editor = createPublicationUpdateEditor(publication);
-		} else {
-			editor = this.publicationEditorFactory.createUpdateEditor(
-					this.publicationService.startEditing(publication),
+			editor = this.publicationEditorFactory.createAdditionEditor(
+					publication,
 					getSupportedPublicationTypeArray(),
 					true,
-					this.fileManager,
-					this.publicationService,
-					this.personService,
-					this.personEditorFactory,
-					this.userService,
-					this.journalService,
-					this.journalEditorFactory,
-					this.conferenceService,
-					this.conferenceEditorFactory,
-					this.axisService,
-					getAuthenticatedUser(),
-					getMessageSourceAccessor(),
 					this.personCreationLabelKey,
 					this.personFieldLabelKey,
 					this.personFieldHelperLabelKey,
 					this.personNullErrorKey,
 					this.personDuplicateErrorKey);
+		} else {
+			editor = createPublicationUpdateEditor(publication);
 		}
 		openPublicationEditor(editor, title, saveInDatabase, refreshAll);
 	}
