@@ -125,4 +125,17 @@ public interface ScimagoPlatform {
 		return getJournalRanking(year, getJournalCsvUrl(year), journalId, progress);
 	}
 
+	/** Format the given scimago category in order to by found in the data given by {@link #getJournalRanking(int, URL, Progression)}.
+	 *
+	 * @param inputCategory the input scientific category.
+	 * @return the formatted category.
+	 * @since 4.0
+	 */
+	static String formatCategory(String inputCategory) {
+		if (inputCategory == null) {
+			return null;
+		}
+		return inputCategory.trim().toLowerCase();
+	}
+
 }

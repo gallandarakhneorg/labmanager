@@ -19,18 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.io.scimago;
 
-import com.google.common.base.Strings;
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
-import org.arakhne.afc.progress.DefaultProgression;
-import org.arakhne.afc.progress.Progression;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilderFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,6 +30,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Strings;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.Progression;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** Accessor to the online Scimago platform.
  * 
@@ -57,16 +57,40 @@ import java.util.regex.Pattern;
 public class OnlineScimagoPlatform implements ScimagoPlatform {
 
 	/** Name of the column for the journal id.
+	 *
+	 * @since 4.0
 	 */
-	protected static final String SOURCE_ID_COLUMN = "Sourceid"; //$NON-NLS-1$
+	protected static final String SOURCE_ID_COLUMN_NAME = "Sourceid"; //$NON-NLS-1$
+
+	/** Zero-based index of the column for the journal id.
+	 *
+	 * @since 4.0
+	 */
+	protected static final int SOURCE_ID_COLUMN_INDEX = 1;
 
 	/** Name of the column for the journal categories and their quartiles.
+	 *
+	 * @since 4.0
 	 */
-	protected static final String CATEGORY_COLUMN = "Categories"; //$NON-NLS-1$
+	protected static final String CATEGORY_COLUMN_NAME = "Categories"; //$NON-NLS-1$
+
+	/** Zero-based index of the column for the journal categories and their quartiles.
+	 *
+	 * @since 4.0
+	 */
+	protected static final int CATEGORY_COLUMN_INDEX = 22;
 
 	/** Name of the column for the journal best quartile.
+	 *
+	 * @since 4.0
 	 */
-	protected static final String BEST_QUARTILE_COLUMN = "SJR Best Quartile"; //$NON-NLS-1$
+	protected static final String BEST_QUARTILE_COLUMN_NAME = "SJR Best Quartile"; //$NON-NLS-1$
+
+	/** Zero-based index of the column for the journal best quartile.
+	 *
+	 * @since 4.0
+	 */
+	protected static final int BEST_QUARTILE_COLUMN_INDEX = 6;
 
 	private static final String SCHEME = "https"; //$NON-NLS-1$
 
@@ -98,6 +122,26 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 
 	private final Map<Integer, Map<String, Map<String, QuartileRanking>>> rankingCache = new ConcurrentHashMap<>();
 
+	private boolean searchForColumnsFromNames;
+
+	/** Replies if the CSV columns should be detemrines based on the column names.
+	 *
+	 * @return {@code true} if the CSV columns are searched based on their names.
+	 * @since 4.0
+	 */
+	public boolean getSearchForColumnsFromNames() {
+		return this.searchForColumnsFromNames;
+	}
+
+	/** Change the flag if the CSV columns should be detemrines based on the column names.
+	 *
+	 * @param enable {@code true} if the CSV columns are searched based on their names.
+	 * @since 4.0
+	 */
+	public void setSearchForColumnsFromNames(boolean enable) {
+		this.searchForColumnsFromNames = enable;
+	}
+	
 	@Override
 	public URL getJournalPictureUrl(String journalId) {
 		if (!Strings.isNullOrEmpty(journalId)) {
@@ -165,7 +209,7 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 							final var quartile = QuartileRanking.valueOfCaseInsensitive(matcher.group(2));
 							final var name = matcher.group(1);
 							if (!Strings.isNullOrEmpty(name)) {
-								callback.accept(name.toLowerCase(), quartile);
+								callback.accept(name, quartile);
 							}
 						} catch (Throwable ex) {
 							//
@@ -185,7 +229,7 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	}
 
 	@SuppressWarnings("resource")
-	private static void analyzeCsvRecords(URL csvUrl, Progression progress, Consumer4 consumer) {
+	private static void analyzeCsvRecords(URL csvUrl, boolean searchColumnsByName, Progression progress, Consumer4 consumer) {
 		progress.setProperties(0, 0, 100, false);
 		try (final var reader = new BufferedReader(new InputStreamReader(csvUrl.openStream()))) {
 			final var parserBuilder = new CSVParserBuilder();
@@ -199,27 +243,33 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 			// Search for the column headers
 			var row = csvReader.readNext();
 			if (row == null) {
-				throw new IOException("Unable to find the column \"" + SOURCE_ID_COLUMN + "\" in the Scimago CSV data source"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IOException("Unable to find the column \"" + SOURCE_ID_COLUMN_NAME + "\" (index: " + SOURCE_ID_COLUMN_INDEX + ") in the Scimago CSV data source"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 			Integer bestQuartileColumn = null;
 			Integer categoryColumn = null;
 			Integer sourceIdColumn = null;
-			var i = 0;
-			while (i < row.length && (sourceIdColumn == null || categoryColumn == null || bestQuartileColumn == null)) {
-				final var name = row[i];
-				if (sourceIdColumn == null && SOURCE_ID_COLUMN.equalsIgnoreCase(name)) {
-					sourceIdColumn = Integer.valueOf(i);
+			if (searchColumnsByName) {
+				var i = 0;
+				while (i < row.length && (sourceIdColumn == null || categoryColumn == null || bestQuartileColumn == null)) {
+					final var name = row[i];
+					if (sourceIdColumn == null && SOURCE_ID_COLUMN_NAME.equalsIgnoreCase(name)) {
+						sourceIdColumn = Integer.valueOf(i);
+					}
+					if (categoryColumn == null && CATEGORY_COLUMN_NAME.equalsIgnoreCase(name)) {
+						categoryColumn = Integer.valueOf(i);
+					}
+					if (bestQuartileColumn == null && BEST_QUARTILE_COLUMN_NAME.equalsIgnoreCase(name)) {
+						bestQuartileColumn = Integer.valueOf(i);
+					}
+					++i;
 				}
-				if (categoryColumn == null && CATEGORY_COLUMN.equalsIgnoreCase(name)) {
-					categoryColumn = Integer.valueOf(i);
-				}
-				if (bestQuartileColumn == null && BEST_QUARTILE_COLUMN.equalsIgnoreCase(name)) {
-					bestQuartileColumn = Integer.valueOf(i);
-				}
-				++i;
+			} else {
+				sourceIdColumn = Integer.valueOf(SOURCE_ID_COLUMN_INDEX);
+				categoryColumn = Integer.valueOf(CATEGORY_COLUMN_INDEX);
+				bestQuartileColumn = Integer.valueOf(BEST_QUARTILE_COLUMN_INDEX);
 			}
 			if (sourceIdColumn == null) {
-				throw new IOException("Unable to find the column \"" + SOURCE_ID_COLUMN + "\" in the Scimago CSV data source"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IOException("Unable to find the column \"" + SOURCE_ID_COLUMN_NAME + "\" (index: " + SOURCE_ID_COLUMN_INDEX + ") in the Scimago CSV data source"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 			if (bestQuartileColumn == null && categoryColumn == null) {
 				throw new IOException("No column for quartiles in the Scimago CSV data source"); //$NON-NLS-1$
@@ -236,15 +286,15 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 		}
 	}
 	
-	private static Map<String, Map<String, QuartileRanking>> readJournalRanking(URL csvUrl, Progression rootProgress) {
+	private static Map<String, Map<String, QuartileRanking>> readJournalRanking(URL csvUrl, boolean searchColumnsByName, Progression rootProgress) {
 		final var ranking = new TreeMap<String, Map<String, QuartileRanking>>();
-		analyzeCsvRecords(csvUrl, rootProgress, (stream, sourceIdColumn, categoryColumn, bestQuartileColumn, progress) -> {
+		analyzeCsvRecords(csvUrl, searchColumnsByName, rootProgress, (stream, sourceIdColumn, categoryColumn, bestQuartileColumn, progress) -> {
 			var row = stream.readNext();
 			final var rowProgress = progress.subTask(99, 0, row == null ? 0 : row.length);
 			while (row != null) {
 				final var journalRanking = new HashMap<String, QuartileRanking>();
 				analyzeCsvRecord(categoryColumn, bestQuartileColumn, row,
-						(a, b) -> journalRanking.put(a, b));
+						(a, b) -> journalRanking.put(ScimagoPlatform.formatCategory(a), b));
 				if (!journalRanking.isEmpty()) {
 					final var journalId = row[sourceIdColumn.intValue()];
 					ranking.put(journalId, journalRanking);
@@ -263,7 +313,7 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 
 	@Override
 	public Map<String, Map<String, QuartileRanking>> getJournalRanking(int year, URL csvUrl, Progression progress) throws Exception {
-		return this.rankingCache.computeIfAbsent(Integer.valueOf(year), it -> readJournalRanking(csvUrl, ensureProgress(progress)));
+		return this.rankingCache.computeIfAbsent(Integer.valueOf(year), it -> readJournalRanking(csvUrl, getSearchForColumnsFromNames(), ensureProgress(progress)));
 	}
 
 	/** Call back for {@link OnlineScimagoPlatform#analyzeCsvRecords(int, Consumer)}.

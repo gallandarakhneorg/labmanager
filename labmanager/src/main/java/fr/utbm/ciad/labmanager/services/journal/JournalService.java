@@ -586,7 +586,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 		for (final var journal : journals) {
 			progress0.setComment(journal.getJournalName());
 			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
-				final var scientificField = journal.getScimagoCategory();
+				final var scientificField = ScimagoPlatform.formatCategory(journal.getScimagoCategory());
 				final var lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
 				final var rankings = this.scimago.getJournalRanking(referenceYear, journal.getScimagoId(), progress0.subTask(1));
 				progress0.ensureNoSubTask();
@@ -629,7 +629,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 		for (final var journal : journals) {
 			progress0.setComment(journal.getJournalName());
 			if (!Strings.isNullOrEmpty(journal.getWosId())) {
-				final var scientificField = journal.getWosCategory();
+				final var scientificField = WebOfSciencePlatform.formatCategory(journal.getWosCategory());
 				final var lastWosQuartile = journal.getWosQIndexByYear(referenceYear);
 				final var lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
 				final var rankings = this.wos.getJournalRanking(journal.getWosId(), progress0.subTask(1));
@@ -637,8 +637,8 @@ public class JournalService extends AbstractEntityService<Journal> {
 				if (rankings != null) {
 					final var currentImpactFactor = rankings.impactFactor;
 					QuartileRanking q = null;
-					if (!Strings.isNullOrEmpty(journal.getWosCategory())) {
-						q = rankings.quartiles.get(journal.getWosCategory());
+					if (!Strings.isNullOrEmpty(scientificField)) {
+						q = rankings.quartiles.get(scientificField);
 					}
 					if (q == null) {
 						final var availableQuartiles = rankings.quartiles.entrySet().stream().filter(it -> !ScimagoPlatform.BEST.equals(it.getKey())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

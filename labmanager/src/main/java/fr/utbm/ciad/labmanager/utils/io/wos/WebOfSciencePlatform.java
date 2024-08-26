@@ -142,6 +142,19 @@ public interface WebOfSciencePlatform {
 	 */
 	WebOfSciencePerson getPersonRanking(URL wosProfile, Progression progress) throws Exception;
 
+	/** Format the given web-of-science category in order to by found in the data given by {@link #getJournalRanking(int, InputStream, Progression)}.
+	 *
+	 * @param inputCategory the input scientific category.
+	 * @return the formatted category.
+	 * @since 4.0
+	 */
+	static String formatCategory(String inputCategory) {
+		if (inputCategory == null) {
+			return null;
+		}
+		return inputCategory.trim().toLowerCase();
+	}
+	
 	/** Accessor to the online Web-of-Science platform.
 	 * 
 	 * @author $Author: sgalland$

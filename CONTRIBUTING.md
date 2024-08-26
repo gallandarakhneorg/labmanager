@@ -26,7 +26,7 @@ You should clone your Git repository on your local computer to let you work loca
 ```
 $> git clone https://github.com/myself/labmanager.git
 ```
-The folder in which the source code is copied is assumed to be named `/path/to/src/labmanager` (using Unix standard).
+The folder in which the source code is copied is assumed to be named `/path/to/src/labmanager` (using Unix standard), where `/path/to/src` in the path in which Git has cloned the repository.
 This folder contains the root file `pom.xml`.
 
 #### 1.2.3. First compilation on CLI:
@@ -46,7 +46,7 @@ For creating the project in the Eclipse IDE, you have to follow the steps:
   * Click on the `Finish` button to create the project
 
 #### 1.2.5. Change of the development configuration:
-During the development stage, you will have to use a specific SpringBoot configuration. This configuration is stored into the file `/path/to/src/labmanagersrc/main/resources/application-dev.yml` as a YAML configuration file associated to the profile "dev". You must edit this file with your local information as described below. *Don't save these changes on the Git repository*.
+During the development stage, you will have to use a specific SpringBoot configuration. This configuration is stored into the file `/path/to/src/labmanager/src/main/resources/application-dev.yml` as a YAML configuration file associated to the profile "dev". You must edit this file with your local information as described below. *Don't save these changes on the Git repository. We recommend to create your own profile by creating a file `application-mpr.yml` where `mpr` is the name of your profile.*
 * *Change the developer database configuration:* Apache Derby was selected as a local database engine for contributors because it is easy to install and use. The configuration file uses Derby local database by default. To indicate where Derby is saving the database, replace `/tmp/labmanager-tmp/db` by the path of the folder that should contains all the database.
 ```
 spring:
@@ -103,14 +103,14 @@ For launching the backend services into a local Tomcat server, you could launch 
   * Enter the name of the run configuration on the right part of the wizard windows, e.g. with `labmanager`
   * Select the `labmanager` project below
   * Enter the main type: `fr.utbm.ciad.labmanager.LabManagerApplication`
-  * Enter the profile: `dev` (or the name of the YAML configuration you would like to use, see `application-dev.yml`)
+  * Enter the profile: `dev` or `mpr` (or the name of the YAML configuration you would like to use, see `application-dev.yml` or `application-mpr.yml`)
   * Click on the `Run` button for saving the launch configuration and launching the SpringBoot application
 * *For Regular Java App:*
   * Open the menu `Run > Run configurations`
   * Select the type `Java Application` and click on the `Create new run configuration` button at the top of the list
   * Enter the name of the run configuration on the right part of the wizard windows, e.g. with `labmanager`
   * Enter the main type: `fr.utbm.ciad.labmanager.LabManagerApplication`
-  * In the "Arguments" tab, enter the following command-line option for the Virtual Machine : `-Dspring.profiles.active=dev`, where `dev` is the name of the configuration with an `application-dev.yml` file.
+  * In the "Arguments" tab, enter the following command-line option for the Virtual Machine : `-Dspring.profiles.active=dev`, where `dev` is the name of the configuration with an `application-dev.yml` file. You could also use your own profile `mpr` if you have defined it.
   * Click on the `Run` button for saving the launch configuration and launching the regular Java application
 
 ### 1.4. Initial database schema creation
@@ -120,7 +120,7 @@ The project is configured for creating automatically a schema in the database fr
 
 #### 1.4.1. Injecting data from data.json
 
-The project is configured for inserting automatically the data that is described into a specific JSON file in a folder that is specified in the developer YAML confiuration file (see above).
+The project is configured for inserting automatically the data that is described into a specific JSON file in a folder that is specified in the developer YAML configuration file (see above).
 
 For injecting initial data in the database, you have to follow the steps:
 

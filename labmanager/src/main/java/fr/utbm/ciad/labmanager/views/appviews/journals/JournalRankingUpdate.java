@@ -19,14 +19,20 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.journals;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Stream;
+
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
+import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
+import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
-
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Stream;
 
 /** Data in the wizard for updating the journal ranking
  * 
@@ -202,10 +208,10 @@ public class JournalRankingUpdate extends AbstractContextData {
 			final var journalId = Long.valueOf(journal.getId());
 			
 			final var scimago = this.scimago.getOrDefault(journalId, defaultRanking);
-			final var scimagoQ = extractNewQuartile(journal.getScimagoCategory(), scimago);
+			final var scimagoQ = extractNewQuartile(ScimagoPlatform.formatCategory(journal.getScimagoCategory()), scimago);
 			
 			final var wos = this.wos.getOrDefault(journalId, defaultRanking);
-			final var wosQ = extractNewQuartile(journal.getWosCategory(), wos);
+			final var wosQ = extractNewQuartile(WebOfSciencePlatform.formatCategory(journal.getWosCategory()), wos);
 
 			final var impactFactors = this.impactFactors.getOrDefault(journalId, defaultImpacts);
 			final var currentIF = extractNewImpactFactor(impactFactors);
