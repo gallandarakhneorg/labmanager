@@ -377,8 +377,7 @@ public class ExporterConfigurator {
 
 	private static boolean isResearcher(Membership membership) {
 		final var it = membership.getMemberStatus();
-		return it.isResearcher() && it != MemberStatus.POSTDOC && it != MemberStatus.PHD_STUDENT
-				&& it != MemberStatus.ASSOCIATED_MEMBER;
+		return it.isResearcher() && !it.isExternalPosition() && it != MemberStatus.POSTDOC && it != MemberStatus.PHD_STUDENT;
 	}
 
 	private static boolean isPhDStudent(Membership membership) {

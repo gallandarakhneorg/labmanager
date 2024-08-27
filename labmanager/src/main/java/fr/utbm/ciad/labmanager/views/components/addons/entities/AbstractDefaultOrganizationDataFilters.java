@@ -93,7 +93,7 @@ public abstract class AbstractDefaultOrganizationDataFilters<T> extends Abstract
 
 	/** Invoked to update the icon of the organization in the toggle button.
 	 */
-	final void updateDefaultOrganizationIconInToggleButton() {
+	public final void updateDefaultOrganizationIconInToggleButton() {
 		updateDefaultOrganizationIconInToggleButton(this.defaultOrganizationAvatar, this.defaultOrganization.get(), this.fileManager.get());
 	}
 

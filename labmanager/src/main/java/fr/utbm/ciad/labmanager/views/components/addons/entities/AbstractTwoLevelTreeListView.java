@@ -18,6 +18,12 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.entities;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.treegrid.TreeGrid;
@@ -33,12 +39,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Abstract implementation of a list of entities based on a tree grid view in which the root entity is of
  * a different type of the child entities. There is only two levels: root entities and child entities.
@@ -244,6 +244,52 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	@Override
 	protected final void initializeDataInGrid(TreeGrid<TreeListEntity<R, C>> grid, AbstractFilters<C> filters) {
 		grid.setDataProvider(new LazyDataProvider(filters));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected final void onSelectionChange(Set<?> selection) {
+		onChildSelectionChange(selection.stream().filter(it -> {
+			if (it instanceof TreeListEntity tle) {
+				return tle.getRootEntity() == null && tle.getChildEntity() != null;
+			}
+			return false;
+		}).map(it -> (TreeListEntity<R, C>) it));
+	}
+
+	/** Invoked when the selection of the children has changed in the list.
+	 *
+	 * @param selection the selected items.
+	 */
+	protected void onChildSelectionChange(Stream<? extends TreeListEntity<R, C>> selection) {
+		final boolean hasOne;
+		final boolean hasTwo;
+		final var iterator = selection.iterator();
+		if (iterator.hasNext()) {
+			hasOne = true;
+			iterator.next();
+			hasTwo = iterator.hasNext();
+		} else {
+			hasOne = false;
+			hasTwo = false;
+		}
+		onChildSelectionChange(hasOne, hasTwo);
+	}
+
+	/** Invoked when the selection of the children has changed in the list.
+	 *
+	 * @param hasOne indicates if the selection contains at least one element.
+	 * @param hasTwo indicates if the selection contains at least two elements. If {@code hasTwo} is {@code true} then {@code hasOne} is also {@code true}.
+	 */
+	protected void onChildSelectionChange(boolean hasOne, boolean hasTwo) {
+		final var ebt = getEditButton();
+		if (ebt != null) {
+			ebt.setEnabled(hasOne && !hasTwo);
+		}
+		final var dbt = getDeleteButton();
+		if (dbt != null) {
+			dbt.setEnabled(hasOne);
+		}
 	}
 
 	/** Lazy data provider for {@link AbstractTwoLevelTreeListView}.

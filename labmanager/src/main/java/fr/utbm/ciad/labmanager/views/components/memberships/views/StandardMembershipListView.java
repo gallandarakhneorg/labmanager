@@ -132,6 +132,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		setChildEntityFetcher((parentId, pageRequest, filters) -> {
 			return this.membershipService.getMembershipsForPerson(parentId, pageRequest, filters);
 		});
+		postInitializeFilters();
 		initializeDataInGrid(getGrid(), getFilters());
 	}
 
@@ -292,10 +293,9 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	}
 
 	@Override
-	protected void onSelectionChange(Set<?> selection) {
-		final int size = selection.size();
-		super.onSelectionChange(selection);
-		this.extendsContractButton.setEnabled(size == 1);
+	protected void onChildSelectionChange(boolean hasOne, boolean hasTwo) {
+		super.onChildSelectionChange(hasOne, hasTwo);
+		this.extendsContractButton.setEnabled(hasOne && !hasTwo);
 	}
 
 	@Override
@@ -361,11 +361,15 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	private static ResearchOrganization getService(Membership membership) {
 		assert membership != null;
-		final var employer = membership.getSuperResearchOrganization();
-		if (employer != null) {	// TODO : Check function I think it should be employer == null
-			return membership.getDirectResearchOrganization();
+		final var employerOpt = membership.getEmployer();
+		if (employerOpt.isPresent()) {
+			final var employer = employerOpt.get();
+			final var candidate = membership.getDirectResearchOrganization();
+			if (candidate.getId() != employer.getId()) {
+				return candidate;
+			}
 		}
-		return employer;
+		return null;
 	}
 
 	private Component getServiceName(TreeListEntity<Person, Membership> entity) {
@@ -383,9 +387,9 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	private static ResearchOrganization getEmployer(Membership membership) {
 		assert membership != null;
-		final var employer = membership.getSuperResearchOrganization();
-		if (employer != null) {
-			return employer;
+		final var employer = membership.getEmployer();
+		if (employer.isPresent()) {
+			return employer.get();
 		}
 		return membership.getDirectResearchOrganization();
 	}
@@ -495,7 +499,10 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 				CriteriaBuilder criteriaBuilder, ResearchOrganization defaultOrganization) {
 			final var crit1 = criteriaBuilder.equal(root.get("researchOrganization"), defaultOrganization); //$NON-NLS-1$
 			final var crit2 = criteriaBuilder.equal(root.get("superResearchOrganization"), defaultOrganization); //$NON-NLS-1$
-			return criteriaBuilder.or(crit1, crit2);
+			final var predicate = criteriaBuilder.or(crit1, crit2);
+			// The following code line is mandatory for avoiding the duplicate entries in the results
+			query.distinct(true);
+			return predicate;
 		}
 
 		@Override

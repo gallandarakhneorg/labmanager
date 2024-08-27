@@ -267,36 +267,33 @@ public class PublicationService extends AbstractPublicationService {
 
 	/** Load the components of the given publications in a JPA session. The loaded components are the authors, the quality indicators for journals or conferences.
 	 *
-	 * @param publications the publications to load.
+	 * @param identifiers the identifiers of the publications to load.
+	 * @return the loaded publications.
 	 * @since 4.0
 	 */
 	@Transactional
-	public void loadPublicationsInMemory(Set<Publication> publications) {
-		inSession(session -> {
-			for (final var publication : publications) {
-				if (publication.getId() != 0l) {
-					session.load(publication, Long.valueOf(publication.getId()));
+	public List<Publication> loadPublicationsInMemory(Iterable<Long> identifiers) {
+		final var publications = this.publicationRepository.findAllById(identifiers);
+		for (final var publication : publications) {
+			Hibernate.initialize(publication.getAuthorshipsRaw());
+			for (final var authorship : publication.getAuthorshipsRaw()) {
+				Hibernate.initialize(authorship.getPerson());
+				Hibernate.initialize(authorship.getPerson().getMemberships());
+			}
 
-					Hibernate.initialize(publication.getAuthorshipsRaw());
-					for (final var authorship : publication.getAuthorshipsRaw()) {
-						Hibernate.initialize(authorship.getPerson());
-						Hibernate.initialize(authorship.getPerson().getMemberships());
-					}
-
-					if (publication instanceof JournalBasedPublication paper) {
-						Hibernate.initialize(paper.getJournal());
-						Hibernate.initialize(paper.getJournal().getQualityIndicators());
-					} else if (publication instanceof ConferenceBasedPublication paper) {
-						var conf = paper.getConference();
-						while (conf != null) {
-							Hibernate.initialize(conf);
-							Hibernate.initialize(conf.getQualityIndicators());
-							conf = conf.getEnclosingConference();
-						}
-					}
+			if (publication instanceof JournalBasedPublication paper) {
+				Hibernate.initialize(paper.getJournal());
+				Hibernate.initialize(paper.getJournal().getQualityIndicators());
+			} else if (publication instanceof ConferenceBasedPublication paper) {
+				var conf = paper.getConference();
+				while (conf != null) {
+					Hibernate.initialize(conf);
+					Hibernate.initialize(conf.getQualityIndicators());
+					conf = conf.getEnclosingConference();
 				}
 			}
-		});
+		}
+		return publications;
 	}
 
 	/** Replies the factory for pre-publications. A pre-publication is a publication in which only the shared properties are set. It does not correspond to a concrete publication instance.

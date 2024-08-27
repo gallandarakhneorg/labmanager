@@ -104,7 +104,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	private MenuItem editButton;
 
 	private MenuItem deleteButton;
-
+	
 	/** Constructor.
 	 *
 	 * @param entityType the type of the entities to be listed.
@@ -140,6 +140,33 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		final var menu = createMenuBar();
 
 		rootContainer.add(createMobileFilters(), this.filters, menu, this.grid);
+	}
+
+	/** Replies the addition button.
+	 *
+	 * @return the button.
+	 * @since 4.0
+	 */
+	public MenuItem getAddButton() {
+		return this.addButton;
+	}
+	
+	/** Replies the edition button.
+	 *
+	 * @return the button.
+	 * @since 4.0
+	 */
+	protected MenuItem getEditButton() {
+		return this.editButton;
+	}
+
+	/** Replies the deletion button.
+	 *
+	 * @return the button.
+	 * @since 4.0
+	 */
+	public MenuItem getDeleteButton() {
+		return this.deleteButton;
 	}
 
 	/** Replies the accessor to the localized strings.
@@ -484,8 +511,14 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 */
 	protected void onSelectionChange(Set<?> selection) {
 		final int size = selection.size();
-		this.editButton.setEnabled(size == 1);
-		this.deleteButton.setEnabled(size > 0);
+		final var ebt = getEditButton();
+		if (ebt != null) {
+			ebt.setEnabled(size == 1);
+		}
+		final var dbt = getDeleteButton();
+		if (dbt != null) {
+			dbt.setEnabled(size > 0);
+		}
 	}
 
 	/** Initialize the data in the grid, preferably by using lay loading.
@@ -540,14 +573,17 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
-		if (this.addButton != null) {
-			ComponentFactory.setIconItemText(this.addButton, getTranslation("views.add")); //$NON-NLS-1$
+		final var abt = getAddButton();
+		if (abt != null) {
+			ComponentFactory.setIconItemText(abt, getTranslation("views.add")); //$NON-NLS-1$
 		}
-		if (this.editButton != null) {
-			ComponentFactory.setIconItemText(this.editButton, getTranslation("views.edit")); //$NON-NLS-1$
+		final var ebt = getEditButton();
+		if (ebt != null) {
+			ComponentFactory.setIconItemText(ebt, getTranslation("views.edit")); //$NON-NLS-1$
 		}
-		if (this.deleteButton != null) {
-			ComponentFactory.setIconItemText(this.deleteButton, getTranslation("views.delete")); //$NON-NLS-1$
+		final var dbt = getDeleteButton();
+		if (dbt != null) {
+			ComponentFactory.setIconItemText(dbt, getTranslation("views.delete")); //$NON-NLS-1$
 		}
 	}
 
@@ -663,6 +699,29 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 			return false;
 		}
 		
+		/** Replies the user associated to this filter. This function replies the associated person whatever if the filters are configured to restrict to the authenticated user.
+		 *
+		 * @return the user.
+		 * @since 4.0
+		 * @see #getUserRestrictedTo()
+		 */
+		public Person getAuthenticatedUser() {
+			return this.user;
+		}
+		
+		/** Replies the user if it is selected in the filter.
+		 *
+		 * @return the user, or {@code null}.
+		 * @since 4.0
+		 * @see #getAuthenticatedUser()
+		 */
+		public Person getUserRestrictedTo() {
+			if (this.user != null && isRestrictedToAuthenticatedUser()) {
+				return this.user;
+			}
+			return null;
+		}
+
 		/** Build the predicate for filtering the JPE entities that corresponds to the authenticated user with
 		 * the given identifier.
 		 * 

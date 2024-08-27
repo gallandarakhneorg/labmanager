@@ -24,16 +24,9 @@ import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
-import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.views.AbstractPublicationListView;
 import org.slf4j.Logger;
@@ -64,31 +57,18 @@ public class StandardCultureDisseminationListView extends AbstractPublicationLis
 
 	/** Constructor.
 	 *
-	 * @param fileManager the manager of the filenames for the uploaded files.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
-	 * @param journalService the service for accessing the JPA entities for journal.
-	 * @param journalEditorFactory the factory for creating the journal editors.
-	 * @param conferenceService the service for accessing the JPA entities for conferences.
-	 * @param conferenceEditorFactory the factory for creating the conference editors.
-	 * @param axisService the service for accessing the JPA entities for scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param publicationService the service for accessing the publications.
      * @param publicationEditorFactory the factory for creating publication editors.
+	 * @param journalService the service for accessing the JPA entities for journal.
+	 * @param organizationService the service for accessing the JPA entities for research organization.
 	 * @param logger the logger to use.
 	 */
 	public StandardCultureDisseminationListView(
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PublicationService publicationService, PublicationEditorFactory publicationEditorFactory, PersonService personService,
-			PersonEditorFactory personEditorFactory,UserService userService, JournalService journalService,
-			JournalEditorFactory journalEditorFactory, ConferenceService conferenceService,
-			ConferenceEditorFactory conferenceEditorFactory, ScientificAxisService axisService, Logger logger) {
-		super(fileManager, authenticatedUser, messages, publicationService, publicationEditorFactory, personService, personEditorFactory,
-				userService, journalService, journalEditorFactory, conferenceService,
-				conferenceEditorFactory, axisService, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, PublicationService publicationService,
+			PublicationEditorFactory publicationEditorFactory, JournalService journalService, ResearchOrganizationService organizationService, Logger logger) {
+		super(authenticatedUser, messages, publicationService, publicationEditorFactory, journalService, organizationService, logger,
 				"views.scientific_culture_actions.delete.title", //$NON-NLS-1$
 				"views.scientific_culture_actions.delete.message", //$NON-NLS-1$
 				"views.scientific_culture_actions.delete.success_message", //$NON-NLS-1$

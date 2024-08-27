@@ -23,17 +23,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
-import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.teaching.views.StandardTeachingPublicationListView;
 import jakarta.annotation.security.RolesAllowed;
@@ -60,37 +53,21 @@ public class TeachingPublicationsListView extends StandardTeachingPublicationLis
 
 	/** Constructor.
 	 * 
-	 * @param fileManager the manager of files that could be uploaded on the server.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param publicationService the service for accessing the scientific publications.
      * @param publicationEditorFactory the factory for creating publication editors.
-	 * @param personService the service for accessing the JPA entities for persons.
-	 * @param personEditorFactory the factory for creating the person editors.
-	 * @param userService the service for accessing the JPA entities for users.
 	 * @param journalService the service for accessing the JPA entities for journal.
-	 * @param journalEditorFactory the factory for creating the journal editors.
-	 * @param conferenceService the service for accessing the JPA entities for conferences.
-	 * @param conferenceEditorFactory the factory for creating the conference editors.
-	 * @param axisService the service for accessing the JPA entities for scientific axes.
+	 * @param organizationService the service for accessing the JPA entities for research organization.
 	 */
 	public TeachingPublicationsListView(
-			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PublicationService publicationService,
 			@Autowired PublicationEditorFactory publicationEditorFactory,
-			@Autowired PersonService personService,
-			@Autowired PersonEditorFactory personEditorFactory,
-			@Autowired UserService userService,
 			@Autowired JournalService journalService,
-			@Autowired JournalEditorFactory journalEditorFactory,
-			@Autowired ConferenceService conferenceService,
-			@Autowired ConferenceEditorFactory conferenceEditorFactory,
-			@Autowired ScientificAxisService axisService) {
-		super(fileManager, authenticatedUser, messages, publicationService, publicationEditorFactory, personService, personEditorFactory, userService,
-				journalService, journalEditorFactory, conferenceService, conferenceEditorFactory,
-				axisService, LOGGER);
+			@Autowired ResearchOrganizationService organizationService) {
+		super(authenticatedUser, messages, publicationService, publicationEditorFactory, journalService, organizationService, LOGGER);
 	}
 
 	@Override

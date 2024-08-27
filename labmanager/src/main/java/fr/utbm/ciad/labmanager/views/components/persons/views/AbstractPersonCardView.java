@@ -24,6 +24,7 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractDefaultOrganizationDataFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -126,6 +127,7 @@ public abstract class AbstractPersonCardView extends VerticalLayout implements L
 			add(this.paginationComponent);
 		}
 
+		postInitializeFilters();
 		fetchCards(initialPageIndex);
 
 		if (this.paginationComponent != null) {
@@ -135,6 +137,25 @@ public abstract class AbstractPersonCardView extends VerticalLayout implements L
 				this.paginationComponent.setCurrentPage(newPageNumber);
 			});
 		}
+	}
+
+	/** Invoked to post-initialize the filters after all the associated components have been added.
+	 * By default, this function initialize the filters if it is of type {@link AbstractDefaultOrganizationDataFilters}.
+	 * Otherwise, it does nothing.
+	 */
+	protected void postInitializeFilters() {
+		final var filters = getFilters();
+		if (filters instanceof AbstractDefaultOrganizationDataFilters organizationFilters) {
+			organizationFilters.updateDefaultOrganizationIconInToggleButton();
+		}
+	}
+
+	/** Replies the filters.
+	 *
+	 * @return the filters.
+	 */
+	protected AbstractFilters<Person> getFilters() {
+		return this.filters;
 	}
 
 	/** Refresh the grid with the initial page.

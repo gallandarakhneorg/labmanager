@@ -211,6 +211,18 @@ public final class ViewConstants {
 	 */
 	public static final String EXPORT_JSON_WHITE_ICON = ICON_URL_PATH + "json_w_file.svg"; //$NON-NLS-1$
 
+	/** Path of the black icon for importing from JSON.
+	 *
+	 * @see #IMPORT_JSON_WHITE_ICON
+	 */
+	public static final String IMPORT_JSON_BLACK_ICON = ICON_URL_PATH + "json_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for importing from JSON.
+	 *
+	 * @see #IMPORT_JSON_BLACK_ICON
+	 */
+	public static final String IMPORT_JSON_WHITE_ICON = ICON_URL_PATH + "json_w_file.svg"; //$NON-NLS-1$
+
 	/** Path of the black icon for exporting to BibTeX.
 	 *
 	 * @see #EXPORT_BIBTEX_WHITE_ICON
@@ -223,6 +235,18 @@ public final class ViewConstants {
 	 */
 	public static final String EXPORT_BIBTEX_WHITE_ICON = ICON_URL_PATH + "bibtex_w_file.svg"; //$NON-NLS-1$
 
+	/** Path of the black icon for importing from BibTeX.
+	 *
+	 * @see #IMPORT_BIBTEX_WHITE_ICON
+	 */
+	public static final String IMPORT_BIBTEX_BLACK_ICON = ICON_URL_PATH + "bibtex_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for importing from BibTeX.
+	 *
+	 * @see #IMPORT_BIBTEX_BLACK_ICON
+	 */
+	public static final String IMPORT_BIBTEX_WHITE_ICON = ICON_URL_PATH + "bibtex_w_file.svg"; //$NON-NLS-1$
+
 	/** Path of the black icon for exporting to RIS.
 	 *
 	 * @see #EXPORT_RIS_WHITE_ICON
@@ -234,6 +258,18 @@ public final class ViewConstants {
 	 * @see #EXPORT_RIS_BLACK_ICON
 	 */
 	public static final String EXPORT_RIS_WHITE_ICON = ICON_URL_PATH + "ris_w_file.svg"; //$NON-NLS-1$
+
+	/** Path of the black icon for importing from RIS.
+	 *
+	 * @see #IMPORT_RIS_WHITE_ICON
+	 */
+	public static final String IMPORT_RIS_BLACK_ICON = ICON_URL_PATH + "ris_file.svg"; //$NON-NLS-1$
+
+	/** Path of the white icon for importing from RIS.
+	 *
+	 * @see #IMPORT_RIS_BLACK_ICON
+	 */
+	public static final String IMPORT_RIS_WHITE_ICON = ICON_URL_PATH + "ris_w_file.svg"; //$NON-NLS-1$
 
 	/** Path of the black icon for exporting to OpenDocument Text.
 	 *
