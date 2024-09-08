@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DefaultAddressEditorFactory implements AddressEditorFactory {
-
+	
 	private final OrganizationAddressService addressService;
 
 	private final DownloadableFileManager fileManager;
@@ -74,12 +74,12 @@ public class DefaultAddressEditorFactory implements AddressEditorFactory {
 
 	@Override
 	public AbstractEntityEditor<OrganizationAddress> createAdditionEditor(EntityEditingContext<OrganizationAddress> context) {
-		return new EmbeddedAddressEditor(context, this.fileManager, this.authenticatedUser, this.messages);
+		return new EmbeddedAddressEditor(context, null, this.fileManager, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<OrganizationAddress> createUpdateEditor(EntityEditingContext<OrganizationAddress> context) {
-		return new EmbeddedAddressEditor(context, this.fileManager, this.authenticatedUser, this.messages);
+		return new EmbeddedAddressEditor(context, null, this.fileManager, this.authenticatedUser, this.messages);
 	}
 
 }

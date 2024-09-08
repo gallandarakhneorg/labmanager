@@ -50,6 +50,7 @@ import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -119,10 +120,11 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 			PersonDataProvider dataProvider, PersonEditorFactory personEditorFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			Logger logger) {
 		super(Person.class, authenticatedUser, messages, logger,
-				"views.persons.delete.title", //$NON-NLS-1$
-				"views.persons.delete.message", //$NON-NLS-1$
-				"views.persons.delete_success", //$NON-NLS-1$
-				"views.persons.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.persons.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.persons.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.persons.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.persons.delete_error")); //$NON-NLS-1$
 		this.personService = personService;
 		this.userService = userService;
 		this.organizationService = organizationService;

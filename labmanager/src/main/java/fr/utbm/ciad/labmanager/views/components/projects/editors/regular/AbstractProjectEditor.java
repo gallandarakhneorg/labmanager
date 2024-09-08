@@ -56,6 +56,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -64,6 +65,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImagesField;
@@ -186,6 +188,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	/** Constructor.
 	 *
 	 * @param context the context for editing the project.
+	 * @param projectCreationStatusComputer the tool for computer the creation status for the scientific projects.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param projectFieldFactory the factory for creating the project fields.
@@ -199,20 +202,23 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
-	public AbstractProjectEditor(EntityEditingContext<Project> context, boolean relinkEntityWhenSaving,
-			ProjectFieldFactory projectFieldFactory,
+	public AbstractProjectEditor(EntityEditingContext<Project> context,
+			EntityCreationStatusComputer<Project> projectCreationStatusComputer,
+			boolean relinkEntityWhenSaving, ProjectFieldFactory projectFieldFactory,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory,
 			OrganizationEditorFactory organizationEditorFactory,
 			OrganizationFieldFactory organizationFieldFactory,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
+			MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
 		super(Project.class, authenticatedUser, messages, logger,
-				"views.projects.administration_details", //$NON-NLS-1$
-				"views.projects.administration.validated_project", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				projectCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.projects.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.projects.administration.validated_project")); //$NON-NLS-1$
 		this.projectFieldFactory = projectFieldFactory;
 		this.organizationService = organizationService;
 		this.axisService = axisService;

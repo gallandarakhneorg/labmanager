@@ -46,14 +46,15 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -130,6 +131,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param organizationCreationStatusComputer the tool for computer the creation status for the research organizations.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param fileManager the manager of the file system at server-side.
@@ -140,17 +142,21 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 * @param addressService the service for accessing the organization addresses.
 	 * @param organizationEditorFactory the factory of the organization editor.
 	 * @param addressEditorFactory the factory of the organization address editor.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
-	public AbstractOrganizationEditor(EntityEditingContext<ResearchOrganization> context, boolean relinkEntityWhenSaving,
+	public AbstractOrganizationEditor(EntityEditingContext<ResearchOrganization> context,
+			EntityCreationStatusComputer<ResearchOrganization> organizationCreationStatusComputer, boolean relinkEntityWhenSaving,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory) {
+			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory,
+			ConstructionPropertiesBuilder properties) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger,
-				"views.organizations.administration_details", //$NON-NLS-1$
-				"views.organizations.administration.validated_organization", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				organizationCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.organizations.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.organizations.administration.validated_organization")); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.organizationService = organizationService;
 		this.addressService = addressService;
@@ -165,23 +171,6 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 */
 	protected OrganizationEditorFactory getOrganizationEditorFactory() {
 		return this.organizationEditorFactory;
-	}
-	
-	@Override
-	public SimilarityError isAlreadyInDatabase() {
-		final var organisation = getEditedEntity();
-		if (organisation != null) {
-			final var orga = this.organizationService.getResearchOrganizationBySimilarAcronymOrName(organisation.getAcronym(), organisation.getName());
-			if (orga.isEmpty()) {
-				return SimilarityError.NO_ERROR;
-			}
-			final var id = orga.get().getId();
-			if (id == organisation.getId()) {
-				return SimilarityError.NO_ERROR;
-			}
-			return SimilarityError.SAME_NAME_AND_ACRONYM;
-		}
-		return SimilarityError.NO_ERROR;
 	}
 
 	@Override

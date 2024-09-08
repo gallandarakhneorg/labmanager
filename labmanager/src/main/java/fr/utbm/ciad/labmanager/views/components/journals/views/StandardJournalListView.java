@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
@@ -104,10 +105,11 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			JournalService journalService, JournalEditorFactory journalEditorFactory, Logger logger) {
 		super(Journal.class, authenticatedUser, messages, logger,
-				"views.journals.delete.title", //$NON-NLS-1$
-				"views.journals.delete.message", //$NON-NLS-1$
-				"views.journals.delete_success", //$NON-NLS-1$
-				"views.journals.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.journals.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.journals.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.journals.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.journals.delete_error")); //$NON-NLS-1$
 		this.journalService = journalService;
 		this.journalEditorFactory = journalEditorFactory;
 		// The reference year cannot be the current year because ranking of journals is not done

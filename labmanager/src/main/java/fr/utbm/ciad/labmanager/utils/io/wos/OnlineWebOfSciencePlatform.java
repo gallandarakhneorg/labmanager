@@ -285,7 +285,7 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 						final var impactFactorDiv = page.querySelector("//div[contains(text(), 'Impact Factor')]/following::div"); //$NON-NLS-1$
 						final var impactFactor = positiveFloat(readFloat(impactFactorDiv));
 						
-						final var quartilesDiv = page.querySelector("//div[contains(text(), 'Category / Quartile')]/following::div"); //$NON-NLS-1$
+						final var quartilesDiv = page.querySelector("//div[contains(text(), 'Category')]/following::div"); //$NON-NLS-1$
 						final var quartilesText = readText(quartilesDiv);
 						final var quartiles = new HashMap<String, QuartileRanking>();
 						if (quartilesText != null) {

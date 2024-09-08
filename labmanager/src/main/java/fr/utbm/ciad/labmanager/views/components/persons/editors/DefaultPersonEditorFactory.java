@@ -26,6 +26,7 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.EmbeddedPersonEditor;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.PersonCreationStatusComputer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultPersonEditorFactory implements PersonEditorFactory {
 
+	private final PersonCreationStatusComputer personCreationStatusComputer;
+	
 	private final PersonService personService;
 
 	private final UserService userService;
@@ -51,16 +54,19 @@ public class DefaultPersonEditorFactory implements PersonEditorFactory {
 
 	/** Constructor.
 	 *
+	 * @param personCreationStatusComputer the tool for computer the creation status for the persons.
 	 * @param personService the service for accessing to the person entities.
 	 * @param userService the service for accessing to the user entities.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public DefaultPersonEditorFactory(
+			@Autowired PersonCreationStatusComputer personCreationStatusComputer,
 			@Autowired PersonService personService,
 			@Autowired UserService userService,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages) {
+		this.personCreationStatusComputer = personCreationStatusComputer;
 		this.personService = personService;
 		this.userService = userService;
 		this.authenticatedUser = authenticatedUser;
@@ -77,12 +83,12 @@ public class DefaultPersonEditorFactory implements PersonEditorFactory {
 
 	@Override
 	public AbstractEntityEditor<Person> createAdditionEditor(UserEditingContext userContext) {
-		return new EmbeddedPersonEditor(userContext, this.personService, this.authenticatedUser, this.messages);
+		return new EmbeddedPersonEditor(userContext, this.personCreationStatusComputer, this.personService, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<Person> createUpdateEditor(UserEditingContext userContext) {
-		return new EmbeddedPersonEditor(userContext, this.personService, this.authenticatedUser, this.messages);
+		return new EmbeddedPersonEditor(userContext, this.personCreationStatusComputer, this.personService, this.authenticatedUser, this.messages);
 	}
 
 }

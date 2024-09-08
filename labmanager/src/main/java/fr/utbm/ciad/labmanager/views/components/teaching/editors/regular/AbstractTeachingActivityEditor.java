@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
@@ -49,6 +50,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.LanguageValidator;
@@ -139,6 +141,7 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	 * @param context the context for editing the teaching activity.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param activityCreationStatusComputer the tool for computer the creation status for the teaching activity.
 	 * @param fileManager the manager of the downloadable files.
 	 * @param personService the service for accessing the JPA entities for persons.
 	 * @param personEditorFactory the factory for creating the person editors.
@@ -147,15 +150,19 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
-	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, boolean relinkEntityWhenSaving, DownloadableFileManager fileManager,
+	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, boolean relinkEntityWhenSaving,
+			EntityCreationStatusComputer<TeachingActivity> activityCreationStatusComputer, DownloadableFileManager fileManager,
 			PersonFieldFactory personFieldFactory, OrganizationFieldFactory organizationFieldFactory,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			ConstructionPropertiesBuilder properties) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
-				"views.teaching_activity.administration_details", //$NON-NLS-1$
-				"views.teaching_activity.administration.validated_address", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				activityCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.teaching_activity.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.teaching_activity.administration.validated_address")); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.personFieldFactory = personFieldFactory;
 		this.organizationFieldFactory = organizationFieldFactory;

@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
@@ -109,6 +110,24 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		this.indicatorsRepository = indicatorsRepository;
 		this.corePortal = corePortal;
 		this.conferenceNameComparator = conferenceNameComparator;
+	}
+
+	/** Save the given conference or create a JPA entity if the given object is a fake.
+	 *
+	 * @param conference the conference entity to save.
+	 * @return the saved entity.
+	 * @see IdentifiableEntity#isFakeEntity()
+	 * @since 4.0
+	 */
+	public Conference saveOrCreateIfFake(Conference conference) {
+		var sconference = conference;
+		if (sconference != null) {
+			if (sconference.isFakeEntity()) {
+				sconference = new Conference(sconference);
+			}
+			this.conferenceRepository.save(sconference);
+		}
+		return sconference;
 	}
 
 	/** Replies all the conferences for the database.

@@ -19,9 +19,12 @@
 
 package fr.utbm.ciad.labmanager.views.components.persons.editors.regular;
 
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,13 +49,16 @@ public final class EmbeddedPersonEditor extends AbstractPersonEditor {
     /** Constructor.
      *
      * @param userContext the editing context for the user.
+	 * @param personCreationStatusComputer the tool for computer the creation status for the persons.
 	 * @param personService the service for accessing to the person entities.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      */
-    public EmbeddedPersonEditor(UserEditingContext userContext, PersonService personService, AuthenticatedUser authenticatedUser,
-                                MessageSourceAccessor messages) {
-        super(userContext, personService, false, authenticatedUser, messages, LOGGER);
+    public EmbeddedPersonEditor(UserEditingContext userContext,
+    		EntityCreationStatusComputer<Person> personCreationStatusComputer,
+    		PersonService personService, AuthenticatedUser authenticatedUser,
+    		MessageSourceAccessor messages) {
+        super(userContext, personCreationStatusComputer, personService, false, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }
 

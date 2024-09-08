@@ -22,7 +22,9 @@ package fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.r
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,14 +48,15 @@ public final class EmbeddedAddressEditor extends AbstractAddressEditor {
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param addressCreationStatusComputer the tool for computer the creation status for the organization adddresses.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedAddressEditor(EntityEditingContext<OrganizationAddress> context,
-			DownloadableFileManager fileManager,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, fileManager, authenticatedUser, messages, LOGGER);
+			EntityCreationStatusComputer<OrganizationAddress> addressCreationStatusComputer,
+			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+		super(context, addressCreationStatusComputer, false, fileManager, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

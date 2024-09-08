@@ -24,7 +24,9 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import org.slf4j.Logger;
@@ -50,6 +52,7 @@ public final class EmbeddedOrganizationEditor extends AbstractOrganizationEditor
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param organizationCreationStatusComputer the tool for computer the creation status for the research organizations.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
@@ -59,14 +62,15 @@ public final class EmbeddedOrganizationEditor extends AbstractOrganizationEditor
 	 * @param addressEditorFactory the factory of the organization address editor.
 	 */
 	public EmbeddedOrganizationEditor(EntityEditingContext<ResearchOrganization> context,
+			EntityCreationStatusComputer<ResearchOrganization> organizationCreationStatusComputer,
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ResearchOrganizationService organizationService,
 			OrganizationAddressService addressService,
 			OrganizationEditorFactory organizationEditorFactory,
 			AddressEditorFactory addressEditorFactory) {
-		super(context, false, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService,
-				organizationEditorFactory, addressEditorFactory);
+		super(context, organizationCreationStatusComputer, false, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService,
+				organizationEditorFactory, addressEditorFactory, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

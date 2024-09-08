@@ -25,7 +25,9 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.fields.ProjectFieldFactory;
@@ -53,6 +55,7 @@ public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param projectCreationStatusComputer the tool for computer the creation status for the scientific projects.
 	 * @param projectFieldFactory the factory for creating the project fields.
 	 * @param axisEditorFactory the factory for creating the scientific axis editors.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
@@ -67,6 +70,7 @@ public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 	 * @since 4.0
 	 */
 	public EmbeddedProjectEditor(EntityEditingContext<Project> context,
+			EntityCreationStatusComputer<Project> projectCreationStatusComputer,
 			ProjectFieldFactory projectFieldFactory,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory,
@@ -74,9 +78,9 @@ public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 			OrganizationFieldFactory organizationFieldFactory,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages) {
-		super(context, false, projectFieldFactory, organizationService, addressService,
+		super(context, projectCreationStatusComputer, false, projectFieldFactory, organizationService, addressService,
 				axisService, axisEditorFactory, organizationEditorFactory, organizationFieldFactory,
-				fileManager, authenticatedUser, messages, LOGGER);
+				fileManager, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

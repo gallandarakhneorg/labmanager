@@ -24,12 +24,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
@@ -38,6 +43,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import io.overcoded.vaadin.wizard.Wizard;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
+import io.overcoded.vaadin.wizard.config.WizardContentConfigurationProperties;
 
 /** Abstract implementation of a Wizard with localized steps.
  * 
@@ -70,6 +76,24 @@ public abstract class AbstractLabManagerWizard<T extends AbstractContextData> ex
 				backConditionPagerFactory(),
 				defaultStartEndPointFactory(),
 				defaulyFinishEndPointFactory());
+	}
+
+	/** Replies the wizard that is containing this step.
+	 *
+	 * @param <W> the expected type of the wizard.
+	 * @param step the wizard step.
+	 * @param type the expected type of the wizard.
+	 * @return the wizard; or nothing if the wizard is unknown or not of the give type.
+	 */
+	public static <W extends Wizard<T>, T> Optional<W> getWizard(WizardStep<T> step, Class<W> type) {
+		final var wizard = step.getWizard();
+		if (wizard.isPresent()) {
+			final var wizard0 = wizard.get();
+			if (type.isInstance(wizard0)) {
+				return Optional.ofNullable(type.cast(wizard0));
+			}
+		}
+		return Optional.empty();
 	}
 
 	/** Build route parameters for this wizard that contains the list of the entity identifiers to update.
@@ -162,6 +186,42 @@ public abstract class AbstractLabManagerWizard<T extends AbstractContextData> ex
 			}
 		}
 		super.setFinishLayout();
+	}
+
+	/** Create the details for the information box.
+	 *
+	 * @param html the information message.
+	 * @param properties the properties of the wizard.
+	 * @return the details object.
+	 * @since 4.0
+	 */
+	public static Details createInformationBox(Html html, WizardContentConfigurationProperties properties) {
+		if (html != null) {
+			final var informationProperties = properties.getInformation();
+			final var summary = new HorizontalLayout();
+			summary.setSpacing(false);
+	
+			final var icon = informationProperties.getIcon().create();
+			icon.getStyle().set("width", "var(--lumo-icon-size-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+			icon.getStyle().set("height", "var(--lumo-icon-size-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+	
+			final var infoBadge = new HorizontalLayout(icon);
+			infoBadge.setSpacing(false);
+			infoBadge.getStyle().set("color", informationProperties.getIconColor()); //$NON-NLS-1$
+			infoBadge.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+	
+			summary.add(infoBadge, new Text(informationProperties.getText()));
+	
+			final var content = new HorizontalLayout();
+			content.add(html);
+	
+			final var details = new Details(summary, content);
+			details.setWidthFull();
+			details.setOpened(informationProperties.isOpened());
+
+			return details;
+		}
+		return null;
 	}
 
 }

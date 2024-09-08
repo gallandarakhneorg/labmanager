@@ -44,6 +44,7 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
@@ -104,10 +105,11 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			JuryMembershipService membershipService, JuryMembershipEditorFactory juryMembershipEditorFactory, Logger logger) {
 		super(JuryMembership.class, authenticatedUser, messages, logger,
-				"views.jury_membership.delete.title", //$NON-NLS-1$
-				"views.jury_membership.delete.message", //$NON-NLS-1$
-				"views.jury_membership.delete_success", //$NON-NLS-1$
-				"views.jury_membership.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.jury_membership.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.jury_membership.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.jury_membership.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.jury_membership.delete_error")); //$NON-NLS-1$
 		this.membershipService = membershipService;
 		this.juryMembershipEditorFactory = juryMembershipEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllJuryMemberships(query, filters, this::initializeEntityFromJPA);

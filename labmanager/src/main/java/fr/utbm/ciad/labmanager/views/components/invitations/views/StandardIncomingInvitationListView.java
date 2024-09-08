@@ -44,6 +44,7 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
@@ -100,10 +101,11 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			PersonInvitationService invitationService, InvitationEditorFactory invitationEditorFactory, Logger logger) {
 		super(PersonInvitation.class, authenticatedUser, messages, logger,
-				"views.incoming_invitation.delete.title", //$NON-NLS-1$
-				"views.incoming_invitation.delete.message", //$NON-NLS-1$
-				"views.incoming_invitation.delete_success", //$NON-NLS-1$
-				"views.incoming_invitation.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.incoming_invitation.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.incoming_invitation.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.incoming_invitation.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.incoming_invitation.delete_error")); //$NON-NLS-1$
 		this.invitationEditorFactory = invitationEditorFactory;
 		this.invitationService = invitationService;
 		this.dataProvider = (ps, query, filters) -> ps.getAllIncomingInvitations(query, filters, this::initializeEntityFromJPA);

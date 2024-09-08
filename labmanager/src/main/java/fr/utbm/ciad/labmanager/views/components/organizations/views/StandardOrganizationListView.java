@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
@@ -110,10 +111,11 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 			OrganizationEditorFactory organizationEditorFactory,
 			Logger logger) {
 		super(ResearchOrganization.class, authenticatedUser, messages, logger,
-				"views.organizations.delete.title", //$NON-NLS-1$
-				"views.organizations.delete.message", //$NON-NLS-1$
-				"views.organizations.delete_success", //$NON-NLS-1$
-				"views.organizations.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.organizations.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.organizations.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.organizations.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.organizations.delete_error")); //$NON-NLS-1$
 
 		this.organizationEditorFactory = organizationEditorFactory;
 		this.fileManager = fileManager;

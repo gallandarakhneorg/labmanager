@@ -45,6 +45,7 @@ import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
@@ -117,10 +118,11 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 			MessageSourceAccessor messages, ProjectService projectService,
 			ProjectEditorFactory projectEditorFactory, Logger logger) {
 		super(Project.class, authenticatedUser, messages, logger,
-				"views.projects.delete.title", //$NON-NLS-1$
-				"views.projects.delete.message", //$NON-NLS-1$
-				"views.projects.delete_success", //$NON-NLS-1$
-				"views.projects.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.projects.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.projects.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.projects.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.projects.delete_error")); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.projectService = projectService;
 		this.projectEditorFactory = projectEditorFactory;

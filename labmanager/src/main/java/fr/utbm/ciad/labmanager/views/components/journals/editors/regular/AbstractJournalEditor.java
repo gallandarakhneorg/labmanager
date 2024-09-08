@@ -19,6 +19,10 @@
 
 package fr.utbm.ciad.labmanager.views.components.journals.editors.regular;
 
+import static fr.utbm.ciad.labmanager.views.ViewConstants.SCIMAGO_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.SCIMAGO_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
+
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Span;
@@ -34,12 +38,13 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.JournalAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
@@ -47,8 +52,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyString
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
 /** Abstract implementation for the editor of the information related to a scientific journal.
  * 
@@ -98,37 +101,27 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 	/** Constructor.
 	 *
 	 * @param context the editing context for the conference.
+	 * @param journalCreationStatusComputer the tool for computer the creation status for the journals.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param journalService the service to have access to all the journal entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
-	public AbstractJournalEditor(EntityEditingContext<Journal> context, boolean relinkEntityWhenSaving, JournalService journalService,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+	public AbstractJournalEditor(EntityEditingContext<Journal> context,
+			EntityCreationStatusComputer<Journal> journalCreationStatusComputer,
+			boolean relinkEntityWhenSaving, JournalService journalService,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			Logger logger, ConstructionPropertiesBuilder properties) {
 		super(Journal.class, authenticatedUser, messages, logger,
-				"views.journals.administration_details", //$NON-NLS-1$
-				"views.journals.administration.validated_organization", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				journalCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.journals.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.journals.administration.validated_journal")); //$NON-NLS-1$
 		this.journalService = journalService;
-	}
-
-	@Override
-	public SimilarityError isAlreadyInDatabase() {
-		var entity = getEditedEntity();
-		if (entity != null) {
-			final var journal = this.journalService.getJournalBySimilarNameAndSimilarPublisher(entity.getJournalName(), entity.getPublisher());
-			if (journal.isEmpty()) {
-				return SimilarityError.NO_ERROR;
-			}
-			final var id = journal.get().getId();
-			if (id == entity.getId()) {
-				return SimilarityError.NO_ERROR;
-			}
-			return SimilarityError.SAME_TITLE_AND_PUBLISHER;
-		}
-		return SimilarityError.NO_ERROR;
 	}
 
 	@Override

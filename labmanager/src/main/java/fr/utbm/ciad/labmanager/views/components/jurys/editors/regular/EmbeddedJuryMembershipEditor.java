@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.jurys.editors.regular;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +48,15 @@ public final class EmbeddedJuryMembershipEditor extends AbstractJuryMembershipEd
 	/** Constructor.
 	 *
 	 * @param context the editing context for the scientific axis.
+	 * @param juryCreationStatusComputer the tool for computer the creation status for the jury memberships.
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedJuryMembershipEditor(EntityEditingContext<JuryMembership> context,
+			EntityCreationStatusComputer<JuryMembership> juryCreationStatusComputer,
 			PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, personFieldFactory, authenticatedUser, messages, LOGGER);
+		super(context, juryCreationStatusComputer, false, personFieldFactory, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

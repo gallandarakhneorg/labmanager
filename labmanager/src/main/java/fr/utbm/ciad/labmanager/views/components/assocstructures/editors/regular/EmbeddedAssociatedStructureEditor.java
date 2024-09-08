@@ -24,6 +24,8 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.fields.AssociatedStructureFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
@@ -50,6 +52,7 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param structureCreationStatusComputer the tool for computer the creation status for the associated structures.
 	 * @param structureFieldFactory the factory for creating the associated structure fields.
 	 * @param projectService the service for accessing the JPA entities for projects.
 	 * @param projectEditorFactory the factory for creating the project editors.
@@ -61,13 +64,14 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 	 * @param logger the logger to be used by this view.
 	 */
 	public EmbeddedAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
+			EntityCreationStatusComputer<AssociatedStructure> structureCreationStatusComputer,
 			AssociatedStructureFieldFactory structureFieldFactory,
 			ProjectService projectService, ProjectEditorFactory projectEditorFactory,
 			ResearchOrganizationService organizationService, 
 			AuthenticatedUser authenticatedUser, OrganizationFieldFactory organizationFieldFactory,
 			MessageSourceAccessor messages) {
-		super(context, false, structureFieldFactory, projectService, projectEditorFactory, organizationService,
-				authenticatedUser, organizationFieldFactory, messages, LOGGER);
+		super(context, structureCreationStatusComputer, false, structureFieldFactory, projectService, projectEditorFactory, organizationService,
+				authenticatedUser, organizationFieldFactory, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

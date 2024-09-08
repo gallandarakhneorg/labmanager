@@ -51,12 +51,14 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.DoubleToFloatConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
@@ -130,6 +132,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param structureCreationStatusComputer the tool for computer the creation status for the associated structures.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param structureFieldFactory the factory for creatin the structure fields.
@@ -140,17 +143,21 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 * @param organizationFieldFactory the factory for creating the organization fields.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
+			EntityCreationStatusComputer<AssociatedStructure> structureCreationStatusComputer,
 			boolean relinkEntityWhenSaving, AssociatedStructureFieldFactory structureFieldFactory,
 			ProjectService projectService, ProjectEditorFactory projectEditorFactory,
 			ResearchOrganizationService organizationService, AuthenticatedUser authenticatedUser,
-			OrganizationFieldFactory organizationFieldFactory, MessageSourceAccessor messages, Logger logger) {
+			OrganizationFieldFactory organizationFieldFactory, MessageSourceAccessor messages,
+			Logger logger, ConstructionPropertiesBuilder properties) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
-				"views.associated_structure.administration_details", //$NON-NLS-1$
-				"views.associated_structure.administration.validated_structure", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				structureCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.associated_structure.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.associated_structure.administration.validated_structure")); //$NON-NLS-1$
 		this.structureFieldFactory = structureFieldFactory;
 		this.projectService = projectService;
 		this.projectEditorFactory = projectEditorFactory;

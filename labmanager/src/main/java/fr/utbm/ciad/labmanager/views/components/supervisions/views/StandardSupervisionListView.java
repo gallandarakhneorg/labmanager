@@ -41,6 +41,7 @@ import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
@@ -96,10 +97,11 @@ public class StandardSupervisionListView extends AbstractEntityListView<Supervis
 			SupervisionService supervisionService, SupervisionEditorFactory supervisionEditorFactory,
 			Logger logger) {
 		super(Supervision.class, authenticatedUser, messages, logger,
-				"views.supervision.delete.title", //$NON-NLS-1$
-				"views.supervision.delete.message", //$NON-NLS-1$
-				"views.supervision.delete_success", //$NON-NLS-1$
-				"views.supervision.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.supervision.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.supervision.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.supervision.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.supervision.delete_error")); //$NON-NLS-1$
 		this.supervisionService = supervisionService;
 		this.supervisionEditorFactory = supervisionEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllSupervisions(query, filters, this::initializeEntityFromJPA);

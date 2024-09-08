@@ -308,7 +308,7 @@ public class JBibtexBibTeXTest {
 	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
 		URL url = Resources.getResource(getClass().getPackageName().replaceAll("\\.", "/") + "/" + filename);
 		try (Reader r = new InputStreamReader(url.openStream())) {
-			return this.test.getPublicationStreamFrom(r, false, false, false, false, false);
+			return this.test.getPublicationStreamFrom(r, false, false, false, false, false, null);
 		}
 	}
 

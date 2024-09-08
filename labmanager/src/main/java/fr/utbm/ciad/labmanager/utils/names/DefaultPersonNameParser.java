@@ -337,7 +337,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	}
 
 	@Override
-	public Set<String> getNormalizedNamesFor(String name, boolean enableShortNames) {
+	public Set<String> getNormalizedNamesFor(String name, boolean enableShortNames, boolean progressiveBuilding) {
 		Set<String> cases = new TreeSet<>();
 		final var normalizedName = normalizeName(name);
 		if (!Strings.isNullOrEmpty(normalizedName)) {
@@ -349,17 +349,20 @@ public class DefaultPersonNameParser implements PersonNameParser {
 					cases.add(Character.toString(words[0].charAt(0)));
 				}
 				for (int i = 1; i < words.length; ++i) {
-					cases = fillWithWords(cases, words[i], enableShortNames);
+					cases = fillWithWords(cases, words[i], enableShortNames, progressiveBuilding);
 				}
 			}
 		}
 		return cases;
 	}
 
-	private static Set<String> fillWithWords(Set<String> cases, String word, boolean enableShortNames) {
+	private static Set<String> fillWithWords(Set<String> cases, String word, boolean enableShortNames, boolean progressiveBuilding) {
 		assert !Strings.isNullOrEmpty(word);
 		final var result = new TreeSet<String>();
 		for (final var candidate : cases) {
+			if (progressiveBuilding) {
+				result.add(candidate);
+			}
 			result.add(candidate + " " + word); //$NON-NLS-1$
 			if (enableShortNames) {
 				result.add(candidate + " " + Character.toString(word.charAt(0))); //$NON-NLS-1$

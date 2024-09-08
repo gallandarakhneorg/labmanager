@@ -53,11 +53,13 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToDoiConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToKeywordsConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityIterableValidator;
@@ -108,6 +110,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
      * @param supportedTypes            list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
      * @param relinkEntityWhenSaving    indicates if the entity should be relinked when it is saved.
      * @param enableTypeSelector        indicates if the type selector is enabled or disabled.
+	 * @param mandatoryAbstractText indicates if the abstract text is considered as mandatory or not.
+	 * @param publicationCreationStatusComputer the tool for computer the creation status for the publication.
      * @param fileManager               the manager of files at the server-side.
      * @param publicationService        the service for accessing the JPA entities for publications.
      * @param personService             the service for accessing the JPA entities for persons.
@@ -125,26 +129,24 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
      * @param authenticatedUser         the connected user.
      * @param messages                  the accessor to the localized messages (Spring layer).
      * @param logger                    the logger to use.
-     * @param personCreationLabelKey    the key that is used for retrieving the text for creating a new person and associating it to the publication.
-     * @param personFieldLabelKey       the key that is used for retrieving the text for the label of the author/editor field.
-     * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
-     * @param personNullErrorKey        the key that is used for retrieving the text of the author/editor null error.
-     * @param personDuplicateErrorKey   the key that is used for retrieving the text of the author/editor duplicate error.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
      */
     public AbstractPublicationEditorWizard(AbstractEntityService.EntityEditingContext<Publication> context,
                                            PublicationType[] supportedTypes,
-                                           boolean relinkEntityWhenSaving, boolean enableTypeSelector, DownloadableFileManager fileManager, PublicationService publicationService,
+                                           boolean relinkEntityWhenSaving, boolean enableTypeSelector, boolean mandatoryAbstractText,
+                                           EntityCreationStatusComputer<Publication> publicationCreationStatusComputer,
+                                           DownloadableFileManager fileManager, PublicationService publicationService,
                                            PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory, UserService userService,
                                            JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
                                            ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory,
                                            ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory,
                                            AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
-                                           String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
-                                           String personNullErrorKey, String personDuplicateErrorKey) {
-        super(context, supportedTypes, relinkEntityWhenSaving, enableTypeSelector, fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService, journalService, 
+                                           ConstructionPropertiesBuilder properties) {
+        super(context, null, supportedTypes, relinkEntityWhenSaving, enableTypeSelector, mandatoryAbstractText, publicationCreationStatusComputer,
+        		fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService, journalService, 
         		journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory, conferenceFieldFactory,
-        		axisService, axisEditorFactory, authenticatedUser, messages, logger, personCreationLabelKey,
-        		personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+        		axisService, axisEditorFactory, authenticatedUser, messages, logger, properties);
         this.supportedTypes = supportedTypes;
         // Sort types by their natural order, that corresponds to the weight of the type
         Arrays.sort(this.supportedTypes, (a, b) -> Integer.compare(a.ordinal(), b.ordinal()));
@@ -232,8 +234,10 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         this.title.setRequired(true);
         this.title.setClearButtonVisible(true);
         this.generalLayout.add(this.title, 2);
+        
+        final var props = getProperties();
 
-        this.authors = this.personFieldFactory.createMultiNameField(getTranslation(this.personCreationLabelKey), getLogger(),
+        this.authors = this.personFieldFactory.createMultiNameField(getTranslation(props.get(PROP_PERSON_CREATION)), getLogger(),
                 // Force the loading of the JPA entity's components
                 it -> {
                     // Loading the authorships is needed when the person is added as author.
@@ -255,8 +259,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
                 .bind(Publication::getTitle, Publication::setTitle);
         getEntityDataBinder().forField(this.authors)
                 .withValidator(new DisjointEntityIterableValidator<>(
-                        getTranslation(this.personNullErrorKey),
-                        getTranslation(this.personDuplicateErrorKey),
+                        getTranslation(props.get(PROP_PERSON_FIELD_NULL_ERROR)),
+                        getTranslation(props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR)),
                         true))
                 .bind(Publication::getAuthors, Publication::setTemporaryAuthors);
         getEntityDataBinder().forField(this.publicationDate)
@@ -536,13 +540,15 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
     @Override
     public void localeChange(LocaleChangeEvent event) {
         super.localeChange(event);
+        
+        final var props = getProperties();
 
         this.type.setLabel(getTranslation("views.publication.type")); //$NON-NLS-1$
         this.type.setHelperText(getTranslation("views.publication.type.helper")); //$NON-NLS-1$);
         this.type.setItemLabelGenerator(this::getTypeLabel);
         this.title.setLabel(getTranslation("views.publication.title")); //$NON-NLS-1$
-        this.authors.setLabel(getTranslation(this.personFieldLabelKey));
-        this.authors.setHelperText(getTranslation(this.personFieldHelperLabelKey));
+        this.authors.setLabel(getTranslation(props.get(PROP_PERSON_FIELD_LABEL)));
+        this.authors.setHelperText(getTranslation(props.get(PROP_PERSON_FIELD_HELPER)));
         this.publicationDate.setLocale(event.getLocale());
         this.publicationDate.setLabel(getTranslation("views.publication.date")); //$NON-NLS-1$
         this.publicationDate.setHelperText(getTranslation("views.publication.date.helper")); //$NON-NLS-1$

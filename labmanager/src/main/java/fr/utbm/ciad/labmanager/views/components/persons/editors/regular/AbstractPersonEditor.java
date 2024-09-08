@@ -19,6 +19,25 @@
 
 package fr.utbm.ciad.labmanager.views.components.persons.editors.regular;
 
+import static fr.utbm.ciad.labmanager.views.ViewConstants.ACADEMIA_EDU_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.ACADEMIA_EDU_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.ADSCIENTIFICINDEX_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.DBLP_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.EU_CORDIS_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.EU_CORDIS_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.FACEBOOK_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.GITHUB_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.GRAVATAR_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.GSCHOLAR_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.LINKEDIN_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.ORCID_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.RESEARCHGATE_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.SCOPUS_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
+
+import java.util.function.Consumer;
+
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
@@ -49,14 +68,15 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -64,10 +84,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.OrcidValidator
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.function.Consumer;
-
-import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
 /** Abstract implementation for the editor of the information related to a person.
  * 
@@ -170,20 +186,25 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	/** Constructor.
 	 *
 	 * @param userContext the editing context for the user.
+	 * @param personCreationStatusComputer the tool for computer the creation status for the persons.
 	 * @param personService the service for accessing to the person entities.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
 	public AbstractPersonEditor(
-			UserEditingContext userContext, PersonService personService, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+			UserEditingContext userContext, EntityCreationStatusComputer<Person> personCreationStatusComputer,
+			PersonService personService, boolean relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
 		super(Person.class, authenticatedUser, messages, logger,
-				"views.persons.administration_details", //$NON-NLS-1$
-				"views.persons.administration.validated_person", //$NON-NLS-1$
-				userContext.getPersonContext(), relinkEntityWhenSaving);
+				personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.persons.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.persons.administration.validated_person")); //$NON-NLS-1$
 		this.userContext = userContext;
 		this.personService = personService;
 	}
@@ -191,25 +212,6 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	@Override
 	public boolean isValidData() {
 		return super.isValidData() && getUserDataBinder().validate().isOk();
-	}
-
-	@Override
-	public SimilarityError isAlreadyInDatabase() {
-		var user = getEditedUser();
-		if (user != null) {
-			var person = user.getPerson();
-			if (person != null) {
-				long id = this.personService.getPersonIdBySimilarName(person.getLastName(), person.getFirstName());
-                if (id == 0) {
-					return SimilarityError.NO_ERROR;
-				} else if (id == person.getId()) {
-					return SimilarityError.NO_ERROR;
-				} else {
-					return SimilarityError.SAME_NAME;
-				}
-			}
-		}
-		return SimilarityError.NO_ERROR;
 	}
 
 	@Override

@@ -21,6 +21,8 @@ package fr.utbm.ciad.labmanager.views.components.addons.uploads.generic;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,10 +46,6 @@ public abstract class AbstractUploadableFilesField<T> extends AbstractBaseUpload
 	 */
 	public static final int MAX_NUMBER_OF_FILES = 20;
 	
-	/** List of receivers that are valid.
-	 */
-	private final List<ResetableMemoryBuffer> receivers = new ArrayList<>();
-
 	private final Map<String, ResetableMemoryBuffer> uploadReceivers = new TreeMap<>();
 
 	/** Default constructor.
@@ -58,8 +56,47 @@ public abstract class AbstractUploadableFilesField<T> extends AbstractBaseUpload
 
 	@Override
 	public boolean hasUploadedData() {
-		synchronized (this.receivers) {
-			return this.receivers.stream().anyMatch(it -> it.hasFileData());
+		synchronized (this.uploadReceivers) {
+			return this.uploadReceivers.values().stream().anyMatch(it -> it.hasFileData());
+		}
+	}
+
+	/** Replies the filenames of all the uploaded files.
+	 *
+	 * @return the filenames.
+	 */
+	protected Collection<String> getUploadedFilenames() {
+		synchronized (this.uploadReceivers) {
+			return Collections.unmodifiableCollection(this.uploadReceivers.keySet());
+		}
+	}
+
+	/** Replies the buffers of all the uploaded files.
+	 *
+	 * @return the buffers.
+	 */
+	protected List<UploadBuffer> getUploadBuffers() {
+		synchronized (this.uploadReceivers) {
+			final var list = new ArrayList<UploadBuffer>();
+			list.addAll(this.uploadReceivers.values());
+			return list;
+		}
+	}
+
+	/** Change the buffers of all the uploaded files. This function considers only the instances of {@link ResetableMemoryBuffer}.
+	 *
+	 * @param buffers the buffers.
+	 */
+	protected void setUploadBuffers(List<? extends UploadBuffer> buffers) {
+		synchronized (this.uploadReceivers) {
+			this.uploadReceivers.clear();
+			if (buffers != null && !buffers.isEmpty()) {
+				buffers.forEach(it -> {
+					if (it instanceof ResetableMemoryBuffer buffer) {
+						this.uploadReceivers.put(buffer.getFileName(), buffer);
+					}
+				});
+			}
 		}
 	}
 
@@ -114,7 +151,7 @@ public abstract class AbstractUploadableFilesField<T> extends AbstractBaseUpload
 		}
 		return uploadStreamOpen(uploadReceiver.receiveUpload(filename, mime), filename, mime);
 	}
-
+	
 	@Override
 	protected void resetUploader() {
 		super.resetUploader();

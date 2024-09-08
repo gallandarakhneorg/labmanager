@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views;
 
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.notification.Notification.Position;
 
 /** Constants for the views.
@@ -30,7 +31,13 @@ import com.vaadin.flow.component.notification.Notification.Position;
  * @since 4.0
  */
 public final class ViewConstants {
-	
+
+	/** Default size of the icons in the download and upload dialogs.
+	 *
+	 * @since 4.0
+	 */
+	public static final String DEFAULT_DIALOG_ICON_WIDTH = "256px"; //$NON-NLS-1$
+
 	/** Default number of cards in a person card grid's row.
 	 *
 	 * @since 4.0
@@ -303,9 +310,21 @@ public final class ViewConstants {
 	 */
 	public static final int ICON_SIZE = 16;
 
+	/** Default size of an icon in pixels.
+	 *
+	 * @since 4.0
+	 */
+	public static final String ICON_SIZE_STR = new StringBuilder().append(ViewConstants.ICON_SIZE).append(Unit.PIXELS.getSymbol()).toString();
+
 	/** Default maximum size of an icon in pixels.
 	 */
 	public static final int MAX_ICON_SIZE = 16;
+
+	/** Default maximum size of an icon in pixels.
+	 *
+	 * @since 4.0
+	 */
+	public static final String MAX_ICON_SIZE_STR = new StringBuilder().append(ViewConstants.MAX_ICON_SIZE).append(Unit.PIXELS.getSymbol()).toString();
 
 	/** Default size of an photo in pixels.
 	 */

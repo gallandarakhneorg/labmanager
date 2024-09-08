@@ -29,7 +29,10 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatus;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.conferences.fields.ConferenceFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
@@ -60,8 +63,11 @@ public final class EmbeddedPublicationEditor extends AbstractPublicationEditor {
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param initialPublicationStatus the initial status of the publication.
 	 * @param supportedTypes list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
 	 * @param enableTypeSelector indicates if the type selector is enabled or disabled.
+	 * @param mandatoryAbstractText indicates if the abstract text is considered as mandatory or not.
+	 * @param publicationCreationStatusComputer the tool for computer the creation status for the publication.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param publicationService the service for accessing the JPA entities for publications.
 	 * @param personService the service for accessing the JPA entities for persons.
@@ -78,27 +84,67 @@ public final class EmbeddedPublicationEditor extends AbstractPublicationEditor {
 	 * @param axisEditorFactory the factory for creating scientific axis editors.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
-	 * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
-	 * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
-	 * @param personNullErrorKey the key that is used for retrieving the text of the author/editor null error.
-	 * @param personDuplicateErrorKey the key that is used for retrieving the text of the author/editor duplicate error.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
 	public EmbeddedPublicationEditor(EntityEditingContext<Publication> context,
-			PublicationType[] supportedTypes, boolean enableTypeSelector,
+			EntityCreationStatus initialPublicationStatus,
+			PublicationType[] supportedTypes, boolean enableTypeSelector, boolean mandatoryAbstractText,
+			EntityCreationStatusComputer<Publication> publicationCreationStatusComputer,
 			DownloadableFileManager fileManager, PublicationService publicationService,
 			PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory, UserService userService,
 			JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
 			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory, 
 			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
-			String personNullErrorKey, String personDuplicateErrorKey) {
-		super(context, supportedTypes, false, enableTypeSelector, fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService,
+			MessageSourceAccessor messages, ConstructionPropertiesBuilder properties) {
+		super(context, initialPublicationStatus, supportedTypes, false, enableTypeSelector, mandatoryAbstractText, publicationCreationStatusComputer,
+				fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService,
 				journalService, journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory,
 				conferenceFieldFactory, axisService, axisEditorFactory, authenticatedUser,
-				messages, LOGGER, personCreationLabelKey, personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey,
-				personDuplicateErrorKey);
+				messages, LOGGER, properties);
 		createEditorContentAndLinkBeans();
+	}
+
+	/** Constructor.
+	 *
+	 * @param context the context for editing the entity.
+	 * @param supportedTypes list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
+	 * @param enableTypeSelector indicates if the type selector is enabled or disabled.
+	 * @param mandatoryAbstractText indicates if the abstract text is considered as mandatory or not.
+	 * @param publicationCreationStatusComputer the tool for computer the creation status for the publication.
+	 * @param fileManager the manager of files at the server-side.
+	 * @param publicationService the service for accessing the JPA entities for publications.
+	 * @param personService the service for accessing the JPA entities for persons.
+	 * @param personEditorFactory the factory for creating the person editors.
+	 * @param personFieldFactory the factory for creating the person fields.
+	 * @param userService the service for accessing the JPA entities for users.
+	 * @param journalService the service for accessing the JPA entities for journal.
+	 * @param journalEditorFactory the factory for creating journal editors.
+	 * @param journalFieldFactory the factory for creating journal fields.
+	 * @param conferenceService the service for accessing the JPA entities for conference.
+	 * @param conferenceEditorFactory the factory for creating the conference editors.
+	 * @param conferenceFieldFactory the factory for creating the conference fields.
+	 * @param axisService service for accessing to the JPA entities of scientific axes. 
+	 * @param axisEditorFactory the factory for creating scientific axis editors.
+	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (Spring layer).
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
+	 */
+	public EmbeddedPublicationEditor(EntityEditingContext<Publication> context,
+			PublicationType[] supportedTypes, boolean enableTypeSelector, boolean mandatoryAbstractText,
+			EntityCreationStatusComputer<Publication> publicationCreationStatusComputer,
+			DownloadableFileManager fileManager, PublicationService publicationService,
+			PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory, UserService userService,
+			JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
+			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory, 
+			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages, ConstructionPropertiesBuilder properties) {
+		this(context, null, supportedTypes, enableTypeSelector, mandatoryAbstractText, publicationCreationStatusComputer,
+				fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService,
+				journalService, journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory,
+				conferenceFieldFactory, axisService, axisEditorFactory, authenticatedUser,
+				messages, properties);
 	}
 
 }

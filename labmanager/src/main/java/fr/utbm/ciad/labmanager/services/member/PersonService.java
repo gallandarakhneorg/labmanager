@@ -685,7 +685,11 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @see #getPersonIdByName(String, String)
 	 */
 	public long getPersonIdBySimilarName(String firstName, String lastName) {
-		final var person = getPersonBySimilarName(firstName, lastName);
+		return getPersonIdBySimilarName(null, firstName, lastName);
+	}
+
+	private long getPersonIdBySimilarName(List<Person> allPersons, String firstName, String lastName) {
+		final var person = getPersonBySimilarName(allPersons, firstName, lastName);
 		if (person != null) {
 			return person.getId();
 		}
@@ -703,8 +707,13 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @see #getPersonIdBySimilarName(String, String)
 	 */
 	public Person getPersonBySimilarName(String firstName, String lastName) {
+		return getPersonBySimilarName(null, firstName, lastName);
+	}
+
+	private Person getPersonBySimilarName(List<Person> allPersons, String firstName, String lastName) {
 		if (!Strings.isNullOrEmpty(firstName) || !Strings.isNullOrEmpty(lastName)) {
-			for (final var person : this.personRepository.findAll()) {
+			final var list = allPersons == null ? this.personRepository.findAll() : allPersons;
+			for (final var person : list) {
 				if (this.personNameComparator.isSimilar(firstName, lastName, person.getFirstName(), person.getLastName())) {
 					return person;
 				}
@@ -734,6 +743,12 @@ public class PersonService extends AbstractEntityService<Person> {
 	public List<Person> extractPersonsFrom(String authorText, boolean useNameSimilarity, boolean assignRandomId, boolean ensureAtLeastOneMember) {
 		final var memberCount = new MutableInt();
 		final var persons = new ArrayList<Person>();
+		final List<Person> allPersons;
+		if (useNameSimilarity) {
+			allPersons = this.personRepository.findAll();
+		} else {
+			allPersons = null;
+		}
 		this.nameParser.parseNames(authorText, (fn, von, ln, pos) -> {
 			// Build last name
 			final var firstname = new StringBuilder();
@@ -745,7 +760,7 @@ public class PersonService extends AbstractEntityService<Person> {
 			//
 			final long id;
 			if (useNameSimilarity) {
-				id = getPersonIdBySimilarName(firstname.toString(), ln);
+				id = getPersonIdBySimilarName(allPersons, firstname.toString(), ln);
 			} else {
 				id = getPersonIdByName(firstname.toString(), ln);
 			}

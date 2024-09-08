@@ -32,6 +32,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.FailedEvent;
 import com.vaadin.flow.component.upload.FileRejectedEvent;
+import com.vaadin.flow.component.upload.FileRemovedEvent;
 import com.vaadin.flow.component.upload.FinishedEvent;
 import com.vaadin.flow.component.upload.ProgressUpdateEvent;
 import com.vaadin.flow.component.upload.Receiver;
@@ -261,6 +262,15 @@ public abstract class AbstractBaseUploadableFilesField<T> extends CustomField<T>
 		return this.upload.addFileRejectedListener(listener);
 	}
 
+	/** Adds a listener for {@code file-removed} events fired when a file is removed from the list of uploaded files.
+	 *
+	 * @param listener the listener.
+	 * @return registration for removal of listener.
+	 */
+	public Registration addFileRemovedListener(ComponentEventListener<FileRemovedEvent> listener) {
+		return this.upload.addFileRemovedListener(listener);
+	}
+
 	@Override
 	public void setReadOnly(boolean readOnly) {
 		this.upload.setVisible(!readOnly);
@@ -291,7 +301,7 @@ public abstract class AbstractBaseUploadableFilesField<T> extends CustomField<T>
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public static class ResetableMemoryBuffer implements Receiver {
+	public static class ResetableMemoryBuffer implements Receiver, UploadBuffer {
 
 		private static final long serialVersionUID = -2321968960435164371L;
 
@@ -310,18 +320,12 @@ public abstract class AbstractBaseUploadableFilesField<T> extends CustomField<T>
 			return outputBuffer;
 		}
 
-		/** Get the file name for this buffer.
-		 *
-		 * @return file name or empty if no file
-		 */
+		@Override
 		public String getFileName() {
 			return this.file != null ? this.file.getFileName() : ""; //$NON-NLS-1$
 		}
 
-		/** Get the input stream for file with filename.
-		 *
-		 * @return input stream for file or empty stream if file not found
-		 */
+		@Override
 		@SuppressWarnings("resource")
 		public InputStream getInputStream() {
 			if (this.file != null) {
@@ -338,20 +342,13 @@ public abstract class AbstractBaseUploadableFilesField<T> extends CustomField<T>
 			this.file = null;
 		}
 
-		/** Replies if the buffer has file data.
-		 *
-		 * @return {@code true} if data is available.
-		 */
+		@Override
 		public boolean hasFileData() {
 			return this.file != null;
 		}
 
 
-		/** Create a stream resource for the upload image.
-		 * This function should be inoked when the file is uploaded.
-		 *
-		 * @return the stream resource for the uploaded file.
-		 */
+		@Override
 		public StreamResource createStreamResource() {
 			final InputStreamFactory factory = () -> {
 				return getInputStream();

@@ -28,7 +28,6 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.HAL_ICON;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Consumer;
 
 import com.vaadin.componentfactory.ToggleButton;
@@ -49,7 +48,6 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
@@ -77,15 +75,17 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToDoiConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToKeywordsConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatus;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityIterableValidator;
@@ -125,17 +125,29 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 	private static final long serialVersionUID = 6119323451118628960L;
 
+	/** Key for the property that is the label for person creation.
+	 */
+	public static final String PROP_PERSON_CREATION = "personCreationLabelKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the label for person field.
+	 */
+	public static final String PROP_PERSON_FIELD_LABEL = "personFieldLabelKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the helper for person field.
+	 */
+	public static final String PROP_PERSON_FIELD_HELPER = "personFieldHelperLabelKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the null error for person field.
+	 */
+	public static final String PROP_PERSON_FIELD_NULL_ERROR = "personNullErrorKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the duplicate error for person field.
+	 */
+	public static final String PROP_PERSON_FIELD_DUPLICATE_ERROR = "personDuplicateErrorKey"; //$NON-NLS-1$
+	
 	protected final boolean enableTypeSelector;
 
-	protected final String personCreationLabelKey;
-
-	protected final String personFieldLabelKey;
-
-	protected final String personFieldHelperLabelKey;
-
-	protected final String personNullErrorKey;
-
-	protected final String personDuplicateErrorKey;
+	protected final boolean mandatoryAbstractText;
 
 	protected final DownloadableFileManager fileManager;
 
@@ -222,10 +234,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param initialPublicationStatus the initial status of the publication.
 	 * @param supportedTypes list of publication types that are supported by the editor. Only the publications of a type from this list could be edited.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param enableTypeSelector indicates if the type selector is enabled or disabled.
+	 * @param mandatoryAbstractText indicates if the abstract text is considered as mandatory or not.
+	 * @param publicationCreationStatusComputer the tool for computer the creation status for the publication.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param publicationService the service for accessing the JPA entities for publications.
 	 * @param personService the service for accessing the JPA entities for persons.
@@ -243,35 +258,31 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
-	 * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
-	 * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
-	 * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
-	 * @param personNullErrorKey the key that is used for retrieving the text of the author/editor null error.
-	 * @param personDuplicateErrorKey the key that is used for retrieving the text of the author/editor duplicate error.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
 	public AbstractPublicationEditor(EntityEditingContext<Publication> context,
+			EntityCreationStatus initialPublicationStatus,
 			PublicationType[] supportedTypes,
-			boolean relinkEntityWhenSaving, boolean enableTypeSelector, DownloadableFileManager fileManager, PublicationService publicationService,
+			boolean relinkEntityWhenSaving, boolean enableTypeSelector, boolean mandatoryAbstractText,
+			EntityCreationStatusComputer<Publication> publicationCreationStatusComputer,
+			DownloadableFileManager fileManager, PublicationService publicationService,
 			PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory,
 			UserService userService, JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
 			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory, ScientificAxisService axisService,
 			ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
-			String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
-			String personNullErrorKey, String personDuplicateErrorKey) {
+			ConstructionPropertiesBuilder properties) {
 		super(Publication.class, authenticatedUser, messages, logger,
-				"views.publication.administration_details", //$NON-NLS-1$
-				"views.publication.administration.validated_publication", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				publicationCreationStatusComputer, context, initialPublicationStatus, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.publication.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.publication.administration.validated_publication")); //$NON-NLS-1$
 		this.supportedTypes = supportedTypes;
 		// Sort types by their natural order, that corresponds to the weight of the type
 		Arrays.sort(this.supportedTypes, (a, b) -> Integer.compare(a.ordinal(), b.ordinal()));
 		this.enableTypeSelector = enableTypeSelector;
+		this.mandatoryAbstractText = mandatoryAbstractText;
 		this.publicationService = publicationService;
-		this.personCreationLabelKey = personCreationLabelKey;
-		this.personFieldLabelKey = personFieldLabelKey;
-		this.personFieldHelperLabelKey = personFieldHelperLabelKey;
-		this.personNullErrorKey = personNullErrorKey;
-		this.personDuplicateErrorKey = personDuplicateErrorKey;
 		this.fileManager = fileManager;
 		this.personService = personService;
 		this.personEditorFactory = personEditorFactory;
@@ -297,36 +308,6 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		// Must be the latest initialization for ensuring that all the class's fields are initialized before creating the dynamic field builder
 		this.fieldBuilder = createDynamicFieldBuilder();
-	}
-
-	@Override
-	public SimilarityError isAlreadyInDatabase() {
-		var entity = getEditedEntity();
-		SimilarityError returned = SimilarityError.NO_ERROR;
-		if (entity != null) {
-			List<Publication> publications = this.publicationService.getPublicationsBySimilarTitle(entity.getTitle());
-			if (!publications.isEmpty()) {
-				returned = SimilarityError.SAME_TITLE_BUT_DIFFERENT_AUTHORS;
-				final List<Person> EditedEntityAuthors = entity.getAuthors();
-				for (Publication publication : publications) {
-					List<Person> finalAuthors = publication.getAuthors();
-					if (EditedEntityAuthors.size() == finalAuthors.size()) {
-						for (int i = 0; i < EditedEntityAuthors.size(); i++) {
-							if (!EditedEntityAuthors.get(i).equals(finalAuthors.get(i))) {
-								returned = SimilarityError.SAME_TITLE_BUT_DIFFERENT_AUTHORS;
-								break;
-							} else {
-								returned = SimilarityError.SAME_TITLE_AND_AUTHORS;
-							}
-						}
-						if (returned.isSimilarityError()) {
-							return returned;
-						}
-					}
-				}
-			}
-		}
-		return returned;
 	}
 
 	/** Create the instance of the dynamic field builder.
@@ -420,7 +401,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		this.type.setEnabled(this.enableTypeSelector);
 
-		// Ensure that the publication type initially selected is the one of the edited publication
+		// Update the initial value if the type selector when the editor is attached.
 		this.type.setValue(getEditedEntity().getType());
 	}
 
@@ -440,8 +421,10 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.title.setRequired(true);
 		this.title.setClearButtonVisible(true);
 		this.generalLayout.add(this.title, 2);
+		
+		final var props = getProperties();
 
-		this.authors = this.personFieldFactory.createMultiNameField(getTranslation(this.personCreationLabelKey), getLogger(),
+		this.authors = this.personFieldFactory.createMultiNameField(getTranslation(props.get(PROP_PERSON_CREATION)), getLogger(),
 				// Force the loading of the JPA entity's components
 				it -> {
 					// Loading the authorships is needed when the person is added as author.
@@ -466,8 +449,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			.bind(Publication::getTitle, Publication::setTitle);
 		getEntityDataBinder().forField(this.authors)
 			.withValidator(new DisjointEntityIterableValidator<>(
-				getTranslation(this.personNullErrorKey),
-				getTranslation(this.personDuplicateErrorKey),
+				getTranslation(props.get(PROP_PERSON_FIELD_NULL_ERROR)),
+				getTranslation(props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR)),
 				true))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.authors, this.generalDetails))
 			.bind(Publication::getAuthors, Publication::setTemporaryAuthors);
@@ -591,11 +574,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		this.contentDetails = createDetailsWithErrorMark(rootContainer, content, "content"); //$NON-NLS-1$
 
-		getEntityDataBinder().forField(this.abstractText)
-			.withConverter(new StringTrimer())
-			.withValidator(new NotEmptyStringValidator(getTranslation("views.publication.abstract_text.error"))) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.abstractText, this.contentDetails))
-			.bind(Publication::getAbstractText, Publication::setAbstractText);
+		final var abstractFieldBinder = getEntityDataBinder().forField(this.abstractText)
+			.withConverter(new StringTrimer());
+		if (this.mandatoryAbstractText) {
+			abstractFieldBinder.withValidator(new NotEmptyStringValidator(getTranslation("views.publication.abstract_text.error"))) //$NON-NLS-1$
+				.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.abstractText, this.contentDetails));
+		}
+		abstractFieldBinder.bind(Publication::getAbstractText, Publication::setAbstractText);
 		getEntityDataBinder().forField(this.keywords)
 			.withConverter(new StringToKeywordsConverter())
 			.bind(Publication::getKeywords, Publication::setKeywords);
@@ -740,6 +725,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 
+		final var props = getProperties();
+
 		if(this.generalDetails != null){
 			this.generalDetails.setSummaryText(getTranslation("views.publication.general_informations")); //$NON-NLS-1$
 		}
@@ -747,8 +734,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.type.setHelperText(getTranslation("views.publication.type.helper")); //$NON-NLS-1$);
 		this.type.setItemLabelGenerator(this::getTypeLabel);
 		this.title.setLabel(getTranslation("views.publication.title")); //$NON-NLS-1$
-		this.authors.setLabel(getTranslation(this.personFieldLabelKey));
-		this.authors.setHelperText(getTranslation(this.personFieldHelperLabelKey));
+		this.authors.setLabel(getTranslation(props.get(PROP_PERSON_FIELD_LABEL)));
+		this.authors.setHelperText(getTranslation(props.get(PROP_PERSON_FIELD_HELPER)));
 		this.publicationDate.setLocale(event.getLocale());
 		this.publicationDate.setLabel(getTranslation("views.publication.date")); //$NON-NLS-1$
 		this.publicationDate.setHelperText(getTranslation("views.publication.date.helper")); //$NON-NLS-1$
@@ -1095,7 +1082,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		@SuppressWarnings("synthetic-access")
 		private void addGeneralFields(Publication publication) {
-			if (publication instanceof AbstractJournalBasedPublication journalPublication) {
+			if (publication instanceof AbstractJournalBasedPublication) {
 				if (this.journal == null) {
 					this.journal = AbstractPublicationEditor.this.journalFieldFactory.createSingleNameField(
 							getTranslation("views.publication.journal.new_journal"), getLogger()); //$NON-NLS-1$
@@ -1105,7 +1092,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 					AbstractPublicationEditor.this.generalLayout.addComponentAtIndex(2, this.journal);
 					AbstractPublicationEditor.this.generalLayout.setColspan(this.journal, 2);
 				}
-			} else if (publication instanceof AbstractConferenceBasedPublication conferencePublication) {
+			} else if (publication instanceof AbstractConferenceBasedPublication) {
 				if (this.conference == null) {
 					this.conference = AbstractPublicationEditor.this.conferenceFieldFactory.createSingleNameField(
 							getTranslation("views.publication.conference.new_conference"), getLogger()); //$NON-NLS-1$
@@ -1124,13 +1111,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 					AbstractPublicationEditor.this.generalLayout.addComponentAtIndex(3, this.conferenceOccurrenceNumber);
 					AbstractPublicationEditor.this.generalLayout.setColspan(this.conferenceOccurrenceNumber, 1);
 				}
-			} else if (publication instanceof Book book) {
+			} else if (publication instanceof Book) {
 				this.publisher = new TextField();
 				this.publisher.setPrefixComponent(VaadinIcon.OPEN_BOOK.create());
 				this.publisher.setClearButtonVisible(true);
 
 				AbstractPublicationEditor.this.generalLayout.add(this.publisher, 2);
-			} else if (publication instanceof BookChapter chapter) {
+			} else if (publication instanceof BookChapter) {
 				this.chapterNumber = new TextField();
 				this.chapterNumber.setPrefixComponent(VaadinIcon.HASH.create());
 				this.chapterNumber.setClearButtonVisible(true);
@@ -1147,7 +1134,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.generalLayout.add(this.chapterNumber, 1);
 				AbstractPublicationEditor.this.generalLayout.add(this.bookTitle, 1);
 				AbstractPublicationEditor.this.generalLayout.add(this.publisher, 2);
-			} else if (publication instanceof MiscDocument misc) {
+			} else if (publication instanceof MiscDocument) {
 				this.howPublished = new TextField();
 				this.howPublished.setPrefixComponent(VaadinIcon.BOOK.create());
 				this.howPublished.setRequiredIndicatorVisible(true);
@@ -1169,7 +1156,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.generalLayout.add(this.documentNumber, 2);
 				AbstractPublicationEditor.this.generalLayout.add(this.documentType, 2);
 				AbstractPublicationEditor.this.generalLayout.add(this.publisher, 2);
-			} else if (publication instanceof Patent patent) {
+			} else if (publication instanceof Patent) {
 				this.institution = new TextField();
 				this.institution.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 				this.institution.setRequiredIndicatorVisible(true);
@@ -1187,7 +1174,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.generalLayout.add(this.institution, 2);
 				AbstractPublicationEditor.this.generalLayout.add(this.patentNumber, 2);
 				AbstractPublicationEditor.this.generalLayout.add(this.patentType, 2);
-			} else if (publication instanceof Report report) {
+			} else if (publication instanceof Report) {
 				this.institution = new TextField();
 				this.institution.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 				this.institution.setRequiredIndicatorVisible(true);
@@ -1204,7 +1191,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.generalLayout.add(this.institution, 2);
 				AbstractPublicationEditor.this.generalLayout.add(this.reportNumber, 2);
 				AbstractPublicationEditor.this.generalLayout.add(this.reportType, 2);
-			} else if (publication instanceof Thesis thesis) {
+			} else if (publication instanceof Thesis) {
 				this.institution = new TextField();
 				this.institution.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 				this.institution.setRequiredIndicatorVisible(true);
@@ -1217,13 +1204,13 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		@SuppressWarnings("synthetic-access")
 		private void bindGeneralFields(Publication publication) {
 			final var binder = getEntityDataBinder();
-			if (publication instanceof AbstractJournalBasedPublication journalPublication) {
+			if (publication instanceof AbstractJournalBasedPublication) {
 				assert this.journal != null;
 				binder.forField(this.journal)
 					.withValidator(new NotNullEntityValidator<>(getTranslation("views.publication.journal.error"))) //$NON-NLS-1$
 					.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.journal, AbstractPublicationEditor.this.generalDetails))
 					.bind(getter(AbstractJournalBasedPublication.class, AbstractJournalBasedPublication::getJournal), setter(AbstractJournalBasedPublication.class, AbstractJournalBasedPublication::setJournal));
-			} else if (publication instanceof AbstractConferenceBasedPublication conferencePublication) {
+			} else if (publication instanceof AbstractConferenceBasedPublication) {
 				assert this.conference != null;
 				binder.forField(this.conference)
 					.withValidator(new NotNullEntityValidator<>(getTranslation("views.publication.conference.error"))) //$NON-NLS-1$
@@ -1232,12 +1219,12 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				assert this.conferenceOccurrenceNumber != null;
 				binder.forField(this.conferenceOccurrenceNumber)
 					.bind(getter(AbstractConferenceBasedPublication.class, AbstractConferenceBasedPublication::getConferenceOccurrenceNumber), setter(AbstractConferenceBasedPublication.class, AbstractConferenceBasedPublication::setConferenceOccurrenceNumber));
-			} else if (publication instanceof Book book) {
+			} else if (publication instanceof Book) {
 				assert this.publisher != null;
 				binder.forField(this.publisher)
 					.withConverter(new StringTrimer())
 					.bind(getter(Book.class, Book::getPublisher), setter(Book.class, Book::setPublisher));
-			} else if (publication instanceof BookChapter chapter) {
+			} else if (publication instanceof BookChapter) {
 				assert this.chapterNumber != null;
 				binder.forField(this.chapterNumber)
 					.withConverter(new StringTrimer())
@@ -1252,7 +1239,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.publisher)
 					.withConverter(new StringTrimer())
 					.bind(getter(BookChapter.class, BookChapter::getPublisher), setter(BookChapter.class, BookChapter::setPublisher));
-			} else if (publication instanceof MiscDocument misc) {
+			} else if (publication instanceof MiscDocument) {
 				assert this.howPublished != null;
 				binder.forField(this.howPublished)
 					.withConverter(new StringTrimer())
@@ -1271,7 +1258,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.publisher)
 					.withConverter(new StringTrimer())
 					.bind(getter(MiscDocument.class, MiscDocument::getPublisher), setter(MiscDocument.class, MiscDocument::setPublisher));
-			} else if (publication instanceof Patent patent) {
+			} else if (publication instanceof Patent) {
 				assert this.institution != null;
 				binder.forField(this.institution)
 					.withConverter(new StringTrimer())
@@ -1288,7 +1275,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.patentType)
 					.withConverter(new StringTrimer())
 					.bind(getter(Patent.class, Patent::getPatentType), setter(Patent.class, Patent::setPatentType));
-			} else if (publication instanceof Report report) {
+			} else if (publication instanceof Report) {
 				assert this.institution != null;
 				binder.forField(this.institution)
 					.withConverter(new StringTrimer())
@@ -1303,7 +1290,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.reportType)
 					.withConverter(new StringTrimer())
 					.bind(getter(Report.class, Report::getReportType), setter(Report.class, Report::setReportType));
-			} else if (publication instanceof Thesis thesis) {
+			} else if (publication instanceof Thesis) {
 				assert this.institution != null;
 				binder.forField(this.institution)
 					.withConverter(new StringTrimer())
@@ -1404,7 +1391,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		}
 
 		private void addIdentificationFields(Publication publication) {
-			if (publication instanceof ConferencePaper paper) {
+			if (publication instanceof ConferencePaper) {
 				this.series = new TextField();
 				this.series.setPrefixComponent(VaadinIcon.BOOK.create());
 				this.series.setClearButtonVisible(true);
@@ -1435,7 +1422,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.organization, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
-			} else if (publication instanceof JournalPaper paper) {
+			} else if (publication instanceof JournalPaper) {
 				this.series = new TextField();
 				this.series.setPrefixComponent(VaadinIcon.BOOK.create());
 				this.series.setClearButtonVisible(true);
@@ -1456,7 +1443,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
 				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
 				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
-			} else if (publication instanceof JournalEdition edition) {
+			} else if (publication instanceof JournalEdition) {
 				this.volume = new TextField();
 				this.volume.setPrefixComponent(VaadinIcon.HASH.create());
 				this.volume.setClearButtonVisible(true);
@@ -1472,7 +1459,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.identificationLayout.add(this.volume, 1);
 				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
 				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
-			} else if (publication instanceof Book book) {
+			} else if (publication instanceof Book) {
 				this.editors = new TextField();
 				this.editors.setPrefixComponent(VaadinIcon.USERS.create());
 				this.editors.setClearButtonVisible(true);
@@ -1503,7 +1490,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
 				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.editors, 2);
-			} else if (publication instanceof BookChapter chapter) {
+			} else if (publication instanceof BookChapter) {
 				this.editors = new TextField();
 				this.editors.setPrefixComponent(VaadinIcon.USERS.create());
 				this.editors.setClearButtonVisible(true);
@@ -1534,7 +1521,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.identificationLayout.add(this.number, 1);
 				AbstractPublicationEditor.this.identificationLayout.add(this.pages, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.editors, 2);
-			} else if (publication instanceof KeyNote keynote) {
+			} else if (publication instanceof KeyNote) {
 				this.editors = new TextField();
 				this.editors.setPrefixComponent(VaadinIcon.USERS.create());
 				this.editors.setClearButtonVisible(true);
@@ -1550,7 +1537,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				AbstractPublicationEditor.this.identificationLayout.add(this.editors, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.organization, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
-			} else if (publication instanceof MiscDocument document) {
+			} else if (publication instanceof MiscDocument) {
 				this.organization = new TextField();
 				this.organization.setPrefixComponent(VaadinIcon.INSTITUTION.create());
 				this.organization.setClearButtonVisible(true);
@@ -1561,19 +1548,19 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 				AbstractPublicationEditor.this.identificationLayout.add(this.organization, 2);
 				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
-			} else if (publication instanceof Patent patent) {
+			} else if (publication instanceof Patent) {
 				this.address = new TextField();
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
 				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
-			} else if (publication instanceof Report report) {
+			} else if (publication instanceof Report) {
 				this.address = new TextField();
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
 
 				AbstractPublicationEditor.this.identificationLayout.add(this.address, 2);
-			} else if (publication instanceof Thesis thesis) {
+			} else if (publication instanceof Thesis) {
 				this.address = new TextField();
 				this.address.setPrefixComponent(VaadinIcon.MAP_MARKER.create());
 				this.address.setClearButtonVisible(true);
@@ -1585,7 +1572,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		@SuppressWarnings("synthetic-access")
 		private void bindIdentificationFields(Publication publication) {
 			final var binder = getEntityDataBinder();
-			if (publication instanceof ConferencePaper paper) {
+			if (publication instanceof ConferencePaper) {
 				assert this.series != null;
 				binder.forField(this.series)
 					.withConverter(new StringTrimer())
@@ -1610,7 +1597,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.address)
 					.withConverter(new StringTrimer())
 					.bind(getter(ConferencePaper.class, ConferencePaper::getAddress), setter(ConferencePaper.class, ConferencePaper::setAddress));
-			} else if (publication instanceof JournalPaper paper) {
+			} else if (publication instanceof JournalPaper) {
 				assert this.series != null;
 				binder.forField(this.series)
 					.withConverter(new StringTrimer())
@@ -1627,7 +1614,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.pages)
 					.withConverter(new StringTrimer())
 					.bind(getter(JournalPaper.class, JournalPaper::getPages), setter(JournalPaper.class, JournalPaper::setPages));
-			} else if (publication instanceof JournalEdition edition) {
+			} else if (publication instanceof JournalEdition) {
 				assert this.volume != null;
 				binder.forField(this.volume)
 					.withConverter(new StringTrimer())
@@ -1640,7 +1627,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.pages)
 					.withConverter(new StringTrimer())
 					.bind(getter(JournalEdition.class, JournalEdition::getPages), setter(JournalEdition.class, JournalEdition::setPages));
-			} else if (publication instanceof Book book) {
+			} else if (publication instanceof Book) {
 				assert this.edition != null;
 				binder.forField(this.edition)
 					.withConverter(new StringTrimer())
@@ -1665,7 +1652,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.editors)
 					.withConverter(new StringTrimer())
 					.bind(getter(Book.class, Book::getEditors), setter(Book.class, Book::setEditors));
-			} else if (publication instanceof BookChapter chapter) {
+			} else if (publication instanceof BookChapter) {
 				assert this.edition != null;
 				binder.forField(this.edition)
 					.withConverter(new StringTrimer())
@@ -1690,7 +1677,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.editors)
 					.withConverter(new StringTrimer())
 					.bind(getter(BookChapter.class, BookChapter::getEditors), setter(BookChapter.class, BookChapter::setEditors));
-			} else if (publication instanceof KeyNote keynote) {
+			} else if (publication instanceof KeyNote) {
 				assert this.organization != null;
 				binder.forField(this.editors)
 					.withConverter(new StringTrimer())
@@ -1703,7 +1690,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.address)
 					.withConverter(new StringTrimer())
 					.bind(getter(KeyNote.class, KeyNote::getAddress), setter(KeyNote.class, KeyNote::setAddress));
-			} else if (publication instanceof MiscDocument document) {
+			} else if (publication instanceof MiscDocument) {
 				assert this.organization != null;
 				binder.forField(this.organization)
 					.withConverter(new StringTrimer())
@@ -1712,17 +1699,17 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 				binder.forField(this.address)
 					.withConverter(new StringTrimer())
 					.bind(getter(MiscDocument.class, MiscDocument::getAddress), setter(MiscDocument.class, MiscDocument::setAddress));
-			} else if (publication instanceof Patent patent) {
+			} else if (publication instanceof Patent) {
 				assert this.address != null;
 				binder.forField(this.address)
 					.withConverter(new StringTrimer())
 					.bind(getter(Patent.class, Patent::getAddress), setter(Patent.class, Patent::setAddress));
-			} else if (publication instanceof Report report) {
+			} else if (publication instanceof Report) {
 				assert this.address != null;
 				binder.forField(this.address)
 					.withConverter(new StringTrimer())
 					.bind(getter(Report.class, Report::getAddress), setter(Report.class, Report::setAddress));
-			} else if (publication instanceof Thesis thesis) {
+			} else if (publication instanceof Thesis) {
 				assert this.pages != null;
 				binder.forField(this.address)
 					.withConverter(new StringTrimer())

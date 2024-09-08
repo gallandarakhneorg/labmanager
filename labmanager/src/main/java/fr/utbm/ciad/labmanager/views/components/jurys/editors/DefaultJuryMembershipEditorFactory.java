@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DefaultJuryMembershipEditorFactory implements JuryMembershipEditorFactory {
-
+	
 	private final JuryMembershipService juryMembershipService;
 
 	private final PersonFieldFactory personFieldFactory;
@@ -51,6 +51,7 @@ public class DefaultJuryMembershipEditorFactory implements JuryMembershipEditorF
 
 	/** Constructors.
 	 * 
+	 * @param juryCreationStatusComputer the tool for computer the creation status for the jury memberships.
 	 * @param juryMembershipService the service for accessing the JPA entities for jury memberships.
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param authenticatedUser the connected user.
@@ -74,12 +75,12 @@ public class DefaultJuryMembershipEditorFactory implements JuryMembershipEditorF
 	
 	@Override
 	public AbstractEntityEditor<JuryMembership> createAdditionEditor(EntityEditingContext<JuryMembership> context) {
-		return new EmbeddedJuryMembershipEditor(context, this.personFieldFactory, this.authenticatedUser, this.messages);
+		return new EmbeddedJuryMembershipEditor(context, null, this.personFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<JuryMembership> createUpdateEditor(EntityEditingContext<JuryMembership> context) {
-		return new EmbeddedJuryMembershipEditor(context, this.personFieldFactory, this.authenticatedUser, this.messages);
+		return new EmbeddedJuryMembershipEditor(context, null, this.personFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 }

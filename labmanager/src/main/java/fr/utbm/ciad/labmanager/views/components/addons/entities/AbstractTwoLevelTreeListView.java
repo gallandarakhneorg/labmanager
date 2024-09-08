@@ -34,6 +34,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -79,19 +80,15 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param logger the logger to be used by this view.
-	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
-	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
-	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
-	 * @param deletionErrorMessageKey the key in the localized messages for the messages related to an error of deletion.
+	 * @param properties specification of properties that may be passed to the construction function {@link #createFilters()},
+	 *     {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
+	 * @since 4.0
 	 */
 	public AbstractTwoLevelTreeListView(
 			Class<R> rootEntityType, Class<C> childEntityType,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
-			String deletionTitleMessageKey, String deletionMessageKey,
-			String deletionSuccessMessageKey, String deletionErrorMessageKey) {
-		super(null, authenticatedUser, messages, logger,
-				deletionTitleMessageKey, deletionMessageKey,
-				deletionSuccessMessageKey, deletionErrorMessageKey);
+			ConstructionPropertiesBuilder properties) {
+		super(null, authenticatedUser, messages, logger, properties);
 		this.rootEntityType = rootEntityType;
 		this.childEntityType = childEntityType;
 	}

@@ -23,6 +23,8 @@ import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.regular.EmbeddedConferenceEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +50,15 @@ public final class EmbeddedConferenceEditorWizard extends AbstractConferenceEdit
     /** Constructor.
      *
      * @param context the editing context for the conference.
+	 * @param conferenceCreationStatusComputer the tool for computer the creation status for the conferences.
      * @param conferenceService the service for accessing the conference entities.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      */
     public EmbeddedConferenceEditorWizard(EntityEditingContext<Conference> context,
-                                          AuthenticatedUser authenticatedUser, ConferenceService conferenceService, MessageSourceAccessor messages) {
-        super(context, false, conferenceService , authenticatedUser, messages, LOGGER);
+			EntityCreationStatusComputer<Conference> conferenceCreationStatusComputer,
+			AuthenticatedUser authenticatedUser, ConferenceService conferenceService, MessageSourceAccessor messages) {
+        super(context, conferenceCreationStatusComputer, false, conferenceService , authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }
 

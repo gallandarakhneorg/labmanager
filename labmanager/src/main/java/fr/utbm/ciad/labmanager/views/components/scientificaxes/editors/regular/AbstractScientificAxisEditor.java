@@ -29,11 +29,13 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -64,18 +66,24 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 	/** Constructor.
 	 *
 	 * @param context the editing context for the scientific axis.
+	 * @param axisCreationStatusComputer the tool for computer the creation status for the scientific axes.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
-	public AbstractScientificAxisEditor(EntityEditingContext<ScientificAxis> context, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
+	public AbstractScientificAxisEditor(EntityEditingContext<ScientificAxis> context,
+			EntityCreationStatusComputer<ScientificAxis> axisCreationStatusComputer, boolean relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			ConstructionPropertiesBuilder properties) {
 		super(ScientificAxis.class, authenticatedUser, messages, logger,
-				"views.scientific_axes.administration_details", //$NON-NLS-1$
-				"views.scientific_axes.administration.validated_address", //$NON-NLS-1$
-				context, relinkEntityWhenSaving);
+				axisCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.scientific_axes.administration_details") //$NON-NLS-1$
+				.map(PROP_ADMIN_VALIDATION_BOX, "views.scientific_axes.administration.validated_address")); //$NON-NLS-1$
 	}
 
 	@Override

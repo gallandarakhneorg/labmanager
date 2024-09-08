@@ -57,7 +57,7 @@ public class AbstractBibTeXTest {
 			@Override
 			public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId,
 					boolean assignRandomId, boolean ensureAtLeastOneMember, boolean createMissedJournal,
-					boolean createMissedConference) throws Exception {
+					boolean createMissedConference, Progression progression) throws Exception {
 				throw new UnsupportedOperationException();
 			}
 

@@ -98,7 +98,9 @@ public class DefaultAssociatedStructureEditorFactory implements AssociatedStruct
 
 	@Override
 	public AbstractEntityEditor<AssociatedStructure> createAdditionEditor(EntityEditingContext<AssociatedStructure> context) {
-		return new EmbeddedAssociatedStructureEditor(context, this.structureFieldFactory,
+		return new EmbeddedAssociatedStructureEditor(context,
+				null,
+				this.structureFieldFactory,
 				this.projectService, this.projectEditorFactory,
 				this.organizationService, this.authenticatedUser,
 				this.organizationFieldFactory, this.messages);
@@ -106,7 +108,9 @@ public class DefaultAssociatedStructureEditorFactory implements AssociatedStruct
 
 	@Override
 	public AbstractEntityEditor<AssociatedStructure> createUpdateEditor(EntityEditingContext<AssociatedStructure> context) {
-		return new EmbeddedAssociatedStructureEditor(context, this.structureFieldFactory,
+		return new EmbeddedAssociatedStructureEditor(context,
+				null,
+				this.structureFieldFactory,
 				this.projectService, this.projectEditorFactory,
 				this.organizationService, this.authenticatedUser,
 				this.organizationFieldFactory, this.messages);

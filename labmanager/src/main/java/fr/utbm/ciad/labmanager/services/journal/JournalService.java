@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
@@ -127,6 +128,24 @@ public class JournalService extends AbstractEntityService<Journal> {
 		this.journalNameAndPublisherComparator = journalNameAndPublisherComparator;
 	}
 
+	/** Save the given journal or create a JPA entity if the given object is a fake.
+	 *
+	 * @param journal the journal entity to save.
+	 * @return the saved entity.
+	 * @see IdentifiableEntity#isFakeEntity()
+	 * @since 4.0
+	 */
+	public Journal saveOrCreateIfFake(Journal journal) {
+		var sjournal = journal;
+		if (sjournal != null) {
+			if (sjournal.isFakeEntity()) {
+				sjournal = new Journal(sjournal);
+			}
+			this.journalRepository.save(sjournal);
+		}
+		return sjournal;
+	}
+	
 	/** Replies all the journals for the database.
 	 *
 	 * @return the list of journals.

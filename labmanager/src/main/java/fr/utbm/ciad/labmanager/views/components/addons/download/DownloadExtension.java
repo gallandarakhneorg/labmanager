@@ -51,7 +51,6 @@ import org.arakhne.afc.vmutil.FileSystem;
  * In order to enable the downloading, it is important that the component is visible during the download process. Otherwise there is a risk to
  * have the error "data nor available on server".
  *
- * @param <T> the type of the result computed by the asynchronous task.
  * @param <C> the type of the extended component that must be a valid Vaadin component and a received of click event.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -94,7 +93,7 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 	protected DownloadExtension(C component) {
 		assert component != null;
 		this.progress = ProgressExtension.<String,C>extend(component)
-				.withAsyncTask(progress -> {
+				.withAsyncTask((ui, progress) -> {
 					final var progression = new DefaultProgression(0, CHILD_PROGRESS_SIZE + EXTRA_PROGRESS_SIZE);
 					if (progress != null) {
 						progression.addProgressionListener(progress);
@@ -115,9 +114,9 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 						anchorElement.getStyle().set("display", "none"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 						// Run the UI-dependent code
-						final var ui = component.getUI().orElse(null);
-						if (ui != null) {
-							ui.access(() -> {
+						final var ui0 = ui == null ? component.getUI().orElse(null) : ui;
+						if (ui0 != null) {
+							ui0.access(() -> {
 								getAnchorReceiver(component).appendChild(anchorElement);
 								anchor.setHref(href);
 								anchorElement.callJsFunction("click"); //$NON-NLS-1$
@@ -213,7 +212,7 @@ public class DownloadExtension<C extends Component & ClickNotifier<C>> implement
 		return reference.getParent().orElseThrow().getElement();
 	}
 
-	/** Extends the given component to enables asynchronous download of data to a client-side file.
+	/** Extends the given component to enable asynchronous download of data to a client-side file.
 	 *
 	 * @param <C> the type of the component that must be a valid Vaadin component and a received of click event.
 	 * @param component the component to extend.

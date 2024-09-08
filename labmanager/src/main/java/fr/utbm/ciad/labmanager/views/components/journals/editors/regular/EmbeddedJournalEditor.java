@@ -23,6 +23,8 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,13 +48,15 @@ public final class EmbeddedJournalEditor extends AbstractJournalEditor {
 	/** Constructor.
 	 *
 	 * @param context the editing context for the conference.
+	 * @param journalCreationStatusComputer the tool for computer the creation status for the journals.
 	 * @param journalService the service to have access to all the journal entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedJournalEditor(EntityEditingContext<Journal> context, JournalService journalService,
+	public EmbeddedJournalEditor(EntityEditingContext<Journal> context,
+			EntityCreationStatusComputer<Journal> journalCreationStatusComputer, JournalService journalService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, journalService, authenticatedUser, messages, LOGGER);
+		super(context, journalCreationStatusComputer, false, journalService, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

@@ -22,7 +22,9 @@ package fr.utbm.ciad.labmanager.views.components.teaching.editors.regular;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import org.slf4j.Logger;
@@ -48,6 +50,7 @@ public final class EmbeddedTeachingActivityEditor extends AbstractTeachingActivi
 	/** Constructor.
 	 *
 	 * @param context the editing context for the teaching activity.
+	 * @param activityCreationStatusComputer the tool for computer the creation status for the teaching activity.
 	 * @param fileManager the manager of the downloadable files.
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param organizationFieldFactory the factory for creating the organization fields.
@@ -56,9 +59,10 @@ public final class EmbeddedTeachingActivityEditor extends AbstractTeachingActivi
 	 * @since 4.0
 	 */
 	public EmbeddedTeachingActivityEditor(EntityEditingContext<TeachingActivity> context,
-			DownloadableFileManager fileManager, PersonFieldFactory personFieldFactory,
+			EntityCreationStatusComputer<TeachingActivity> activityCreationStatusComputer, DownloadableFileManager fileManager, PersonFieldFactory personFieldFactory,
 			OrganizationFieldFactory organizationFieldFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, fileManager, personFieldFactory, organizationFieldFactory, authenticatedUser, messages, LOGGER);
+		super(context, false, activityCreationStatusComputer, fileManager, personFieldFactory, organizationFieldFactory, authenticatedUser, messages, LOGGER,
+				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

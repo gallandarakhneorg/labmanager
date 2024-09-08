@@ -30,7 +30,7 @@ import io.overcoded.vaadin.wizard.ExceptionRunnable;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 
-/** Abstract implementation of a wizard step with progression indicator.
+/** Abstract implementation of a wizard step with progression indicator with components specific to the lab manager API.
  *
  * @param <T> the type of the context data.
  * @author $Author: sgalland$

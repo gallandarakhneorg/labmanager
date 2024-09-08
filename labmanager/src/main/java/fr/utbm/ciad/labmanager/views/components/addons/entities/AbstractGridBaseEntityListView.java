@@ -49,6 +49,8 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionProperties;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
@@ -79,6 +81,22 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 	private static final long serialVersionUID = -602512272488076268L;
 
+	/** Key for the property that is the title of the deletion message dialog.
+	 */
+	protected static final String PROP_DELETION_TITLE_MESSAGE = "deletionTitleMessageKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the deletion message.
+	 */
+	protected static final String PROP_DELETION_MESSAGE = "deletionMessageKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the success message for deletion.
+	 */
+	protected static final String PROP_DELETION_SUCCESS_MESSAGE = "deletionSuccessMessageKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the error message for deletion.
+	 */
+	protected static final String PROP_DELETION_ERROR_MESSAGE = "deletionErrorMessageKey"; //$NON-NLS-1$
+
 	private final Logger logger;
 
 	private final MessageSourceAccessor messages;
@@ -87,13 +105,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 
 	private final Class<T> entityType;
 
-	private final String deletionTitleMessageKey;
-
-	private final String deletionMessageKey;
-
-	private final String deletionSuccessMessageKey;
-
-	private final String deletionErrorMessageKey;
+	private final ConstructionProperties properties;
 
 	private G grid;
 
@@ -111,23 +123,18 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param logger the logger to be used by this view.
-	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
-	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
-	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
-	 * @param deletionErrorMessageKey the key in the localized messages for the messages related to an error of deletion.
+	 * @param properties specification of properties that may be passed to the construction function {@link #createFilters()},
+	 *     {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
+	 * @since 4.0
 	 */
 	public AbstractGridBaseEntityListView(Class<T> entityType,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
-			String deletionTitleMessageKey, String deletionMessageKey,
-			String deletionSuccessMessageKey, String deletionErrorMessageKey) {
+			ConstructionPropertiesBuilder properties) {
 		this.entityType = entityType;
 		this.logger = logger;
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
-		this.deletionTitleMessageKey = deletionTitleMessageKey;
-		this.deletionMessageKey = deletionMessageKey;
-		this.deletionSuccessMessageKey = deletionSuccessMessageKey;
-		this.deletionErrorMessageKey = deletionErrorMessageKey;
+		this.properties = properties.build();
 
 		final var rootContainer = getContent();
 
@@ -140,6 +147,14 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		final var menu = createMenuBar();
 
 		rootContainer.add(createMobileFilters(), this.filters, menu, this.grid);
+	}
+	
+	/** Replies the construction properties.
+	 *
+	 * @return the properties.
+	 */
+	protected final ConstructionProperties getProperties() {
+		return this.properties;
 	}
 
 	/** Replies the addition button.
@@ -319,10 +334,11 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 		final var context = createDeletionContextFor(entities);
 		try {
 			if (context.isDeletionPossible()) {
-				final int size = entities.size();
+				final var size = entities.size();
+				final var props = getProperties();
 				ComponentFactory.newDeletionDialog(this,
-						getTranslation(this.deletionTitleMessageKey, Integer.valueOf(size)),
-						getTranslation(this.deletionMessageKey, Integer.valueOf(size)),
+						getTranslation(props.<String>get("deletionTitleMessageKey"), Integer.valueOf(size)), //$NON-NLS-1$
+						getTranslation(props.<String>get("deletionMessageKey"), Integer.valueOf(size)), //$NON-NLS-1$
 						it ->  {
 							try {
 								context.delete();
@@ -361,7 +377,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @see #notifyDeleted(int, String)
 	 */
 	protected final void notifyDeleted(int size) {
-		notifyDeleted(size, this.deletionSuccessMessageKey);
+		notifyDeleted(size, getProperties().get("deletionSuccessMessageKey")); //$NON-NLS-1$
 	}
 
 	/** Notify the user that the entities were deleted.
@@ -380,7 +396,7 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @see #notifyDeletionError(Throwable, String)
 	 */
 	protected final void notifyDeletionError(Throwable error) {
-		notifyDeletionError(error, this.deletionErrorMessageKey);
+		notifyDeletionError(error, getProperties().get("deletionErrorMessageKey")); //$NON-NLS-1$
 	}
 
 	/** Notify the user that the entities cannot be deleted.

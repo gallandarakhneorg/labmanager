@@ -29,15 +29,19 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatus;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.conferences.fields.ConferenceFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.fields.JournalFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
+import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.AbstractPublicationEditor;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.EmbeddedPublicationEditor;
+import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.PublicationCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -57,6 +61,8 @@ public class DefaultPublicationEditorFactory implements PublicationEditorFactory
 	private final DownloadableFileManager fileManager;
 
 	private final PublicationService publicationService;
+
+	private final PublicationCreationStatusComputer publicationCreationStatusComputer;
 
 	private final PersonService personService;
 
@@ -90,6 +96,7 @@ public class DefaultPublicationEditorFactory implements PublicationEditorFactory
 	 * 
 	 * @param fileManager the manager of files at the server-side.
 	 * @param publicationService the service for accessing the JPA entities for publications.
+	 * @param publicationCreationStatusComputer the tool for computer the creation status for the publication.
 	 * @param personService the service for accessing the JPA entities for persons.
 	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param personFieldFactory the factory for creating the person fields.
@@ -106,7 +113,7 @@ public class DefaultPublicationEditorFactory implements PublicationEditorFactory
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public DefaultPublicationEditorFactory(
-			@Autowired DownloadableFileManager fileManager,
+			@Autowired PublicationCreationStatusComputer publicationCreationStatusComputer,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
 			@Autowired PersonEditorFactory personEditorFactory,
@@ -120,10 +127,12 @@ public class DefaultPublicationEditorFactory implements PublicationEditorFactory
 			@Autowired ConferenceFieldFactory conferenceFieldFactory, 
 			@Autowired ScientificAxisService axisService,
 			@Autowired ScientificAxisEditorFactory axisEditorFactory,
+			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages) {
 		this.fileManager = fileManager;
 		this.publicationService = publicationService;
+		this.publicationCreationStatusComputer = publicationCreationStatusComputer;
 		this.personService = personService;
 		this.personEditorFactory = personEditorFactory;
 		this.personFieldFactory = personFieldFactory;
@@ -147,28 +156,39 @@ public class DefaultPublicationEditorFactory implements PublicationEditorFactory
 
 	@Override
 	public AbstractEntityEditor<Publication> createAdditionEditor(EntityEditingContext<Publication> context,
-			PublicationType[] supportedTypes, boolean enableTypeSelector,
+			EntityCreationStatus initialPublicationStatus,
+			PublicationType[] supportedTypes, boolean enableTypeSelector, boolean mandatoryAbstractText,
 			String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
 			String personNullErrorKey, String personDuplicateErrorKey) {
-		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, this.fileManager,
+		return new EmbeddedPublicationEditor(context, initialPublicationStatus, supportedTypes, enableTypeSelector, mandatoryAbstractText, this.publicationCreationStatusComputer, this.fileManager,
 				this.publicationService, this.personService, this.personEditorFactory, this.personFieldFactory, this.userService,
 				this.journalService, this.journalEditorFactory, this.journalFieldFactory, this.conferenceService,
 				this.conferenceEditorFactory, this.conferenceFieldFactory,
-				this.axisService, this.axisEditorFactory, this.authenticatedUser, this.messages, personCreationLabelKey,
-				personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+				this.axisService, this.axisEditorFactory, this.authenticatedUser, this.messages,
+				ConstructionPropertiesBuilder.create()
+				.map(AbstractPublicationEditor.PROP_PERSON_CREATION, personCreationLabelKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_LABEL, personFieldLabelKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_HELPER, personFieldHelperLabelKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_NULL_ERROR, personNullErrorKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_DUPLICATE_ERROR, personDuplicateErrorKey));
 	}
 
 	@Override
 	public AbstractEntityEditor<Publication> createUpdateEditor(EntityEditingContext<Publication> context,
-			PublicationType[] supportedTypes, boolean enableTypeSelector,
+			PublicationType[] supportedTypes, boolean enableTypeSelector, boolean mandatoryAbstractText,
 			String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
 			String personNullErrorKey, String personDuplicateErrorKey) {
-		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, this.fileManager,
+		return new EmbeddedPublicationEditor(context, supportedTypes, enableTypeSelector, mandatoryAbstractText, this.publicationCreationStatusComputer, this.fileManager,
 				this.publicationService, this.personService, this.personEditorFactory, this.personFieldFactory, this.userService,
 				this.journalService, this.journalEditorFactory, this.journalFieldFactory, this.conferenceService,
 				this.conferenceEditorFactory, this.conferenceFieldFactory,
-				this.axisService, this.axisEditorFactory, this.authenticatedUser, this.messages, personCreationLabelKey,
-				personFieldLabelKey, personFieldHelperLabelKey, personNullErrorKey, personDuplicateErrorKey);
+				this.axisService, this.axisEditorFactory, this.authenticatedUser, this.messages,
+				ConstructionPropertiesBuilder.create()
+				.map(AbstractPublicationEditor.PROP_PERSON_CREATION, personCreationLabelKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_LABEL, personFieldLabelKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_HELPER, personFieldHelperLabelKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_NULL_ERROR, personNullErrorKey)
+				.map(AbstractPublicationEditor.PROP_PERSON_FIELD_DUPLICATE_ERROR, personDuplicateErrorKey));
 	}
 
 }

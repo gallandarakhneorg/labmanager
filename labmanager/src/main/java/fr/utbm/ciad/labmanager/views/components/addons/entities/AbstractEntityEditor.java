@@ -39,9 +39,10 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionProperties;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.slf4j.Logger;
@@ -58,6 +59,14 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends Composite<VerticalLayout> implements LocaleChangeObserver {
 
+	/** Key of the property that is the key in the translation file that corresponds to the label of the administration section.
+	 */
+	public static final String PROP_ADMIN_SECTION = "administationSectionTranslationKey"; //$NON-NLS-1$
+
+	/** Key of the property that is the key in the translation file that corresponds to the label of the validation checkbox.
+	 */
+	public static final String PROP_ADMIN_VALIDATION_BOX = "validationTranslationKey"; //$NON-NLS-1$
+	
 	private static final long serialVersionUID = -9123030449423137764L;
 
 	private final Class<T> entityType;
@@ -78,13 +87,15 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 
 	private final boolean isAdvancedAdmin;
 
-	private final String administationSectionTranslationKey;
-
-	private final String validationTranslationKey;
+	private final EntityCreationStatusComputer<T> entityCreationStatusComputer;
 	
 	private final EntityEditingContext<T> editingContext;
 
+	private final ConstructionProperties properties;
+
 	private boolean relinkEntityWhenSaving;
+
+	private EntityCreationStatus status;
 
 	/** Constructor.
 	 *
@@ -92,27 +103,30 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
-	 * @param administationSectionTranslationKey the key in the translation file that corresponds to
-	 *     the label of the administration section.
-	 * @param validationTranslationKey the key in the translation file that corresponds to the
-	 *     label of the validation checkbox.
+	 * @param entityCreationStatusComputer the tool for computer the creation status for the entity.
 	 * @param editingContext the context that is used for representing the edited entity and all the associated files and entities.
+	 * @param initialEntityStatus the initial status of the entity.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
 	public AbstractEntityEditor(Class<T> entityType, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger, String administationSectionTranslationKey,
-			String validationTranslationKey,
+			MessageSourceAccessor messages, Logger logger,
+			EntityCreationStatusComputer<T> entityCreationStatusComputer,
 			EntityEditingContext<T> editingContext,
-			boolean relinkEntityWhenSaving) {
-		this.administationSectionTranslationKey = administationSectionTranslationKey;
-		this.validationTranslationKey = validationTranslationKey;
+			EntityCreationStatus initialEntityStatus,
+			boolean relinkEntityWhenSaving,
+			ConstructionPropertiesBuilder properties) {
 		this.entityType = entityType;
+		this.properties = properties.build();
 		this.messages = messages;
 		this.logger = logger;
 		this.entityBinder = createBinder(this.entityType);
 		this.authenticatedUser = authenticatedUser;
+		this.entityCreationStatusComputer = entityCreationStatusComputer == null ? EntityCreationStatusComputer.getNoErrorEntityCreationStatusComputer() : entityCreationStatusComputer;
 		this.editingContext = editingContext;
+		this.status = initialEntityStatus;
 		this.relinkEntityWhenSaving = relinkEntityWhenSaving;
 
 		if (this.authenticatedUser != null && this.authenticatedUser.get().isPresent()) {
@@ -123,6 +137,15 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 			this.isBaseAdmin = false;
 			this.isAdvancedAdmin = false;
 		}
+		this.entityBinder.addValueChangeListener(it -> clearEntityCreationStatus());
+	}
+	
+	/** Replies the construction properties.
+	 *
+	 * @return the properties.
+	 */
+	protected final ConstructionProperties getProperties() {
+		return this.properties;
 	}
 	
 	/** Create the instance of the binder for the provided type.
@@ -151,15 +174,35 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	}
 
 	/** Replies if the data inside the editor is already in the database or not with a similarity error.
-	 * The default implementation replies {@link SimilarityError#NO_ERROR}.
 	 *
-	 * @return the similarity error.
+	 * @return the import error.
 	 */
-	@SuppressWarnings("static-method")
-	public SimilarityError isAlreadyInDatabase() {
-		return SimilarityError.NO_ERROR;
+	public final EntityCreationStatus getEntityCreationStatus() {
+		if (this.status == null) {
+			this.status = this.entityCreationStatusComputer.computeEntityCreationStatusFor(getEditedEntity());
+		}
+		return this.status;
+	}
+
+	/** Clear any value for the entity creation status.
+	 *
+	 * @see #getEntityCreationStatus()
+	 */
+	protected final void clearEntityCreationStatus() {
+		this.status = null;
 	}
 	
+	/** Recompute if the data inside the editor is already in the database or not with a similarity error.
+	 * This function is equivalent to a call to {@link #clearEntityCreationStatus()} and
+	 * {@link #getEntityCreationStatus()}.
+	 *
+	 * @return the import error.
+	 */
+	public final EntityCreationStatus resetEntityCreationStatus() {
+		clearEntityCreationStatus();
+		return getEntityCreationStatus();
+	}
+
 	/** Replies if the editor is launched by an user with base administration rights.
 	 * 
 	 * @return {@code true} if the user has base administration rights.
@@ -205,7 +248,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @return the edited entity, never {@code null}.
 	 */
 	public T getEditedEntity() {
-		return this.editingContext.getEntity();
+		return getEditingContext().getEntity();
 	}
 
 	/** Replies if the edited entity is new for the JPA infrastructure.
@@ -627,11 +670,12 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
+		final var props = getProperties();
 		if (this.administrationDetails != null) {
-			this.administrationDetails.setSummaryText(getTranslation(this.administationSectionTranslationKey));
+			this.administrationDetails.setSummaryText(getTranslation(props.get(PROP_ADMIN_SECTION)));
 		}
 		if (this.validatedEntity != null) {
-			this.validatedEntity.setLabel(getTranslation(this.validationTranslationKey));
+			this.validatedEntity.setLabel(getTranslation(props.get(PROP_ADMIN_VALIDATION_BOX)));
 		}
 	}
 

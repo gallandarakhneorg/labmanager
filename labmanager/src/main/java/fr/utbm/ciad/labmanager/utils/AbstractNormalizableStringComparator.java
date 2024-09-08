@@ -65,7 +65,7 @@ public abstract class AbstractNormalizableStringComparator {
 	 *
 	 * @return the internal similarity computer.
 	 */
-	protected NormalizedStringSimilarity getStringSimilarityComputer() {
+	public NormalizedStringSimilarity getStringSimilarityComputer() {
 		if (this.similarityComputer == null) {
 			this.similarityComputer = createStringSimilarityComputer();
 		}

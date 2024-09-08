@@ -24,9 +24,11 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -61,14 +63,19 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
      * Constructor.
      *
      * @param userContext            the editing context for the user.
+	 * @param personCreationStatusComputer the tool for computer the creation status for the persons.
      * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
      *                               be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
      * @param authenticatedUser      the connected user.
      * @param messages               the accessor to the localized messages (Spring layer).
      * @param logger                 the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
      */
-    public AbstractPersonEditorWizard(UserService.UserEditingContext userContext, boolean relinkEntityWhenSaving, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, @Autowired PersonService personService) {
-        super(userContext, personService, relinkEntityWhenSaving, authenticatedUser, messages, logger);
+    public AbstractPersonEditorWizard(UserService.UserEditingContext userContext, EntityCreationStatusComputer<Person> personCreationStatusComputer,
+    		boolean relinkEntityWhenSaving, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, PersonService personService,
+    		ConstructionPropertiesBuilder properties) {
+        super(userContext, personCreationStatusComputer, personService, relinkEntityWhenSaving, authenticatedUser, messages, logger, properties);
 
     }
 

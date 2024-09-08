@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.regular;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -45,12 +47,15 @@ public final class EmbeddedScientificAxisEditor extends AbstractScientificAxisEd
 	/** Constructor.
 	 *
 	 * @param context the editing context for the scientific axis.
+	 * @param axisCreationStatusComputer the tool for computer the creation status for the scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedScientificAxisEditor(EntityEditingContext<ScientificAxis> context,
+			EntityCreationStatusComputer<ScientificAxis> axisCreationStatusComputer,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, authenticatedUser, messages, LOGGER);
+		super(context, axisCreationStatusComputer, false, authenticatedUser, messages, LOGGER,
+				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

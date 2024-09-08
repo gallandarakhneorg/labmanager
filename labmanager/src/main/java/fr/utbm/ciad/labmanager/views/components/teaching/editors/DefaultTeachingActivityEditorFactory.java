@@ -58,6 +58,7 @@ public class DefaultTeachingActivityEditorFactory implements TeachingActivityEdi
 	/** Constructor.
 	 * 
 	 * @param teachingService the service for accessing the JPA entities for teaching activities.
+	 * @param activityCreationStatusComputer the tool for computer the creation status for the teaching activity.
 	 * @param fileManager the manager of the downloadable files.
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param userService the service for accessing the JPA entities for users.
@@ -87,13 +88,13 @@ public class DefaultTeachingActivityEditorFactory implements TeachingActivityEdi
 	
 	@Override
 	public AbstractEntityEditor<TeachingActivity> createAdditionEditor(EntityEditingContext<TeachingActivity> context) {
-		return new EmbeddedTeachingActivityEditor(context, this.fileManager, this.personFieldFactory,
+		return new EmbeddedTeachingActivityEditor(context, null, this.fileManager, this.personFieldFactory,
 				this.organizationFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<TeachingActivity> createUpdateEditor(EntityEditingContext<TeachingActivity> context) {
-		return new EmbeddedTeachingActivityEditor(context, this.fileManager, this.personFieldFactory,
+		return new EmbeddedTeachingActivityEditor(context, null, this.fileManager, this.personFieldFactory,
 				this.organizationFieldFactory, this.authenticatedUser, this.messages);
 	}
 

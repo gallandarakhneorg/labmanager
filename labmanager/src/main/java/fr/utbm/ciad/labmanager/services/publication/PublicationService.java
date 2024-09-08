@@ -37,11 +37,11 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
+import com.vaadin.flow.function.SerializableConsumer;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
@@ -69,6 +69,8 @@ import fr.utbm.ciad.labmanager.data.publication.type.Patent;
 import fr.utbm.ciad.labmanager.data.publication.type.Report;
 import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
+import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.type.BookChapterService;
@@ -127,6 +129,10 @@ public class PublicationService extends AbstractPublicationService {
 
 	private JournalRepository journalRepository;
 
+	private JournalService journalService;
+
+	private ConferenceService conferenceService;
+
 	private ConferenceRepository conferenceRepository;
 
 	private PersonRepository personRepository;
@@ -182,7 +188,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param authorshipRepository authorshipRepository the repository of authorships.
 	 * @param personService the service for managing the persons.
 	 * @param personRepository the repository of the persons.
+	 * @param journalService the service for managing the journals.
 	 * @param journalRepository the repository of the journals.
+	 * @param conferenceService the service for managing the conferences.
 	 * @param conferenceRepository the repository of the conferences.
 	 * @param nameParser the parser of person names.
 	 * @param titleComparator a comparator used for comparing publications based on their titles.
@@ -212,7 +220,9 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
+			@Autowired JournalService journalService,
 			@Autowired JournalRepository journalRepository,
+			@Autowired ConferenceService conferenceService,
 			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PublicationTitleComparator titleComparator,
@@ -242,7 +252,9 @@ public class PublicationService extends AbstractPublicationService {
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
 		this.personService = personService;
+		this.journalService = journalService;
 		this.journalRepository = journalRepository;
+		this.conferenceService = conferenceService;
 		this.conferenceRepository = conferenceRepository;
 		this.nameParser = nameParser;
 		this.titleComparator = titleComparator;
@@ -491,27 +503,22 @@ public class PublicationService extends AbstractPublicationService {
 	 * For using a strict equality test on names, see {@link #getPublicationsByTitle(String)}.
 	 *
 	 * @param title the title of the publication.
+	 * @param initializer a callback function that is invoked on each publication for specific initialization of the JPA entity.
 	 * @return the publication, or {@code null} if not found.
 	 * @since 4.0
 	 */
-	public Stream<Publication> getPublicationStreamBySimilarTitle(String title) {
-		if (!Strings.isNullOrEmpty(title)) {
-			return Collections.<Publication>emptyList().stream();
+	@Transactional
+	public List<Publication> getPublicationsBySimilarTitle(String title, SerializableConsumer<Publication> initializer) {
+		if (Strings.isNullOrEmpty(title)) {
+			return Collections.<Publication>emptyList();
 		}
-		return this.publicationRepository.findAll().stream().filter(it -> this.titleComparator.isSimilar(title, it.getTitle()));
-	}
-
-	/** Replies a list of publications with a similar title to the given title.
-	 *
-	 * <p>The title matching is based on similarity of titles.
-	 * For using a strict equality test on names, see {@link #getPublicationsByTitle(String)}.
-	 *
-	 * @param title the title of the publication.
-	 * @return the publication, or {@code null} if not found.
-	 * @since 4.0
-	 */
-	public List<Publication> getPublicationsBySimilarTitle(String title) {
-		return getPublicationStreamBySimilarTitle(title).collect(Collectors.toList());
+		final var list = this.publicationRepository.findAll().stream().filter(it -> this.titleComparator.isSimilar(title, it.getTitle())).toList();
+		if (initializer != null) {
+			for (final var publication : list) {
+				initializer.accept(publication);
+			}
+		}
+		return list;
 	}
 
 	/** Replies the publications for the given year.
@@ -776,18 +783,22 @@ public class PublicationService extends AbstractPublicationService {
 		// Remove old authorships
 		final var authors = publication.getTemporaryAuthors();
 		publication.setTemporaryAuthors(null);
-		final var newPublication = this.publicationRepository.save(publication);
+		// Save associated entities and replace the fake entities
 		if (publication instanceof JournalBasedPublication jpublication) {
 			final var jour = jpublication.getJournal();
 			if (jour != null) {
-				this.journalRepository.save(jour);
+				final var savedJournal = this.journalService.saveOrCreateIfFake(jour);
+				jpublication.setJournal(savedJournal);
 			}
 		} else if (publication instanceof ConferenceBasedPublication cpublication) {
 			final var conf = cpublication.getConference();
 			if (conf != null) {
-				this.conferenceRepository.save(conf);
+				final var savedConf = this.conferenceService.saveOrCreateIfFake(conf);
+				cpublication.setConference(savedConf);
 			}
 		}
+		// Final saving into the database
+		final var newPublication = this.publicationRepository.save(publication);
 		if (authors != null) {
 			// Create the list of authors from the temporary (not yet saved) list. 
 			var rank = 0;
@@ -822,15 +833,17 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param progression the progression indicator.
 	 * @return the list of the publications that are successfully extracted.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
+	 * @since 4.0
 	 */
 	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception {
 		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
-				createMissedConference);
+				createMissedConference, progression);
 	}
 
 	/** Parse the given RIS file and extract the publications without adding them in the database.
@@ -856,6 +869,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
 	 * @param locale the locale to use.
+	 * @param progression the progression indicator.
 	 * @return the list of the publications that are successfully extracted.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see RIS
@@ -864,9 +878,9 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	public List<Publication> readPublicationsFromRIS(Reader ris, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
-			Locale locale) throws Exception {
+			Locale locale, Progression progression) throws Exception {
 		return this.ris.extractPublications(ris, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
-				createMissedConference, locale);
+				createMissedConference, locale, progression);
 	}
 
 	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
@@ -896,7 +910,7 @@ public class PublicationService extends AbstractPublicationService {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
 		final var importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
-				createMissedJournals, createMissedConferences);
+				createMissedJournals, createMissedConferences, null);
 		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
 	}
 
@@ -928,7 +942,7 @@ public class PublicationService extends AbstractPublicationService {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
 		final var importablePublications = readPublicationsFromRIS(ris, true, false, true,
-				createMissedJournals, createMissedConferences, locale);
+				createMissedJournals, createMissedConferences, locale, null);
 		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
 	}
 
@@ -2230,6 +2244,20 @@ public class PublicationService extends AbstractPublicationService {
 	}
 
 	private Publication updateAuthorListAndSave(Publication publication, List<Person> authors) {
+		// Save associated entities and replace the fake entities
+		if (publication instanceof JournalBasedPublication jpublication) {
+			final var jour = jpublication.getJournal();
+			if (jour != null) {
+				final var savedJournal = this.journalService.saveOrCreateIfFake(jour);
+				jpublication.setJournal(savedJournal);
+			}
+		} else if (publication instanceof ConferenceBasedPublication cpublication) {
+			final var conf = cpublication.getConference();
+			if (conf != null) {
+				final var savedConf = this.conferenceService.saveOrCreateIfFake(conf);
+				cpublication.setConference(savedConf);
+			}
+		}
 		// Save the publication before changing the authors
 		Publication savedPublication = this.publicationRepository.save(publication);
 

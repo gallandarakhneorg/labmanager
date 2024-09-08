@@ -55,6 +55,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractDefaultOrganizationDataFilters;
@@ -113,10 +114,11 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 			ResearchOrganizationService organizationService,
 			Logger logger) {
 		super(Person.class, Membership.class, authenticatedUser, messages, logger,
-				"views.memberships.delete.title", //$NON-NLS-1$
-				"views.memberships.delete.message", //$NON-NLS-1$
-				"views.membership.delete_success", //$NON-NLS-1$
-				"views.membership.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+					.map(PROP_DELETION_TITLE_MESSAGE, "views.memberships.delete.title") //$NON-NLS-1$
+					.map(PROP_DELETION_MESSAGE, "views.memberships.delete.message") //$NON-NLS-1$
+					.map(PROP_DELETION_SUCCESS_MESSAGE, "views.membership.delete_success") //$NON-NLS-1$
+					.map(PROP_DELETION_ERROR_MESSAGE, "views.membership.delete_error")); //$NON-NLS-1$
 		this.membershipService = membershipService;
 		this.membershipEditorFactory = membershipEditorFactory;
 		this.organizationService = organizationService;

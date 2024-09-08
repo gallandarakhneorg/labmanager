@@ -43,6 +43,7 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
@@ -109,10 +110,11 @@ public class StandardTeachingActivitiesListView extends AbstractEntityListView<T
 			TeachingService teachingService, TeachingActivityEditorFactory teachingEditorFactory,
 			Logger logger) {
 		super(TeachingActivity.class, authenticatedUser, messages, logger,
-				"views.teaching_activities.delete.title", //$NON-NLS-1$
-				"views.teaching_activities.delete.message", //$NON-NLS-1$
-				"views.teaching_activities.delete_success", //$NON-NLS-1$
-				"views.teaching_activities.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.teaching_activities.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.teaching_activities.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.teaching_activities.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.teaching_activities.delete_error")); //$NON-NLS-1$
 		this.fileManager = fileManager;
 		this.teachingService = teachingService;
 		this.teachingEditorFactory = teachingEditorFactory;

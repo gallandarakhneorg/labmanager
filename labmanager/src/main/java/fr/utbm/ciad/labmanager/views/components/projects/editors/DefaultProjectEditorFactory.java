@@ -116,7 +116,7 @@ public class DefaultProjectEditorFactory implements ProjectEditorFactory {
 
 	@Override
 	public AbstractEntityEditor<Project> createAdditionEditor(EntityEditingContext<Project> context) {
-		return new EmbeddedProjectEditor(context, this.projectFieldFactory,
+		return new EmbeddedProjectEditor(context, null, this.projectFieldFactory,
 				this.organizationService, this.addressService, this.axisService,
 				this.axisEditorFactory, this.organizationEditorFactory, this.organizationFieldFactory,
 				this.fileManager, this.authenticatedUser, this.messages);
@@ -124,7 +124,7 @@ public class DefaultProjectEditorFactory implements ProjectEditorFactory {
 
 	@Override
 	public AbstractEntityEditor<Project> createUpdateEditor(EntityEditingContext<Project> context) {
-		return new EmbeddedProjectEditor(context, this.projectFieldFactory,
+		return new EmbeddedProjectEditor(context, null, this.projectFieldFactory,
 				this.organizationService, this.addressService, this.axisService,
 				this.axisEditorFactory, this.organizationEditorFactory, this.organizationFieldFactory,
 				this.fileManager, this.authenticatedUser, this.messages);

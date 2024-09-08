@@ -36,6 +36,7 @@ import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -88,10 +89,11 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 			OrganizationAddressService addressService, AddressEditorFactory addressEditorFactory,
 			Logger logger) {
 		super(OrganizationAddress.class, authenticatedUser, messages, logger,
-				"views.addresses.delete.title", //$NON-NLS-1$
-				"views.addresses.delete.message", //$NON-NLS-1$
-				"views.addresses.delete_success", //$NON-NLS-1$
-				"views.addresses.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.addresses.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.addresses.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.addresses.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.addresses.delete_error")); //$NON-NLS-1$
 		this.addressService = addressService;
 		this.addressEditorFactory = addressEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAddresses(query, filters);

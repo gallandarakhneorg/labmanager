@@ -30,11 +30,14 @@ import com.google.common.base.Strings;
 import com.vaadin.flow.component.ClickNotifier;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.icon.AbstractIcon;
+import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.progress.ProgressionListener;
 
@@ -52,8 +55,6 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 
 	private static final long serialVersionUID = 7038667406237972422L;
 
-	private static final String DEFAULT_ICON_WIDTH = "256px"; //$NON-NLS-1$
-
 	private final C component;
 
 	private final List<SerializableConsumer<T>> successListeners = new ArrayList<>();
@@ -66,7 +67,7 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 
 	private String progressTitle;
 
-	private SerializableFunction<ProgressionListener, CompletableFuture<T>> taskProvider;
+	private SerializableBiFunction<UI, ProgressionListener, CompletableFuture<T>> taskProvider;
 	
 	private ProgressDialog<T> dialog;
 
@@ -81,9 +82,9 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 		registerClickListener(false);
 		
 		// Reset the dialog reference for enabling the starting of another task
-		this.successListeners.add(it -> onTaskFinished());
-		this.failureListeners.add(it -> onTaskFinished());
-		this.cancellationListeners.add(it -> onTaskFinished());
+		this.successListeners.add(data -> onTaskFinished());
+		this.failureListeners.add(error -> onTaskFinished());
+		this.cancellationListeners.add(error -> onTaskFinished());
 	}
 
 	private void registerClickListener(boolean inUi) {
@@ -119,7 +120,7 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 	 * @return {@code this}.
 	 * @see #withAsyncTask(SerializableFunction)
 	 */
-	public ProgressExtension<T, C> withTask(SerializableFunction<ProgressionListener, CompletableFuture<T>> taskProvider) {
+	public ProgressExtension<T, C> withTask(SerializableBiFunction<UI, ProgressionListener, CompletableFuture<T>> taskProvider) {
 		this.taskProvider = taskProvider;
 		return this;
 	}
@@ -130,8 +131,8 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 	 * @return {@code this}.
 	 * @see #withTask(SerializableFunction)
 	 */
-	public ProgressExtension<T, C> withAsyncTask(SerializableFunction<ProgressionListener, T> task) {
-		return withTask(it -> CompletableFuture.supplyAsync(() -> task.apply(it)));
+	public ProgressExtension<T, C> withAsyncTask(SerializableBiFunction<UI, ProgressionListener, T> task) {
+		return withTask((ui, progress) -> CompletableFuture.supplyAsync(() -> task.apply(ui, progress)));
 	}
 
 	/** Invoked when the asynchronous task is finished.
@@ -155,13 +156,26 @@ public class ProgressExtension<T, C extends Component & ClickNotifier<C>> implem
 		return new ProgressExtension<>(component);
 	}
 
+	/** Extends the given component to enables asynchronous run of a task.
+	 *
+	 * @param <T> the type of the result computed by the asynchronous task.
+	 * @param <C> the type of the component that must be a valid Vaadin component and a received of click event.
+	 * @param component the component to extend.
+	 * @param type the type of the result computed by the asynchronous task.
+	 * @return the extension.
+	 * @since 4.0
+	 */
+	public static <T, C extends Component & ClickNotifier<C>> ProgressExtension<T, C> extend(C component, Class<T> type) {
+		return new ProgressExtension<>(component);
+	}
+
 	private static String toSizeWidth(float size, Unit unit) {
 		return new StringBuilder().append(size).append(unit.getSymbol()).toString();
 	}
 
 	private static String ensureWidth(String width) {
 		if (Strings.isNullOrEmpty(width)) {
-			return DEFAULT_ICON_WIDTH;
+			return ViewConstants.DEFAULT_DIALOG_ICON_WIDTH;
 		}
 		return width;
 	}

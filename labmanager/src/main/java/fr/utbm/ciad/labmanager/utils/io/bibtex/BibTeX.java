@@ -19,18 +19,22 @@
 
 package fr.utbm.ciad.labmanager.utils.io.bibtex;
 
-import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
-import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
-import org.arakhne.afc.progress.Progression;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.google.common.base.Strings;
+import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
+import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
+import org.arakhne.afc.progress.Progression;
 
 /** Utilities for BibTeX. BibTeX is reference management software for formatting lists of bibliography references.
  * The BibTeX tool is typically used together with the LaTeX document preparation system.
@@ -109,14 +113,22 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param progression progression indicator to be used.
 	 * @return the list of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
-	 * @see #extractPublications(String)
+	 * @see #extractPublications(Reader, boolean, boolean, boolean, boolean, boolean, Progression)
+	 * @since 4.0
 	 */
 	default List<Publication> extractPublications(String bibtex, boolean keepBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
-				createMissedJournal, createMissedConference).collect(Collectors.toList());
+			boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception {
+		try {
+			return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
+					createMissedJournal, createMissedConference, progression).collect(Collectors.toList());
+		} finally {
+			if (progression != null) {
+				progression.end();
+			}
+		}
 	}
 
 	/** Extract the publications from a BibTeX source.
@@ -138,14 +150,22 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param progression progression indicator to be used.
 	 * @return the list of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
-	 * @see #extractPublications(String)
+	 * @see #extractPublications(String, boolean, boolean, boolean, boolean, boolean, Progression)
+	 * @since 4.0
 	 */
 	default List<Publication> extractPublications(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
-				createMissedJournal, createMissedConference).collect(Collectors.toList());
+			boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception {
+		try {
+			return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
+					createMissedJournal, createMissedConference, progression).collect(Collectors.toList());
+		} finally {
+			if (progression != null) {
+				progression.end();
+			}
+		}
 	}
 
 	/** Extract the publications from a BibTeX source.
@@ -167,17 +187,19 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param progression progression indicator to be used.
 	 * @return the stream of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
-	 * @see #getPublicationStreamFrom(Reader)
-	 * @see #extractPublications(Reader)
+	 * @see #getPublicationStreamFrom(Reader, boolean, boolean, boolean, boolean, boolean, Progression)
+	 * @see #extractPublications(String, boolean, boolean, boolean, boolean, boolean, Progression)
+	 * @since 4.0
 	 */
 	default Stream<Publication> getPublicationStreamFrom(String bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception {
 		if (!Strings.isNullOrEmpty(bibtex)) {
 			try (final var reader = new StringReader(bibtex)) {
 				return getPublicationStreamFrom(reader, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
-						createMissedConference);
+						createMissedConference, progression);
 			}
 		}
 		return Collections.<Publication>emptySet().stream();
@@ -202,13 +224,15 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param progression progression indicator to be used.
 	 * @return the stream of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
-	 * @see #getPublicationStreamFrom(String)
-	 * @see #extractPublications(String)
+	 * @see #getPublicationStreamFrom(String, boolean, boolean, boolean, boolean, boolean, Progression)
+	 * @see #extractPublications(Reader, boolean, boolean, boolean, boolean, boolean, Progression)
+	 * @since 4.0
 	 */
 	Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference) throws Exception;
+			boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception;
 
 	@Override
 	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {

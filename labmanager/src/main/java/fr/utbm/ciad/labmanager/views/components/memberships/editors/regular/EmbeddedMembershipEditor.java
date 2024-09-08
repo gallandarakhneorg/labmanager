@@ -23,6 +23,8 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
@@ -49,6 +51,7 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 	/** Constructor.
 	 *
 	 * @param context the editing context for the membership.
+	 * @param membershipCreationStatusComputer the tool for computer the creation status for the organization memberships.
 	 * @param editAssociatedPerson indicates if the associated person could be edited or not.
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param organizationFieldFactory the factory for creating the organization fields.
@@ -59,13 +62,14 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 	 * @since 4.0
 	 */
 	public EmbeddedMembershipEditor(EntityEditingContext<Membership> context,
+			EntityCreationStatusComputer<Membership> membershipCreationStatusComputer,
 			boolean editAssociatedPerson, PersonFieldFactory personFieldFactory,
 			OrganizationFieldFactory organizationFieldFactory,
 			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages) {
-		super(context, editAssociatedPerson, false, personFieldFactory,
+		super(context, membershipCreationStatusComputer, editAssociatedPerson, false, personFieldFactory,
 				organizationFieldFactory, axisService, axisEditorFactory,
-				authenticatedUser, messages, LOGGER);
+				authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

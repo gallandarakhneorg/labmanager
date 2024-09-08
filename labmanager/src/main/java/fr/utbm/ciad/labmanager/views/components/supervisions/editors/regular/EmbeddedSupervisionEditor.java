@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.supervisions.editors.regular;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.memberships.fields.MembershipFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.fields.SupervisionFieldFactory;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ public final class EmbeddedSupervisionEditor extends AbstractSupervisionEditor {
 	/** Constructor.
 	 *
 	 * @param context the editing context for the supervision.
+	 * @param supervisionCreationStatusComputer the tool for computer the creation status for the person supervisions.
 	 * @param membershipFieldFactory the factory for creating the person membership fields.
 	 * @param organizationService the service for accessing the organization JPA entities.
 	 * @param organizationEditorFactory the factory for creating the organization editors.
@@ -57,9 +60,11 @@ public final class EmbeddedSupervisionEditor extends AbstractSupervisionEditor {
 	 * @since 4.0
 	 */
 	public EmbeddedSupervisionEditor(EntityEditingContext<Supervision> context,
+			EntityCreationStatusComputer<Supervision> supervisionCreationStatusComputer,
 			MembershipFieldFactory membershipFieldFactory, SupervisionFieldFactory supervisionFieldFactory,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, membershipFieldFactory, supervisionFieldFactory, authenticatedUser, messages, LOGGER);
+		super(context, false, supervisionCreationStatusComputer, membershipFieldFactory, supervisionFieldFactory, authenticatedUser, messages, LOGGER,
+				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

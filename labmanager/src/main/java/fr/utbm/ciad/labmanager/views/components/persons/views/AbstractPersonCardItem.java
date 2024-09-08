@@ -3,7 +3,6 @@ package fr.utbm.ciad.labmanager.views.components.persons.views;
 import java.util.function.Function;
 
 import com.google.common.base.Strings;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
@@ -41,8 +40,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.PersonCardDataPr
 public abstract class AbstractPersonCardItem<T> extends ListItem {
 
 	private static final long serialVersionUID = 7018402595460195576L;
-
-	private static final String ICON_SIZE_STR = new StringBuilder().append(ViewConstants.ICON_SIZE).append(Unit.PIXELS.getSymbol()).toString();
 
 	private final PersonCardDataProvider<T> dataProvider;
 
@@ -230,7 +227,7 @@ public abstract class AbstractPersonCardItem<T> extends ListItem {
 		//infoItem.getStyle().set("height", "20px"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final var icon = iconType.create();
-		icon.setSize(ICON_SIZE_STR);
+		icon.setSize(ViewConstants.ICON_SIZE_STR);
 		icon.addClassNames(Margin.Right.SMALL);
 
 		final var infoText = new Span(!Strings.isNullOrEmpty(info) ? info : " "); //$NON-NLS-1$

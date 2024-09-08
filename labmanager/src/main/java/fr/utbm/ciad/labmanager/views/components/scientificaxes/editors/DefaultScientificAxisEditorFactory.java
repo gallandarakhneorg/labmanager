@@ -48,6 +48,7 @@ public class DefaultScientificAxisEditorFactory implements ScientificAxisEditorF
 
 	/** Constructor.
 	 *
+	 * @param axisCreationStatusComputer the tool for computer the creation status for the scientific axes.
 	 * @param axisService the service for accessing the JPA entity for scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
@@ -68,12 +69,12 @@ public class DefaultScientificAxisEditorFactory implements ScientificAxisEditorF
 	
 	@Override
 	public AbstractEntityEditor<ScientificAxis> createAdditionEditor(EntityEditingContext<ScientificAxis> context) {
-		return new EmbeddedScientificAxisEditor(context, this.authenticatedUser, this.messages);
+		return new EmbeddedScientificAxisEditor(context, null, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<ScientificAxis> createUpdateEditor(EntityEditingContext<ScientificAxis> context) {
-		return new EmbeddedScientificAxisEditor(context, this.authenticatedUser, this.messages);
+		return new EmbeddedScientificAxisEditor(context, null, this.authenticatedUser, this.messages);
 	}
 
 }

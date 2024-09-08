@@ -41,6 +41,7 @@ import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -94,10 +95,11 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory, Logger logger) {
 		super(ScientificAxis.class, authenticatedUser, messages, logger,
-				"views.scientific_axes.delete.title", //$NON-NLS-1$
-				"views.scientific_axes.delete.message", //$NON-NLS-1$
-				"views.scientific_axes.delete_success", //$NON-NLS-1$
-				"views.scientific_axes.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.scientific_axes.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.scientific_axes.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.scientific_axes.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.scientific_axes.delete_error")); //$NON-NLS-1$
 		this.axisService = axisService;
 		this.axisEditorFactory = axisEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllScientificAxes(query, filters);

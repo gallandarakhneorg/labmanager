@@ -33,12 +33,14 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumerationValidator;
@@ -103,16 +105,24 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	 * @param context the editing context for the supervisison.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
+	 * @param supervisionCreationStatusComputer the tool for computer the creation status for the person supervisions.
 	 * @param membershipFieldFactory the factory for creating the person membership fields.
 	 * @param supervisionFieldFactory the factory for creating the supervision fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
 	public AbstractSupervisionEditor(EntityEditingContext<Supervision> context, boolean relinkEntityWhenSaving,
+			EntityCreationStatusComputer<Supervision> supervisionCreationStatusComputer,
 			MembershipFieldFactory membershipFieldFactory, SupervisionFieldFactory supervisionFieldFactory,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
-		super(Supervision.class, authenticatedUser, messages, logger, null, null, context, relinkEntityWhenSaving);
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			ConstructionPropertiesBuilder properties) {
+		super(Supervision.class, authenticatedUser, messages, logger, supervisionCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.mapToNull(PROP_ADMIN_SECTION)
+				.mapToNull(PROP_ADMIN_VALIDATION_BOX));
 		this.membershipFieldFactory = membershipFieldFactory;
 		this.supervisionFieldFactory = supervisionFieldFactory;
 	}

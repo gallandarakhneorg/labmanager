@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
@@ -66,6 +66,7 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
 import fr.utbm.ciad.labmanager.data.publication.comparators.PublicationTitleComparator;
 import fr.utbm.ciad.labmanager.data.publication.comparators.SorensenDicePublicationTitleComparator;
+import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -131,7 +132,11 @@ public class PublicationServiceTest {
 
 	private PersonRepository personRepository;
 
+	private JournalService journalService;
+
 	private JournalRepository journalRepository;
+
+	private ConferenceService conferenceService;
 
 	private ConferenceRepository conferenceRepository;
 
@@ -184,7 +189,9 @@ public class PublicationServiceTest {
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personService = mock(PersonService.class);
 		this.personRepository = mock(PersonRepository.class);
+		this.journalService = mock(JournalService.class);
 		this.journalRepository = mock(JournalRepository.class);
+		this.conferenceService = mock(ConferenceService.class);
 		this.conferenceRepository = mock(ConferenceRepository.class);
 		this.nameParser = new DefaultPersonNameParser();
 		this.titleComparator = new SorensenDicePublicationTitleComparator();
@@ -207,7 +214,9 @@ public class PublicationServiceTest {
 		this.test = new PublicationService(this.publicationRepository, this.prePublicationFactory,
 				this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.journalRepository, this.conferenceRepository, this.nameParser,this.titleComparator, this.bibtex, this.ris, this.html,
+				this.journalService, this.journalRepository,
+				this.conferenceService, this.conferenceRepository,
+				this.nameParser,this.titleComparator, this.bibtex, this.ris, this.html,
 				this.odt, this.json, this.fileManager, this.membershipService,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
@@ -381,7 +390,7 @@ public class PublicationServiceTest {
 		when(p1.getId()).thenReturn(874l);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
 		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(),
-				anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+				anyBoolean(), anyBoolean(), any())).thenReturn(Arrays.asList(p0, p1));
 		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
 			var n = ((Number) it.getArgument(0)).longValue();
 			if (n == 1234l) {
@@ -477,7 +486,7 @@ public class PublicationServiceTest {
 		when(p1.getId()).thenReturn(874l);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
 		when(this.ris.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(),
-				anyBoolean(), anyBoolean(), any(Locale.class))).thenReturn(Arrays.asList(p0, p1));
+				anyBoolean(), anyBoolean(), any(Locale.class), any())).thenReturn(Arrays.asList(p0, p1));
 		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
 			var n = ((Number) it.getArgument(0)).longValue();
 			if (n == 1234l) {

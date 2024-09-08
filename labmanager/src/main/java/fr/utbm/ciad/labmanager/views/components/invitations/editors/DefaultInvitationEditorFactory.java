@@ -75,22 +75,22 @@ public class DefaultInvitationEditorFactory implements InvitationEditorFactory {
 	
 	@Override
 	public AbstractEntityEditor<PersonInvitation> createIncomingInvitationAdditionEditor(EntityEditingContext<PersonInvitation> context) {
-		return new EmbeddedIncomingInvitationEditor(context, this.personFieldFactory, this.authenticatedUser, this.messages);
+		return new EmbeddedIncomingInvitationEditor(context, null, this.personFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<PersonInvitation> createIncomingInvitationUpdateEditor(EntityEditingContext<PersonInvitation> context) {
-		return new EmbeddedIncomingInvitationEditor(context, this.personFieldFactory, this.authenticatedUser, this.messages);
+		return new EmbeddedIncomingInvitationEditor(context, null, this.personFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<PersonInvitation> createOutgoingInvitationAdditionEditor(EntityEditingContext<PersonInvitation> context) {
-		return new EmbeddedOutgoingInvitationEditor(context, this.personFieldFactory, this.authenticatedUser, this.messages);
+		return new EmbeddedOutgoingInvitationEditor(context, null, this.personFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<PersonInvitation> createOutgoingInvitationUpdateEditor(EntityEditingContext<PersonInvitation> context) {
-		return new EmbeddedOutgoingInvitationEditor(context, this.personFieldFactory, this.authenticatedUser, this.messages);
+		return new EmbeddedOutgoingInvitationEditor(context, null, this.personFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 }

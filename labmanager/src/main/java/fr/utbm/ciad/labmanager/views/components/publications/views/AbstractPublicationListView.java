@@ -19,27 +19,20 @@
 
 package fr.utbm.ciad.labmanager.views.components.publications.views;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import com.helger.commons.io.stream.StringInputStream;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -52,8 +45,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.provider.CallbackDataProvider.FetchCallback;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -70,6 +61,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingCont
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.IoConstants;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeXConstants;
@@ -77,7 +69,6 @@ import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentConstants;
 import fr.utbm.ciad.labmanager.utils.io.ris.RISConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.SimilarityError;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtension;
@@ -93,7 +84,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -104,6 +94,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 /** Abstract implementation of a list all the publications whatever the type of publication.
  * 
  * @author $Author: sgalland$
+ * @author $Author: pschneiderlin$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
@@ -113,6 +104,34 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	
 	private static final long serialVersionUID = 6591553988384909013L;
 
+	/** Key for the property that is the name of the import view.
+	 */
+	protected static final String PROP_IMPORT_VIEW = "importView"; //$NON-NLS-1$
+	
+	/** Key for the property that is the name of authors column.
+	 */
+	protected static final String PROP_AUTHORS_COLUMN_NAME = "authorsColumnLabelKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the label for the person creation.
+	 */
+	protected static final String PROP_PERSON_CREATION_LABEL = "personCreationLabelKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the label for the person field.
+	 */
+	protected static final String PROP_PERSON_FIELD_LABEL = "personFieldLabelKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the helper text for the person field.
+	 */
+	protected static final String PROP_PERSON_FIELD_HELPER = "personFieldHelperKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the null error message associated to the person field.
+	 */
+	protected static final String PROP_PERSON_FIELD_NULL_ERROR = "personNullErrorKey"; //$NON-NLS-1$
+
+	/** Key for the property that is the duplication error message associated to the person field.
+	 */
+	protected static final String PROP_PERSON_FIELD_DUPLICATE_ERROR = "personDuplicateErrorKey"; //$NON-NLS-1$
+	
 	private static final String BIBTEX_FILENAME = "publication.bib"; //$NON-NLS-1$
 
 	private static final String RIS_FILENAME = "publication.ris"; //$NON-NLS-1$
@@ -125,18 +144,6 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 	private static final String EMPTY = ""; //$NON-NLS-1$
 
-	private final String authorsColumnLabelKey;
-
-	private final String personCreationLabelKey;
-
-	private final String personFieldLabelKey;
-
-	private final String personFieldHelperLabelKey;
-
-	private final String personNullErrorKey;
-
-	private final String personDuplicateErrorKey;
-
 	private final JournalService journalService;
 
 	private final PublicationService publicationService;
@@ -148,8 +155,6 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	private PublicationDataProvider dataProvider;
 
 	private PublicationExporter exporter;
-
-	private PublicationImporter importer;
 
 	private Column<Publication> titleColumn;
 
@@ -179,34 +184,31 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param publicationEditorFactory the factory for creating the publication editors.
 	 * @param journalService the service for accessing the JPA entities for journal.
 	 * @param organizationService the service for accessing the JPA entities for research organization.
+	 * @param importView the name of the view for importating publications.
 	 * @param logger the logger to use.
-	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
-	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
-	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
-	 * @param deletionErrorMessageKey the key in the localized messages for the messages related to an error of deletion.
 	 * @param authorsColumnLabelKey the key in the localized messages for the messages related to the label of the authors column.
 	 * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
 	 * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
 	 * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
 	 * @param personNullErrorKey the key that is used for retrieving the text of the author/editor null error.
 	 * @param personDuplicateErrorKey the key that is used for retrieving the text of the author/editor duplicate error.
+	 * @param properties specification of properties that may be passed to the construction function {@link #createFilters()},
+	 *     {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
+	 * @since 4.0
 	 */
 	public AbstractPublicationListView(
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			PublicationService publicationService, PublicationEditorFactory publicationEditorFactory,
-			JournalService journalService, ResearchOrganizationService organizationService, Logger logger,
-			String deletionTitleMessageKey, String deletionMessageKey,
-			String deletionSuccessMessageKey, String deletionErrorMessageKey,
-			String authorsColumnLabelKey, String personCreationLabelKey, String personFieldLabelKey, String personFieldHelperLabelKey,
-			String personNullErrorKey, String personDuplicateErrorKey) {
+			JournalService journalService, ResearchOrganizationService organizationService,
+			Class<? extends Component> importView, Logger logger,
+			ConstructionPropertiesBuilder properties) {
 		super(Publication.class, authenticatedUser, messages, logger,
-				deletionTitleMessageKey, deletionMessageKey, deletionSuccessMessageKey, deletionErrorMessageKey);
-		this.authorsColumnLabelKey = authorsColumnLabelKey;
-		this.personCreationLabelKey = personCreationLabelKey;
-		this.personFieldLabelKey = personFieldLabelKey;
-		this.personFieldHelperLabelKey = personFieldHelperLabelKey;
-		this.personNullErrorKey = personNullErrorKey;
-		this.personDuplicateErrorKey = personDuplicateErrorKey;
+				properties
+				.map(PROP_IMPORT_VIEW, importView)
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.addresses.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.addresses.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.addresses.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.addresses.delete_error")); //$NON-NLS-1$
 		this.publicationService = publicationService;
 		this.publicationEditorFactory = publicationEditorFactory;
 		this.journalService = journalService;
@@ -234,27 +236,6 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		return this.exporter;
 	}
 
-	/** Create the instance of the publication importer.
-	 *
-	 * @return the importer.
-	 * @since 4.0
-	 */
-	protected PublicationImporter createPublicationImporter() {
-		return new PublicationImporter();
-	}
-
-	/** Replies the instance of the publication importer.
-	 *
-	 * @return the importer.
-	 * @since 4.0
-	 */
-	protected PublicationImporter getPublicationImporter() {
-		if (this.importer == null) {
-			this.importer = createPublicationImporter();
-		}
-		return this.importer;
-	}
-
 	/** Change the data provider;.
 	 *
 	 * @param dataProvider the data provider.
@@ -277,15 +258,16 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
 		}
 		
-		this.exportButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SAVE_SOLID, null, null, null);
+		this.exportButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.FILE_EXPORT_SOLID, null, null, null);
 		this.exportButton.setEnabled(false);
 		final var exportSubMenu = this.exportButton.getSubMenu();
 		getPublicationExporter().createExportButtons(exportSubMenu);
 
-		this.importButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SAVE_SOLID, null, null, null);
-		this.importButton.setEnabled(true);
-		final var importSubMenu = this.importButton.getSubMenu();
-		getPublicationImporter().createImportButtons(importSubMenu);
+		final Class<? extends Component> importViewType = getProperties().get(PROP_IMPORT_VIEW);
+		if (importViewType != null) {
+			this.importButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.FILE_IMPORT_SOLID, null, null,
+				it -> getUI().ifPresent(ui -> ui.navigate(importViewType)));
+		}
 
 		this.regenerateThumbnailButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openThumbnailRegenerationWizard());
 
@@ -305,15 +287,16 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	}
 
 	private AbstractEntityEditor<Publication> createPublicationUpdateEditor(Publication publication) {
+		final var props = getProperties();
 		return this.publicationEditorFactory.createUpdateEditor(
 				publication,
 				getSupportedPublicationTypeArray(),
 				true,
-				this.personCreationLabelKey,
-				this.personFieldLabelKey,
-				this.personFieldHelperLabelKey,
-				this.personNullErrorKey,
-				this.personDuplicateErrorKey);
+				props.get(PROP_PERSON_CREATION_LABEL),
+				props.get(PROP_PERSON_FIELD_LABEL),
+				props.get(PROP_PERSON_FIELD_HELPER),
+				props.get(PROP_PERSON_FIELD_NULL_ERROR),
+				props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR));
 	}
 
 	@Override
@@ -532,15 +515,16 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	protected void openPublicationEditor(Publication publication, String title, boolean saveInDatabase, boolean isCreation, SerializableBiConsumer<Dialog, Publication> refreshAll) {
 		final AbstractEntityEditor<Publication> editor;
 		if (isCreation) {
+			final var props = getProperties();
 			editor = this.publicationEditorFactory.createAdditionEditor(
 					publication,
 					getSupportedPublicationTypeArray(),
 					true,
-					this.personCreationLabelKey,
-					this.personFieldLabelKey,
-					this.personFieldHelperLabelKey,
-					this.personNullErrorKey,
-					this.personDuplicateErrorKey);
+					props.get(PROP_PERSON_CREATION_LABEL),
+					props.get(PROP_PERSON_FIELD_LABEL),
+					props.get(PROP_PERSON_FIELD_HELPER),
+					props.get(PROP_PERSON_FIELD_NULL_ERROR),
+					props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR));
 		} else {
 			editor = createPublicationUpdateEditor(publication);
 		}
@@ -574,7 +558,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	public void localeChange(LocaleChangeEvent event) {
 		super.localeChange(event);
 		this.titleColumn.setHeader(getTranslation("views.title")); //$NON-NLS-1$
-		this.authorsColumn.setHeader(getTranslation(this.authorsColumnLabelKey));
+		this.authorsColumn.setHeader(getTranslation(getProperties().get(PROP_AUTHORS_COLUMN_NAME)));
 		this.publishingColumn.setHeader(getTranslation("views.where_published")); //$NON-NLS-1$
 		this.typeColumn.setHeader(getTranslation("views.type")); //$NON-NLS-1$
 		this.yearColumn.setHeader(getTranslation("views.year")); //$NON-NLS-1$
@@ -587,7 +571,6 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		if (this.importButton != null) {
 			ComponentFactory.setIconItemText(this.importButton, getTranslation("views.import")); //$NON-NLS-1$
 		}
-		getPublicationImporter().localeChange(event);
 		if (this.regenerateThumbnailButton != null) {
 			ComponentFactory.setIconItemText(this.regenerateThumbnailButton, getTranslation("views.publications.thumbnailGenerator")); //$NON-NLS-1$
 		}
@@ -800,13 +783,11 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		 */
 		public void notifyExportError(Throwable error) {
 			final var ui = getUI().orElseThrow();
-			if (ui != null) {
-				ui.access(() -> {
-					final var message = getTranslation("views.publication.export.error", error.getLocalizedMessage()); //$NON-NLS-1$
-					getLogger().error(message, error);
-					ComponentFactory.showErrorNotification(message);
-				});
-			}
+			ui.access(() -> {
+				final var message = getTranslation("views.publication.export.error", error.getLocalizedMessage()); //$NON-NLS-1$
+				getLogger().error(message, error);
+				ComponentFactory.showErrorNotification(message);
+			});
 		}
 
 		/** Extend the given item with the exporter for BibTeX.
@@ -1005,294 +986,6 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			}
 			if (this.exportJsonButton != null) {
 				ComponentFactory.setIconItemText(this.exportJsonButton, getTranslation("views.publication.export.json")); //$NON-NLS-1$
-			}
-		}
-
-	}
-
-	/** Import of publications.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 4.0
-	 */
-	@SuppressWarnings("synthetic-access")
-	protected class PublicationImporter implements LocaleChangeObserver {
-
-		private static final long serialVersionUID = 7528604116645498880L;
-
-		/**
-		 * This is a SerializableBiConsumer functional interface implementation that updates the status of a publication.
-		 * It takes a Span and an AbstractEntityEditor of Publication as inputs.
-		 * The status of the publication is determined based on whether it is validated or not and whether it has similarity errors or warnings.
-		 * The theme and text of the span are updated accordingly.
-		 */
-		private static final SerializableBiConsumer<Span, AbstractEntityEditor<Publication>> STATUS_COMPONENT_UPDATER = (Span span, AbstractEntityEditor<Publication> Editor) -> {
-			SimilarityError error = Editor.isAlreadyInDatabase();
-			String theme;
-			String text;
-			if (Editor.getEditedEntity().isValidated()) {
-				theme = "badge success";
-				text = span.getTranslation("views.import.grid.checked.checked");
-			} else {
-				if (error.isSimilarityError() || error.isSimilarityWarning()) {
-					theme = "badge error";
-					text = span.getTranslation("views.import.grid.checked.not_checked");
-				} else {
-					Editor.getEditedEntity().setValidated(true);
-					theme = "badge success";
-					text = span.getTranslation("views.import.grid.checked.checked");
-				}
-			}
-			span.getElement().setAttribute("theme", theme);
-			span.setText(text);
-		};
-
-		private MenuItem importBibTexButton;
-
-		private MenuItem importRisButton;
-
-		private MenuItem importJsonButton;
-
-		private Dialog importDialog;
-
-		/** Create the import buttons.
-		 *
-		 * @param importSubMenu the receiver of the import buttons.
-		 */
-		public void createImportButtons(SubMenu importSubMenu) {
-			final var bibTexImageResource = ComponentFactory.newStreamImage(ViewConstants.IMPORT_BIBTEX_BLACK_ICON);
-			this.importBibTexButton = ComponentFactory.addIconItem(importSubMenu, bibTexImageResource, null, null, null);
-			this.importBibTexButton.addClickListener(event -> openImportBibtexDialog());
-			this.importBibTexButton.setEnabled(true);
-
-			final var risImageResource = ComponentFactory.newStreamImage(ViewConstants.IMPORT_RIS_BLACK_ICON);
-			this.importRisButton = ComponentFactory.addIconItem(importSubMenu, risImageResource, null, null, null);
-			this.importRisButton.addClickListener(event -> openImportRisDialog());
-			this.importRisButton.setEnabled(true);
-
-			final var jsonImageResource = ComponentFactory.newStreamImage(ViewConstants.IMPORT_JSON_BLACK_ICON);
-			this.importJsonButton = ComponentFactory.addIconItem(importSubMenu, jsonImageResource, null, null, null);
-			this.importJsonButton.setEnabled(false);
-		}
-
-		/**
-		 * This method creates a ComponentRenderer for a Span and an AbstractEntityEditor of Publication.
-		 * It uses the statusComponentUpdater defined above to update the status of the publication.
-		 * The ComponentRenderer is used to render the status of the publication in the UI.
-		 *
-		 * @return A ComponentRenderer that can be used to render the status of a publication.
-		 */
-		private static ComponentRenderer<Span, AbstractEntityEditor<Publication>> createStatusComponentRenderer() {
-			return new ComponentRenderer<>(Span::new, STATUS_COMPONENT_UPDATER);
-		}
-
-		/**
-		 * Opens the import dialog for BibTeX files.
-		 * This method sets up the import dialog specifically for importing BibTeX files by providing
-		 * a title and an import function tailored for BibTeX. The import function uses the publication service
-		 * to read publications from BibTeX format.
-		 */
-		protected void openImportBibtexDialog() {
-			setupImportDialog(getTranslation("views.import.bibtex"), reader -> {
-				try {
-					return publicationService.readPublicationsFromBibTeX(reader, true, false, true, true, true);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-		}
-
-		/**
-		 * Opens the import dialog for RIS files.
-		 * Similar to {@link #openImportBibtexDialog()}, but tailored for importing RIS files.
-		 * The import function provided to the setup method uses the publication service to read publications from RIS format.
-		 */
-		protected void openImportRisDialog() {
-			setupImportDialog(getTranslation("views.import.ris"), reader -> {
-				try {
-					return publicationService.readPublicationsFromRIS(reader, true, false, true, true, true, null);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-		}
-
-		/**
-		 * Sets up and displays the import dialog for importing publications.
-		 * This method configures the dialog with a title and an import function that defines how the publications are imported.
-		 * It creates an upload component for users to upload files, which are then processed by the provided import function.
-		 * The dialog also includes "Cancel" and "Import" buttons for user interactions.
-		 *
-		 * @param dialogTitle    The title of the import dialog, displayed at the top of the dialog.
-		 * @param importFunction A function that takes a {@link Reader} and returns a list of {@link Publication} objects.
-		 *                       This function defines how the uploaded files are read and processed into publications.
-		 */
-		protected void setupImportDialog(String dialogTitle, Function<Reader, List<Publication>> importFunction) {
-			Upload upload = getUploadDialog(importFunction);
-
-			this.importDialog = new Dialog();
-			this.importDialog.add(upload);
-			this.importDialog.setHeaderTitle(dialogTitle);
-			Button cancelButton = new Button(getTranslation("views.cancel"), e -> {
-				upload.clearFileList();
-				this.importDialog.close();
-			});
-			Button importButton = new Button(getTranslation("views.import"), e -> upload.getElement().callJsFunction("uploadFiles"));
-			this.importDialog.getFooter().add(cancelButton, importButton);
-			this.importDialog.setCloseOnOutsideClick(false);
-			this.importDialog.setCloseOnEsc(false);
-			this.importDialog.open();
-		}
-
-		/**
-		 * Creates and configures an upload component for the import dialog.
-		 * This method initializes the upload component with a {@link MultiFileMemoryBuffer} and configures it
-		 * to not allow auto-uploading of files. It also sets up a listener to process the uploaded files
-		 * using the provided import function once all files have been uploaded.
-		 *
-		 * @param importFunction A function that takes a {@link Reader} and returns a list of {@link Publication} objects.
-		 *                       This function is used to read and process the uploaded files into publications.
-		 * @return The configured {@link Upload} component ready to be added to the import dialog.
-		 */
-		private @NotNull Upload getUploadDialog(Function<Reader, List<Publication>> importFunction) {
-			MultiFileMemoryBuffer buffer = new MultiFileMemoryBuffer();
-			Upload upload = new Upload(buffer);
-			upload.setDropAllowed(true);
-			upload.setAutoUpload(false);
-
-			upload.addAllFinishedListener(
-					event -> {
-						List<Publication> publications = processFiles(buffer, importFunction);
-
-						Dialog gridImportDialog = new Dialog();
-						gridImportDialog.setWidthFull();
-						gridImportDialog.setHeight("auto");
-						gridImportDialog.setHeaderTitle(getTranslation("views.import.dialog.title"));
-
-						Grid<AbstractEntityEditor<Publication>> publicationGrid = new Grid<>();
-
-						// Adding columns
-						// Title column
-						publicationGrid
-								.addColumn(editor -> editor
-										.getEditedEntity()
-										.getTitle())
-								.setHeader(getTranslation("views.import.grid.column.title"));
-						// Authors column
-						publicationGrid
-								.addColumn(publication -> publication
-										.getEditedEntity()
-										.getAuthors()
-										.stream()
-										.map(Person::getFullName)
-										.collect(Collectors.joining(", ")))
-								.setHeader(getTranslation("views.import.grid.column.authors"));
-						// Type column
-						publicationGrid
-								.addColumn(publication -> publication
-										.getEditedEntity()
-										.getType()
-										.getCategory(false))
-								.setHeader(getTranslation("views.import.grid.column.category"))
-								.setAutoWidth(true)
-								.setFlexGrow(0);
-						// Status column
-						publicationGrid
-								.addColumn(createStatusComponentRenderer())
-								.setHeader(getTranslation("views.import.grid.column.checked"))
-								.setAutoWidth(true)
-								.setFlexGrow(0);
-						// Edition button column
-						publicationGrid
-								.addComponentColumn(editor -> {
-									Button editButton = new Button(getTranslation("views.import.grid.edition.edit"));
-									editButton.addClickListener(e -> {
-										AbstractPublicationListView.this.importEntity(
-												editor,
-												editor.getEditedEntity().getTitle(),
-												false,
-												(dialog, entity) ->
-												{
-													editor.getEditedEntity().setValidated(true);
-													publicationGrid.getDataProvider().refreshAll();
-												}
-										);
-									});
-									return editButton;
-								})
-								.setHeader(getTranslation("views.import.grid.column.edit"))
-								.setAutoWidth(true)
-								.setFlexGrow(0);
-
-						List<AbstractEntityEditor<Publication>> editors = publications.stream()
-								.map(AbstractPublicationListView.this::createPublicationUpdateEditor)
-								.toList();
-
-						publicationGrid.setItems(editors);
-
-						Button closeButton = new Button(getTranslation("views.import.dialog.close"), e -> gridImportDialog.close());
-						Button saveAllButton = new Button(getTranslation("views.import.dialog.save"), e -> {
-							publicationGrid.getListDataView().getItems().forEach(editor -> {
-								try {
-									if (editor.getEditedEntity().isValidated()) {
-										editor.getEditedEntity().setValidated(false);
-										editor.save();
-									}
-								} catch (Exception ex) {
-									getLogger().error("Error while saving publication", ex);
-								}
-							});
-							gridImportDialog.close();
-							refreshGrid();
-						});
-						gridImportDialog.add(publicationGrid);
-						gridImportDialog.getFooter().add(closeButton, saveAllButton);
-
-						// Open the dialog
-						gridImportDialog.open();
-
-						this.importDialog.close();
-					});
-			return upload;
-		}
-
-
-		/**
-		 * List all the publications contained in the given file.
-		 *
-		 * @param buffer         the buffer that contains the file.
-		 * @param importFunction the function that is used to import the publications.
-		 * @return the list of publications.
-		 */
-		private List<Publication> processFiles(MultiFileMemoryBuffer buffer, Function<Reader, List<Publication>> importFunction) {
-			List<Publication> publications = new ArrayList<>(Collections.emptyList());
-			buffer.getFiles().forEach(file -> {
-				try (InputStream fileData = buffer.getInputStream(file);
-					 Reader reader = new BufferedReader(new InputStreamReader(fileData))) {
-
-					// Read the publications from the file
-					publications.addAll(importFunction.apply(reader));
-
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-			return publications;
-		}
-
-		@Override
-		public void localeChange(LocaleChangeEvent event) {
-			if (this.importBibTexButton != null) {
-				ComponentFactory.setIconItemText(this.importBibTexButton, getTranslation("views.publication.import.bibtex")); //$NON-NLS-1$
-			}
-			if (this.importRisButton != null) {
-				ComponentFactory.setIconItemText(this.importRisButton, getTranslation("views.publication.import.ris")); //$NON-NLS-1$
-			}
-			if (this.importJsonButton != null) {
-				ComponentFactory.setIconItemText(this.importJsonButton, getTranslation("views.publication.import.json")); //$NON-NLS-1$
 			}
 		}
 

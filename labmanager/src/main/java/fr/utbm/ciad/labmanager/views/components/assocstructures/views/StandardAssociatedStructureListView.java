@@ -41,6 +41,7 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -93,10 +94,11 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			AssociatedStructureService structureService, AssociatedStructureEditorFactory associatedStructureEditorFactory, Logger logger) {
 		super(AssociatedStructure.class, authenticatedUser, messages, logger,
-				"views.associated_structure.delete.title", //$NON-NLS-1$
-				"views.associated_structure.delete.message", //$NON-NLS-1$
-				"views.associated_structure.delete_success", //$NON-NLS-1$
-				"views.associated_structure.delete_error"); //$NON-NLS-1$
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.associated_structure.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.associated_structure.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.associated_structure.delete_success") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.associated_structure.delete_error")); //$NON-NLS-1$
 		this.structureService = structureService;
 		this.associatedStructureEditorFactory = associatedStructureEditorFactory;
 		this.dataProvider = (ps, query, filters) -> ps.getAllAssociatedStructures(query, filters);

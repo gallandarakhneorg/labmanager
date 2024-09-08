@@ -27,6 +27,8 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.appviews.publications.PublicationImportWizard;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -63,17 +65,19 @@ public class StandardScientificEditionListView extends AbstractPublicationListVi
     public StandardScientificEditionListView(
             AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, PublicationService publicationService,
             PublicationEditorFactory publicationEditorFactory, JournalService journalService, ResearchOrganizationService organizationService, Logger logger) {
-        super(authenticatedUser, messages, publicationService, publicationEditorFactory, journalService, organizationService, logger,
-                "views.edition.delete.title", //$NON-NLS-1$
-                "views.edition.delete.message", //$NON-NLS-1$
-                "views.edition.delete.success_message", //$NON-NLS-1$
-                "views.edition.delete.error_message", //$NON-NLS-1$
-                "views.editors", //$NON-NLS-1$
-                "views.publication.new_editor", //$NON-NLS-1$
-                "views.publication.editors", //$NON-NLS-1$
-                "views.publication.editors.helper", //$NON-NLS-1$
-                "views.publication.editors.error.null", //$NON-NLS-1$
-                "views.publication.editors.error.duplicate"); //$NON-NLS-1$
+        super(authenticatedUser, messages, publicationService, publicationEditorFactory, journalService, organizationService,
+				PublicationImportWizard.class, logger,
+				ConstructionPropertiesBuilder.create()
+				.map(PROP_DELETION_TITLE_MESSAGE, "views.edition.delete.title") //$NON-NLS-1$
+				.map(PROP_DELETION_MESSAGE, "views.edition.delete.message") //$NON-NLS-1$
+				.map(PROP_DELETION_SUCCESS_MESSAGE, "views.edition.delete.success_message") //$NON-NLS-1$
+				.map(PROP_DELETION_ERROR_MESSAGE, "views.edition.delete.error_message") //$NON-NLS-1$
+				.map(PROP_AUTHORS_COLUMN_NAME, "views.editors") //$NON-NLS-1$
+				.map(PROP_PERSON_CREATION_LABEL, "views.publication.new_editor") //$NON-NLS-1$
+				.map(PROP_PERSON_FIELD_LABEL, "views.publication.editors") //$NON-NLS-1$
+				.map(PROP_PERSON_FIELD_HELPER, "views.publication.editors.helper") //$NON-NLS-1$
+				.map(PROP_PERSON_FIELD_NULL_ERROR, "views.publication.editors.error.null") //$NON-NLS-1$
+				.map(PROP_PERSON_FIELD_DUPLICATE_ERROR, "views.publication.editors.error.duplicate")); //$NON-NLS-1$
         setDataProvider((service, pageRequest, filters) -> {
             return publicationService.getAllPublications(pageRequest, createJpaFilters(filters),
                     this::initializeEntityFromJPA);

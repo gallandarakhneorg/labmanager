@@ -25,6 +25,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.EmbeddedJournalEditor;
+import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.JournalCreationStatusComputer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultJournalEditorFactory implements JournalEditorFactory {
 
+	private final JournalCreationStatusComputer journalCreationStatusComputer;
+	
 	private final JournalService journalService;
 
 	private final AuthenticatedUser authenticatedUser;
@@ -48,14 +51,17 @@ public class DefaultJournalEditorFactory implements JournalEditorFactory {
 
 	/** Constructor.
 	 * 
+	 * @param journalCreationStatusComputer the tool for computer the creation status for the journals.
 	 * @param journalService the service for accessing to the journel entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages accessor to the localized messages.
 	 */
 	public DefaultJournalEditorFactory(
+			@Autowired JournalCreationStatusComputer journalCreationStatusComputer,
 			@Autowired JournalService journalService,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages) {
+		this.journalCreationStatusComputer = journalCreationStatusComputer;
 		this.journalService = journalService;
 		this.authenticatedUser = authenticatedUser;
 		this.messages = messages;
@@ -68,12 +74,12 @@ public class DefaultJournalEditorFactory implements JournalEditorFactory {
 
 	@Override
 	public AbstractEntityEditor<Journal> createAdditionEditor(EntityEditingContext<Journal> context) {
-		return new EmbeddedJournalEditor(context, this.journalService, this.authenticatedUser, this.messages);
+		return new EmbeddedJournalEditor(context, this.journalCreationStatusComputer, this.journalService, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<Journal> createUpdateEditor(EntityEditingContext<Journal> context) {
-		return new EmbeddedJournalEditor(context, this.journalService, this.authenticatedUser, this.messages);
+		return new EmbeddedJournalEditor(context, this.journalCreationStatusComputer, this.journalService, this.authenticatedUser, this.messages);
 	}
 
 }

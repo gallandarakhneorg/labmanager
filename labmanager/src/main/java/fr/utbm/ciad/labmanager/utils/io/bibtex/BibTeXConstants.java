@@ -47,4 +47,10 @@ public interface BibTeXConstants {
 	 */
 	MediaType MIME_TYPE_UTF8 = MediaType.parseMediaType(MIME_TYPE_UTF8_VALUE);
 
+	/** Standard filename extension for BibTeX files.
+	 *
+	 * @since 4.0
+	 */
+	String FILENAME_EXTENSION = ".bib"; //$NON-NLS-1$
+
 }

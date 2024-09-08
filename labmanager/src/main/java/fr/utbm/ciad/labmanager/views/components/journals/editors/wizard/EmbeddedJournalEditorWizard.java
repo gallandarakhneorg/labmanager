@@ -4,6 +4,8 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.EmbeddedJournalEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +31,14 @@ public final class EmbeddedJournalEditorWizard extends AbstractJournalEditorWiza
     /** Constructor.
      *
      * @param context the editing context for the conference.
+	 * @param journalCreationStatusComputer the tool for computer the creation status for the journals.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      */
-    public EmbeddedJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context, JournalService journalService,
-                                       AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-        super(context, false, authenticatedUser, journalService,messages, LOGGER);
+    public EmbeddedJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context,
+			EntityCreationStatusComputer<Journal> journalCreationStatusComputer, JournalService journalService,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+        super(context, journalCreationStatusComputer, false, authenticatedUser, journalService,messages, LOGGER, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }
 

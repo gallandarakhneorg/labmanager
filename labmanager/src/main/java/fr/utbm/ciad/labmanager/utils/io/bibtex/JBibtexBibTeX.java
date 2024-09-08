@@ -36,6 +36,7 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.jbibtex.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,17 +238,23 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	@Override
 	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception {
+		final var progress = progression == null ? new DefaultProgression() : progression;
+		progress.setProperties(0, 0, 100, false);
 		try (var filteredReader = new CharacterFilterReader(bibtex)) {
 			final var bibtexParser = new BibTeXParser();
 			final var database = bibtexParser.parse(filteredReader);
+			progress.setValue(50);
 			if (database != null) {
+				final var subProgress = progress.subTask(50, 0, database.getEntries().size());
 				return database.getEntries().entrySet().stream().map(it -> {
 					try {
 						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
 								createMissedJournal, createMissedConference);
 					} catch (Exception ex) {
 						throw new RuntimeException(ex);
+					} finally {
+						subProgress.increment();
 					}
 				});
 			}

@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DefaultMembershipEditorFactory implements MembershipEditorFactory {
-
+	
 	private final MembershipService membershipService;
 
 	private final PersonFieldFactory personFieldFactory;
@@ -92,14 +92,14 @@ public class DefaultMembershipEditorFactory implements MembershipEditorFactory {
 
 	@Override
 	public AbstractEntityEditor<Membership> createAdditionEditor(EntityEditingContext<Membership> context, boolean editAssociatedPerson) {
-		return new EmbeddedMembershipEditor(context, editAssociatedPerson, this.personFieldFactory,
+		return new EmbeddedMembershipEditor(context, null, editAssociatedPerson, this.personFieldFactory,
 				this.organizationFieldFactory, this.axisService,
 				this.axisEditorFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<Membership> createUpdateEditor(EntityEditingContext<Membership> context, boolean editAssociatedPerson) {
-		return new EmbeddedMembershipEditor(context, editAssociatedPerson, this.personFieldFactory,
+		return new EmbeddedMembershipEditor(context, null, editAssociatedPerson, this.personFieldFactory,
 				this.organizationFieldFactory, this.axisService,
 				this.axisEditorFactory, this.authenticatedUser, this.messages);
 	}

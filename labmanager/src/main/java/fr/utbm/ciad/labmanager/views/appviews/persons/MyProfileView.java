@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
+import java.util.Collections;
+
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -37,18 +39,18 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.AbstractPersonEditor;
+import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.PersonCreationStatusComputer;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-
-import java.util.Collections;
 
 /** Enable to edit the personal information for the user.
  * 
@@ -76,15 +78,20 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 	/** Constructor.
 	 *
 	 * @param personService the service to access to the person JPA.
+	 * @param personCreationStatusComputer the tool for computer the creation status for the persons.
 	 * @param userService the service to access to the user JPA.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer)
 	 */
-	public MyProfileView(@Autowired PersonService personService, @Autowired UserService userService,
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
+	public MyProfileView(@Autowired PersonService personService,
+			@Autowired PersonCreationStatusComputer personCreationStatusComputer,
+			@Autowired UserService userService,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages) {
 		super(
 				createEditingContext(personService, userService, authenticatedUser),
-				personService, true, authenticatedUser, messages, LOGGER);
+				personCreationStatusComputer, personService, true, authenticatedUser, messages, LOGGER,
+				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

@@ -53,12 +53,14 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.cnu.CnuSection;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullDateValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEntityValidator;
@@ -141,6 +143,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	/** Constructor.
 	 *
 	 * @param context the editing context for the membership.
+	 * @param membershipCreationStatusComputer the tool for computer the creation status for the organization memberships.
 	 * @param editAssociatedPerson indicates if the associated person could be edited or not.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
@@ -151,16 +154,20 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
-	public AbstractMembershipEditor(EntityEditingContext<Membership> context, boolean editAssociatedPerson,
-			boolean relinkEntityWhenSaving, PersonFieldFactory personFieldFactory,
+	public AbstractMembershipEditor(EntityEditingContext<Membership> context,
+			EntityCreationStatusComputer<Membership> membershipCreationStatusComputer,
+			boolean editAssociatedPerson, boolean relinkEntityWhenSaving, PersonFieldFactory personFieldFactory,
 			OrganizationFieldFactory organizationFieldFactory, ScientificAxisService axisService,
 			ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger) {
+			MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
 		super(Membership.class, authenticatedUser, messages, logger,
-				"views.membership.administration_details", //$NON-NLS-1$
-				null, context, relinkEntityWhenSaving);
+				membershipCreationStatusComputer, context, null, relinkEntityWhenSaving,
+				properties
+				.map(PROP_ADMIN_SECTION, "views.membership.administration_details") //$NON-NLS-1$
+				.mapToNull(PROP_ADMIN_VALIDATION_BOX));
 		this.editAssociatedPerson = editAssociatedPerson;
 		this.personFieldFactory = personFieldFactory;
 		this.axisService = axisService;

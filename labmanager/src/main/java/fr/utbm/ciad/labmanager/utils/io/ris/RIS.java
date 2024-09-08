@@ -25,6 +25,7 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.ConferenceFake;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.JournalFake;
+import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 
 import java.io.*;
@@ -68,15 +69,22 @@ public interface RIS extends PublicationExporter<String> {
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
 	 * @param locale the locale to use.
+	 * @param progression the progression indicator.
 	 * @return the list of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
-	 * @see #extractPublications(String)
-	 * @since 3.8
+	 * @see #extractPublications(Reader, boolean, boolean, boolean, boolean, boolean, Locale, Progression)
+	 * @since 4.0
 	 */
 	default List<Publication> extractPublications(String ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception {
-		return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
-				createMissedJournal, createMissedConference, locale).collect(Collectors.toList());
+			boolean createMissedJournal, boolean createMissedConference, Locale locale, Progression progression) throws Exception {
+		try {
+			return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
+					createMissedJournal, createMissedConference, locale, progression).collect(Collectors.toList());
+		} finally {
+			if (progression != null) {
+				progression.end();
+			}
+		}
 	}
 
 	/** Extract the publications from a RIS source.
@@ -99,15 +107,22 @@ public interface RIS extends PublicationExporter<String> {
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
 	 * @param locale the locale to use.
+	 * @param progression the progression indicator.
 	 * @return the list of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
-	 * @see #extractPublications(String)
-	 * @since 3.8
+	 * @see #extractPublications(String, boolean, boolean, boolean, boolean, boolean, Locale, Progression)
+	 * @since 4.0
 	 */
 	default List<Publication> extractPublications(Reader ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception {
-		return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
-				createMissedJournal, createMissedConference, locale).collect(Collectors.toList());
+			boolean createMissedJournal, boolean createMissedConference, Locale locale, Progression progression) throws Exception {
+		try {
+			return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
+					createMissedJournal, createMissedConference, locale, progression).collect(Collectors.toList());
+		} finally {
+			if (progression != null) {
+				progression.end();
+			}
+		}
 	}
 
 	/** Extract the publications from a RIS source.
@@ -130,19 +145,21 @@ public interface RIS extends PublicationExporter<String> {
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
 	 * @param locale the locale to use for importing.
+	 * @param progression the progression indicator.
 	 * @return the stream of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
-	 * @see #getPublicationStreamFrom(Reader)
-	 * @see #extractPublications(Reader)
-	 * @since 3.8
+	 * @see #getPublicationStreamFrom(String, boolean, boolean, boolean, boolean, boolean, Locale, Progression)
+	 * @see #extractPublications(String, boolean, boolean, boolean, boolean, boolean, Locale, Progression)
+	 * @since 4.0
 	 */
 	default Stream<Publication> getPublicationStreamFrom(String ris, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
-			Locale locale) throws Exception {
+			Locale locale, Progression progression) throws Exception {
+		final var progress = progression == null ? new DefaultProgression() : progression;
 		if (!Strings.isNullOrEmpty(ris)) {
 			try (final var reader = new StringReader(ris)) {
 				return getPublicationStreamFrom(reader, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
-						createMissedConference, locale);
+						createMissedConference, locale, progress);
 			}
 		}
 		return Collections.<Publication>emptySet().stream();
@@ -168,14 +185,15 @@ public interface RIS extends PublicationExporter<String> {
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
 	 * @param locale the locale to use for importing.
+	 * @param progression the progression indicator.
 	 * @return the stream of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
-	 * @see #getPublicationStreamFrom(String)
-	 * @see #extractPublications(String)
-	 * @since 3.8
+	 * @see #getPublicationStreamFrom(String, boolean, boolean, boolean, boolean, boolean, Locale, Progression)
+	 * @see #extractPublications(Reader, boolean, boolean, boolean, boolean, boolean, Locale, Progression)
+	 * @since 4.0
 	 */
 	Stream<Publication> getPublicationStreamFrom(Reader ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception;
+			boolean createMissedJournal, boolean createMissedConference, Locale locale, Progression progression) throws Exception;
 
 	@Override
 	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {

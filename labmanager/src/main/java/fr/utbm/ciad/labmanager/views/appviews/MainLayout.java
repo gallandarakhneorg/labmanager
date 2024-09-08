@@ -470,7 +470,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	/** Create the menus in the navigation panel.
 	 *
-	 * @return the created navigation panel.
+	 * @param nav the navigation panel.
 	 */
 	protected void createStatisticNavigation(SideNav nav) {
 		this.statisticSection = new SideNavItem(""); //$NON-NLS-1$
@@ -673,19 +673,18 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			this.roleInUserMenu.setText(getTranslation("views.roleInUserMenu", roleName)); //$NON-NLS-1$
 			String color = null;
 			switch (role) {
-			case USER:
-				color = "var(--lumo-primary-text-color)"; //$NON-NLS-1$
-				break;
 			case RESPONSIBLE:
 				color = "var(--lumo-success-text-color)"; //$NON-NLS-1$
 				break;
 			case ADMIN:
 				color = "var(--lumo-error-text-color)"; //$NON-NLS-1$
 				break;
+			case USER:
+			default:
+				color = "var(--lumo-primary-text-color)"; //$NON-NLS-1$
+				break;
 			}
-			if (color != null) {
-				this.roleInUserMenu.getStyle().setColor(color);
-			}
+			this.roleInUserMenu.getStyle().setColor(color);
 		}
 	}
 

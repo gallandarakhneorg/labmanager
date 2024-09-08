@@ -22,6 +22,8 @@ package fr.utbm.ciad.labmanager.views.components.invitations.editors.regular;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +48,15 @@ public final class EmbeddedIncomingInvitationEditor extends AbstractIncomingInvi
 	/** Constructor.
 	 *
 	 * @param context the editing context for the incoming invitation.
+	 * @param invitationCreationStatusComputer the tool for computer the creation status for the person invitations.
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
 	public EmbeddedIncomingInvitationEditor(EntityEditingContext<PersonInvitation> context,
+			EntityCreationStatusComputer<PersonInvitation> invitationCreationStatusComputer,
 			PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, personFieldFactory, authenticatedUser, messages, LOGGER);
+		super(context, invitationCreationStatusComputer, false, personFieldFactory, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

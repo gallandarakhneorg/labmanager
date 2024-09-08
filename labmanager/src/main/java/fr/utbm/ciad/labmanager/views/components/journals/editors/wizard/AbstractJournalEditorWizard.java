@@ -1,5 +1,11 @@
 package fr.utbm.ciad.labmanager.views.components.journals.editors.wizard;
 
+import static fr.utbm.ciad.labmanager.views.ViewConstants.SCIMAGO_BASE_URL;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.SCIMAGO_ICON;
+import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
+
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -13,8 +19,10 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.JournalAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
@@ -23,10 +31,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.AbstractJournalEditor;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.util.function.Consumer;
-
-import static fr.utbm.ciad.labmanager.views.ViewConstants.*;
 
 /** Implementation for the editor of the information related to a journal. It is directly linked for
  * using it with a wizard.
@@ -48,16 +52,21 @@ public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor 
     /** Constructor.
      *
      * @param context the editing context for the conference.
+	 * @param journalCreationStatusComputer the tool for computer the creation status for the journals.
      * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
      *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
      * @param logger the logger to be used by this view.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
      */
-    public AbstractJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context, boolean relinkEntityWhenSaving,
-                                       AuthenticatedUser authenticatedUser, JournalService journalService, MessageSourceAccessor messages, Logger logger) {
+    public AbstractJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context,
+			EntityCreationStatusComputer<Journal> journalCreationStatusComputer, boolean relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, JournalService journalService, MessageSourceAccessor messages,
+			Logger logger, ConstructionPropertiesBuilder properties) {
 
-        super(context, relinkEntityWhenSaving, journalService ,authenticatedUser, messages, logger);
+        super(context, journalCreationStatusComputer, relinkEntityWhenSaving, journalService ,authenticatedUser, messages, logger, properties);
 
     }
 

@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -36,8 +37,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableConsumer;
-import com.vaadin.flow.function.SerializableFunction;
 import org.arakhne.afc.progress.ProgressionListener;
 
 /** A model dialog box for waiting for the completion of a task.
@@ -57,7 +58,7 @@ public class ProgressDialog<T> extends Dialog {
 
 	private final ProgressBar progressBar;
 
-	private final SerializableFunction<ProgressionListener, CompletableFuture<T>> taskProvider;
+	private final SerializableBiFunction<UI, ProgressionListener, CompletableFuture<T>> taskProvider;
 
 	private final List<SerializableConsumer<T>> successListeners = new ArrayList<>();
 
@@ -76,7 +77,7 @@ public class ProgressDialog<T> extends Dialog {
 	 * @param cancelation indicates the type of cancel action that is enabled. If it is {@code null}, the first element in the enumeration {@link DialogCancelation} is assumed.
 	 * @param taskProvider the provider of the parallel task.
 	 */
-	public ProgressDialog(Component icon, String title, DialogCancelation cancelation, SerializableFunction<ProgressionListener, CompletableFuture<T>> taskProvider) {
+	public ProgressDialog(Component icon, String title, DialogCancelation cancelation, SerializableBiFunction<UI, ProgressionListener, CompletableFuture<T>> taskProvider) {
 		this.taskProvider = taskProvider;
 		
 		final var cancel = cancelation == null ? DialogCancelation.values()[0] : cancelation;
@@ -151,11 +152,11 @@ public class ProgressDialog<T> extends Dialog {
 	protected boolean startTask() {
 		final var progressWrapper = new ProgressAdapter(this.progressBar, this.text);
 		try {
-			this.task = this.taskProvider.apply(progressWrapper);
+			this.task = this.taskProvider.apply(this.progressBar.getUI().orElse(null), progressWrapper);
 			if (this.task != null) {
 				this.task
-					.exceptionally(this::onTaskErrorAndClose)
-					.thenAccept(this::onTaskSuccessAndClose);
+					.exceptionally(error -> onTaskErrorAndClose(error))
+					.thenAccept(data -> onTaskSuccessAndClose(data));
 				return true;
 			}
 			onTaskErrorAndClose(new IllegalStateException());
@@ -167,7 +168,7 @@ public class ProgressDialog<T> extends Dialog {
 
 	/** Cancel the task.
 	 */
-	protected void cancel() {
+	public void cancel() {
 		final var tsk = this.task;
 		this.task = null;
 		if (tsk != null) {
@@ -214,7 +215,7 @@ public class ProgressDialog<T> extends Dialog {
 	 *
 	 * @param listener the listener on success.
 	 */
-	protected final void addSuccessListener(SerializableConsumer<T> listener) {
+	public final void addSuccessListener(SerializableConsumer<T> listener) {
 		this.successListeners.add(listener);
 	}
 
@@ -249,7 +250,7 @@ public class ProgressDialog<T> extends Dialog {
 	 *
 	 * @param listener the listener on failure.
 	 */
-	protected final void addFailureListener(SerializableConsumer<Throwable> listener) {
+	public final void addFailureListener(SerializableConsumer<Throwable> listener) {
 		this.failureListeners.add(listener);
 	}
 
@@ -257,7 +258,7 @@ public class ProgressDialog<T> extends Dialog {
 	 *
 	 * @param listener the listener on cancellation.
 	 */
-	protected final void addCancellationListener(SerializableConsumer<Throwable> listener) {
+	public final void addCancellationListener(SerializableConsumer<Throwable> listener) {
 		this.cancellationListeners.add(listener);
 	}
 

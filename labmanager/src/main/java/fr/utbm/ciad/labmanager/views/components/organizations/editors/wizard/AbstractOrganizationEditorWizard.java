@@ -24,9 +24,11 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
+import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -59,6 +61,7 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	 * Constructor.
 	 *
 	 * @param context the context for editing the entity.
+	 * @param organizationCreationStatusComputer the tool for computer the creation status for the research organizations.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
@@ -69,14 +72,18 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	 * @param addressService the service for accessing the organization addresses.
 	 * @param organizationEditorFactory the factory of the organization editor.
 	 * @param addressEditorFactory the factory of the organization address editor.
+	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
+	 * @since 4.0
 	 */
-	public AbstractOrganizationEditorWizard(AbstractEntityService.EntityEditingContext<ResearchOrganization> context, boolean relinkEntityWhenSaving,
+	public AbstractOrganizationEditorWizard(AbstractEntityService.EntityEditingContext<ResearchOrganization> context,
+			EntityCreationStatusComputer<ResearchOrganization> organizationCreationStatusComputer, boolean relinkEntityWhenSaving,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger,
 			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
-			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory) {
-		super(context, relinkEntityWhenSaving, fileManager, authenticatedUser, messages, logger,
-				organizationService, addressService, organizationEditorFactory, addressEditorFactory);
+			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory,
+			ConstructionPropertiesBuilder properties) {
+		super(context, organizationCreationStatusComputer, relinkEntityWhenSaving, fileManager, authenticatedUser, messages, logger,
+				organizationService, addressService, organizationEditorFactory, addressEditorFactory, properties);
 	}
 
 	/** Create the content of the editor.

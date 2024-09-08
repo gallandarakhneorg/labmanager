@@ -70,14 +70,14 @@ public abstract class AbstractPersonNameComparator extends AbstractNormalizableS
 				|| this.nameParser.isShortName(lastName2);
 		//
 		final var first1 = this.nameParser.normalizeName(firstName1);
-		final var firsts1 = this.nameParser.getNormalizedNamesFor(firstName1, enableShortNames);
+		final var firsts1 = this.nameParser.getNormalizedNamesFor(firstName1, enableShortNames, true);
 		final var last1 = this.nameParser.normalizeName(lastName1);
-		final var lasts1 = this.nameParser.getNormalizedNamesFor(lastName1, enableShortNames);
+		final var lasts1 = this.nameParser.getNormalizedNamesFor(lastName1, enableShortNames, false);
 		//
 		final var first2 = this.nameParser.normalizeName(firstName2);
-		final var firsts2 = this.nameParser.getNormalizedNamesFor(firstName2, enableShortNames);
+		final var firsts2 = this.nameParser.getNormalizedNamesFor(firstName2, enableShortNames, true);
 		final var last2 = this.nameParser.normalizeName(lastName2);
-		final var lasts2 = this.nameParser.getNormalizedNamesFor(lastName2, enableShortNames);
+		final var lasts2 = this.nameParser.getNormalizedNamesFor(lastName2, enableShortNames, false);
 		//
 		return getSimilarity(
 				first1, firsts1,
@@ -181,6 +181,9 @@ public abstract class AbstractPersonNameComparator extends AbstractNormalizableS
 			while (iter2.hasNext()) {
 				final var n2 = iter2.next();
 				final var similarity = matcher.similarity(n1, n2);
+				if (similarity >= 1.0) {
+					return similarity;
+				}
 				if (similarity > max) {
 					max = similarity;
 					candidate = n2;

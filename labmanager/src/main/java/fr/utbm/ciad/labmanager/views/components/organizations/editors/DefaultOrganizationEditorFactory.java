@@ -28,6 +28,7 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.EmbeddedOrganizationEditor;
+import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.OrganizationCreationStatusComputer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -43,6 +44,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultOrganizationEditorFactory implements OrganizationEditorFactory {
 
+	private final OrganizationCreationStatusComputer organizationCreationStatusComputer;
+	
 	private final DownloadableFileManager fileManager;
 
 	private final AuthenticatedUser authenticatedUser;
@@ -57,6 +60,7 @@ public class DefaultOrganizationEditorFactory implements OrganizationEditorFacto
 
 	/** Constructor.
 	 * 
+	 * @param organizationCreationStatusComputer the tool for computer the creation status for the research organizations.
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
@@ -65,12 +69,14 @@ public class DefaultOrganizationEditorFactory implements OrganizationEditorFacto
 	 * @param addressEditorFactory the factory for creating the address editors.
 	 */
 	public DefaultOrganizationEditorFactory(
+			@Autowired OrganizationCreationStatusComputer organizationCreationStatusComputer,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired OrganizationAddressService addressService,
 			@Autowired AddressEditorFactory addressEditorFactory) {
+		this.organizationCreationStatusComputer = organizationCreationStatusComputer;
 		this.fileManager = fileManager;
 		this.authenticatedUser = authenticatedUser;
 		this.messages = messages;
@@ -86,13 +92,13 @@ public class DefaultOrganizationEditorFactory implements OrganizationEditorFacto
 	
 	@Override
 	public AbstractEntityEditor<ResearchOrganization> createAdditionEditor(EntityEditingContext<ResearchOrganization> context) {
-		return new EmbeddedOrganizationEditor(context, this.fileManager, this.authenticatedUser, this.messages,
+		return new EmbeddedOrganizationEditor(context, this.organizationCreationStatusComputer, this.fileManager, this.authenticatedUser, this.messages,
 				this.organizationService, this.addressService, this, this.addressEditorFactory);
 	}
 
 	@Override
 	public AbstractEntityEditor<ResearchOrganization> createUpdateEditor(EntityEditingContext<ResearchOrganization> context) {
-		return new EmbeddedOrganizationEditor(context, this.fileManager, this.authenticatedUser, this.messages,
+		return new EmbeddedOrganizationEditor(context, this.organizationCreationStatusComputer, this.fileManager, this.authenticatedUser, this.messages,
 				this.organizationService, this.addressService, this, this.addressEditorFactory);
 	}
 

@@ -101,9 +101,12 @@ public interface PersonNameParser {
 	 * @param name the name to parse.
 	 * @param enableShortNames indicates if the short names should be added to the returned set. A short name is
 	 *      a name with a single character.
+	 * @param progressiveBuilding indicates if, when the nae has multiple subcomponents, the replied list contains
+	 *      the subcomponents one by one. For example, if the name contains {@code A B}, the replied list will
+	 *      contain {@code [A, A B]}.
 	 * @return the different syntactic cases.
 	 */
-	Set<String> getNormalizedNamesFor(String name, boolean enableShortNames);
+	Set<String> getNormalizedNamesFor(String name, boolean enableShortNames, boolean progressiveBuilding);
 
 	/** Callback that is invoked when a name is discovered.
 	 * 

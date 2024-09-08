@@ -83,13 +83,13 @@ public class DefaultSupervisionEditorFactory implements SupervisionEditorFactory
 
 	@Override
 	public AbstractEntityEditor<Supervision> createAdditionEditor(EntityEditingContext<Supervision> context) {
-		return new EmbeddedSupervisionEditor(context, this.membershipFieldFactory,
+		return new EmbeddedSupervisionEditor(context, null, this.membershipFieldFactory,
 				this.supervisionFieldFactory, this.authenticatedUser, this.messages);
 	}
 
 	@Override
 	public AbstractEntityEditor<Supervision> createUpdateEditor(EntityEditingContext<Supervision> context) {
-		return new EmbeddedSupervisionEditor(context, this.membershipFieldFactory,
+		return new EmbeddedSupervisionEditor(context, null, this.membershipFieldFactory,
 				this.supervisionFieldFactory, this.authenticatedUser, this.messages);
 	}
 

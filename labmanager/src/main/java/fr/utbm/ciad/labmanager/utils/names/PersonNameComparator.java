@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
+import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
+
 /** Utilities for comparing person names.
  * 
  * @author $Author: sgalland$
@@ -28,6 +30,13 @@ package fr.utbm.ciad.labmanager.utils.names;
  * @since 2.0.0
  */
 public interface PersonNameComparator {
+
+	/** Replies the internal similarity computer.
+	 *
+	 * @return the internal similarity computer.
+	 * @since 4.0
+	 */
+	NormalizedStringSimilarity getStringSimilarityComputer();
 
 	/** Compute and replies the similarity between the names of two persons.
 	 *

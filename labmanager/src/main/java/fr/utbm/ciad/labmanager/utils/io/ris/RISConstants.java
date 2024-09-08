@@ -47,4 +47,10 @@ public interface RISConstants {
 	 */
 	MediaType MIME_TYPE_UTF8 = MediaType.parseMediaType(MIME_TYPE_UTF8_VALUE);
 
+	/** Standard filename extension for RIS files.
+	 *
+	 * @since 4.0
+	 */
+	String FILENAME_EXTENSION = ".ris"; //$NON-NLS-1$
+
 }
