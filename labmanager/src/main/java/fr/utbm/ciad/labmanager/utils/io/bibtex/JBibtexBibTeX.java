@@ -757,6 +757,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			case SCIENTIFIC_CULTURE_BOOK_CHAPTER:
 			case SCIENTIFIC_CULTURE_PAPER:
 			case TEACHING_DOCUMENT:
+			case INTERNATIONAL_TV_OR_ONLINE_SHOW:
+			case NATIONAL_TV_OR_ONLINE_SHOW:
+			case INTERNATIONAL_NEWS_PAPER:
+			case NATIONAL_NEWS_PAPER:
 			default:
 				throw new IllegalArgumentException("Unsupported type of publication for BibTeX entry: " + key.getValue()); //$NON-NLS-1$
 			}
@@ -880,6 +884,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case NATIONAL_PRESENTATION:
 		case INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
 		case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
+		case INTERNATIONAL_TV_OR_ONLINE_SHOW:
+		case NATIONAL_TV_OR_ONLINE_SHOW:
+		case INTERNATIONAL_NEWS_PAPER:
+		case NATIONAL_NEWS_PAPER:
 		case OTHER:
 			entry = createBibTeXEntry((MiscDocument) publication, locale);
 			break;

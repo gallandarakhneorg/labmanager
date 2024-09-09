@@ -259,6 +259,14 @@ public class KrisRIS extends AbstractRIS {
 		case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
 			record = createRecord((MiscDocument) publication, RisType.PCOMM, locale);
 			break;
+		case INTERNATIONAL_TV_OR_ONLINE_SHOW:
+		case NATIONAL_TV_OR_ONLINE_SHOW:
+			record = createRecord((MiscDocument) publication, RisType.MPCT, locale);
+			break;
+		case INTERNATIONAL_NEWS_PAPER:
+		case NATIONAL_NEWS_PAPER:
+			record = createRecord((MiscDocument) publication, RisType.NEWS, locale);
+			break;
 		case OTHER:
 			record = createRecord((MiscDocument) publication, RisType.GEN, locale);
 			break;
@@ -1002,6 +1010,8 @@ public class KrisRIS extends AbstractRIS {
 			case INTERNATIONAL_PRESENTATION:
 			case RESEARCH_TOOL:
 			case SCIENTIFIC_CULTURE_PAPER:
+			case INTERNATIONAL_TV_OR_ONLINE_SHOW:
+			case INTERNATIONAL_NEWS_PAPER:
 			case OTHER:
 				finalPublication = this.miscDocumentService.createMiscDocument(genericPublication,
 						field(record, "documentnumber", record.getVolumeNumber()), //$NON-NLS-1$
@@ -1031,6 +1041,8 @@ public class KrisRIS extends AbstractRIS {
 			case NATIONAL_POSTER:
 			case NATIONAL_PRESENTATION:
 			case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
+			case NATIONAL_TV_OR_ONLINE_SHOW:
+			case NATIONAL_NEWS_PAPER:
 			case PROJECT_REPORT:
 			case RESEARCH_TRANSFERT_REPORT:
 			case SCIENTIFIC_CULTURE_BOOK:
@@ -1150,10 +1162,11 @@ public class KrisRIS extends AbstractRIS {
 			return PublicationType.INTERNATIONAL_PATENT;
 		case MGZN:
 		case NEWS:
-			return PublicationType.SCIENTIFIC_CULTURE_PAPER;
+			return PublicationType.INTERNATIONAL_NEWS_PAPER;
+		case MPCT:
+			return PublicationType.INTERNATIONAL_TV_OR_ONLINE_SHOW;
 		case ADVS:
 		case ART:
-		case MPCT:
 		case MULTI:
 		case MUSIC:
 		case SOUND:

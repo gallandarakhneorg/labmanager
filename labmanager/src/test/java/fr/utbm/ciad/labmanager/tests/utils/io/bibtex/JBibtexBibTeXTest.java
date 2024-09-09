@@ -86,6 +86,7 @@ import org.jbibtex.LaTeXObject;
 import org.jbibtex.LaTeXParser;
 import org.jbibtex.LaTeXPrinter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -163,6 +164,7 @@ public class JBibtexBibTeXTest {
 	 * If this test fails, it means that the JBibtex library is fixed.
 	 */
 	@Test
+	@DisplayName("Bug fix in official library")
 	public void validateBugInJBibtexLibrary() throws Exception {
 		final LaTeXParser latexParser = new LaTeXParser();
 		List<LaTeXObject> latexObjects = latexParser.parse("\\^A");
@@ -172,16 +174,19 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(null)")
 	public void parseTeXString_null() throws Exception {
 		assertNull(this.test.parseTeXString(null));
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\")")
 	public void parseTeXString_empty() throws Exception {
 		assertNull(this.test.parseTeXString(""));
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\textbf\")")
 	public void parseTeXString_formattingTeXMacro() throws Exception {
 		assertEquals("abc", this.test.parseTeXString("\\textbf{abc}"));
 		assertEquals("abc", this.test.parseTeXString("\\textit{abc}"));
@@ -189,6 +194,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\'e\")")
 	public void parseTeXString_acute() throws Exception {
 		assertEquals("é", this.test.parseTeXString("\\'e"));
 		assertEquals("é", this.test.parseTeXString("\\'{e}"));
@@ -202,6 +208,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\`e\")")
 	public void parseTeXString_grave() throws Exception {
 		assertEquals("è", this.test.parseTeXString("\\`e"));
 		assertEquals("è", this.test.parseTeXString("\\`{e}"));
@@ -215,6 +222,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\^e\")")
 	public void parseTeXString_circumflex() throws Exception {
 		assertEquals("ê", this.test.parseTeXString("\\^e"));
 		assertEquals("ê", this.test.parseTeXString("\\^{e}"));
@@ -228,6 +236,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\\"e\")")
 	public void parseTeXString_diaeresis() throws Exception {
 		assertEquals("ë", this.test.parseTeXString("\\\"e"));
 		assertEquals("ë", this.test.parseTeXString("\\\"{e}"));
@@ -241,6 +250,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\~a\")")
 	public void parseTeXString_tilde() throws Exception {
 		assertEquals("ã", this.test.parseTeXString("\\~a"));
 		assertEquals("ã", this.test.parseTeXString("\\~{a}"));
@@ -254,6 +264,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\c{c}\")")
 	public void parseTeXString_cedil() throws Exception {
 		assertEquals("ç", this.test.parseTeXString("\\c{c}"));
 		assertEquals("ç", this.test.parseTeXString("{\\c{c}}"));
@@ -263,6 +274,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\^{\\i}\")")
 	public void parseTeXString_i_accent() throws Exception {
 		assertEquals("î", this.test.parseTeXString("\\^i"));
 		assertEquals("î", this.test.parseTeXString("\\^{i}"));
@@ -280,29 +292,42 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"\\string.\")")
 	public void parseTeXString_string_macro() throws Exception {
 		assertEquals(".", this.test.parseTeXString("\\string."));
 	}
 
 	@Test
+	@DisplayName("parseTeXString(\"This {IS a} text\")")
 	public void parseTeXString_texBlocks() throws Exception {
 		assertEquals("This IS a text", this.test.parseTeXString("This {IS a} text"));
 	}
 
 	@Test
+	@DisplayName("toTeXString(null)")
 	public void toTeXString_acronym_null() {
 		assertEquals("", this.test.toTeXString(null, true));
 	}
 
 	@Test
+	@DisplayName("toTeXString(\"\")")
 	public void toTeXString_acronym_empty() {
 		assertEquals("", this.test.toTeXString("", true));
 	}
 
 	@Test
+	@DisplayName("toTeXString(uppercase acronyms)")
 	public void toTeXString_acronym() {
 		assertEquals("This {IS} a {tEXt} {ACRO}", this.test.toTeXString("This IS a tEXt ACRO", true));
 		assertEquals("This {ISs} a {tEXt} {ACRO}", this.test.toTeXString("This ISs a tEXt ACRO", true));
+	}
+
+	@Test
+	@DisplayName("toTeXString(unicode)")
+	public void toTeXString_exportSpecialUnicodeChars() {
+		String input = "éàç(D-λLBP++HOG)";
+		String output = this.test.toTeXString(input);
+		assertEquals("{\\'{e}}{\\`{a}}{\\c{c}}(D-λLBP++HOG)", output);
 	}
 
 	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
@@ -313,6 +338,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("getPublicationStreamFrom w/ empty")
 	public void getPublicationStreamFrom_0() throws Exception {
 		Stream<Publication> pubs = getPublicationStreamFromTest("bibtex_0.bib");
 		assertNotNull(pubs);
@@ -321,6 +347,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("getPublicationStreamFrom w/ n entries")
 	public void getPublicationStreamFrom_n() throws Exception {
 		when(this.prePublicationFactory.createPrePublication(
 				any(), any(), any(), any(), any(), anyInt(), any(), any(), any(),
@@ -467,6 +494,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ article")
 	public void exportPublications_journalPaper() {
 		Journal journal = mock(Journal.class);
 		when(journal.getJournalName()).thenReturn("journal name//1");
@@ -518,6 +546,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ books")
 	public void exportPublications_book() {
 		Book pub = mock(Book.class);
 		preparePublicationForExportTest(pub, PublicationType.INTERNATIONAL_BOOK);
@@ -564,6 +593,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ book chapter")
 	public void exportPublications_bookChapter() {
 		BookChapter pub = mock(BookChapter.class);
 		preparePublicationForExportTest(pub, PublicationType.INTERNATIONAL_BOOK_CHAPTER);
@@ -610,6 +640,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ phd")
 	public void exportPublications_phdthesis() {
 		Thesis pub = mock(Thesis.class);
 		preparePublicationForExportTest(pub, PublicationType.PHD_THESIS);
@@ -645,6 +676,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ master")
 	public void exportPublications_masterthesis() {
 		Thesis pub = mock(Thesis.class);
 		preparePublicationForExportTest(pub, PublicationType.MASTER_THESIS);
@@ -680,6 +712,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ journal edition")
 	public void exportPublications_journalEdition() {
 		Journal journal = mock(Journal.class);
 		when(journal.getJournalName()).thenReturn("journal name//1");
@@ -731,6 +764,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ paper")
 	public void exportPublications_conferencePaper() {
 		Conference conf = mock(Conference.class);
 		when(conf.getAcronym()).thenReturn("ACR");
@@ -783,6 +817,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ keynote")
 	public void exportPublications_keynote() {
 		Conference conf = mock(Conference.class);
 		when(conf.getAcronym()).thenReturn("ACR");
@@ -826,6 +861,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ tech report")
 	public void exportPublications_techreport() {
 		Report pub = mock(Report.class);
 		preparePublicationForExportTest(pub, PublicationType.TECHNICAL_REPORT);
@@ -864,6 +900,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ manual")
 	public void exportPublications_manual() {
 		Report pub = mock(Report.class);
 		preparePublicationForExportTest(pub, PublicationType.TUTORIAL_DOCUMENTATION);
@@ -902,6 +939,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ patent")
 	public void exportPublications_patent() {
 		Patent pub = mock(Patent.class);
 		preparePublicationForExportTest(pub, PublicationType.INTERNATIONAL_PATENT);
@@ -939,6 +977,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications w/ misc")
 	public void exportPublications_misc() {
 		MiscDocument pub = mock(MiscDocument.class);
 		preparePublicationForExportTest(pub, PublicationType.ARTISTIC_PRODUCTION);
@@ -968,7 +1007,7 @@ public class JBibtexBibTeXTest {
 				"	keywords = {keyword 1, keyword 2},",
 				"	_language = {ENGLISH},",
 				"	_publication_type = {ARTISTIC_PRODUCTION},",
-				"	_publication_type_name = {Artistic research productions},",
+				"	_publication_type_name = {Videos or artistic research productions},",
 				"	_publication_category = {PAT},",
 				"	_publication_category_name = {Artistic research productions},",
 				"	howpublished = {how/1},",
@@ -982,6 +1021,7 @@ public class JBibtexBibTeXTest {
 
 
 	@Test
+	@DisplayName("exportPublications for publication type")
 	public void exportPublications_perPublicationType() {
 		for (final PublicationType type : PublicationType.values()) {
 			Publication pub = mock(type.getInstanceType());
@@ -1001,13 +1041,6 @@ public class JBibtexBibTeXTest {
 
 			assertFalse(Strings.isNullOrEmpty(bibtex));
 		}
-	}
-
-	@Test
-	public void exportSpecialUnicodeChars() {
-		String input = "éàç(D-λLBP++HOG)";
-		String output = this.test.toTeXString(input);
-		assertEquals("{\\'{e}}{\\`{a}}{\\c{c}}(D-λLBP++HOG)", output);
 	}
 
 }

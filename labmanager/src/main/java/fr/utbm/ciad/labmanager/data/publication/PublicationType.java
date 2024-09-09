@@ -680,7 +680,7 @@ public enum PublicationType {
 			return false;
 		}
 	},
-	/** Fourm, public conference or seminar for scientific culture dissemination at international level.
+	/** Forum, public conference or seminar for scientific culture dissemination at international level.
 	 */
 	INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION {
 		@Override
@@ -720,7 +720,7 @@ public enum PublicationType {
 			return false;
 		}
 	},
-	/** Artistic research productions.
+	/** Artistic research productions. This production includes videos.
 	 */
 	ARTISTIC_PRODUCTION {
 		@Override
@@ -734,6 +734,94 @@ public enum PublicationType {
 		@Override
 		public PublicationCategory getCategory(boolean isRankedPublication) {
 			return PublicationCategory.PAT;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+	},
+	/** TV show or online show in international media.
+	 *
+	 * @since 4.0
+	 */
+	INTERNATIONAL_TV_OR_ONLINE_SHOW {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+	},
+	/** News papers in international journal.
+	 *
+	 * @since 4.0
+	 */
+	INTERNATIONAL_NEWS_PAPER {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+	},
+	/** TV show or online show in national media.
+	 *
+	 * @since 4.0
+	 */
+	NATIONAL_TV_OR_ONLINE_SHOW {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+	},
+	/** News papers in national journal.
+	 *
+	 * @since 4.0
+	 */
+	NATIONAL_NEWS_PAPER {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
 		}
 		@Override
 		public boolean isInternational() {

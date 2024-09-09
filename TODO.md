@@ -50,10 +50,6 @@
 	* journals
 	* conferences
 	* Publications
-* Imports:
-  * Import Pubs from BibTeX
-  * Import Pubs from RIS
-  * Import Pubs from JSON
 * Exports:
   * Export Pubs to HAL
   * Annual activity report Excel for CIAD UB (Voir besoins à l'UB)
@@ -91,4 +87,4 @@
 * Add idhal
 * Remplacer dans certains projets recents le financement PIA par France 2030
 * Revoir la structure entre les organizations UBFC, UTBM, UB, UFC
-
+* Reclassifier les publications de type AP pour intégrer les nouveaux types de publications

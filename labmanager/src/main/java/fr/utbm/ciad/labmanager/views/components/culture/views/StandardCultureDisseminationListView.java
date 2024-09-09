@@ -54,6 +54,10 @@ public class StandardCultureDisseminationListView extends AbstractPublicationLis
 			PublicationType.SCIENTIFIC_CULTURE_BOOK,
 			PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER,
 			PublicationType.SCIENTIFIC_CULTURE_PAPER,
+			PublicationType.INTERNATIONAL_TV_OR_ONLINE_SHOW,
+			PublicationType.NATIONAL_TV_OR_ONLINE_SHOW,
+			PublicationType.INTERNATIONAL_NEWS_PAPER,
+			PublicationType.NATIONAL_NEWS_PAPER,
 			PublicationType.OTHER
 	};
 
