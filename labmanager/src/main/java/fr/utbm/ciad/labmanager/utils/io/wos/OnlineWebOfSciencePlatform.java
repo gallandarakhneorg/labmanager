@@ -19,6 +19,19 @@
 
 package fr.utbm.ciad.labmanager.utils.io.wos;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
+
 import com.google.common.base.Strings;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -30,18 +43,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilderFactory;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 /** Accessor to the online Web-of-Science platform.
  * 
@@ -182,7 +183,7 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 			progress.end();
 		}
 	}
-	
+
 	private Map<String, WebOfScienceJournal> readJournalRanking(InputStream csv, Progression rootProgress) {
 		final var ranking = new TreeMap<String, WebOfScienceJournal>();
 		analyzeCsvRecords(csv, rootProgress, (stream, issnColumn, eissnColumn, categoryColumn, ifColumn, progress) -> {
@@ -284,23 +285,28 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 					(page, element0) -> {
 						final var impactFactorDiv = page.querySelector("//div[contains(text(), 'Impact Factor')]/following::div"); //$NON-NLS-1$
 						final var impactFactor = positiveFloat(readFloat(impactFactorDiv));
-						
-						final var quartilesDiv = page.querySelector("//div[contains(text(), 'Category')]/following::div"); //$NON-NLS-1$
-						final var quartilesText = readText(quartilesDiv);
+
 						final var quartiles = new HashMap<String, QuartileRanking>();
-						if (quartilesText != null) {
-							final var pattern0 = Pattern.compile("\\s*([^()]+)\\s*\\((Q[0-9])\\)"); //$NON-NLS-1$
-							final var pattern1 = Pattern.compile("^(.*)\\s*\\-\\s.*?$"); //$NON-NLS-1$
-							final var matcher0 = pattern0.matcher(quartilesText);
-							while (matcher0.find()) {
-								var category = matcher0.group(1).toLowerCase().trim();
-								final var quartileText = matcher0.group(2);
-								final var matcher1 = pattern1.matcher(category);
-								if (matcher1.find()) {
-									category = matcher1.group(1).trim();
+						final var categoryDiv = page.querySelector("//div[contains(text(), 'Category')]/following::div"); //$NON-NLS-1$
+						final var categoryText = readText(categoryDiv);
+						if (categoryText != null) {
+							final var categorieNames = categoryText.split("\\s*\\-\\s*SCIE\\s*"); //$NON-NLS-1$
+							final var categories = new TreeSet<String>();
+							for (final var category : categorieNames) {
+								categories.add(category.trim().toLowerCase());
+							}
+							final var quartilesDiv = page.querySelector("//div[contains(text(), 'Best ranking')]/following::div"); //$NON-NLS-1$
+							final var quartilesText = readText(quartilesDiv);
+							if (quartilesText != null) {
+								final var pattern = Pattern.compile("\\(\\s*(Q[1-4])\\s*\\)"); //$NON-NLS-1$
+								final var matcher = pattern.matcher(quartilesText);
+								if (matcher.find()) {
+									final var quartileString = matcher.group(1);
+									final var quartile = QuartileRanking.valueOfCaseInsensitive(quartileString);
+									for (final var category : categories) {
+										quartiles.put(category, quartile);
+									}
 								}
-								final var quartile = QuartileRanking.valueOfCaseInsensitive(quartileText);
-								quartiles.put(category, quartile);
 							}
 						}
 						output.set(new WebOfScienceJournal(quartiles, impactFactor));

@@ -16,24 +16,25 @@
 
 package fr.utbm.ciad.labmanager.tests.utils.io.wos;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
 import java.util.Map;
 
 import fr.utbm.ciad.labmanager.tests.utils.TestUtils;
-import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.OnlineWebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform.WebOfScienceJournal;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform.WebOfSciencePerson;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
-import org.arakhne.afc.progress.ProgressionConsoleMonitor;
 import org.arakhne.afc.vmutil.Resources;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -146,7 +147,7 @@ public class OnlineWebOfSciencePlatformTest {
 		assertEquals(6.1f, data0.impactFactor);
 		assertSame(QuartileRanking.Q1, data0.quartiles.get("computer science, artificial intelligence"));
 		assertSame(QuartileRanking.Q1, data0.quartiles.get("engineering, biomedical"));
-		assertSame(QuartileRanking.Q2, data0.quartiles.get("medical informatics"));
+		assertSame(QuartileRanking.Q1, data0.quartiles.get("medical informatics"));
 	}
 
 }
