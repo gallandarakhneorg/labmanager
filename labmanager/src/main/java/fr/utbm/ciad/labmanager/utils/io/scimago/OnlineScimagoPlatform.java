@@ -209,7 +209,7 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 							final var quartile = QuartileRanking.valueOfCaseInsensitive(matcher.group(2));
 							final var name = matcher.group(1);
 							if (!Strings.isNullOrEmpty(name)) {
-								callback.accept(name, quartile);
+								callback.accept(ScimagoPlatform.formatCategory(name), quartile);
 							}
 						} catch (Throwable ex) {
 							//
@@ -294,7 +294,7 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 			while (row != null) {
 				final var journalRanking = new HashMap<String, QuartileRanking>();
 				analyzeCsvRecord(categoryColumn, bestQuartileColumn, row,
-						(a, b) -> journalRanking.put(ScimagoPlatform.formatCategory(a), b));
+						(a, b) -> journalRanking.put(a, b));
 				if (!journalRanking.isEmpty()) {
 					final var journalId = row[sourceIdColumn.intValue()];
 					ranking.put(journalId, journalRanking);

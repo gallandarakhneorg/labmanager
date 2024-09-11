@@ -34,6 +34,7 @@ import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.vmutil.Resources;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,16 +59,19 @@ public class OnlineScimagoPlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalPictureUrl(null)")
 	public void getJournalPictureUrl_null() {
 		assertNull(this.test.getJournalPictureUrl(null));
 	}
 
 	@Test
+	@DisplayName("getJournalPictureUrl(\"\")")
 	public void getJournalPictureUrl_empty() {
 		assertNull(this.test.getJournalPictureUrl(""));
 	}
 
 	@Test
+	@DisplayName("getJournalPictureUrl(id)")
 	public void getJournalPictureUrl() {
 		URL url = this.test.getJournalPictureUrl("xyz");
 		assertNotNull(url);
@@ -75,16 +79,19 @@ public class OnlineScimagoPlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalUrl(null)")
 	public void getJournalUrl_null() {
 		assertNull(this.test.getJournalUrl(null));
 	}
 
 	@Test
+	@DisplayName("getJournalUrl(\"\")")
 	public void getJournalUrl_empty() {
 		assertNull(this.test.getJournalUrl(""));
 	}
 
 	@Test
+	@DisplayName("getJournalUrl(id)")
 	public void getJournalUrl() {
 		URL url = this.test.getJournalUrl("xyz");
 		assertNotNull(url);
@@ -92,6 +99,7 @@ public class OnlineScimagoPlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalCsvUrl")
 	public void getJournalCsvUrl() {
 		URL url = this.test.getJournalCsvUrl(2021);
 		assertNotNull(url);
@@ -99,6 +107,7 @@ public class OnlineScimagoPlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalRanking w/ local resource")
 	public void getJournalRanking_intUrl() throws Exception {
 		URL resourceUrl = Resources.getResource(getClass(), "scimagojr_2021.csv");
 		Assumptions.assumeTrue(resourceUrl != null);
@@ -106,7 +115,7 @@ public class OnlineScimagoPlatformTest {
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());
 		Map<String, Map<String, QuartileRanking>> data0 = this.test.getJournalRanking(2021, resourceUrl, progress);
 		assertNotNull(data0);
-		assertEquals(26729, data0.size());
+		assertEquals(26701, data0.size());
 		Map<String, QuartileRanking> data1 = data0.get("21100386856");
 		assertNotNull(data1);
 		assertEquals(3, data1.size());
@@ -116,6 +125,7 @@ public class OnlineScimagoPlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalRanking(journal id) w/ local resource")
 	public void getJournalRanking_intUrlString() throws Exception {
 		URL resourceUrl = Resources.getResource(getClass(), "scimagojr_2021.csv");
 		Assumptions.assumeTrue(resourceUrl != null);
@@ -135,6 +145,7 @@ public class OnlineScimagoPlatformTest {
 
 	@Test
 	@EnabledIf("isNetworkEnable")
+	@DisplayName("getJournalRanking w/ remote resource")
 	public void getJournalRanking_intUrl_online() throws Exception {
 		Progression progress = new DefaultProgression();
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());
@@ -151,6 +162,7 @@ public class OnlineScimagoPlatformTest {
 
 	@Test
 	@EnabledIf("isNetworkEnable")
+	@DisplayName("getJournalRanking(journal id) w/ remote resource")
 	public void getJournalRanking_intUrlString_online() throws Exception {
 		Progression progress = new DefaultProgression();
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());

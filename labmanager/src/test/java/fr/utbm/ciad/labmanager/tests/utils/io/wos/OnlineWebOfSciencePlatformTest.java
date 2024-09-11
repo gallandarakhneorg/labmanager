@@ -70,6 +70,7 @@ public class OnlineWebOfSciencePlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalRanking w/ local resource")
 	public void getJournalRanking_intUrl() throws Exception {
 		URL resourceUrl = Resources.getResource(getClass(), "wos_2021.csv");
 		Assumptions.assumeTrue(resourceUrl != null);
@@ -89,6 +90,7 @@ public class OnlineWebOfSciencePlatformTest {
 	}
 
 	@Test
+	@DisplayName("getJournalRanking(journal id) w/ local resource")
 	public void getJournalRanking_intUrlString() throws Exception {
 		URL resourceUrl = Resources.getResource(getClass(), "wos_2021.csv");
 		Assumptions.assumeTrue(resourceUrl != null);
@@ -106,6 +108,7 @@ public class OnlineWebOfSciencePlatformTest {
 
 	@Test
 	@EnabledIf("isNetworkEnable")
+	@DisplayName("getPersonRanking")
 	public void getPersonRanking() throws Exception {
 		URL url = new URL("https://www.webofscience.com/wos/author/record/367073");
 		WebOfSciencePerson person = this.test.getPersonRanking(url, null);
@@ -138,7 +141,7 @@ public class OnlineWebOfSciencePlatformTest {
 
 	@Test
 	@EnabledIf("isNetworkEnable")
-	@DisplayName("getJournalRanking(\"2687\")")
+	@DisplayName("getJournalRanking  w/ remote resource")
 	public void getJournalRanking_String_online() throws Exception {
 		Progression progress = new DefaultProgression();
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());
