@@ -63,7 +63,7 @@ public class OnlineScopusPlatform extends AbstractWebScraper implements ScopusPl
 				return person;
 			}
 		}
-		throw new IllegalArgumentException("Invalid scopus URL or no valid access: " + scProfile); //$NON-NLS-1$
+		throw new IllegalArgumentException("Invalid scopus URL, or no valid access to the page, or invalid page structure: " + scProfile); //$NON-NLS-1$
 	}
 
 }

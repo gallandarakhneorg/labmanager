@@ -24,8 +24,11 @@ import java.net.URL;
 import fr.utbm.ciad.labmanager.tests.utils.TestUtils;
 import fr.utbm.ciad.labmanager.utils.io.scopus.OnlineScopusPlatform;
 import fr.utbm.ciad.labmanager.utils.io.scopus.ScopusPlatform.ScopusPerson;
+import org.arakhne.afc.vmutil.Resources;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,15 +57,29 @@ public class OnlineScopusPlatformTest {
 	}
 
 	@Test
+	@DisplayName("getPersonRanking w/ local resource")
+	public void getPersonRanking_local() throws Exception {
+		URL url = Resources.getResource(getClass(), "23008496500.html");
+		Assumptions.assumeTrue(url != null);
+		ScopusPerson person = this.test.getPersonRanking(url, null);
+		assertNotNull(person);
+		// use 17 that was the h-index when this unit test is written
+		assertGreaterEquals(19, person.hindex);
+		// use 992 that was the number of citations when this unit test is written
+		assertGreaterEquals(1259, person.citations);
+	}
+
+	@Test
 	@EnabledIf("isNetworkEnable")
-	public void getPersonRanking() throws Exception {
+	@DisplayName("getPersonRanking w/ remote resource")
+	public void getPersonRanking_remote() throws Exception {
 		URL url = new URL("https://www.scopus.com/authid/detail.uri?authorId=23008496500");
 		ScopusPerson person = this.test.getPersonRanking(url, null);
 		assertNotNull(person);
 		// use 17 that was the h-index when this unit test is written
-		assertGreaterEquals(17, person.hindex);
+		assertGreaterEquals(19, person.hindex);
 		// use 992 that was the number of citations when this unit test is written
-		assertGreaterEquals(992, person.citations);
+		assertGreaterEquals(1259, person.citations);
 	}
 
 	private static void assertGreaterEquals(int expected, int actual) {
