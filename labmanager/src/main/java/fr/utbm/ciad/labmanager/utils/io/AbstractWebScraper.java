@@ -230,7 +230,9 @@ public abstract class AbstractWebScraper {
 						try (final var page = browser.newPage()) {
 							progress.setValue(20);
 							final var response = page.navigate(url.toExternalForm());
-							response.finished();
+							if (response != null) {
+								response.finished();
+							}
 							progress.setValue(80);
 							if (waitingDuration > 0) {
 								Thread.sleep(waitingDuration);
