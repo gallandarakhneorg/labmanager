@@ -22,7 +22,7 @@ def find_translation_files(filename):
 	other_files = []
 	translation_folder = os.path.dirname(filename)
 	basename = os.path.basename(filename)
-	pattern = re.compile("^(.+)((?:\.[^.]+)+)$")
+	pattern = re.compile("^(.+)((?:\\.[^.]+)+)$")
 	matcher = pattern.match(basename)
 	if matcher:
 		prefix = matcher.group(1)
