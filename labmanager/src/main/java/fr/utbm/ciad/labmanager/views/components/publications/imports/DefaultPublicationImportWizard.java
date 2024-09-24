@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -379,27 +380,34 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 			.setResizable(true)
 			.setAutoWidth(true);
 			// Title column
-			this.grid.addColumn(editor -> editor.getEditedEntity().getTitle())
+			this.grid.addColumn(this::createPublicationTitleLabel)
 			.setHeader(ComponentFactory.getTranslation("views.publication.import.step3.column.title")) //$NON-NLS-1$
+			.setTooltipGenerator(this::createPublicationTitleTooltip)
 			.setResizable(true)
+			.setFlexGrow(1)
 			.setAutoWidth(true);
 			// Authors column
-			this.grid.addColumn(publication -> publication.getEditedEntity().getAuthors().stream().map(Person::getFullName).collect(Collectors.joining(", "))) //$NON-NLS-1$
+			this.grid.addColumn(this::createPublicationAuthorLabel)
 			.setHeader(ComponentFactory.getTranslation("views.publication.import.step3.column.authors")) //$NON-NLS-1$
+			.setTooltipGenerator(this::createPublicationAuthorTooltip)
 			.setResizable(true)
+			.setFlexGrow(1)
 			.setAutoWidth(true);
 			// Type column
-			this.grid.addColumn(publication -> publication.getEditedEntity().getType().getLabel(this.messages, locale))
+			this.grid.addColumn(editor -> createPublicationTypeLabel(editor, locale))
 			.setHeader(ComponentFactory.getTranslation("views.publication.import.step3.column.type")) //$NON-NLS-1$
+			.setTooltipGenerator(editor -> createPublicationTypeTooltip(editor, locale))
 			.setResizable(true);
 			// Category column
-			this.grid.addColumn(publication -> publication.getEditedEntity().getType().getCategory(false).getAcronym())
-			.setTooltipGenerator(publication -> publication.getEditedEntity().getType().getCategory(false).getLabel(this.messages, locale))
+			this.grid.addColumn(this::createPublicationCategoryLabel)
+			.setTooltipGenerator(publication -> createPublicationCategoryTooltip(publication, locale))
 			.setHeader(ComponentFactory.getTranslation("views.publication.import.step3.column.category")); //$NON-NLS-1$
 			// Publication details column
-			this.grid.addColumn(editor -> editor.getEditedEntity().getWherePublishedShortDescription())
+			this.grid.addColumn(this::createPublicationDetailsLabel)
 			.setHeader(ComponentFactory.getTranslation("views.publication.import.step3.column.details")) //$NON-NLS-1$
+			.setTooltipGenerator(this::createPublicationDetailsTooltip)
 			.setResizable(true)
+			.setFlexGrow(1)
 			.setAutoWidth(true);
 
 			final var editors = getContext().getQualifiedPublications().stream().map(this::createPublicationUpdateEditor).toList();
@@ -434,6 +442,48 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 				return status.getErrorMessage();
 			}
 			return null;
+		}
+
+		private String createPublicationTitleLabel(AbstractEntityEditor<Publication> editor) {
+			return editor.getEditedEntity().getTitle();
+		}
+
+		private String createPublicationTitleTooltip(AbstractEntityEditor<Publication> editor) {
+			return editor.getEditedEntity().getTitle();
+		}
+
+		private String createPublicationAuthorLabel(AbstractEntityEditor<Publication> editor) {
+			// TODO This list is computed for the cell label and the tooltip. Find a way to compute it only once
+			return editor.getEditedEntity().getAuthors().stream().map(Person::getFullName).collect(Collectors.joining(", ")); //$NON-NLS-1$
+		}
+
+		private String createPublicationAuthorTooltip(AbstractEntityEditor<Publication> editor) {
+			// TODO This list is computed for the cell label and the tooltip. Find a way to compute it only once
+			return editor.getEditedEntity().getAuthors().stream().map(Person::getFullName).collect(Collectors.joining(", ")); //$NON-NLS-1$
+		}
+
+		private String createPublicationTypeLabel(AbstractEntityEditor<Publication> editor, Locale locale) {
+			return editor.getEditedEntity().getType().getLabel(this.messages, locale);
+		}
+
+		private String createPublicationTypeTooltip(AbstractEntityEditor<Publication> editor, Locale locale) {
+			return editor.getEditedEntity().getType().getLabel(this.messages, locale);
+		}
+
+		private String createPublicationCategoryLabel(AbstractEntityEditor<Publication> editor) {
+			return editor.getEditedEntity().getType().getCategory(false).getAcronym();
+		}
+
+		private String createPublicationCategoryTooltip(AbstractEntityEditor<Publication> editor, Locale locale) {
+			return editor.getEditedEntity().getType().getCategory(false).getLabel(this.messages, locale);
+		}
+
+		private String createPublicationDetailsLabel(AbstractEntityEditor<Publication> editor) {
+			return editor.getEditedEntity().getWherePublishedShortDescription();
+		}
+
+		private String createPublicationDetailsTooltip(AbstractEntityEditor<Publication> editor) {
+			return editor.getEditedEntity().getWherePublishedShortDescription();
 		}
 
 		private void openPublicationEditorFor(AbstractEntityEditor<Publication> entity) {
@@ -522,7 +572,7 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 			return icon;
 		}
 
-		private static String toPublicationStrin(Publication publication) {
+		private static String toPublicationString(Publication publication) {
 			final var buffer = new StringBuilder();
 			buffer.append("\"") //$NON-NLS-1$
 				.append(publication.getTitle())
@@ -541,10 +591,13 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 				final var publications = getContext().getImportablePublications();
 				extendedProgression0.setProperties(0, 0, publications.size(), false);
 				for (final var publication : publications) {
-					extendedProgression0.setComment(toPublicationStrin(publication));
+					final var comment = toPublicationString(publication);
+					extendedProgression0.setComment(comment);
 					try {
 						final var savingContext = this.publicationService.startEditing(publication);
 						savingContext.save();
+					} catch (Throwable ex) {
+						throw new RuntimeException(comment, ex);
 					} finally {
 						extendedProgression0.increment();
 					}

@@ -2226,16 +2226,17 @@ public class PublicationService extends AbstractPublicationService {
 			return savedPublication;
 		}
 
-		// Update of an existing publication
+		// Update associated entities
+		final var changedPublication0 = updateAssociatedPublicationEntities(changedPublication);
 		
 		// Update the list of authors.
-		final var newAuthors = changedPublication.getTemporaryAuthors();
-		changedPublication.setTemporaryAuthors(null);
+		final var newAuthors = changedPublication0.getTemporaryAuthors();
+		changedPublication0.setTemporaryAuthors(null);
 		final Publication savedPublication;
 		if (newAuthors != null) {
-			savedPublication = updateAuthorListAndSave(changedPublication, newAuthors);
+			savedPublication = updateAuthorListAndSave(changedPublication0, newAuthors);
 		} else {
-			savedPublication = save(changedPublication);
+			savedPublication = save(changedPublication0);
 		}
 
 		getLogger().info("Publication instance updated: " + savedPublication.getId()); //$NON-NLS-1$
@@ -2243,7 +2244,7 @@ public class PublicationService extends AbstractPublicationService {
 		return savedPublication;
 	}
 
-	private Publication updateAuthorListAndSave(Publication publication, List<Person> authors) {
+	private Publication updateAssociatedPublicationEntities(Publication publication) {
 		// Save associated entities and replace the fake entities
 		if (publication instanceof JournalBasedPublication jpublication) {
 			final var jour = jpublication.getJournal();
@@ -2258,20 +2259,25 @@ public class PublicationService extends AbstractPublicationService {
 				cpublication.setConference(savedConf);
 			}
 		}
+		return publication;
+	}
+
+	private Publication updateAuthorListAndSave(Publication publication, List<Person> authors) throws IOException {
 		// Save the publication before changing the authors
-		Publication savedPublication = this.publicationRepository.save(publication);
+		var savedPublication = this.publicationRepository.save(publication);
 
 		// Update the list of authors.
-		Collector<Authorship, ?, Map<Long, Authorship>> col = Collectors.toMap(
+		final var oldIds = new HashMap<>(publication.getAuthorshipsRaw().stream().collect(Collectors.toMap(
 				it -> Long.valueOf(it.getPerson().getId()),
-				it -> it);
-		final var oldIds = new HashMap<>(publication.getAuthorshipsRaw().stream().collect(col));
+				it -> it)));
 		var rank = 0;
 		for (final var author : authors) {
 			assert author != null;
+
+			ensurePersonInDatabase(author);
+			
 			oldIds.remove(Long.valueOf(author.getId()));
-			final var fperson = author;
-			final var optAut = publication.getAuthorshipsRaw().stream().filter(it -> it.getPerson().getId() == fperson.getId()).findFirst();
+			final var optAut = publication.getAuthorshipsRaw().stream().filter(it -> it.getPerson().getId() == author.getId()).findFirst();
 			if (optAut.isPresent()) {
 				// Author is already present in the authorships
 				final var authorship = optAut.get();
@@ -2296,27 +2302,28 @@ public class PublicationService extends AbstractPublicationService {
 			savedPublication = this.publicationRepository.save(publication);
 			this.authorshipRepository.deleteById(Long.valueOf(oldAutshp.getId()));
 		}
-		// Save the publication
+		
 		return savedPublication;
+	}
+
+	private Person ensurePersonInDatabase(Person person) throws IOException {
+		final var edit = this.personService.startEditing(person);
+		edit.save();
+		return edit.getEntity();
 	}
 
 	private Authorship addAuthorship(Person person, Publication publication, int rank) {
 		// No need to add the authorship if the person is already linked to the publication
-		final var currentAuthors = publication.getAuthorshipsRaw();
-		final var ro = currentAuthors.stream().filter(it -> it.getPerson().getId() == person.getId()).findAny();
-		if (ro.isEmpty()) {
-			final var authorship = new Authorship();
-			authorship.setPerson(person);
-			authorship.setPublication(publication);
-			authorship.setAuthorRank(rank);
+		final var authorship = new Authorship();
+		authorship.setPerson(person);
+		authorship.setPublication(publication);
+		authorship.setAuthorRank(rank);
 
-			currentAuthors.add(authorship);
-			person.getAuthorships().add(authorship);
+		publication.getAuthorshipsRaw().add(authorship);
+		person.getAuthorships().add(authorship);
 
-			this.authorshipRepository.save(authorship);
-			return authorship;
-		}
-		return null;
+		this.authorshipRepository.save(authorship);
+		return authorship;
 	}
 
 	/** Generate the thumbnails for the given publications.

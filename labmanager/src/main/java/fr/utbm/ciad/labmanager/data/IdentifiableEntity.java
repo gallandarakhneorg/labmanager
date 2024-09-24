@@ -25,13 +25,13 @@ package fr.utbm.ciad.labmanager.data;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.0
  */
 public interface IdentifiableEntity {
 
 	/** Replies the database identifier for this entity.
 	 *
-	 * @return the identifier.
+	 * @return the identifier. It is equals to {@code 0} when the entity is not linked to a JPA entity.
 	 */
 	long getId();
 
