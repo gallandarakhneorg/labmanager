@@ -42,12 +42,11 @@ import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.AbstractPersonEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.PersonCreationStatusComputer;
 import jakarta.annotation.security.PermitAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -67,8 +66,6 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 
 	private static final long serialVersionUID = 738063190104767506L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MyProfileView.class);
-
 	private Button saveButton;
 
 	private Button validateButton;
@@ -82,25 +79,29 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 	 * @param userService the service to access to the user JPA.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer)
+	 * @param loggerFactory the factory of the loggers.
 	 */
 	public MyProfileView(@Autowired PersonService personService,
 			@Autowired PersonCreationStatusComputer personCreationStatusComputer,
 			@Autowired UserService userService,
 			@Autowired AuthenticatedUser authenticatedUser,
-			@Autowired MessageSourceAccessor messages) {
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory) {
 		super(
-				createEditingContext(personService, userService, authenticatedUser),
-				personCreationStatusComputer, personService, true, authenticatedUser, messages, LOGGER,
-				ConstructionPropertiesBuilder.create());
+				createEditingContext(personService, userService, authenticatedUser, loggerFactory),
+				personCreationStatusComputer, personService, true, authenticatedUser,
+				messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 
 	private static UserEditingContext createEditingContext(
 			PersonService personService, UserService userService,
-			AuthenticatedUser authenticatedUser) {
+			AuthenticatedUser authenticatedUser, ContextualLoggerFactory loggerFactory) {
 		final var user = authenticatedUser.get().get();
 		final var person = user.getPerson();
-		return userService.startEditing(user, personService.startEditing(person));
+		final var staticLogger = loggerFactory.getLogger(MyProfileView.class.getName(),
+				AuthenticatedUser.getUserName(authenticatedUser));
+		return userService.startEditing(user, personService.startEditing(person, staticLogger));
 	}
 
 	@Override

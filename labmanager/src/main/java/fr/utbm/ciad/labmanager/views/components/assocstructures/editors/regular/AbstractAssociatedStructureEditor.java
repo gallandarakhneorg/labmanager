@@ -70,7 +70,6 @@ import fr.utbm.ciad.labmanager.views.components.organizations.fields.Organizatio
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -142,7 +141,6 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 * @param authenticatedUser the connected user.
 	 * @param organizationFieldFactory the factory for creating the organization fields.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
@@ -152,8 +150,8 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 			ProjectService projectService, ProjectEditorFactory projectEditorFactory,
 			ResearchOrganizationService organizationService, AuthenticatedUser authenticatedUser,
 			OrganizationFieldFactory organizationFieldFactory, MessageSourceAccessor messages,
-			Logger logger, ConstructionPropertiesBuilder properties) {
-		super(AssociatedStructure.class, authenticatedUser, messages, logger,
+			ConstructionPropertiesBuilder properties) {
+		super(AssociatedStructure.class, authenticatedUser, messages,
 				structureCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.associated_structure.administration_details") //$NON-NLS-1$
@@ -362,7 +360,7 @@ public abstract class AbstractAssociatedStructureEditor extends AbstractEntityEd
 	 */
 	protected void openProjectEditor(Consumer<Project> saver) {
 		final var newProject = new Project();
-		final var editor = this.projectEditorFactory.createAdditionEditor(newProject);
+		final var editor = this.projectEditorFactory.createAdditionEditor(newProject, getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.associated_structure.projects.create"), //$NON-NLS-1$
 				editor, false,

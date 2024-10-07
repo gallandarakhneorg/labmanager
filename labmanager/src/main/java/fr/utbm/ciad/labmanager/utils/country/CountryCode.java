@@ -10901,7 +10901,7 @@ public enum CountryCode {
 	 */
 	@Pure
 	public Locale getCountryLocale() {
-		return new Locale(this.locale.getLanguage(), this.code);
+		return Locale.of(this.locale.getLanguage(), this.code);
 	}
 
 	@Override

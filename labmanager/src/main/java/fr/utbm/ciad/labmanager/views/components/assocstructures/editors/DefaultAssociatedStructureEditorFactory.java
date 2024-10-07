@@ -30,6 +30,7 @@ import fr.utbm.ciad.labmanager.views.components.assocstructures.editors.regular.
 import fr.utbm.ciad.labmanager.views.components.assocstructures.fields.AssociatedStructureFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -92,8 +93,8 @@ public class DefaultAssociatedStructureEditorFactory implements AssociatedStruct
 	}
 
 	@Override
-	public EntityEditingContext<AssociatedStructure> createContextFor(AssociatedStructure structure) {
-		return this.structureService.startEditing(structure);
+	public EntityEditingContext<AssociatedStructure> createContextFor(AssociatedStructure structure, Logger logger) {
+		return this.structureService.startEditing(structure, logger);
 	}
 
 	@Override

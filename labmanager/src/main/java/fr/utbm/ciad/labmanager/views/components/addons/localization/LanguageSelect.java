@@ -241,7 +241,7 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 			final var cookies = request.getCookies();
 			if (cookies != null) {
 				final var localeCookie = Arrays.stream(cookies).filter(c -> c.getName().equals(LANGUAGE_COOKIE_NAME)).findFirst();
-				localeCookie.ifPresent(cookie -> session.setLocale(new Locale(cookie.getValue())));
+				localeCookie.ifPresent(cookie -> session.setLocale(Locale.of(cookie.getValue())));
 			}
 		});
 	}

@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.vaadin.flow.function.SerializableSupplier;
+import org.slf4j.Logger;
+
 /** Abstract implementation of a field that enables to upload files.
  * This field does not assume that the field's data is of a specific type.
  * Subclasses must implement function to handle the upload file data.
@@ -49,9 +52,11 @@ public abstract class AbstractUploadableFilesField<T> extends AbstractBaseUpload
 	private final Map<String, ResetableMemoryBuffer> uploadReceivers = new TreeMap<>();
 
 	/** Default constructor.
+	 *
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractUploadableFilesField() {
-		super(MAX_NUMBER_OF_FILES);
+	public AbstractUploadableFilesField(SerializableSupplier<Logger> loggerSupplier) {
+		super(MAX_NUMBER_OF_FILES, loggerSupplier);
 	}
 
 	@Override

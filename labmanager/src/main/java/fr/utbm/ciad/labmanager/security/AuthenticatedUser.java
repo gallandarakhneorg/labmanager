@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class AuthenticatedUser {
 	 * @param authenticationContext the context of authentication of the application.
 	 * @param userRepository the repository to have access to the application users.
 	 */
-	public AuthenticatedUser(AuthenticationContext authenticationContext, UserRepository userRepository) {
+	public AuthenticatedUser(@Autowired AuthenticationContext authenticationContext, @Autowired UserRepository userRepository) {
 		this.userRepository = userRepository;
 		this.authenticationContext = authenticationContext;
 	}
@@ -60,9 +61,9 @@ public class AuthenticatedUser {
 	 */
 	@Transactional
 	public Optional<User> get() {
-		final var auth = this.authenticationContext.getAuthenticatedUser(UserDetails.class);
-		if (auth.isPresent()) {
-			final var user = this.userRepository.findByLogin(auth.get().getUsername());
+		final var userName = getUserName(this.authenticationContext);
+		if (!Strings.isNullOrEmpty(userName)) {
+			final var user = this.userRepository.findByLogin(userName);
 			return user;
 		}
 		return Optional.empty();
@@ -72,6 +73,21 @@ public class AuthenticatedUser {
 	 */
 	public void logout() {
 		this.authenticationContext.logout();
+	}
+
+	/** Replies the name of the user. This function is implemented for logging purpose only.
+	 *
+	 * @param userContext the user context
+	 * @return the name or the empty string.
+	 */
+	public static String getUserName(AuthenticationContext userContext) {
+		if (userContext != null) {
+			final var auth = userContext.getAuthenticatedUser(UserDetails.class);
+			if (auth.isPresent()) {
+				return Strings.nullToEmpty(auth.get().getUsername());
+			}
+		}
+		return ""; //$NON-NLS-1$
 	}
 
 	/** Replies the name of the user. This function is implemented for logging purpose only.

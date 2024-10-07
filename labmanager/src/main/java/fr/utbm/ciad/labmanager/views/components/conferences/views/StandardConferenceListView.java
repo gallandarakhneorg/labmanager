@@ -48,12 +48,12 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.AbstractAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,15 +92,14 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param conferenceService the service for accessing the sonferences.
 	 * @param conferenceEditorFactory the factory for creating the conference editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardConferenceListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory,
-			Logger logger) {
-		super(Conference.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory) {
+		super(Conference.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.conferences.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.conferences.delete.message") //$NON-NLS-1$
@@ -214,9 +213,9 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 	protected void openConferenceEditor(Conference conference, String title, boolean isCreation) {
 		final AbstractEntityEditor<Conference> editor;
 		if (isCreation) {
-			editor = this.conferenceEditorFactory.createAdditionEditor(conference);
+			editor = this.conferenceEditorFactory.createAdditionEditor(conference, getLogger());
 		} else {
-			editor = this.conferenceEditorFactory.createUpdateEditor(conference);
+			editor = this.conferenceEditorFactory.createUpdateEditor(conference, getLogger());
 		}
 		openConferenceEditor(editor, title);
 	}
@@ -252,7 +251,7 @@ public class StandardConferenceListView extends AbstractEntityListView<Conferenc
 
 	@Override
 	protected EntityDeletingContext<Conference> createDeletionContextFor(Set<Conference> entities) {
-		return this.conferenceService.startDeletion(entities);
+		return this.conferenceService.startDeletion(entities, getLogger());
 	}
 
 	@Override

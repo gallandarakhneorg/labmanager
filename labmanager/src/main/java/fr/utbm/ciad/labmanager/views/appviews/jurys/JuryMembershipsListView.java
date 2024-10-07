@@ -25,11 +25,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.jurys.editors.JuryMembershipEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.jurys.views.StandardJuryMembershipListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -47,21 +46,21 @@ public class JuryMembershipsListView extends StandardJuryMembershipListView impl
 
 	private static final long serialVersionUID = -3613659589555069224L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JuryMembershipsListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param membershipService the service for accessing the jury memberships.
 	 * @param juryMembershipEditorFactory the factory for creating the jury membership editors.
 	 */
 	public JuryMembershipsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired JuryMembershipService membershipService,
 			@Autowired JuryMembershipEditorFactory juryMembershipEditorFactory) {
-		super(authenticatedUser, messages, membershipService, juryMembershipEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, membershipService, juryMembershipEditorFactory);
 	}
 
 	@Override

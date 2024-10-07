@@ -27,11 +27,10 @@ import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.views.StandardScientificEditionListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -49,12 +48,11 @@ public class ScientificEditionsListView extends StandardScientificEditionListVie
 
 	private static final long serialVersionUID = -5482702457774616343L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScientificEditionsListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param publicationService the service for accessing the scientific publications.
      * @param publicationEditorFactory the factory for creating publication editors.
 	 * @param journalService the service for accessing the JPA entities for journal.
@@ -63,11 +61,12 @@ public class ScientificEditionsListView extends StandardScientificEditionListVie
 	public ScientificEditionsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired PublicationService publicationService,
 			@Autowired PublicationEditorFactory publicationEditorFactory,
 			@Autowired JournalService journalService,
 			@Autowired ResearchOrganizationService organizationService) {
-		super(authenticatedUser, messages, publicationService, publicationEditorFactory, journalService, organizationService, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, publicationService, publicationEditorFactory, journalService, organizationService);
 	}
 
 	@Override

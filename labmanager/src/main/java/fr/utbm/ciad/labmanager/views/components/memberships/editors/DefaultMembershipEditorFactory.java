@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.views.components.memberships.editors.regular.Embe
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -57,7 +58,7 @@ public class DefaultMembershipEditorFactory implements MembershipEditorFactory {
 	private final ScientificAxisService axisService;
 
 	private final ScientificAxisEditorFactory axisEditorFactory;
-
+	
 	/** Constructors.
 	 * 
 	 * @param membershipService the service for accessing the JPA entities for person memberships.
@@ -86,8 +87,8 @@ public class DefaultMembershipEditorFactory implements MembershipEditorFactory {
 	}
 
 	@Override
-	public EntityEditingContext<Membership> createContextFor(Membership membership) {
-		return this.membershipService.startEditing(membership);
+	public EntityEditingContext<Membership> createContextFor(Membership membership, Logger logger) {
+		return this.membershipService.startEditing(membership, logger);
 	}
 
 	@Override

@@ -14,7 +14,9 @@ import com.storedobject.chart.SOChart;
  */
 public abstract class AbstractSOChartChart extends SOChart implements Chart {
 
-    public AbstractSOChartChart() {
+    private static final long serialVersionUID = 7713188805965434256L;
+
+	public AbstractSOChartChart() {
         setSize("1300px", "500px");
     }
 }

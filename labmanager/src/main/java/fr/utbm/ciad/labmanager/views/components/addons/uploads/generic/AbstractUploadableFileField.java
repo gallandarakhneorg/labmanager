@@ -22,7 +22,9 @@ package fr.utbm.ciad.labmanager.views.components.addons.uploads.generic;
 import java.io.File;
 import java.io.OutputStream;
 
+import com.vaadin.flow.function.SerializableSupplier;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 
 /** Abstract implementation of a field that enables to upload a file.
  * This field does not assume that the field's data is of a specific type.
@@ -41,9 +43,11 @@ public abstract class AbstractUploadableFileField<T> extends AbstractBaseUploada
 	private final ResetableMemoryBuffer receiver = new ResetableMemoryBuffer();
 
 	/** Default constructor.
+	 *
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractUploadableFileField() {
-		super(1);
+	public AbstractUploadableFileField(SerializableSupplier<Logger> loggerSupplier) {
+		super(1, loggerSupplier);
 	}
 
 	/** Replies the name of the uploaded file on the client computer.

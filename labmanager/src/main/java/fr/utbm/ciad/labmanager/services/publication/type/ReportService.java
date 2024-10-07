@@ -50,6 +50,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReportService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = 8471244183447080741L;
+
 	private ReportRepository repository;
 
 	/** Constructor for injector.

@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
 import java.io.File;
+import java.io.Serializable;
 
 /** Utilities for managing the files.
  * 
@@ -29,7 +30,7 @@ import java.io.File;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public interface FileManager {
+public interface FileManager extends Serializable {
 
 	/** JPEG filename extension.
 	 */

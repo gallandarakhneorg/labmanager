@@ -75,6 +75,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadExtensio
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.wizard.ThumbnailGeneratorWizard;
@@ -84,7 +85,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -180,12 +180,12 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param publicationService the service for accessing the publications.
 	 * @param publicationEditorFactory the factory for creating the publication editors.
 	 * @param journalService the service for accessing the JPA entities for journal.
 	 * @param organizationService the service for accessing the JPA entities for research organization.
 	 * @param importView the name of the view for importating publications.
-	 * @param logger the logger to use.
 	 * @param authorsColumnLabelKey the key in the localized messages for the messages related to the label of the authors column.
 	 * @param personCreationLabelKey the key that is used for retrieving the text for creating a new person and associating it to the publication.
 	 * @param personFieldLabelKey the key that is used for retrieving the text for the label of the author/editor field.
@@ -197,12 +197,11 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @since 4.0
 	 */
 	public AbstractPublicationListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
 			PublicationService publicationService, PublicationEditorFactory publicationEditorFactory,
 			JournalService journalService, ResearchOrganizationService organizationService,
-			Class<? extends Component> importView, Logger logger,
-			ConstructionPropertiesBuilder properties) {
-		super(Publication.class, authenticatedUser, messages, logger,
+			Class<? extends Component> importView, ConstructionPropertiesBuilder properties) {
+		super(Publication.class, authenticatedUser, messages, loggerFactory,
 				properties
 				.map(PROP_IMPORT_VIEW, importView)
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.addresses.delete.title") //$NON-NLS-1$
@@ -296,7 +295,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 				props.get(PROP_PERSON_FIELD_LABEL),
 				props.get(PROP_PERSON_FIELD_HELPER),
 				props.get(PROP_PERSON_FIELD_NULL_ERROR),
-				props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR));
+				props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR),
+				getLogger());
 	}
 
 	@Override
@@ -524,7 +524,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 					props.get(PROP_PERSON_FIELD_LABEL),
 					props.get(PROP_PERSON_FIELD_HELPER),
 					props.get(PROP_PERSON_FIELD_NULL_ERROR),
-					props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR));
+					props.get(PROP_PERSON_FIELD_DUPLICATE_ERROR),
+					getLogger());
 		} else {
 			editor = createPublicationUpdateEditor(publication);
 		}
@@ -551,7 +552,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 	@Override
 	protected EntityDeletingContext<Publication> createDeletionContextFor(Set<Publication> entities) {
-		return this.publicationService.startDeletion(entities);
+		return this.publicationService.startDeletion(entities, getLogger());
 	}
 
 	@Override
@@ -821,7 +822,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			// Force the loading of all the information about each publication
 			final var loadedPublications = AbstractPublicationListView.this.publicationService.loadPublicationsInMemory(publications.stream().map(it -> Long.valueOf(it.getId())).toList());
 			final var configuration = createExportConfigurator();
-			final var content = AbstractPublicationListView.this.publicationService.exportBibTeX(loadedPublications, configuration, progression);
+			final var content = AbstractPublicationListView.this.publicationService.exportBibTeX(loadedPublications, configuration,
+					progression, getLogger());
 			return new StringInputStream(content, Charset.defaultCharset());
 		}
 
@@ -856,7 +858,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			// Force the loading of all the information about each publication
 			final var loadedPublications = AbstractPublicationListView.this.publicationService.loadPublicationsInMemory(publications.stream().map(it -> Long.valueOf(it.getId())).toList());
 			final var configuration = createExportConfigurator();
-			final var content = AbstractPublicationListView.this.publicationService.exportRIS(loadedPublications, configuration, progression);
+			final var content = AbstractPublicationListView.this.publicationService.exportRIS(loadedPublications, configuration,
+					progression, getLogger());
 			return new StringInputStream(content, Charset.defaultCharset());
 		}
 
@@ -892,7 +895,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			// Force the loading of all the information about each publication
 			final var loadedPublications = AbstractPublicationListView.this.publicationService.loadPublicationsInMemory(publications.stream().map(it -> Long.valueOf(it.getId())).toList());
 			final var configuration = createExportConfigurator();
-			final var content = AbstractPublicationListView.this.publicationService.exportOdt(loadedPublications, configuration, progression);
+			final var content = AbstractPublicationListView.this.publicationService.exportOdt(loadedPublications, configuration,
+					progression, getLogger());
 			return new ByteArrayInputStream(content);
 		}
 
@@ -928,7 +932,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			// Force the loading of all the information about each publication
 			final var loadedPublications = AbstractPublicationListView.this.publicationService.loadPublicationsInMemory(publications.stream().map(it -> Long.valueOf(it.getId())).toList());
 			final var configuration = createExportConfigurator();
-			final var content = AbstractPublicationListView.this.publicationService.exportHtml(loadedPublications, configuration, progression);
+			final var content = AbstractPublicationListView.this.publicationService.exportHtml(loadedPublications, configuration,
+					progression, getLogger());
 			return new StringInputStream(content, Charset.defaultCharset());
 		}
 
@@ -963,7 +968,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			// Force the loading of all the information about each publication
 			final var loadedPublications = AbstractPublicationListView.this.publicationService.loadPublicationsInMemory(publications.stream().map(it -> Long.valueOf(it.getId())).toList());
 			final var configuration = createExportConfigurator();
-			final var content = AbstractPublicationListView.this.publicationService.exportJson(loadedPublications, configuration, progression);
+			final var content = AbstractPublicationListView.this.publicationService.exportJson(loadedPublications, configuration,
+					progression, getLogger());
 			return new StringInputStream(content, Charset.defaultCharset());
 		}
 

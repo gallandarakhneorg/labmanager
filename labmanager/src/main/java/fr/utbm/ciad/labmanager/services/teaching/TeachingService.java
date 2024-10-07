@@ -46,6 +46,8 @@ import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -65,6 +67,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class TeachingService extends AbstractEntityService<TeachingActivity> {
+
+	private static final long serialVersionUID = -7947329525523816248L;
 
 	private TeachingActivityRepository teachingActivityRepository;
 
@@ -167,7 +171,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 			if (removeAssociatedFiles) {
 				try {
 					if (!Strings.isNullOrEmpty(pathToSlides)) {
-						this.fileManager.deleteTeachingActivitySlides(id);
+						this.fileManager.deleteTeachingActivitySlides(id, LoggerFactory.getLogger(getClass()));
 					}
 				} catch (Throwable ex) {
 					// Silent
@@ -227,7 +231,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 					// Silent
 				}
 			}
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			//getLogger().error(ex.getLocalizedMessage(), ex);
 			throw ex;
 		}
 		return Optional.of(activity);
@@ -350,12 +354,14 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 
 	@Deprecated(since = "4.0", forRemoval = true)
 	private boolean updateSlides(TeachingActivity activity, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+		final var logger = LoggerFactory.getLogger(getClass());
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Teachnig activity's slides uploaded at: ", //$NON-NLS-1$
+				LoggerFactory.getLogger(getClass()),
 				it -> activity.setPathToSlides(it),
 				() -> this.fileManager.makeTeachingActivitySlidesFilename(activity.getId()),
-				() -> this.fileManager.deleteTeachingActivitySlides(activity.getId()),
-				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile));
+				() -> this.fileManager.deleteTeachingActivitySlides(activity.getId(), logger),
+				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile, logger));
 	}
 
 	/** Replies if the given identifier is for a teacher.
@@ -371,7 +377,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 	}
 
 	@Override
-	public EntityEditingContext<TeachingActivity> startEditing(TeachingActivity activity) {
+	public EntityEditingContext<TeachingActivity> startEditing(TeachingActivity activity, Logger logger) {
 		assert activity != null;
 		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
 		inSession(session -> {
@@ -383,13 +389,13 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 				Hibernate.initialize(activity.getAnnualWorkPerType());
 			}
 		});
-		return new EditingContext(activity);
+		return new EditingContext(activity, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<TeachingActivity> startDeletion(Set<TeachingActivity> entities) {
+	public EntityDeletingContext<TeachingActivity> startDeletion(Set<TeachingActivity> entities, Logger logger) {
 		assert entities != null && !entities.isEmpty();
-		return new DeletingContext(entities);
+		return new DeletingContext(entities, logger);
 	}
 
 	/** Context for editing a {@link TeachingActivity}.
@@ -411,12 +417,13 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 		/** Constructor.
 		 *
 		 * @param activity the edited teaching activity.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(TeachingActivity activity) {
-			super(activity);
+		protected EditingContext(TeachingActivity activity, Logger logger) {
+			super(activity, logger);
 			this.pathToSlides = newUploadedFileTracker(activity,
 					TeachingActivity::getPathToSlides,
-					(id, savedPath) -> TeachingService.this.fileManager.deleteTeachingActivitySlides(id.longValue()),
+					(id, savedPath) -> TeachingService.this.fileManager.deleteTeachingActivitySlides(id.longValue(), logger),
 					null);
 		}
 
@@ -427,22 +434,22 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 
 		@Override
 		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
-			this.pathToSlides.deleteOrRenameFile(oldId, this.entity);
+			this.pathToSlides.deleteOrRenameFile(oldId, this.entity, getLogger());
 		}
 
 		@Override
 		protected boolean prepareAssociatedFileUpload() throws IOException {
-			return !this.pathToSlides.deleteFile(this.entity);
+			return !this.pathToSlides.deleteFile(this.entity, getLogger());
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToSlides.resetPathMemory(this.entity);
+			this.pathToSlides.resetPathMemory(this.entity, getLogger());
 		}
 
 		@Override
 		public EntityDeletingContext<TeachingActivity> createDeletionContext() {
-			return TeachingService.this.startDeletion(Collections.singleton(this.entity));
+			return TeachingService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -462,9 +469,10 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 		/** Constructor.
 		 *
 		 * @param activities the teaching activities to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<TeachingActivity> activities) {
-			super(activities);
+		protected DeletingContext(Set<TeachingActivity> activities, Logger logger) {
+			super(activities, logger);
 		}
 
 		@Override
@@ -472,7 +480,7 @@ public class TeachingService extends AbstractEntityService<TeachingActivity> {
 			TeachingService.this.teachingActivityRepository.deleteAllById(identifiers);
 
 			for (final var id : identifiers) {
-				TeachingService.this.fileManager.deleteTeachingActivitySlides(id.longValue());
+				TeachingService.this.fileManager.deleteTeachingActivitySlides(id.longValue(), getLogger());
 			}
 		}
 

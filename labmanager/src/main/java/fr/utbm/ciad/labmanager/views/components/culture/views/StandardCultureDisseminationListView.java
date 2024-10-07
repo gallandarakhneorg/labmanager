@@ -29,9 +29,9 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.appviews.publications.PublicationImportWizard;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.views.AbstractPublicationListView;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** List all the scientific culture dissemination.
@@ -65,17 +65,18 @@ public class StandardCultureDisseminationListView extends AbstractPublicationLis
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param publicationService the service for accessing the publications.
      * @param publicationEditorFactory the factory for creating publication editors.
 	 * @param journalService the service for accessing the JPA entities for journal.
 	 * @param organizationService the service for accessing the JPA entities for research organization.
-	 * @param logger the logger to use.
 	 */
 	public StandardCultureDisseminationListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, PublicationService publicationService,
-			PublicationEditorFactory publicationEditorFactory, JournalService journalService, ResearchOrganizationService organizationService, Logger logger) {
-		super(authenticatedUser, messages, publicationService, publicationEditorFactory, journalService, organizationService,
-				PublicationImportWizard.class, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ContextualLoggerFactory loggerFactory, PublicationService publicationService,
+			PublicationEditorFactory publicationEditorFactory, JournalService journalService, ResearchOrganizationService organizationService) {
+		super(authenticatedUser, messages, loggerFactory, publicationService, publicationEditorFactory, journalService, organizationService,
+				PublicationImportWizard.class,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.scientific_culture_actions.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.scientific_culture_actions.delete.message") //$NON-NLS-1$

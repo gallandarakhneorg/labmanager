@@ -24,7 +24,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.vaadin.flow.function.SerializableBiFunction;
+import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.AbstractUploadableFilesViewerField;
+import org.slf4j.Logger;
 
 /** A field that enables to upload an image and show the image representations of the uploaded files.
  * This field does not assume that the field's data is of a specific type.
@@ -47,9 +49,11 @@ public abstract class AbstractServerSideUploadableImagesField<T> extends Abstrac
 	 *
 	 * @param filenameSupplier the supplier of the filenames. First argument is the index of the image.
 	 *      Second argument is the filename extension. It returns the filename.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadableImagesField(SerializableBiFunction<Integer, String, File> filenameSupplier) {
-		super(filenameSupplier);
+	public AbstractServerSideUploadableImagesField(SerializableBiFunction<Integer, String, File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(filenameSupplier, loggerSupplier);
 		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
 	}
 

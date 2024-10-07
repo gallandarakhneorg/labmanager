@@ -23,13 +23,13 @@ import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.DelegateContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.JournalAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.AbstractJournalEditor;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Implementation for the editor of the information related to a journal. It is directly linked for
@@ -57,16 +57,15 @@ public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor 
      *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
-     * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
      */
     public AbstractJournalEditorWizard(AbstractEntityService.EntityEditingContext<Journal> context,
 			EntityCreationStatusComputer<Journal> journalCreationStatusComputer, boolean relinkEntityWhenSaving,
 			AuthenticatedUser authenticatedUser, JournalService journalService, MessageSourceAccessor messages,
-			Logger logger, ConstructionPropertiesBuilder properties) {
+			ConstructionPropertiesBuilder properties) {
 
-        super(context, journalCreationStatusComputer, relinkEntityWhenSaving, journalService ,authenticatedUser, messages, logger, properties);
+        super(context, journalCreationStatusComputer, relinkEntityWhenSaving, journalService ,authenticatedUser, messages, properties);
 
     }
 
@@ -79,9 +78,14 @@ public abstract class AbstractJournalEditorWizard extends AbstractJournalEditor 
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
         if (isBaseAdmin()) {
-            journalEditorComponentWizard = new JournalEditorComponentWizard(createDescriptionDetails(), createRankingDetails(), createPublisherDetails(), createAdministrationComponents((Consumer<FormLayout>) null, it -> it.bind(Journal::isValidated, Journal::setValidated)));
+            journalEditorComponentWizard = new JournalEditorComponentWizard(
+            		new DelegateContextualLoggerFactory(getLogger()),
+            		createDescriptionDetails(), createRankingDetails(), createPublisherDetails(),
+            		createAdministrationComponents((Consumer<FormLayout>) null, it -> it.bind(Journal::isValidated, Journal::setValidated)));
         }
-        journalEditorComponentWizard = new JournalEditorComponentWizard(createDescriptionDetails(), createRankingDetails(), createPublisherDetails());
+        journalEditorComponentWizard = new JournalEditorComponentWizard(
+        		new DelegateContextualLoggerFactory(getLogger()),
+        		createDescriptionDetails(), createRankingDetails(), createPublisherDetails());
 
         rootContainer.add(journalEditorComponentWizard);
     }

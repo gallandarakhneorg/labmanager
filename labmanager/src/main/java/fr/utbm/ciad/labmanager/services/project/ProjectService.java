@@ -78,6 +78,8 @@ import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -100,6 +102,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ProjectService extends AbstractEntityService<Project> {
 
+	private static final long serialVersionUID = 6207409793530859255L;
+
 	private ProjectRepository projectRepository;
 
 	private ProjectMemberRepository projectMemberRepository;
@@ -115,15 +119,15 @@ public class ProjectService extends AbstractEntityService<Project> {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param messages the provider of localized messages.
-	 * @param constants the accessor to the live constants.
-	 * @param sessionFactory the Hibernate session factory.
 	 * @param projectRepository the repository for the research projects.
 	 * @param projectMemberRepository the repository for the members of research projects.
 	 * @param organizationRepository the repository for the research organizations.
 	 * @param personRepository the repository for the persons.
 	 * @param membershipService the service for memberships.
 	 * @param fileManager the manager of the uploaded and downloadable files.
+	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
+	 * @param sessionFactory the Hibernate session factory.
 	 */
 	public ProjectService(
 			@Autowired ProjectRepository projectRepository,
@@ -440,16 +444,17 @@ public class ProjectService extends AbstractEntityService<Project> {
 		this.projectRepository.save(project);
 
 		// Link the uploaded files
+		final var logger = LoggerFactory.getLogger(getClass());
 
-		updateLogo(project, removePathToLogo, pathToLogo);
-		updateScientificRequirements(project, removePathToScientificRequirements, pathToScientificRequirements);
-		updatePowerpoint(project, removePathToPowerpoint, pathToPowerpoint);
-		updatePressDocument(project, removePathToPressDocument, pathToPressDocument);
-		updateImages(project, removePathsToImages, pathsToImages);
+		updateLogo(project, removePathToLogo, pathToLogo, logger);
+		updateScientificRequirements(project, removePathToScientificRequirements, pathToScientificRequirements, logger);
+		updatePowerpoint(project, removePathToPowerpoint, pathToPowerpoint, logger);
+		updatePressDocument(project, removePathToPressDocument, pathToPressDocument, logger);
+		updateImages(project, removePathsToImages, pathsToImages, logger);
 		this.projectRepository.save(project);
 	}
 
-	private boolean updateImages(Project project, boolean explicitRemove, MultipartFile[] uploadedFiles) throws IOException {
+	private boolean updateImages(Project project, boolean explicitRemove, MultipartFile[] uploadedFiles, Logger logger) throws IOException {
 		var changed = false;
 		if (explicitRemove) {
 			var i = 0;
@@ -461,7 +466,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 					ext = null;
 				}
 				try {
-					this.fileManager.deleteProjectImage(project.getId(), i, ext);
+					this.fileManager.deleteProjectImage(project.getId(), i, ext, logger);
 				} catch (Throwable ex) {
 					// Silent
 				}
@@ -490,10 +495,11 @@ public class ProjectService extends AbstractEntityService<Project> {
 				}
 				if (updateUploadedFile(false, uploadedFile,
 						"Project image uploaded at: ", //$NON-NLS-1$
+						logger,
 						it -> paths.add(it),
 						() -> this.fileManager.makeProjectImageFilename(project.getId(), i.intValue(), ext),
-						() -> this.fileManager.deleteProjectImage(project.getId(), i.intValue(), ext),
-						(fn, th) -> this.fileManager.saveImage(fn, uploadedFile))) {
+						() -> this.fileManager.deleteProjectImage(project.getId(), i.intValue(), ext, logger),
+						(fn, th) -> this.fileManager.saveImage(fn, uploadedFile, logger))) {
 					changed = true;
 				}
 			}
@@ -502,16 +508,17 @@ public class ProjectService extends AbstractEntityService<Project> {
 		return changed;
 	}
 
-	private boolean updatePressDocument(Project project, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+	private boolean updatePressDocument(Project project, boolean explicitRemove, MultipartFile uploadedFile, Logger logger) throws IOException {
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Project press document uploaded at: ", //$NON-NLS-1$
+				logger,
 				it -> project.setPathToPressDocument(it),
 				() -> this.fileManager.makeProjectPressDocumentFilename(project.getId()),
-				() -> this.fileManager.deleteProjectPressDocument(project.getId()),
-				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile));
+				() -> this.fileManager.deleteProjectPressDocument(project.getId(), logger),
+				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile, logger));
 	}
 
-	private boolean updatePowerpoint(Project project, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+	private boolean updatePowerpoint(Project project, boolean explicitRemove, MultipartFile uploadedFile, Logger logger) throws IOException {
 		final String ext;
 		if (uploadedFile != null) {
 			ext = FileSystem.extension(uploadedFile.getOriginalFilename());
@@ -525,22 +532,24 @@ public class ProjectService extends AbstractEntityService<Project> {
 		}
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Project powerpoint uploaded at: ", //$NON-NLS-1$
+				logger,
 				it -> project.setPathToPowerpoint(it),
 				() -> this.fileManager.makeProjectPowerpointFilename(project.getId(), ext),
-				() -> this.fileManager.deleteProjectPowerpoint(project.getId(), ext),
-				(fn, th) -> this.fileManager.savePowerpointAndThumbnailFiles(fn, th, uploadedFile));
+				() -> this.fileManager.deleteProjectPowerpoint(project.getId(), ext, logger),
+				(fn, th) -> this.fileManager.savePowerpointAndThumbnailFiles(fn, th, uploadedFile, logger));
 	}
 
-	private boolean updateScientificRequirements(Project project, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+	private boolean updateScientificRequirements(Project project, boolean explicitRemove, MultipartFile uploadedFile, Logger logger) throws IOException {
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Project scientific requirements uploaded at: ", //$NON-NLS-1$
+				logger,
 				it -> project.setPathToScientificRequirements(it),
 				() -> this.fileManager.makeProjectScientificRequirementsFilename(project.getId()),
-				() -> this.fileManager.deleteProjectScientificRequirements(project.getId()),
-				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile));
+				() -> this.fileManager.deleteProjectScientificRequirements(project.getId(), logger),
+				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile, logger));
 	}
 
-	private boolean updateLogo(Project project, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+	private boolean updateLogo(Project project, boolean explicitRemove, MultipartFile uploadedFile, Logger logger) throws IOException {
 		final String ext;
 		if (uploadedFile != null) {
 			ext = FileSystem.extension(uploadedFile.getOriginalFilename());
@@ -554,10 +563,11 @@ public class ProjectService extends AbstractEntityService<Project> {
 		}
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Project logo uploaded at: ", //$NON-NLS-1$
+				logger,
 				it -> project.setPathToLogo(it),
 				() -> this.fileManager.makeProjectLogoFilename(project.getId(), ext),
-				() -> this.fileManager.deleteProjectLogo(project.getId(), ext),
-				(fn, th) -> this.fileManager.saveImage(fn, uploadedFile));
+				() -> this.fileManager.deleteProjectLogo(project.getId(), ext, logger),
+				(fn, th) -> this.fileManager.saveImage(fn, uploadedFile, logger));
 	}
 
 	/** Create a project with the given information.
@@ -630,7 +640,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 					// Silent
 				}
 			}
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			//getLogger().error(ex.getLocalizedMessage(), ex);
 			throw ex;
 		}
 		return Optional.of(project);
@@ -718,6 +728,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 		final var id = Long.valueOf(identifier);
 		final var projectOpt = this.projectRepository.findById(id);
 		if (projectOpt.isPresent()) {
+			final var logger = LoggerFactory.getLogger(getClass());
 			final var project = projectOpt.get();
 			//
 			final var pathToLogo = project.getPathToLogo();
@@ -740,26 +751,26 @@ public class ProjectService extends AbstractEntityService<Project> {
 				try {
 					if (!Strings.isNullOrEmpty(pathToLogo)) {
 						final var ext = FileSystem.extension(pathToLogo);
-						this.fileManager.deleteProjectLogo(identifier, ext);
+						this.fileManager.deleteProjectLogo(identifier, ext, logger);
 					}
 				} catch (Throwable ex) {
 					// Silent
 				}
 				try {
-					this.fileManager.deleteProjectScientificRequirements(identifier);
+					this.fileManager.deleteProjectScientificRequirements(identifier, logger);
 				} catch (Throwable ex) {
 					// Silent
 				}
 				try {
 					if (!Strings.isNullOrEmpty(pathToPowerpoint)) {
 						final var ext = FileSystem.extension(pathToPowerpoint);
-						this.fileManager.deleteProjectPowerpoint(identifier, ext);
+						this.fileManager.deleteProjectPowerpoint(identifier, ext, logger);
 					}
 				} catch (Throwable ex) {
 					// Silent
 				}
 				try {
-					this.fileManager.deleteProjectPressDocument(identifier);
+					this.fileManager.deleteProjectPressDocument(identifier, logger);
 				} catch (Throwable ex) {
 					// Silent
 				}
@@ -1176,11 +1187,12 @@ public class ProjectService extends AbstractEntityService<Project> {
 				}
 			});
 		if (!anonymousProjects.isEmpty()) {
+			final var logger = LoggerFactory.getLogger(getClass());
 			try {
 				final ObjectMapper jsonMapper = JsonUtils.createMapper();
-				getLogger().info("Project with country-less participant: " + jsonMapper.writeValueAsString(anonymousProjects)); //$NON-NLS-1$
+				logger.info("Project with country-less participant: " + jsonMapper.writeValueAsString(anonymousProjects)); //$NON-NLS-1$
 			} catch (JsonProcessingException ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
+				logger.error(ex.getLocalizedMessage(), ex);
 			}
 			projectsPerCountry.put(null, Integer.valueOf(anonymousProjects.size()));
 		}
@@ -1276,7 +1288,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 	}
 
 	@Override
-	public EntityEditingContext<Project> startEditing(Project project) {
+	public EntityEditingContext<Project> startEditing(Project project, Logger logger) {
 		assert project != null;
 		// Force initialization of the internal properties that are needed for editing
 		if (project.getId() != 0l) {
@@ -1296,11 +1308,11 @@ public class ProjectService extends AbstractEntityService<Project> {
 				Hibernate.initialize(project.getVideoURLs());
 			});
 		}
-		return new EditingContext(project);
+		return new EditingContext(project, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Project> startDeletion(Set<Project> projects) {
+	public EntityDeletingContext<Project> startDeletion(Set<Project> projects, Logger logger) {
 		assert projects != null && !projects.isEmpty();
 		// Force loading of the associated structures
 		inSession(session -> {
@@ -1311,7 +1323,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 				}
 			}
 		});
-		return new DeletingContext(projects);
+		return new DeletingContext(projects, logger);
 	}
 
 	/** Specification that i validating public project.
@@ -1368,16 +1380,17 @@ public class ProjectService extends AbstractEntityService<Project> {
 		/** Constructor.
 		 *
 		 * @param project the edited project.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(Project project) {
-			super(project);
+		protected EditingContext(Project project, Logger logger) {
+			super(project, logger);
 			this.pathToLogo = newUploadedFileTracker(project,
 					Project::getPathToLogo,
 					(id, savedPath) -> {
 						if (!Strings.isNullOrEmpty(savedPath)) {
 							final var ext = FileSystem.extension(savedPath);
 							if (!Strings.isNullOrEmpty(ext)) {
-								ProjectService.this.fileManager.deleteProjectLogo(id.longValue(), ext);
+								ProjectService.this.fileManager.deleteProjectLogo(id.longValue(), ext, logger);
 							}
 						}
 					},
@@ -1388,18 +1401,18 @@ public class ProjectService extends AbstractEntityService<Project> {
 						if (!Strings.isNullOrEmpty(savedPath)) {
 							final var ext = FileSystem.extension(savedPath);
 							if (!Strings.isNullOrEmpty(ext)) {
-								ProjectService.this.fileManager.deleteProjectPowerpoint(id.longValue(), ext);
+								ProjectService.this.fileManager.deleteProjectPowerpoint(id.longValue(), ext, logger);
 							}
 						}
 					},
 					null);
 			this.pathToPressDoc = newUploadedFileTracker(project,
 					Project::getPathToPressDocument,
-					(id, savedPath) -> ProjectService.this.fileManager.deleteProjectPressDocument(id.longValue()),
+					(id, savedPath) -> ProjectService.this.fileManager.deleteProjectPressDocument(id.longValue(), logger),
 					null);
 			this.pathToRequirements = newUploadedFileTracker(project,
 					Project::getPathToScientificRequirements,
-					(id, savedPath) -> ProjectService.this.fileManager.deleteProjectScientificRequirements(id.longValue()),
+					(id, savedPath) -> ProjectService.this.fileManager.deleteProjectScientificRequirements(id.longValue(), logger),
 					null);
 			
 			this.pathsToImages = newUploadedFilesTracker(project,
@@ -1411,7 +1424,7 @@ public class ProjectService extends AbstractEntityService<Project> {
 								final var savedPath = savedPaths.get(i);
 								final var ext = FileSystem.extension(savedPath);
 								if (!Strings.isNullOrEmpty(ext)) {
-									ProjectService.this.fileManager.deleteProjectImage(numid, i, savedPath);
+									ProjectService.this.fileManager.deleteProjectImage(numid, i, savedPath, logger);
 								}
 							}
 						}
@@ -1426,35 +1439,38 @@ public class ProjectService extends AbstractEntityService<Project> {
 
 		@Override
 		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
-			this.pathToLogo.deleteOrRenameFile(oldId, this.entity);
-			this.pathToPpt.deleteOrRenameFile(oldId, this.entity);
-			this.pathToPressDoc.deleteOrRenameFile(oldId, this.entity);
-			this.pathToRequirements.deleteOrRenameFile(oldId, this.entity);
-			this.pathsToImages.deleteOrRenameFiles(oldId, this.entity);
+			final var logger = getLogger();
+			this.pathToLogo.deleteOrRenameFile(oldId, this.entity, logger);
+			this.pathToPpt.deleteOrRenameFile(oldId, this.entity, logger);
+			this.pathToPressDoc.deleteOrRenameFile(oldId, this.entity, logger);
+			this.pathToRequirements.deleteOrRenameFile(oldId, this.entity, logger);
+			this.pathsToImages.deleteOrRenameFiles(oldId, this.entity, logger);
 		}
 
 		@Override
 		protected boolean prepareAssociatedFileUpload() throws IOException {
-			final var uploaded0 = !this.pathToLogo.deleteFile(this.entity);
-			final var uploaded1 = !this.pathToPpt.deleteFile(this.entity);
-			final var uploaded2 = !this.pathToPressDoc.deleteFile(this.entity);
-			final var uploaded3 = !this.pathToRequirements.deleteFile(this.entity);
-			final var uploaded4 = !this.pathsToImages.deleteFiles(this.entity);
+			final var logger = getLogger();
+			final var uploaded0 = !this.pathToLogo.deleteFile(this.entity, logger);
+			final var uploaded1 = !this.pathToPpt.deleteFile(this.entity, logger);
+			final var uploaded2 = !this.pathToPressDoc.deleteFile(this.entity, logger);
+			final var uploaded3 = !this.pathToRequirements.deleteFile(this.entity, logger);
+			final var uploaded4 = !this.pathsToImages.deleteFiles(this.entity, logger);
 			return uploaded0 || uploaded1 || uploaded2 || uploaded3 || uploaded4;
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToLogo.resetPathMemory(this.entity);
-			this.pathToPpt.resetPathMemory(this.entity);
-			this.pathToPressDoc.resetPathMemory(this.entity);
-			this.pathToRequirements.resetPathMemory(this.entity);
-			this.pathsToImages.resetPathMemory(this.entity);
+			final var logger = getLogger();
+			this.pathToLogo.resetPathMemory(this.entity, logger);
+			this.pathToPpt.resetPathMemory(this.entity, logger);
+			this.pathToPressDoc.resetPathMemory(this.entity, logger);
+			this.pathToRequirements.resetPathMemory(this.entity, logger);
+			this.pathsToImages.resetPathMemory(this.entity, logger);
 		}
 
 		@Override
 		public EntityDeletingContext<Project> createDeletionContext() {
-			return ProjectService.this.startDeletion(Collections.singleton(this.entity));
+			return ProjectService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -1474,9 +1490,10 @@ public class ProjectService extends AbstractEntityService<Project> {
 		/** Constructor.
 		 *
 		 * @param projects the projects to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Project> projects) {
-			super(projects);
+		protected DeletingContext(Set<Project> projects, Logger logger) {
+			super(projects, logger);
 		}
 
 		@Override
@@ -1491,14 +1508,16 @@ public class ProjectService extends AbstractEntityService<Project> {
 
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
+			final var logger = getLogger();
 			ProjectService.this.projectRepository.deleteAllById(identifiers);
+			logger.info("Deleted projects from database: " + identifiers); //$NON-NLS-1$
 			for (final var id : identifiers) {
 				final var idl = id.longValue();
-				ProjectService.this.fileManager.deleteProjectImage(idl);
-				ProjectService.this.fileManager.deleteProjectLogo(idl);
-				ProjectService.this.fileManager.deleteProjectPowerpoint(idl);
-				ProjectService.this.fileManager.deleteProjectPressDocument(idl);
-				ProjectService.this.fileManager.deleteProjectScientificRequirements(idl);
+				ProjectService.this.fileManager.deleteProjectImage(idl, logger);
+				ProjectService.this.fileManager.deleteProjectLogo(idl, logger);
+				ProjectService.this.fileManager.deleteProjectPowerpoint(idl, logger);
+				ProjectService.this.fileManager.deleteProjectPressDocument(idl, logger);
+				ProjectService.this.fileManager.deleteProjectScientificRequirements(idl, logger);
 			}
 		}
 

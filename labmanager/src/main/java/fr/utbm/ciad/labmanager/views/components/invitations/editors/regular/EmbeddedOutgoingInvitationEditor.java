@@ -25,8 +25,6 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of outgoing invitation information that may be embedded. This editor does not provide
@@ -43,8 +41,6 @@ public final class EmbeddedOutgoingInvitationEditor extends AbstractOutgoingInvi
 
 	private static final long serialVersionUID = 1970574126349996914L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedOutgoingInvitationEditor.class);
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the outgoing invitation.
@@ -55,8 +51,9 @@ public final class EmbeddedOutgoingInvitationEditor extends AbstractOutgoingInvi
 	 */
 	public EmbeddedOutgoingInvitationEditor(EntityEditingContext<PersonInvitation> context,
 			EntityCreationStatusComputer<PersonInvitation> invitationCreationStatusComputer,
-			PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, invitationCreationStatusComputer, false, personFieldFactory, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+			PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages) {
+		super(context, invitationCreationStatusComputer, false, personFieldFactory, authenticatedUser, messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

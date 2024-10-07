@@ -82,7 +82,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.OrcidValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a person.
@@ -192,16 +191,15 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractPersonEditor(
 			UserEditingContext userContext, EntityCreationStatusComputer<Person> personCreationStatusComputer,
 			PersonService personService, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
-		super(Person.class, authenticatedUser, messages, logger,
-				personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ConstructionPropertiesBuilder properties) {
+		super(Person.class, authenticatedUser, messages, personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.persons.administration_details") //$NON-NLS-1$
 				.map(PROP_ADMIN_VALIDATION_BOX, "views.persons.administration.validated_person")); //$NON-NLS-1$

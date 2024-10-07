@@ -28,6 +28,7 @@ import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 
 /** A field that enables to upload and show an image, and to write the image in a
  * folder of the server. 
@@ -56,8 +57,11 @@ public class ServerSideUploadableImageField extends AbstractServerSideUploadable
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public ServerSideUploadableImageField(FileManager fileManager, SerializableSupplier<File> filenameSupplier) {
+	public ServerSideUploadableImageField(FileManager fileManager, SerializableSupplier<File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
 		this.fileManager = fileManager;
 		this.filenameSupplier = filenameSupplier;
 	}
@@ -67,8 +71,11 @@ public class ServerSideUploadableImageField extends AbstractServerSideUploadable
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public ServerSideUploadableImageField(FileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
+	public ServerSideUploadableImageField(FileManager fileManager, SerializableFunction<String, File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
 		this.fileManager = fileManager;
 		this.filenameSupplier = () -> {
 			final var file = getClientSideFilename();

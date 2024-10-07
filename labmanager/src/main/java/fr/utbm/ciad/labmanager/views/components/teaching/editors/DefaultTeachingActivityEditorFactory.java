@@ -28,6 +28,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEd
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.teaching.editors.regular.EmbeddedTeachingActivityEditor;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -82,8 +83,8 @@ public class DefaultTeachingActivityEditorFactory implements TeachingActivityEdi
 	}
 
 	@Override
-	public EntityEditingContext<TeachingActivity> createContextFor(TeachingActivity activity) {
-		return this.teachingService.startEditing(activity);
+	public EntityEditingContext<TeachingActivity> createContextFor(TeachingActivity activity, Logger logger) {
+		return this.teachingService.startEditing(activity, logger);
 	}
 	
 	@Override

@@ -25,6 +25,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.regular.EmbeddedScientificAxisEditor;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -52,6 +53,7 @@ public class DefaultScientificAxisEditorFactory implements ScientificAxisEditorF
 	 * @param axisService the service for accessing the JPA entity for scientific axes.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
 	public DefaultScientificAxisEditorFactory(
 			@Autowired ScientificAxisService axisService,
@@ -63,8 +65,8 @@ public class DefaultScientificAxisEditorFactory implements ScientificAxisEditorF
 	}
 
 	@Override
-	public EntityEditingContext<ScientificAxis> createContextFor(ScientificAxis axis) {
-		return this.axisService.startEditing(axis);
+	public EntityEditingContext<ScientificAxis> createContextFor(ScientificAxis axis, Logger logger) {
+		return this.axisService.startEditing(axis, logger);
 	}
 	
 	@Override

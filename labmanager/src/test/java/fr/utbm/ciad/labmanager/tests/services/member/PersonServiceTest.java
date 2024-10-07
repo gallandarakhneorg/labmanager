@@ -62,6 +62,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonService}.
@@ -268,7 +269,7 @@ public class PersonServiceTest {
 	public void createPerson() {
 		final PhoneNumber num1 = new PhoneNumber(CountryCode.FRANCE, "123456789");
 		final PhoneNumber num2 = new PhoneNumber(CountryCode.FRANCE, "987654321");
-		final Person person = this.test.createPerson(true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
+		final Person person = this.test.createPerson(LoggerFactory.getLogger(getClass()), true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
 				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NHAL", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 

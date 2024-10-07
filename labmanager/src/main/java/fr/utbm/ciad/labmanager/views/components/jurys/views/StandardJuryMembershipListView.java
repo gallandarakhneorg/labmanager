@@ -50,13 +50,13 @@ import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.jurys.editors.JuryMembershipEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -97,14 +97,14 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param membershipService the service for accessing the jury memberships.
 	 * @param juryMembershipEditorFactory the factory for creating the jury membership editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardJuryMembershipListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			JuryMembershipService membershipService, JuryMembershipEditorFactory juryMembershipEditorFactory, Logger logger) {
-		super(JuryMembership.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			JuryMembershipService membershipService, JuryMembershipEditorFactory juryMembershipEditorFactory) {
+		super(JuryMembership.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.jury_membership.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.jury_membership.delete.message") //$NON-NLS-1$
@@ -246,9 +246,9 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 	protected void openMembershipEditor(JuryMembership membership, String title, boolean isCreation) {
 		final AbstractEntityEditor<JuryMembership>  editor;
 		if (isCreation) {
-			editor = this.juryMembershipEditorFactory.createAdditionEditor(membership);
+			editor = this.juryMembershipEditorFactory.createAdditionEditor(membership, getLogger());
 		} else {
-			editor = this.juryMembershipEditorFactory.createUpdateEditor(membership);
+			editor = this.juryMembershipEditorFactory.createUpdateEditor(membership, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, JuryMembership> refreshAll = (dialog, entity) -> {
@@ -275,7 +275,7 @@ public class StandardJuryMembershipListView extends AbstractEntityListView<JuryM
 
 	@Override
 	protected EntityDeletingContext<JuryMembership> createDeletionContextFor(Set<JuryMembership> entities) {
-		return this.membershipService.startDeletion(entities);
+		return this.membershipService.startDeletion(entities, getLogger());
 	}
 
 	@Override

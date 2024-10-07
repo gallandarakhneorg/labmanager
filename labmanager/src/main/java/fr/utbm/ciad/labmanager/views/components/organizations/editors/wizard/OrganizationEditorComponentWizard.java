@@ -7,8 +7,9 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 
 /** Wizard for adding an organization.
@@ -32,8 +33,12 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @param superStructureDetailComponents the super structure detail components.
 	 * @param communicationDetailComponents the communication detail components.
 	 */
-	public OrganizationEditorComponentWizard(VerticalLayout descriptionDetailComponents, VerticalLayout geographicalDetailComponents, VerticalLayout identificationDetailComponents,VerticalLayout superStructureDetailComponents,VerticalLayout communicationDetailComponents) {
-		this(defaultWizardConfiguration(null, false),
+	public OrganizationEditorComponentWizard(
+			ContextualLoggerFactory loggerFactory,
+			VerticalLayout descriptionDetailComponents, VerticalLayout geographicalDetailComponents,
+			VerticalLayout identificationDetailComponents, VerticalLayout superStructureDetailComponents,
+			VerticalLayout communicationDetailComponents) {
+		this(defaultWizardConfiguration(null, false), loggerFactory,
 				new ResearchOrganization(), descriptionDetailComponents, geographicalDetailComponents, identificationDetailComponents,superStructureDetailComponents,communicationDetailComponents);
 	}
 
@@ -46,8 +51,12 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @param communicationDetailComponents the communication detail components.
 	 * @param administrationComponents the administration detail components.
 	 */
-	public OrganizationEditorComponentWizard(VerticalLayout descriptionDetailComponents, VerticalLayout geographicalDetailComponents, VerticalLayout identificationDetailComponents,VerticalLayout superStructureDetailComponents,VerticalLayout communicationDetailComponents, VerticalLayout administrationComponents) {
-		this(defaultWizardConfiguration(null, false),
+	public OrganizationEditorComponentWizard(
+			ContextualLoggerFactory loggerFactory,
+			VerticalLayout descriptionDetailComponents, VerticalLayout geographicalDetailComponents,
+			VerticalLayout identificationDetailComponents, VerticalLayout superStructureDetailComponents,
+			VerticalLayout communicationDetailComponents, VerticalLayout administrationComponents) {
+		this(defaultWizardConfiguration(null, false), loggerFactory,
 				new ResearchOrganization(), descriptionDetailComponents, geographicalDetailComponents, identificationDetailComponents,superStructureDetailComponents,communicationDetailComponents, administrationComponents);
 	}
 
@@ -61,8 +70,12 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @param superStructureDetailComponents the super structure detail components.
 	 * @param communicationDetailComponents the communication detail components.
 	 */
-	protected OrganizationEditorComponentWizard(WizardConfigurationProperties properties, ResearchOrganization context, VerticalLayout descriptionDetailComponents, VerticalLayout geographicalDetailComponents, VerticalLayout identificationDetailComponents,VerticalLayout superStructureDetailComponents,VerticalLayout communicationDetailComponents) {
-		super(properties, context, Arrays.asList(
+	protected OrganizationEditorComponentWizard(WizardConfigurationProperties properties,
+			ContextualLoggerFactory loggerFactory,
+			ResearchOrganization context, VerticalLayout descriptionDetailComponents,
+			VerticalLayout geographicalDetailComponents, VerticalLayout identificationDetailComponents,
+			VerticalLayout superStructureDetailComponents, VerticalLayout communicationDetailComponents) {
+		super(properties, loggerFactory, context, Arrays.asList(
 				new DescriptionDetailComponent(context, descriptionDetailComponents),
 				new GeographicalDetailComponent(context, geographicalDetailComponents),
 				new IdentificationDetailComponent(context, identificationDetailComponents),
@@ -81,8 +94,13 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @param communicationDetailComponents the communication detail components.
 	 * @param administrationComponents the administration detail components.
 	 */
-	protected OrganizationEditorComponentWizard(WizardConfigurationProperties properties, ResearchOrganization context, VerticalLayout descriptionDetailComponents, VerticalLayout geographicalDetailComponents, VerticalLayout identificationDetailComponents,VerticalLayout superStructureDetailComponents,VerticalLayout communicationDetailComponents, VerticalLayout administrationComponents) {
-		super(properties, context, Arrays.asList(
+	protected OrganizationEditorComponentWizard(WizardConfigurationProperties properties,
+			ContextualLoggerFactory loggerFactory,
+			ResearchOrganization context, VerticalLayout descriptionDetailComponents,
+			VerticalLayout geographicalDetailComponents, VerticalLayout identificationDetailComponents,
+			VerticalLayout superStructureDetailComponents, VerticalLayout communicationDetailComponents,
+			VerticalLayout administrationComponents) {
+		super(properties, loggerFactory, context, Arrays.asList(
 				new DescriptionDetailComponent(context, descriptionDetailComponents),
 				new GeographicalDetailComponent(context, geographicalDetailComponents),
 				new IdentificationDetailComponent(context, identificationDetailComponents),
@@ -100,7 +118,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class DescriptionDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
+	protected static class DescriptionDetailComponent extends AbstractLabManagerFormWizardStep<ResearchOrganization> {
 
 		private static final long serialVersionUID = 7411011360236405995L;
 
@@ -170,7 +188,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class GeographicalDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
+	protected static class GeographicalDetailComponent extends AbstractLabManagerFormWizardStep<ResearchOrganization> {
 
 		private static final long serialVersionUID = 8902836389401424098L;
 
@@ -218,7 +236,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class IdentificationDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
+	protected static class IdentificationDetailComponent extends AbstractLabManagerFormWizardStep<ResearchOrganization> {
 
 		private static final long serialVersionUID = -6926957941646510722L;
 
@@ -266,7 +284,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class SuperStructureDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
+	protected static class SuperStructureDetailComponent extends AbstractLabManagerFormWizardStep<ResearchOrganization> {
 
 		private static final long serialVersionUID = -4013317155841508735L;
 
@@ -314,7 +332,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class CommunicationDetailComponent extends AbstractFormWizardStep<ResearchOrganization> {
+	protected static class CommunicationDetailComponent extends AbstractLabManagerFormWizardStep<ResearchOrganization> {
 
 		private static final long serialVersionUID = 6146649659074562352L;
 
@@ -361,7 +379,7 @@ public class OrganizationEditorComponentWizard extends AbstractLabManagerWizard<
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class OrganizationAdministration extends AbstractFormWizardStep<ResearchOrganization> {
+	protected static class OrganizationAdministration extends AbstractLabManagerFormWizardStep<ResearchOrganization> {
 
 		private static final long serialVersionUID = 4082126905982402500L;
 

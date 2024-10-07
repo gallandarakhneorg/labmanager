@@ -48,6 +48,7 @@ import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link CiadHtmlDocumentExporter}.
@@ -83,7 +84,7 @@ public class CiadHtmlDocumentExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US), new DefaultProgression()));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US), new DefaultProgression(), LoggerFactory.getLogger(getClass())));
 	}
 
 	@Test
@@ -173,7 +174,7 @@ public class CiadHtmlDocumentExporterTest {
 
 		ExporterConfigurator configurator = new ExporterConfigurator(null, Locale.US);
 
-		String content = this.test.exportPublications(Arrays.asList(p0), configurator, new DefaultProgression());
+		String content = this.test.exportPublications(Arrays.asList(p0), configurator, new DefaultProgression(), LoggerFactory.getLogger(getClass()));
 
 		assertNotNull(content);
 

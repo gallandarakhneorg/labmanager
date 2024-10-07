@@ -27,8 +27,6 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of teaching activity information that may be embedded. This editor does not provide
@@ -45,8 +43,6 @@ public final class EmbeddedTeachingActivityEditor extends AbstractTeachingActivi
 	
 	private static final long serialVersionUID = -6189368227679492365L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedTeachingActivityEditor.class);
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the teaching activity.
@@ -61,8 +57,8 @@ public final class EmbeddedTeachingActivityEditor extends AbstractTeachingActivi
 	public EmbeddedTeachingActivityEditor(EntityEditingContext<TeachingActivity> context,
 			EntityCreationStatusComputer<TeachingActivity> activityCreationStatusComputer, DownloadableFileManager fileManager, PersonFieldFactory personFieldFactory,
 			OrganizationFieldFactory organizationFieldFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, activityCreationStatusComputer, fileManager, personFieldFactory, organizationFieldFactory, authenticatedUser, messages, LOGGER,
-				ConstructionPropertiesBuilder.create());
+		super(context, false, activityCreationStatusComputer, fileManager, personFieldFactory, organizationFieldFactory, authenticatedUser,
+				messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

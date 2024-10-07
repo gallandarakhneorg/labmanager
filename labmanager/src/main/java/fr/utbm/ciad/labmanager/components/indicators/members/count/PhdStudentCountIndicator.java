@@ -42,6 +42,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PhdStudentCountIndicator extends AbstractInstantIndicator {
 
+	private static final long serialVersionUID = -992179194048892979L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

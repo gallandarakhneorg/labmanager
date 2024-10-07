@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.appviews.exports;
 import java.time.LocalDate;
 import java.util.Locale;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
@@ -40,10 +39,10 @@ import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadBigButton;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.annotation.security.PermitAll;
 import org.arakhne.afc.progress.Progression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** Enable to export annual reports.
@@ -57,11 +56,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route(value = "exportreports", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class ReportExportView extends Composite<FlexLayout> implements HasDynamicTitle, LocaleChangeObserver {
+public class ReportExportView extends AbstractLoggerComposite<FlexLayout> implements HasDynamicTitle, LocaleChangeObserver {
 
 	private static final long serialVersionUID = -5785487000322019291L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReportExportView.class);
 
 	private final DatabaseService databaseService;
 	
@@ -77,8 +74,11 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 	 *
 	 * @param databaseService the service for accessing all data from the database.
 	 * @param organizationService the service for accessing the research organizations.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-	public ReportExportView(@Autowired DatabaseService databaseService, @Autowired ResearchOrganizationService organizationService) {
+	public ReportExportView(@Autowired DatabaseService databaseService, @Autowired ResearchOrganizationService organizationService,
+			@Autowired ContextualLoggerFactory loggerFactory) {
+		super(loggerFactory);
 		this.databaseService = databaseService;
 		this.organizationService = organizationService;
 
@@ -123,7 +123,7 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 		final var ui = getUI().orElseThrow();
 		ui.access(() -> {
 			final var message = getTranslation("views.export.export_error", error.getLocalizedMessage()); //$NON-NLS-1$
-			LOGGER.error(message, error);
+			getLogger().error(message, error);
 			ComponentFactory.showErrorNotification(message);
 		});
 	}
@@ -146,7 +146,8 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 		// Reference year is the last year that is currently finished
 		final var referenceYear = LocalDate.now().getYear() - 1;
 		final var referenceOrganization = this.organizationService.getDefaultOrganization();
-		return this.databaseService.exportUtbmActivityReport(referenceOrganization.getId(), referenceYear, getLocaleSafe(), progression);
+		return this.databaseService.exportUtbmActivityReport(referenceOrganization.getId(), referenceYear,
+				getLocaleSafe(), getLogger(), progression);
 	}
 
 	/** Export the SPIM annual activity report.
@@ -159,7 +160,8 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 		// Reference year is the last year that is currently finished
 		final var referenceYear = LocalDate.now().getYear() - 1;
 		final var referenceOrganization = this.organizationService.getDefaultOrganization();
-		return this.databaseService.exportSpimActivityReport(referenceOrganization.getId(), referenceYear, getLocaleSafe(), progression);
+		return this.databaseService.exportSpimActivityReport(referenceOrganization.getId(), referenceYear,
+				getLocaleSafe(), getLogger(), progression);
 	}
 
 	/** Export the IC ARTS annual activity report.
@@ -172,7 +174,8 @@ public class ReportExportView extends Composite<FlexLayout> implements HasDynami
 		// Reference year is the last year that is currently finished
 		final var referenceYear = LocalDate.now().getYear() - 1;
 		final var referenceOrganization = this.organizationService.getDefaultOrganization();
-		return this.databaseService.exportIcartsActivityReport(referenceOrganization.getId(), referenceYear, getLocaleSafe(), progression);
+		return this.databaseService.exportIcartsActivityReport(referenceOrganization.getId(), referenceYear,
+				getLocaleSafe(), getLogger(), progression);
 	}
 
 	@Override

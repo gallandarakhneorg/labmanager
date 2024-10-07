@@ -31,12 +31,17 @@ import fr.utbm.ciad.labmanager.views.appviews.login.DevelopperLoginView;
 import org.apereo.cas.client.session.SingleSignOutFilter;
 import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
 import org.apereo.cas.client.validation.TicketValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -72,8 +77,18 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	@Autowired
 	private CasServerConfigurations casServers;
 
+	// TODO Security check
 	@Value("${labmanager.disable-cas-login}")
 	private boolean disableCasLogin;
+	
+	private Logger logger;
+
+	private synchronized Logger getLogger() {
+		if (this.logger == null) {
+			this.logger = LoggerFactory.getLogger("[/SecurityManager]"); //$NON-NLS-1$
+		}
+		return this.logger;
+	}
 
 	private boolean isCasLoginDisabled() {
 		return this.disableCasLogin;
@@ -88,6 +103,24 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	public PasswordEncoder passwordEncoder() {
 		// TODO return new BCryptPasswordEncoder();
 		return NoOpPasswordEncoder.getInstance();
+	}
+	
+	/** Invoked when an authenticated user has successsfully logged in.
+	 *
+	 * @param event the authenticated success event.
+	 */
+	@EventListener
+	public void onLoginSuccesss(AuthenticationSuccessEvent event) {
+		getLogger().info("Login success for " + event.getAuthentication().getName()); //$NON-NLS-1$
+	}
+
+	/** Invoked when an authenticated user has successsfully logged in.
+	 *
+	 * @param event the authenticated success event.
+	 */
+	@EventListener
+	public void onLoginFailure(AbstractAuthenticationFailureEvent event) {
+		getLogger().info("Login error for " + event.getAuthentication().getName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -244,8 +277,8 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	 */
 	@Bean
 	public LogoutFilter getLogoutFilter() {
-		// FIXME Implements logout mechainsm for CAS
-		final var logoutFilter = new LogoutFilter("", new SecurityContextLogoutHandler());
+		// FIXME Implements logout mechanism for CAS
+		final var logoutFilter = new LogoutFilter("", new SecurityContextLogoutHandler()); //$NON-NLS-1$
 		return logoutFilter;
 	}
 

@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import org.slf4j.Logger;
 
 /** A field that enables to upload a file and show an image representation, and to write the uploaded file in a
  * folder of the server.
@@ -44,9 +46,11 @@ public abstract class AbstractServerSideUploadableFileImageViewerField<T> extend
 	private static final long serialVersionUID = 598244456800081674L;
 
 	/** Default constructor.
+	 *
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadableFileImageViewerField() {
-		//
+	public AbstractServerSideUploadableFileImageViewerField(SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
 	}
 
 	/** Change the image that is displayed in the viewer.

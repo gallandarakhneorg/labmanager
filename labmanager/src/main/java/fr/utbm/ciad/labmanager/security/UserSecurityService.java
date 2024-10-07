@@ -19,14 +19,14 @@
 
 package fr.utbm.ciad.labmanager.security;
 
-import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
-import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.apache.logging.log4j.util.Strings;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,9 +34,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.List;
 
 /** Service managing the security access to the application.
  * 
@@ -47,7 +44,9 @@ import java.util.List;
  * @since 4.0
  */
 @Service
-public class UserSecurityService extends AbstractService implements UserDetailsService {
+public class UserSecurityService implements UserDetailsService, Serializable {
+
+	private static final long serialVersionUID = 2556340662809404455L;
 
 	private static final String DEVELOPMENT_MODE_PASSWORD = "x"; //$NON-NLS-1$
 	
@@ -62,11 +61,7 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
 	 * @param sessionFactory the factory of JPA session.
 	 */
 	public UserSecurityService(
-			@Autowired UserRepository userRepository,
-			@Autowired MessageSourceAccessor messages,
-			@Autowired ConfigurationConstants constants,
-			@Autowired SessionFactory sessionFactory) {
-		super(messages, constants, sessionFactory);
+			@Autowired UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 

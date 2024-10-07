@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityDeletingContext;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -79,16 +80,16 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 	 * @param childEntityType the type of the child entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
-	 * @param logger the logger to be used by this view.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param properties specification of properties that may be passed to the construction function {@link #createFilters()},
 	 *     {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
 	 * @since 4.0
 	 */
 	public AbstractTwoLevelTreeListView(
 			Class<R> rootEntityType, Class<C> childEntityType,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
-			ConstructionPropertiesBuilder properties) {
-		super(null, authenticatedUser, messages, logger, properties);
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ContextualLoggerFactory loggerFactory, ConstructionPropertiesBuilder properties) {
+		super(null, authenticatedUser, messages, loggerFactory, properties);
 		this.rootEntityType = rootEntityType;
 		this.childEntityType = childEntityType;
 	}
@@ -448,6 +449,11 @@ public abstract class AbstractTwoLevelTreeListView<R extends IdentifiableEntity,
 		@Override
 		public void delete() throws Exception {
 			this.original.delete();
+		}
+
+		@Override
+		public Logger getLogger() {
+			return this.original.getLogger();
 		}
 
 	}

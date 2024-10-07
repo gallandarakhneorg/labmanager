@@ -60,6 +60,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToDoiCon
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToKeywordsConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.DelegateContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.pdf.ServerSideUploadablePdfField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.DisjointEntityIterableValidator;
@@ -83,7 +84,6 @@ import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactor
 import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.AbstractPublicationEditor;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /**
@@ -128,7 +128,6 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
      * @param axisEditorFactory the factory for creating the scientific axis editors.
      * @param authenticatedUser         the connected user.
      * @param messages                  the accessor to the localized messages (Spring layer).
-     * @param logger                    the logger to use.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
      */
@@ -141,12 +140,12 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
                                            JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
                                            ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory,
                                            ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory,
-                                           AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+                                           AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
                                            ConstructionPropertiesBuilder properties) {
         super(context, null, supportedTypes, relinkEntityWhenSaving, enableTypeSelector, mandatoryAbstractText, publicationCreationStatusComputer,
         		fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService, journalService, 
         		journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory, conferenceFieldFactory,
-        		axisService, axisEditorFactory, authenticatedUser, messages, logger, properties);
+        		axisService, axisEditorFactory, authenticatedUser, messages, properties);
         this.supportedTypes = supportedTypes;
         // Sort types by their natural order, that corresponds to the weight of the type
         Arrays.sort(this.supportedTypes, (a, b) -> Integer.compare(a.ordinal(), b.ordinal()));
@@ -161,7 +160,9 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
     @Override
     protected void createEditorContent(VerticalLayout rootContainer) {
         if (isBaseAdmin()) {
-            publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(), createGeneralDetails(), createIdentificationDetails(), createContentDetails(), createResourceDetails(), createReferenceDetails(), createAdministrationComponents(
+            publicationEditorComponentWizard = new PublicationEditorComponentWizard(
+            		new DelegateContextualLoggerFactory(this.getEditingContext().getLogger()),
+            		createTypeSelector(), createGeneralDetails(), createIdentificationDetails(), createContentDetails(), createResourceDetails(), createReferenceDetails(), createAdministrationComponents(
                     content -> {
                         this.manualValidationForced = new ToggleButton();
                         content.add(this.manualValidationForced, 2);
@@ -170,7 +171,10 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
                     },
                     it -> it.bind(Publication::isValidated, Publication::setValidated)));
         } else {
-            publicationEditorComponentWizard = new PublicationEditorComponentWizard(createTypeSelector(), createGeneralDetails(), createIdentificationDetails(), createContentDetails(), createResourceDetails(), createReferenceDetails());
+            publicationEditorComponentWizard = new PublicationEditorComponentWizard(
+            		new DelegateContextualLoggerFactory(this.getEditingContext().getLogger()),
+            		createTypeSelector(), createGeneralDetails(), createIdentificationDetails(),
+            		createContentDetails(), createResourceDetails(), createReferenceDetails());
         }
         rootContainer.add(publicationEditorComponentWizard);
 
@@ -415,7 +419,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         final var content = ComponentFactory.newColumnForm(2);
 
         this.uploadPdf = new ServerSideUploadablePdfField(this.fileManager,
-                ext -> this.fileManager.makePdfFilename(getEditedEntity().getId()));
+                ext -> this.fileManager.makePdfFilename(getEditedEntity().getId()),
+                () -> getLogger());
         this.uploadPdf.setClearButtonVisible(true);
         content.add(this.uploadPdf, 2);
 
@@ -424,7 +429,8 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
         content.add(this.videoUrl, 1);
 
         this.uploadAward = new ServerSideUploadablePdfField(this.fileManager,
-                ext -> this.fileManager.makeAwardFilename(getEditedEntity().getId()));
+                ext -> this.fileManager.makeAwardFilename(getEditedEntity().getId()),
+                () -> getLogger());
         this.uploadAward.setClearButtonVisible(true);
         content.add(this.uploadAward, 2);
 
@@ -494,7 +500,7 @@ public abstract class AbstractPublicationEditorWizard extends AbstractPublicatio
      */
     protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
         final var newAxis = new ScientificAxis();
-        final var editor = this.axisEditorFactory.createAdditionEditor(newAxis);
+        final var editor = this.axisEditorFactory.createAdditionEditor(newAxis, getLogger());
         ComponentFactory.openEditionModalDialog(
                 getTranslation("views.membership.scientific_axes.create"), //$NON-NLS-1$
                 editor, false,

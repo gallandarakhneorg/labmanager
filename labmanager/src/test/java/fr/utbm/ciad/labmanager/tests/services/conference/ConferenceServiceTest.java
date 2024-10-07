@@ -48,6 +48,7 @@ import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.utils.io.coreportal.CorePortal;
 import fr.utbm.ciad.labmanager.utils.names.ConferenceNameComparator;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -95,7 +96,8 @@ public class ConferenceServiceTest {
 		lenient().when(session.getTransaction()).thenReturn(mock(Transaction.class));
 		lenient().when(this.sessionFactory.openSession()).thenReturn(session);
 		this.test = new ConferenceService(this.conferenceRepository,
-				this.indicatorRepository, this.core, this.conferenceNameComparator, this.messages, new ConfigurationConstants(), this.sessionFactory);
+				this.indicatorRepository, this.core, this.conferenceNameComparator, this.messages,
+				new ConfigurationConstants(), this.sessionFactory);
 	}
 
 	@Test

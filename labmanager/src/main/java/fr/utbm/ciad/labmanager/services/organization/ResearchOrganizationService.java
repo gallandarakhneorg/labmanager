@@ -45,6 +45,8 @@ import jakarta.transaction.Transactional;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -63,6 +65,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class ResearchOrganizationService extends AbstractEntityService<ResearchOrganization> {
+
+	private static final long serialVersionUID = 142441459785534481L;
 
 	private final OrganizationAddressRepository addressRepository;
 
@@ -314,7 +318,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		}
 		this.organizationRepository.save(res);
 		//
-		if (updateLogo(res, false, pathToLogo)) {
+		if (updateLogo(res, false, pathToLogo, LoggerFactory.getLogger(getClass()))) {
 			this.organizationRepository.save(res);
 		}
 		return Optional.of(res);
@@ -386,14 +390,14 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 			//
 			this.organizationRepository.save(organization);
 			//
-			if (updateLogo(organization, removePathToLogo, pathToLogo)) {
+			if (updateLogo(organization, removePathToLogo, pathToLogo, LoggerFactory.getLogger(getClass()))) {
 				this.organizationRepository.save(organization);
 			}
 		}
 		return res;
 	}
 
-	private boolean updateLogo(ResearchOrganization organization, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+	private boolean updateLogo(ResearchOrganization organization, boolean explicitRemove, MultipartFile uploadedFile, Logger logger) throws IOException {
 		final String ext;
 		if (uploadedFile != null) {
 			ext = FileSystem.extension(uploadedFile.getOriginalFilename());
@@ -407,10 +411,11 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		}
 		return updateUploadedFile(explicitRemove, uploadedFile,
 				"Organization logo uploaded at: ", //$NON-NLS-1$
+				logger,
 				it -> organization.setPathToLogo(it),
 				() -> this.fileManager.makeOrganizationLogoFilename(organization.getId(), ext),
-				() -> this.fileManager.deleteOrganizationLogo(organization.getId(), ext),
-				(fn, th) -> this.fileManager.saveImage(fn, uploadedFile));
+				() -> this.fileManager.deleteOrganizationLogo(organization.getId(), ext, logger),
+				(fn, th) -> this.fileManager.saveImage(fn, uploadedFile, logger));
 	}
 
 	/** Link a suborganization to a super organization.
@@ -468,7 +473,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	}
 
 	@Override
-	public EntityEditingContext<ResearchOrganization> startEditing(ResearchOrganization organization) {
+	public EntityEditingContext<ResearchOrganization> startEditing(ResearchOrganization organization, Logger logger) {
 		assert organization != null;
 		// Force initialization of the internal properties that are needed for editing
 		if (organization.getId() != 0l) {
@@ -479,11 +484,11 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				Hibernate.initialize(organization.getSubOrganizations());
 			});
 		}
-		return new EditingContext(organization);
+		return new EditingContext(organization, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> organizations) {
+	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> organizations, Logger logger) {
 		assert organizations != null && !organizations.isEmpty();
 		// Force loading of the linked entities
 		inSession(session -> {
@@ -507,7 +512,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 				}
 			}
 		});
-		return new DeletingContext(organizations);
+		return new DeletingContext(organizations, logger);
 	}
 
 	/** Context for editing a {@link ResearchOrganization}.
@@ -531,16 +536,17 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		/** Constructor.
 		 *
 		 * @param organization the edited organization.
+		 * @param logger the logger to be used.
 		 */
-		EditingContext(ResearchOrganization organization) {
-			super(organization);
+		EditingContext(ResearchOrganization organization, Logger logger) {
+			super(organization, logger);
 			this.pathToLogo = newUploadedFileTracker(organization,
 					ResearchOrganization::getPathToLogo,
 					(id, savedPath) -> {
 						if (!Strings.isNullOrEmpty(savedPath)) {
 							final var ext = FileSystem.extension(savedPath);
 							if (!Strings.isNullOrEmpty(ext)) {
-								ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id.longValue(), ext);
+								ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id.longValue(), ext, logger);
 							}
 						}
 					},
@@ -590,23 +596,23 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 
 		@Override
 		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
-			this.pathToLogo.deleteOrRenameFile(oldId, this.entity);
+			this.pathToLogo.deleteOrRenameFile(oldId, this.entity, getLogger());
 		}
 
 		@Override
 		protected boolean prepareAssociatedFileUpload() throws IOException {
-			return !this.pathToLogo.deleteFile(this.entity);
+			return !this.pathToLogo.deleteFile(this.entity, getLogger());
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToLogo.resetPathMemory(this.entity);
+			this.pathToLogo.resetPathMemory(this.entity, getLogger());
 			this.originalSuperOrganizations = new HashSet<>(this.entity.getSuperOrganizations());
 		}
 
 		@Override
 		public EntityDeletingContext<ResearchOrganization> createDeletionContext() {
-			return ResearchOrganizationService.this.startDeletion(Collections.singleton(this.entity));
+			return ResearchOrganizationService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -626,9 +632,10 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 		/** Constructor.
 		 *
 		 * @param organizations the organizations to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<ResearchOrganization> organizations) {
-			super(organizations);
+		protected DeletingContext(Set<ResearchOrganization> organizations, Logger logger) {
+			super(organizations, logger);
 		}
 
 		@Override
@@ -694,7 +701,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 			ResearchOrganizationService.this.organizationRepository.deleteAllById(getDeletableEntityIdentifiers());
 
 			for (final var id : identifiers) {
-				ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id.longValue());
+				ResearchOrganizationService.this.fileManager.deleteOrganizationLogo(id.longValue(), getLogger());
 			}
 		}
 

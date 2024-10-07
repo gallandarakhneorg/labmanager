@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.conferences.editors;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing a conference editor according to the editing context.
  * 
@@ -36,13 +37,15 @@ public interface ConferenceEditorFactory {
 	/** Replies the editing context for the given conference.
 	 *
 	 * @param conference the conference to be edited.
+	 * @param logger the logger to be used.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<Conference> createContextFor(Conference conference);
+	EntityEditingContext<Conference> createContextFor(Conference conference, Logger logger);
 
 	/** Create an editor that may be used for creating a new conference.
 	 * 
 	 * @param context the editing context for the conference.
+	 * @param logger the logger to be used.
 	 * @return the editor, never {@code null}.
 	 */
 	AbstractEntityEditor<Conference> createAdditionEditor(EntityEditingContext<Conference> context);
@@ -50,16 +53,18 @@ public interface ConferenceEditorFactory {
 	/** Create an editor that may be used for creating a new conference.
 	 * 
 	 * @param conference the conference to be edited.
+	 * @param logger the logger to be used.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Conference> createAdditionEditor(Conference conference) {
-		final var context = createContextFor(conference);
+	default AbstractEntityEditor<Conference> createAdditionEditor(Conference conference, Logger logger) {
+		final var context = createContextFor(conference, logger);
 		return createAdditionEditor(context);
 	}
 
 	/** Create an editor that may be used for updating an existing conference.
 	 * 
 	 * @param context the editing context for the conference.
+	 * @param logger the logger to be used.
 	 * @return the editor, never {@code null}.
 	 */
 	AbstractEntityEditor<Conference> createUpdateEditor(EntityEditingContext<Conference> context);
@@ -67,10 +72,11 @@ public interface ConferenceEditorFactory {
 	/** Create an editor that may be used for creating an exsiting conference.
 	 * 
 	 * @param conference the conference to be edited.
+	 * @param logger the logger to be used.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Conference> createUpdateEditor(Conference conference) {
-		final var context = createContextFor(conference);
+	default AbstractEntityEditor<Conference> createUpdateEditor(Conference conference, Logger logger) {
+		final var context = createContextFor(conference, logger);
 		return createAdditionEditor(context);
 	}
 

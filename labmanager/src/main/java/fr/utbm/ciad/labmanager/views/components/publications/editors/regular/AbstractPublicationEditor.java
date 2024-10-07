@@ -109,7 +109,6 @@ import fr.utbm.ciad.labmanager.views.components.persons.fields.MultiPersonNameFi
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a publication whatever the type of publication.
@@ -257,7 +256,6 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 * @param axisEditorFactory the factory for creating scientific axis editors.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
@@ -270,9 +268,9 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			PersonService personService, PersonEditorFactory personEditorFactory, PersonFieldFactory personFieldFactory,
 			UserService userService, JournalService journalService, JournalEditorFactory journalEditorFactory, JournalFieldFactory journalFieldFactory,
 			ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, ConferenceFieldFactory conferenceFieldFactory, ScientificAxisService axisService,
-			ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ConstructionPropertiesBuilder properties) {
-		super(Publication.class, authenticatedUser, messages, logger,
+		super(Publication.class, authenticatedUser, messages,
 				publicationCreationStatusComputer, context, initialPublicationStatus, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.publication.administration_details") //$NON-NLS-1$
@@ -599,7 +597,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		final var content = ComponentFactory.newColumnForm(2);
 
 		this.uploadPdf = new ServerSideUploadablePdfField(this.fileManager,
-				ext -> this.fileManager.makePdfFilename(getEditedEntity().getId()));
+				ext -> this.fileManager.makePdfFilename(getEditedEntity().getId()),
+				() -> getLogger());
 		this.uploadPdf.setClearButtonVisible(true);
 		content.add(this.uploadPdf, 2);
 
@@ -608,7 +607,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		content.add(this.videoUrl, 1);
 
 		this.uploadAward = new ServerSideUploadablePdfField(this.fileManager,
-				ext -> this.fileManager.makeAwardFilename(getEditedEntity().getId()));
+				ext -> this.fileManager.makeAwardFilename(getEditedEntity().getId()),
+				() -> getLogger());
 		this.uploadAward.setClearButtonVisible(true);
 		content.add(this.uploadAward, 2);
 
@@ -672,7 +672,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	 */
 	protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
 		final var newAxis = new ScientificAxis();
-		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis);
+		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis, getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.membership.scientific_axes.create"), //$NON-NLS-1$
 				editor, false,
@@ -1080,7 +1080,6 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			}
 		}
 
-		@SuppressWarnings("synthetic-access")
 		private void addGeneralFields(Publication publication) {
 			if (publication instanceof AbstractJournalBasedPublication) {
 				if (this.journal == null) {

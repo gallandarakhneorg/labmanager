@@ -91,22 +91,22 @@ public class SingleJournalNameField extends AbstractSingleEntityNameField<Journa
 	 * @param creationTitle the title of the dialog box for creating the journal.
 	 * @param logger the logger for abnormal messages to the lab manager administrator.
 	 */
-	public SingleJournalNameField(JournalService journalService, JournalEditorFactory journalEditorFactory, AuthenticatedUser authenticatedUser, String creationTitle, Logger logger) {
+	public SingleJournalNameField(JournalService journalService, JournalEditorFactory journalEditorFactory,
+			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger) {
 		this(journalService,
 				(newJournal, saver) -> {
-					final var editor = journalEditorFactory.createAdditionEditor(newJournal);
+					final var editor = journalEditorFactory.createAdditionEditor(newJournal, logger);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedJournal) -> saver.accept(changedJournal),
 							null);
 				},
 				(newJournal, saver) -> {
 					try {
-						final var creationContext = journalService.startEditing(newJournal);
+						final var creationContext = journalService.startEditing(newJournal, logger);
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating a journal by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
-							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+						logger.warn("Error when creating a journal: " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(journalService.getMessageSourceAccessor().getMessage("views.journals.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				});

@@ -19,6 +19,53 @@
 
 package fr.utbm.ciad.labmanager.utils.io.bibtex;
 
+import static org.jbibtex.BibTeXEntry.KEY_ADDRESS;
+import static org.jbibtex.BibTeXEntry.KEY_AUTHOR;
+import static org.jbibtex.BibTeXEntry.KEY_BOOKTITLE;
+import static org.jbibtex.BibTeXEntry.KEY_CHAPTER;
+import static org.jbibtex.BibTeXEntry.KEY_CROSSREF;
+import static org.jbibtex.BibTeXEntry.KEY_DOI;
+import static org.jbibtex.BibTeXEntry.KEY_EDITION;
+import static org.jbibtex.BibTeXEntry.KEY_EDITOR;
+import static org.jbibtex.BibTeXEntry.KEY_EPRINT;
+import static org.jbibtex.BibTeXEntry.KEY_HOWPUBLISHED;
+import static org.jbibtex.BibTeXEntry.KEY_INSTITUTION;
+import static org.jbibtex.BibTeXEntry.KEY_JOURNAL;
+import static org.jbibtex.BibTeXEntry.KEY_KEY;
+import static org.jbibtex.BibTeXEntry.KEY_MONTH;
+import static org.jbibtex.BibTeXEntry.KEY_NOTE;
+import static org.jbibtex.BibTeXEntry.KEY_NUMBER;
+import static org.jbibtex.BibTeXEntry.KEY_ORGANIZATION;
+import static org.jbibtex.BibTeXEntry.KEY_PAGES;
+import static org.jbibtex.BibTeXEntry.KEY_PUBLISHER;
+import static org.jbibtex.BibTeXEntry.KEY_SCHOOL;
+import static org.jbibtex.BibTeXEntry.KEY_SERIES;
+import static org.jbibtex.BibTeXEntry.KEY_TITLE;
+import static org.jbibtex.BibTeXEntry.KEY_TYPE;
+import static org.jbibtex.BibTeXEntry.KEY_URL;
+import static org.jbibtex.BibTeXEntry.KEY_VOLUME;
+import static org.jbibtex.BibTeXEntry.KEY_YEAR;
+import static org.jbibtex.BibTeXEntry.TYPE_ARTICLE;
+import static org.jbibtex.BibTeXEntry.TYPE_BOOK;
+import static org.jbibtex.BibTeXEntry.TYPE_INCOLLECTION;
+import static org.jbibtex.BibTeXEntry.TYPE_INPROCEEDINGS;
+import static org.jbibtex.BibTeXEntry.TYPE_MANUAL;
+import static org.jbibtex.BibTeXEntry.TYPE_MASTERSTHESIS;
+import static org.jbibtex.BibTeXEntry.TYPE_MISC;
+import static org.jbibtex.BibTeXEntry.TYPE_PHDTHESIS;
+import static org.jbibtex.BibTeXEntry.TYPE_TECHREPORT;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceUtils;
@@ -26,32 +73,47 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
-import fr.utbm.ciad.labmanager.data.publication.type.*;
+import fr.utbm.ciad.labmanager.data.publication.type.Book;
+import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
+import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
+import fr.utbm.ciad.labmanager.data.publication.type.JournalEdition;
+import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
+import fr.utbm.ciad.labmanager.data.publication.type.KeyNote;
+import fr.utbm.ciad.labmanager.data.publication.type.MiscDocument;
+import fr.utbm.ciad.labmanager.data.publication.type.Patent;
+import fr.utbm.ciad.labmanager.data.publication.type.Report;
+import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PrePublicationFactory;
-import fr.utbm.ciad.labmanager.services.publication.type.*;
+import fr.utbm.ciad.labmanager.services.publication.type.BookChapterService;
+import fr.utbm.ciad.labmanager.services.publication.type.BookService;
+import fr.utbm.ciad.labmanager.services.publication.type.ConferencePaperService;
+import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
+import fr.utbm.ciad.labmanager.services.publication.type.MiscDocumentService;
+import fr.utbm.ciad.labmanager.services.publication.type.ReportService;
+import fr.utbm.ciad.labmanager.services.publication.type.ThesisService;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
-import org.jbibtex.*;
+import org.jbibtex.BibTeXDatabase;
+import org.jbibtex.BibTeXEntry;
+import org.jbibtex.BibTeXFormatter;
+import org.jbibtex.BibTeXParser;
+import org.jbibtex.CharacterFilterReader;
+import org.jbibtex.DigitStringValue;
+import org.jbibtex.Key;
+import org.jbibtex.LaTeXParser;
+import org.jbibtex.StringValue;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Stream;
-
-import static org.jbibtex.BibTeXEntry.*;
 
 /** Implementation of the utilities for BibTeX based on the JBibtex library.
  * 
@@ -793,7 +855,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	@Override
 	public void exportPublications(Writer output, Collection<? extends Publication> publications, ExporterConfigurator configurator,
-			Progression progression) throws IOException {
+			Progression progression, Logger logger) throws IOException {
 		progression.setProperties(0, 0, 100, false);
 		final var database = createDatabase(publications, configurator, progression.subTask(95));
 		final var bibtexFormatter = new BibTeXFormatter();

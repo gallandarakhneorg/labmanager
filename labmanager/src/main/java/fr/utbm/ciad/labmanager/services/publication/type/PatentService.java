@@ -50,6 +50,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PatentService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = -5567507639202863109L;
+
 	private PatentRepository repository;
 
 	/** Constructor for injector.

@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.utils.io.UnclosableStream;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -95,14 +96,15 @@ public class DatabaseToZipExporter {
 	/** Start the exporting process to ZIP.
 	 *
 	 * @param locale the locale to use for progression messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progress the progression indicator.
 	 * @return the tool for finalizing the export to ZIP.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	public ZipExporter startExportFromDatabase(Locale locale, Progression progress) throws Exception {
+	public ZipExporter startExportFromDatabase(Locale locale, Logger logger, Progression progress) throws Exception {
 		assert progress != null;
 		progress.setProperties(0, 0, 100, false);
-		final var content = this.jsonExporter.exportFromDatabase(locale, progress.subTask(TWENTY));
+		final var content = this.jsonExporter.exportFromDatabase(locale, logger, progress.subTask(TWENTY));
 		return new ZipExporter(content, locale, progress.subTask(EIGHTY));
 	}
 

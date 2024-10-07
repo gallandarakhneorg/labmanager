@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEd
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.EmbeddedOrganizationEditor;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.OrganizationCreationStatusComputer;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -86,8 +87,8 @@ public class DefaultOrganizationEditorFactory implements OrganizationEditorFacto
 	}
 
 	@Override
-	public EntityEditingContext<ResearchOrganization> createContextFor(ResearchOrganization organization) {
-		return this.organizationService.startEditing(organization);
+	public EntityEditingContext<ResearchOrganization> createContextFor(ResearchOrganization organization, Logger logger) {
+		return this.organizationService.startEditing(organization, logger);
 	}
 	
 	@Override

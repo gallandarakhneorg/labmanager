@@ -25,11 +25,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.views.StandardScientificAxisListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -47,21 +46,21 @@ public class ScientificAxesListView extends StandardScientificAxisListView imple
 
 	private static final long serialVersionUID = 4918450030888881030L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScientificAxesListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param axisService the service for accessing the scientific axes.
 	 * @param axisEditorFactory the factory for creating the scientific axis editors.
 	 */
 	public ScientificAxesListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired ScientificAxisService axisService,
 			@Autowired ScientificAxisEditorFactory axisEditorFactory) {
-		super(authenticatedUser, messages, axisService, axisEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, axisService, axisEditorFactory);
 	}
 
 	@Override

@@ -19,6 +19,13 @@
 
 package fr.utbm.ciad.labmanager.services.admin.carnot;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
@@ -27,7 +34,12 @@ import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
-import fr.utbm.ciad.labmanager.data.project.*;
+import fr.utbm.ciad.labmanager.data.project.Project;
+import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
+import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
+import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
+import fr.utbm.ciad.labmanager.data.project.ProjectMember;
+import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
 import fr.utbm.ciad.labmanager.data.publication.PublicationCategory;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
@@ -49,13 +61,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
 /** A generator of an Excel file that contains the annual activity report with IC ARTS standard.
  * 
  * @author $Author: sgalland$
@@ -66,6 +71,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class IcartsActivityReportGenerator extends AbstractComponent {
+
+	private static final long serialVersionUID = 5999486952125784994L;
 
 	private SupervisionService supervisionService;
 

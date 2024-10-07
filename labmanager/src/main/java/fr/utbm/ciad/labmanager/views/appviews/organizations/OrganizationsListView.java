@@ -26,11 +26,10 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.views.StandardOrganizationListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -48,13 +47,12 @@ public class OrganizationsListView extends StandardOrganizationListView implemen
 
 	private static final long serialVersionUID = -6870101518355964055L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationsListView.class);
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of filenames for uploaded files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param organizationService the service for accessing the organizations.
 	 * @param organizationEditorFactory the factory of the organization editors.
 	 */
@@ -62,9 +60,10 @@ public class OrganizationsListView extends StandardOrganizationListView implemen
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired OrganizationEditorFactory organizationEditorFactory) {
-		super(fileManager, authenticatedUser, messages, organizationService, organizationEditorFactory, LOGGER);
+		super(fileManager, authenticatedUser, messages, loggerFactory, organizationService, organizationEditorFactory);
 	}
 
 	@Override

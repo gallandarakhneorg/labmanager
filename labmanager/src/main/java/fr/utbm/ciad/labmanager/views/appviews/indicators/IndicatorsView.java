@@ -19,7 +19,9 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.indicators;
 
-import com.vaadin.flow.component.Composite;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -30,10 +32,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.annotation.security.PermitAll;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** Enable to show the indicators.
  * 
@@ -47,13 +49,16 @@ import java.util.List;
 @Route(value = "indicators", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class IndicatorsView extends Composite<VerticalLayout> {
+public class IndicatorsView extends AbstractLoggerComposite<VerticalLayout> {
 
 	private static final long serialVersionUID = 738063190104767506L;
 
 	/** Constructor.
+	 *
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-    public IndicatorsView() {
+    public IndicatorsView(@Autowired ContextualLoggerFactory loggerFactory) {
+    	super(loggerFactory);
         final TextField textField = new TextField();
         TextField textField2 = new TextField();
         final ComboBox<?> comboBox = new ComboBox<>();

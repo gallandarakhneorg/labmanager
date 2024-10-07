@@ -26,11 +26,10 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.views.StandardProjectListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -48,22 +47,23 @@ public class ProjectsListView extends StandardProjectListView implements HasDyna
 
 	private static final long serialVersionUID = 5681894363702948200L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectsListView.class);
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the filenames for the uploaded files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param projectService the service for accessing the projects.
 	 * @param projectEditorFactory the factory for creating the project editors.
 	 */
 	public ProjectsListView(
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired ProjectService projectService,
 			@Autowired ProjectEditorFactory projectEditorFactory) {
-		super(fileManager, authenticatedUser, messages, projectService, projectEditorFactory, LOGGER);
+		super(fileManager, authenticatedUser, messages, loggerFactory, projectService, projectEditorFactory);
 	}
 
 	@Override

@@ -24,8 +24,6 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of scientific axis information that may be embedded. This editor does not provide
@@ -42,8 +40,6 @@ public final class EmbeddedScientificAxisEditor extends AbstractScientificAxisEd
 
 	private static final long serialVersionUID = -4704487014166974489L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedScientificAxisEditor.class);
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the scientific axis.
@@ -54,7 +50,7 @@ public final class EmbeddedScientificAxisEditor extends AbstractScientificAxisEd
 	public EmbeddedScientificAxisEditor(EntityEditingContext<ScientificAxis> context,
 			EntityCreationStatusComputer<ScientificAxis> axisCreationStatusComputer,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, axisCreationStatusComputer, false, authenticatedUser, messages, LOGGER,
+		super(context, axisCreationStatusComputer, false, authenticatedUser, messages,
 				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}

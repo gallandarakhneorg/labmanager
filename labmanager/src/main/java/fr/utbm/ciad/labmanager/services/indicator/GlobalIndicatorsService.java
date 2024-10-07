@@ -19,6 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.indicator;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import fr.utbm.ciad.labmanager.components.indicators.Indicator;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicators;
@@ -27,17 +35,10 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Service related to the global indicators.
  * 
@@ -49,6 +50,8 @@ import java.util.stream.Stream;
  */
 @Service
 public class GlobalIndicatorsService extends AbstractService {
+
+	private static final long serialVersionUID = -4318074626202678598L;
 
 	private static final int MAX_CACHE_AGE = 7;
 	
@@ -82,13 +85,14 @@ public class GlobalIndicatorsService extends AbstractService {
 
 	/** Ensure that the global indicators' object is created.
 	 *
+	 * @param logger the logger to be used.
 	 * @return the global indicators' object.
 	 */
-	public GlobalIndicators getGlobalIndicatorsNeverNull() {
+	public GlobalIndicators getGlobalIndicatorsNeverNull(Logger logger) {
 		final var opt = this.indicatorRepository.findAll().stream().findFirst();
 		GlobalIndicators gi;
 		if (opt.isEmpty()) {
-			gi = createGlobalIndicators();
+			gi = createGlobalIndicators(logger);
 		} else {
 			gi = opt.get();
 		}
@@ -109,9 +113,11 @@ public class GlobalIndicatorsService extends AbstractService {
 
 	/** Create the global indicators' object.
 	 *
+	 * @param logger the logger to be used.
 	 * @return a new global indicators' object.
 	 */
-	protected GlobalIndicators createGlobalIndicators() {
+	protected GlobalIndicators createGlobalIndicators(Logger logger) {
+		logger.info("Creating global indicators into the database"); //$NON-NLS-1$
 		final GlobalIndicators gi = new GlobalIndicators();
 		this.indicatorRepository.save(gi);
 		return gi;
@@ -119,27 +125,30 @@ public class GlobalIndicatorsService extends AbstractService {
 
 	/** Replies all the visible global indicators in the order that they should be displayed.
 	 *
+	 * @param logger the logger to be used.
 	 * @return the visible indicators.
 	 */
-	public List<? extends Indicator> getVisibleIndicators() {
-		return getVisibleIndicatorStream().collect(Collectors.toList());
+	public List<? extends Indicator> getVisibleIndicators(Logger logger) {
+		return getVisibleIndicatorStream(logger).collect(Collectors.toList());
 	}
 
 	/** Replies in a stream all the visible global indicators in the order that they should be displayed.
 	 *
+	 * @param logger the logger to be used.
 	 * @return the visible indicators in a stream.
 	 */
-	public Stream<? extends Indicator> getVisibleIndicatorStream() {
-		final var indicatorKeys = getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList();		
+	public Stream<? extends Indicator> getVisibleIndicatorStream(Logger logger) {
+		final var indicatorKeys = getGlobalIndicatorsNeverNull(logger).getVisibleIndicatorKeyList();		
 		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).filter(it -> it != null);
 	}
 
 	/** Replies all the invisible global indicators.
 	 *
+	 * @param logger the logger to be used.
 	 * @return the invisible indicators.
 	 */
-	public List<? extends Indicator> getInvisibleIndicators() {
-		final var visibles = new TreeSet<>(getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList());
+	public List<? extends Indicator> getInvisibleIndicators(Logger logger) {
+		final var visibles = new TreeSet<>(getGlobalIndicatorsNeverNull(logger).getVisibleIndicatorKeyList());
 		if (visibles.isEmpty()) {
 			return this.allIndicators;
 		}
@@ -151,8 +160,9 @@ public class GlobalIndicatorsService extends AbstractService {
 	/** Save or create the global indicators.
 	 *
 	 * @param visibleIndicators the list of th keys of the visible indicators.
+	 * @param logger the logger to be used.
 	 */
-	public void setVisibleIndicators(List<String> visibleIndicators) {
+	public void setVisibleIndicators(List<String> visibleIndicators, Logger logger) {
 		final var keys = new StringBuilder();
 		for (final String key : visibleIndicators) {
 			if (keys.length() > 0) {
@@ -160,29 +170,32 @@ public class GlobalIndicatorsService extends AbstractService {
 			}
 			keys.append(key);
 		}
-		setVisibleIndicators(keys.toString());
+		setVisibleIndicators(keys.toString(), logger);
 	}
 
 	/** Save or create the global indicators.
 	 *
 	 * @param visibleIndicators the list of th keys of the visible indicators.
+	 * @param logger the logger to be used.
 	 */
-	public void setVisibleIndicators(String visibleIndicators) {
-		final var gi = getGlobalIndicatorsNeverNull();
+	public void setVisibleIndicators(String visibleIndicators, Logger logger) {
+		final var gi = getGlobalIndicatorsNeverNull(logger);
 		gi.setVisibleIndicatorKeys(visibleIndicators);
 		this.indicatorRepository.save(gi);
+		logger.info("Global indicators are saved into the database"); //$NON-NLS-1$
 	}
 
 	/** Replies the values of the visibles indicators, without reading the cache.
 	 * The values are computed on-the-fly without reading any cache system.
 	 *
 	 * @param organization the organization for which the indicators must be computed.
+	 * @param logger the logger to use for put a message in the log.
 	 * @return the map from the indicator keys to the values.
 	 */
-	public Map<String, Number> getVisibleIndicatorsValues(ResearchOrganization organization) {
-		return getVisibleIndicatorStream().collect(Collectors.toConcurrentMap(
+	public Map<String, Number> getVisibleIndicatorsValues(ResearchOrganization organization, Logger logger) {
+		return getVisibleIndicatorStream(logger).collect(Collectors.toConcurrentMap(
 				it -> it.getKey(),
-				it -> it.getNumericValue(organization)));
+				it -> it.getNumericValue(organization, logger)));
 	}
 
 	/** Replies the indicators and their associated values of the visibles indicators, without reading the cache.
@@ -191,10 +204,11 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @param organization the organization for which the indicators must be computed.
 	 * @param useCache indicates if the value cache must be used or not. If this flag is {@code false}, the values are neither
 	 *     read from the cache system nor written back in the cache system.
+	 * @param logger the logger to use for put a message in the log.
 	 * @return the map from the indicator keys to the values.
 	 */
-	public List<Pair<? extends Indicator, Number>> getVisibleIndicatorsWithValues(ResearchOrganization organization, boolean useCache) {
-		final var gi = getGlobalIndicatorsNeverNull();
+	public List<Pair<? extends Indicator, Number>> getVisibleIndicatorsWithValues(ResearchOrganization organization, boolean useCache, Logger logger) {
+		final var gi = getGlobalIndicatorsNeverNull(logger);
 		if (useCache) {
 			final Map<String, Number> cache;
 			if (gi.getCacheAge() > MAX_CACHE_AGE) {
@@ -204,11 +218,11 @@ public class GlobalIndicatorsService extends AbstractService {
 				cache = gi.getCachedValues();
 			}
 			assert cache != null;
-			return getVisibleIndicatorStream()
+			return getVisibleIndicatorStream(logger)
 				.map(it -> {
 					var value = cache.get(it.getKey());
 					if (value == null) {
-						value = it.getNumericValue(organization);
+						value = it.getNumericValue(organization, logger);
 						gi.setCachedValues(it.getKey(), value);
 						this.indicatorRepository.save(gi);
 					}
@@ -216,18 +230,21 @@ public class GlobalIndicatorsService extends AbstractService {
 				})
 				.collect(Collectors.toList());
 		}
-		return getVisibleIndicatorStream()
-				.map(it -> Pair.of(it, it.getNumericValue(organization)))
+		return getVisibleIndicatorStream(logger)
+				.map(it -> Pair.of(it, it.getNumericValue(organization, logger)))
 				.collect(Collectors.toList());
 	}
 
 	/** Clear the cache content.
+	 *
+	 * @param logger the logger to be used.
 	 */
-	public void clearCache() {
+	public void clearCache(Logger logger) {
 		final var gi = getGlobalIndicatorsOrNull();
 		if (gi != null) {
 			gi.resetCachedValues();
 			this.indicatorRepository.save(gi);
+			logger.info("Global indicators have been cleared from the database"); //$NON-NLS-1$
 		}
 	}
 

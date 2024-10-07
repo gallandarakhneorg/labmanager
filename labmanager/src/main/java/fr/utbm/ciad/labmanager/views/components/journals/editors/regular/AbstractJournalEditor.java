@@ -50,7 +50,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a scientific journal.
@@ -107,7 +106,6 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 	 * @param journalService the service to have access to all the journal entities.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
@@ -115,8 +113,8 @@ public abstract class AbstractJournalEditor extends AbstractEntityEditor<Journal
 			EntityCreationStatusComputer<Journal> journalCreationStatusComputer,
 			boolean relinkEntityWhenSaving, JournalService journalService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			Logger logger, ConstructionPropertiesBuilder properties) {
-		super(Journal.class, authenticatedUser, messages, logger,
+			ConstructionPropertiesBuilder properties) {
+		super(Journal.class, authenticatedUser, messages,
 				journalCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.journals.administration_details") //$NON-NLS-1$

@@ -19,18 +19,20 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
-import fr.utbm.ciad.labmanager.data.project.Project;
-import org.arakhne.afc.vmutil.FileSystem;
-import org.arakhne.afc.vmutil.Resources;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
+import javax.imageio.ImageIO;
+
+import fr.utbm.ciad.labmanager.data.project.Project;
+import org.arakhne.afc.vmutil.FileSystem;
+import org.arakhne.afc.vmutil.Resources;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /** Utilities for managing the project images. This implementation is dedicated to the WordPress service
  * of the lab.
@@ -44,6 +46,8 @@ import java.net.URL;
 @Component
 @Primary
 public class DefaultProjectImageManager extends AbstractFileManager implements ProjectImageManager {
+
+	private static final long serialVersionUID = -7695322075234865031L;
 
 	private static final String THUMBNAIL_FOLDER_NAME = "ProjectThumbnails"; //$NON-NLS-1$
 
@@ -69,11 +73,11 @@ public class DefaultProjectImageManager extends AbstractFileManager implements P
 	}
 
 	@Override
-	public String getThumbnailPath(Project project) {
+	public String getThumbnailPath(Project project, Logger logger) {
 		try {
 			return getThumbnailPath(project, true);
 		} catch (IOException ex) {
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			logger.error(ex.getLocalizedMessage(), ex);
 			return null;
 		}
 	}

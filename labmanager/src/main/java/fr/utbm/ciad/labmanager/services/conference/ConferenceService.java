@@ -56,6 +56,8 @@ import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -77,6 +79,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class ConferenceService extends AbstractEntityService<Conference> {
+
+	private static final long serialVersionUID = -35096440379483385L;
 
 	private final ConferenceRepository conferenceRepository;
 
@@ -115,16 +119,18 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	/** Save the given conference or create a JPA entity if the given object is a fake.
 	 *
 	 * @param conference the conference entity to save.
+	 * @param logger the logger to be used.
 	 * @return the saved entity.
 	 * @see IdentifiableEntity#isFakeEntity()
 	 * @since 4.0
 	 */
-	public Conference saveOrCreateIfFake(Conference conference) {
+	public Conference saveOrCreateIfFake(Conference conference, Logger logger) {
 		var sconference = conference;
 		if (sconference != null) {
 			if (sconference.isFakeEntity()) {
 				sconference = new Conference(sconference);
 			}
+			logger.info("Saving conference into the database: " + sconference.toString()); //$NON-NLS-1$
 			this.conferenceRepository.save(sconference);
 		}
 		return sconference;
@@ -267,7 +273,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 					// Silent
 				}
 			}
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			//getLogger().error(ex.getLocalizedMessage(), ex);
 			throw ex;
 		}
 		return Optional.of(conference);
@@ -430,7 +436,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		try {
 			return this.corePortal.getConferenceUrl(id);
 		} catch (Throwable ex) {
-			getLogger().warn(ex.getLocalizedMessage(), ex);
+			//getLogger().warn(ex.getLocalizedMessage(), ex);
 			return null;
 		}
 	}
@@ -454,7 +460,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 				if (treatedIdentifiers.add(conference)) {
 					progress.setComment(getMessage(locale, "conferenceService.GetConferenceIndicatorUpdatesFor", conference.getNameOrAcronym())); //$NON-NLS-1$
 					final Map<String, Object> newConferenceIndicators = new HashMap<>();
-					readCorePortalIndicators(session, year, conference, newConferenceIndicators);
+					readCorePortalIndicators(session, year, conference, newConferenceIndicators, LoggerFactory.getLogger(getClass()));
 					if (!newConferenceIndicators.isEmpty()) {
 						callback.accept(conference, newConferenceIndicators);
 					}
@@ -465,8 +471,8 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		});
 	}
 
-	private void readCorePortalIndicators(Session session, int year, Conference conference, Map<String, Object> newIndicators) {
-		getLogger().info("Get CORE indicators for " + conference.getNameOrAcronym()); //$NON-NLS-1$
+	private void readCorePortalIndicators(Session session, int year, Conference conference, Map<String, Object> newIndicators, Logger logger) {
+		logger.info("Get CORE indicators for " + conference.getNameOrAcronym()); //$NON-NLS-1$
 		session.beginTransaction();
 		final String id = conference.getCoreId();
 		if (!Strings.isNullOrEmpty(id)) {
@@ -474,7 +480,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 			try {
 				indicators = this.corePortal.getConferenceRanking(year, id, null);
 			} catch (Throwable ex) {
-				getLogger().debug(ex.getLocalizedMessage(), ex);
+				logger.debug(ex.getLocalizedMessage(), ex);
 				indicators = null;
 			}
 			if (indicators != null) {
@@ -492,12 +498,15 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 *
 	 * @param referenceYear the reference year.
 	 * @param conferenceUpdates the streams that describes the updates.
+	 * @param logger the logger that must be used.
 	 * @param progress the progression monitor.
 	 * @throws Exception if the journal information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional
-	public void updateConferenceIndicators(int referenceYear, Collection<ConferenceRankingUpdateInformation> conferenceUpdates, Progression progress) {
+	public void updateConferenceIndicators(int referenceYear, Collection<ConferenceRankingUpdateInformation> conferenceUpdates,
+			Logger logger, Progression progress) {
+		logger.info("Updating conferences' ranking indicators for year " + referenceYear); //$NON-NLS-1$
 		progress.setProperties(0, 0, conferenceUpdates.size() + 1, false);
 		final var conferences = new ArrayList<Conference>();
 		conferenceUpdates.forEach(info -> {
@@ -542,13 +551,15 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	 *
 	 * @param referenceYear the reference year.
 	 * @param conferences the list of conferences for which the indicators should be downloaded.
+	 * @param logger the logger to be used.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the conference ranking information.
 	 * @throws Exception if the conference information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadConferenceIndicatorsFromCore(int referenceYear, List<Conference> conferences, Progression progress, ConferenceRankingConsumer consumer) throws Exception {
+	public void downloadConferenceIndicatorsFromCore(int referenceYear, List<Conference> conferences, Logger logger, Progression progress, ConferenceRankingConsumer consumer) throws Exception {
+		logger.info("Downloading the conferences' ranking indicators from the CORE Portal for year " + referenceYear); //$NON-NLS-1$
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, conferences.size() * 2, false);
 		for (final var conference : conferences) {
@@ -575,8 +586,9 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 	}
 
 	@Override
-	public EntityEditingContext<Conference> startEditing(Conference conference) {
+	public EntityEditingContext<Conference> startEditing(Conference conference, Logger logger) {
 		assert conference != null;
+		logger.info("Starting the edition of the conference " + conference); //$NON-NLS-1$
 		// Force loading of the quality indicators that may be edited at the same time as the rest of the conference properties
 		inSession(session -> {
 			if (conference.getId() != 0l) {
@@ -584,12 +596,13 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 				Hibernate.initialize(conference.getQualityIndicators());
 			}
 		});
-		return new EditingContext(conference);
+		return new EditingContext(conference, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Conference> startDeletion(Set<Conference> conferences) {
+	public EntityDeletingContext<Conference> startDeletion(Set<Conference> conferences, Logger logger) {
 		assert conferences != null && !conferences.isEmpty();
+		logger.info("Starting the deletion of the conferences " + conferences); //$NON-NLS-1$
 		// Force loading of the publishers papers and quality indicators
 		inSession(session -> {
 			for (final var conference : conferences) {
@@ -600,7 +613,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 				}
 			}
 		});
-		return new DeletingContext(conferences);
+		return new DeletingContext(conferences, logger);
 	}
 
 	/** Context for editing a {@link Conference}.
@@ -620,19 +633,21 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		/** Constructor.
 		 *
 		 * @param conference the edited conference.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(Conference conference) {
-			super(conference);
+		protected EditingContext(Conference conference, Logger logger) {
+			super(conference, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = ConferenceService.this.conferenceRepository.save(this.entity);
+			getLogger().info("Saved conference: " + this.entity); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<Conference> createDeletionContext() {
-			return ConferenceService.this.startDeletion(Collections.singleton(this.entity));
+			return ConferenceService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -652,9 +667,10 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		/** Constructor.
 		 *
 		 * @param conferences the conferences to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Conference> conferences) {
-			super(conferences);
+		protected DeletingContext(Set<Conference> conferences, Logger logger) {
+			super(conferences, logger);
 		}
 
 		@Override
@@ -670,6 +686,7 @@ public class ConferenceService extends AbstractEntityService<Conference> {
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			// Remove the quality indicators
+			getLogger().info("Removing the conferences' indicators: " + identifiers); //$NON-NLS-1$
 			final List<Conference> updatedConferences = new ArrayList<>();
 			for (final var conference : getEntities())  {
 				if (!conference.getQualityIndicators().isEmpty()) {

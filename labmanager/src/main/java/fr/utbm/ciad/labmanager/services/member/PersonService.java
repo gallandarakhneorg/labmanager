@@ -61,6 +61,8 @@ import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -79,6 +81,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class PersonService extends AbstractEntityService<Person> {
+
+	private static final long serialVersionUID = 6762189546771063987L;
 
 	private PublicationRepository publicationRepository;
 
@@ -248,13 +252,14 @@ public class PersonService extends AbstractEntityService<Person> {
 
 	/** Create a person in the database by providing only the name of the person.
 	 *
+	 * @param logger the logger to be used for printing out the messages in the app log.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @return the person in the database.
 	 * @see #createPerson(String, String, Gender, String, String, String, String, String, String, String, String, String, String, String, String, String, WebPageNaming, int, int)
 	 */
-	public Person createPerson(String firstName, String lastName) {
-		return createPerson(
+	public Person createPerson(Logger logger, String firstName, String lastName) {
+		return createPerson(logger,
 				false,
 				firstName, lastName,
 				Gender.NOT_SPECIFIED,
@@ -287,6 +292,7 @@ public class PersonService extends AbstractEntityService<Person> {
 
 	/** Create a person in the database.
 	 *
+	 * @param logger the logger to be used for printing out the messages in the app log.
 	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
@@ -320,7 +326,7 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @see #createPerson(String, String)
 	 * @see Gender
 	 */
-	public Person createPerson(boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
+	public Person createPerson(Logger logger, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
 			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
 			String scholarId, String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
@@ -356,6 +362,7 @@ public class PersonService extends AbstractEntityService<Person> {
 		res.setScopusCitations(scopusCitations);
 		res.setValidated(validated);
 		this.personRepository.save(res);
+		logger.info("Created person in database: " + res); //$NON-NLS-1$
 		return res;
 	}
 
@@ -363,16 +370,19 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * This function uses the {@link WosPlatform} tool for downloading the indicators.
 	 *
 	 * @param persons the list of persons for who the indicators should be downloaded.
+	 * @param logger the logger to be used.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the person ranking information.
 	 * @throws Exception if the person information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadPersonIndicatorsFromWoS(List<Person> persons, Progression progress, PersonRankingConsumer consumer) {
+	public void downloadPersonIndicatorsFromWoS(List<Person> persons, Logger logger,
+			Progression progress, PersonRankingConsumer consumer) {
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, persons.size() * 2, false);
 		for (final var person : persons) {
+			logger.info("Downloading the person's ranking indicators from WoS for: " + person); //$NON-NLS-1$
 			progress0.setComment(person.getFullName());
 			final var wosURL = person.getResearcherIdURL();
 			if (wosURL != null) {
@@ -404,16 +414,19 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * This function uses the {@link ScopusPlatform} tool for downloading the indicators.
 	 *
 	 * @param persons the list of persons for who the indicators should be downloaded.
+	 * @param logger the logger to be used.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the person ranking information.
 	 * @throws Exception if the person information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadPersonIndicatorsFromScopus(List<Person> persons, Progression progress, PersonRankingConsumer consumer) {
+	public void downloadPersonIndicatorsFromScopus(List<Person> persons, Logger logger,
+			Progression progress, PersonRankingConsumer consumer) {
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, persons.size() * 2, false);
 		for (final var person : persons) {
+			logger.info("Downloading the person's ranking indicators from Scopus for: " + person); //$NON-NLS-1$
 			progress0.setComment(person.getFullName());
 			final var scopusId = person.getScopusId();
 			if (!Strings.isNullOrEmpty(scopusId)) {
@@ -445,16 +458,19 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * This function uses the {@link GoogleScholarPlatform} tool for downloading the indicators.
 	 *
 	 * @param persons the list of persons for who the indicators should be downloaded.
+	 * @param logger the logger to be used.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the person ranking information.
 	 * @throws Exception if the person information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadPersonIndicatorsFromGoogleScholar(List<Person> persons, Progression progress, PersonRankingConsumer consumer) {
+	public void downloadPersonIndicatorsFromGoogleScholar(List<Person> persons, Logger logger,
+			Progression progress, PersonRankingConsumer consumer) {
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, persons.size() * 2, false);
 		for (final var person : persons) {
+			logger.info("Downloading the person's ranking indicators from Gogle Scholar for: " + person); //$NON-NLS-1$
 			progress0.setComment(person.getFullName());
 			final var gsURL = person.getGoogleScholarURL();
 			if (gsURL != null) {
@@ -485,19 +501,22 @@ public class PersonService extends AbstractEntityService<Person> {
 	/** Update the persons indicators according to the given inputs.
 	 *
 	 * @param personUpdates the streams that describes the updates.
-	 * @param progress the progression monitor.
 	 * @param updateWos indicates if the Web-of-Science indicators are updated.
 	 * @param updateScopus indicates if the Scopus indicators are updated.
 	 * @param updateGoogleScholar indicates if the Google Scholar are updated.
+	 * @param logger the logger to be used.
+	 * @param progress the progression monitor.
 	 * @throws Exception if the journal information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional
-	public void updatePersonIndicators(Collection<PersonRankingUpdateInformation> personUpdates, boolean updateWos, boolean updateScopus, boolean updateGoogleScholar, Progression progress) {
+	public void updatePersonIndicators(Collection<PersonRankingUpdateInformation> personUpdates, boolean updateWos, boolean updateScopus,
+			boolean updateGoogleScholar, Logger logger, Progression progress) {
 		progress.setProperties(0, 0, personUpdates.size() + 1, false);
 		final var persons = new ArrayList<Person>();
 		personUpdates.forEach(info -> {
 			final var person = info.person();
+			logger.info("Updating the person's ranking indicators in database for: " + person); //$NON-NLS-1$
 			progress.setComment(person.getFullName());
 			if (updateWos) {
 				if (info.wosHindex() != null) {
@@ -859,17 +878,18 @@ public class PersonService extends AbstractEntityService<Person> {
 		final var memberships = organization.getDirectOrganizationMemberships();
 		final var progress = progression == null ? new DefaultProgression() : progression;
 		progress.setProperties(0, 0, memberships.size(), false);
+		final var logger = LoggerFactory.getLogger(getClass());
 		for (final var membership : memberships) {
 			final var person = membership.getPerson();
 			final var subTasks = progress.subTask(1, 0, 3);
 			if (treatedIdentifiers.add(person)) {
 				progress.setComment(getMessage(locale, "personService.GetPersonIndicatorUpdatesFor", person.getFullNameWithLastNameFirst())); //$NON-NLS-1$
 				final var newPersonIndicators = new HashMap<String, Object>();
-				readGoogleScholarIndicators(person, newPersonIndicators);
+				readGoogleScholarIndicators(person, newPersonIndicators, logger);
 				subTasks.increment();
-				readScopusIndicators(person, newPersonIndicators);
+				readScopusIndicators(person, newPersonIndicators, logger);
 				subTasks.increment();
-				readWosIndicators(person, newPersonIndicators);
+				readWosIndicators(person, newPersonIndicators, logger);
 				if (!newPersonIndicators.isEmpty()) {
 					callback.accept(person, newPersonIndicators);
 				}
@@ -879,8 +899,8 @@ public class PersonService extends AbstractEntityService<Person> {
 		progress.end();
 	}
 
-	private void readGoogleScholarIndicators(Person person, Map<String, Object> newIndicators) {
-		getLogger().info("Get Google Scholar indicators for " + person.getFullName()); //$NON-NLS-1$
+	private void readGoogleScholarIndicators(Person person, Map<String, Object> newIndicators, Logger logger) {
+		logger.info("Get Google Scholar indicators for " + person); //$NON-NLS-1$
 		final var hindexEnabled = person.getGoogleScholarHindex() > 0;
 		final var citationsEnabled = person.getGoogleScholarCitations() > 0;
 		if (!Strings.isNullOrEmpty(person.getGoogleScholarId()) && (hindexEnabled || citationsEnabled)) {
@@ -909,8 +929,8 @@ public class PersonService extends AbstractEntityService<Person> {
 		}
 	}
 
-	private void readScopusIndicators(Person person, Map<String, Object> newIndicators) {
-		getLogger().info("Get Scopus indicators for " + person.getFullName()); //$NON-NLS-1$
+	private void readScopusIndicators(Person person, Map<String, Object> newIndicators, Logger logger) {
+		logger.info("Get Scopus indicators for " + person); //$NON-NLS-1$
 		final var hindexEnabled = person.getScopusHindex() > 0;
 		final var citationsEnabled = person.getScopusCitations() > 0;
 		if (!Strings.isNullOrEmpty(person.getScopusId()) && (hindexEnabled || citationsEnabled)) {
@@ -939,8 +959,8 @@ public class PersonService extends AbstractEntityService<Person> {
 		}
 	}
 
-	private void readWosIndicators(Person person, Map<String, Object> newIndicators) {
-		getLogger().info("Get WoS indicators for " + person.getFullName()); //$NON-NLS-1$
+	private void readWosIndicators(Person person, Map<String, Object> newIndicators, Logger logger) {
+		logger.info("Get WoS indicators for " + person); //$NON-NLS-1$
 		final var hindexEnabled = person.getWosHindex() > 0;
 		final var citationsEnabled = person.getWosCitations() > 0;
 		if (!Strings.isNullOrEmpty(person.getResearcherId()) && (hindexEnabled || citationsEnabled)) {
@@ -1019,14 +1039,16 @@ public class PersonService extends AbstractEntityService<Person> {
 	}
 
 	@Override
-	public EntityEditingContext<Person> startEditing(Person person) {
+	public EntityEditingContext<Person> startEditing(Person person, Logger logger) {
 		assert person != null;
-		return new EditingContext(person);
+		logger.info("Starting the edition of the person: " + person); //$NON-NLS-1$
+		return new EditingContext(person, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Person> startDeletion(Set<Person> persons) {
+	public EntityDeletingContext<Person> startDeletion(Set<Person> persons, Logger logger) {
 		assert persons != null && !persons.isEmpty();
+		logger.info("Starting the deletion of the persons: " + persons); //$NON-NLS-1$
 		// Force loading of the memberships and authorships
 		inSession(session -> {
 			for (final var person : persons) {
@@ -1044,7 +1066,7 @@ public class PersonService extends AbstractEntityService<Person> {
 				}
 			}
 		});
-		return new DeletingContext(persons);
+		return new DeletingContext(persons, logger);
 	}
 
 	/** Context for editing a {@link Person}.
@@ -1064,19 +1086,21 @@ public class PersonService extends AbstractEntityService<Person> {
 		/** Constructor.
 		 *
 		 * @param person the edited person.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(Person person) {
-			super(person);
+		protected EditingContext(Person person, Logger logger) {
+			super(person, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = PersonService.this.personRepository.save(this.entity);
+			getLogger().info("Saved person: " + this.entity); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<Person> createDeletionContext() {
-			return PersonService.this.startDeletion(Collections.singleton(this.entity));
+			return PersonService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -1096,9 +1120,10 @@ public class PersonService extends AbstractEntityService<Person> {
 		/** Constructor.
 		 *
 		 * @param persons the persons to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Person> persons) {
-			super(persons);
+		protected DeletingContext(Set<Person> persons, Logger logger) {
+			super(persons, logger);
 		}
 
 		@Override
@@ -1138,6 +1163,7 @@ public class PersonService extends AbstractEntityService<Person> {
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			PersonService.this.personRepository.deleteAllById(identifiers);
+			getLogger().info("Deleted persons: " + identifiers); //$NON-NLS-1$
 		}
 
 	}

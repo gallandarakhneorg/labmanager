@@ -37,7 +37,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorM
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a scientific axis.
@@ -71,15 +70,14 @@ public abstract class AbstractScientificAxisEditor extends AbstractEntityEditor<
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractScientificAxisEditor(EntityEditingContext<ScientificAxis> context,
 			EntityCreationStatusComputer<ScientificAxis> axisCreationStatusComputer, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ConstructionPropertiesBuilder properties) {
-		super(ScientificAxis.class, authenticatedUser, messages, logger,
+		super(ScientificAxis.class, authenticatedUser, messages,
 				axisCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.scientific_axes.administration_details") //$NON-NLS-1$

@@ -10,7 +10,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.journals.fields.SingleJournalNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.MultiPersonNameField;
@@ -39,8 +41,13 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @param associatedResourcesComponent     the components for the associated resources.
      * @param referenceInformationComponent    the components for the reference information.
      */
-    public PublicationEditorComponentWizard(VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent, VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent, VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent) {
+    public PublicationEditorComponentWizard(
+    		ContextualLoggerFactory loggerFactory,
+    		VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent,
+    		VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent,
+    		VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent) {
         this(defaultWizardConfiguration(null, false),
+        		loggerFactory,
                 new PublicationImp(), productionTypeComponents, minimalInformationComponent, worldwideIdentificationComponent, contentInformationComponent, associatedResourcesComponent, referenceInformationComponent);
     }
 
@@ -55,8 +62,13 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @param referenceInformationComponent    the components for the reference information.
      * @param administrationComponents         the components for the administration information.
      */
-    public PublicationEditorComponentWizard(VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent, VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent, VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent, VerticalLayout administrationComponents) {
-        this(defaultWizardConfiguration(null, false),
+    public PublicationEditorComponentWizard(
+    		ContextualLoggerFactory loggerFactory,
+    		VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent,
+    		VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent,
+    		VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent,
+    		VerticalLayout administrationComponents) {
+        this(defaultWizardConfiguration(null, false), loggerFactory,
                 new PublicationImp(), productionTypeComponents, minimalInformationComponent, worldwideIdentificationComponent, contentInformationComponent, associatedResourcesComponent, referenceInformationComponent, administrationComponents);
     }
 
@@ -76,8 +88,11 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @param associatedResourcesComponent     the components for the associated resources.
      * @param referenceInformationComponent    the components for the reference information.
      */
-    protected PublicationEditorComponentWizard(WizardConfigurationProperties properties, PublicationImp context, VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent, VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent, VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent) {
-        super(properties, context, Arrays.asList(
+    protected PublicationEditorComponentWizard(WizardConfigurationProperties properties,
+    		ContextualLoggerFactory loggerFactory,
+    		PublicationImp context, VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent, VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent, VerticalLayout associatedResourcesComponent,
+    		VerticalLayout referenceInformationComponent) {
+        super(properties, loggerFactory, context, Arrays.asList(
                 new ProductionTypeComponents(context, productionTypeComponents),
                 new MinimalInformationComponent(context, minimalInformationComponent),
                 new WorldwideIdentificationComponent(context, worldwideIdentificationComponent),
@@ -100,8 +115,11 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @param referenceInformationComponent    the components for the reference information.
      * @param administrationComponents         the components for the administration information.
      */
-    protected PublicationEditorComponentWizard(WizardConfigurationProperties properties, PublicationImp context, VerticalLayout productionTypeComponents, VerticalLayout minimalInformationComponent, VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent, VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent, VerticalLayout administrationComponents) {
-        super(properties, context, Arrays.asList(
+    protected PublicationEditorComponentWizard(WizardConfigurationProperties properties,
+    		ContextualLoggerFactory loggerFactory,
+    		PublicationImp context, VerticalLayout productionTypeComponents,
+    		VerticalLayout minimalInformationComponent, VerticalLayout worldwideIdentificationComponent, VerticalLayout contentInformationComponent, VerticalLayout associatedResourcesComponent, VerticalLayout referenceInformationComponent, VerticalLayout administrationComponents) {
+        super(properties, loggerFactory, context, Arrays.asList(
                 new ProductionTypeComponents(context, productionTypeComponents),
                 new MinimalInformationComponent(context, minimalInformationComponent),
                 new WorldwideIdentificationComponent(context, worldwideIdentificationComponent),
@@ -122,7 +140,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class ProductionTypeComponents extends AbstractFormWizardStep<Publication> {
+    protected static class ProductionTypeComponents extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 
@@ -166,7 +184,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class MinimalInformationComponent extends AbstractFormWizardStep<Publication> {
+    protected static class MinimalInformationComponent extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 
@@ -239,7 +257,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class WorldwideIdentificationComponent extends AbstractFormWizardStep<Publication> {
+    protected static class WorldwideIdentificationComponent extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 
@@ -282,7 +300,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class ContentInformationComponent extends AbstractFormWizardStep<Publication> {
+    protected static class ContentInformationComponent extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 
@@ -336,7 +354,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class AssociatedResourcesComponent extends AbstractFormWizardStep<Publication> {
+    protected static class AssociatedResourcesComponent extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 
@@ -379,7 +397,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class ReferenceInformationComponent extends AbstractFormWizardStep<Publication> {
+    protected static class ReferenceInformationComponent extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 
@@ -422,7 +440,7 @@ public class PublicationEditorComponentWizard extends AbstractLabManagerWizard<P
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PublicationAdministration extends AbstractFormWizardStep<Publication> {
+    protected static class PublicationAdministration extends AbstractLabManagerFormWizardStep<Publication> {
 
         private VerticalLayout content;
 

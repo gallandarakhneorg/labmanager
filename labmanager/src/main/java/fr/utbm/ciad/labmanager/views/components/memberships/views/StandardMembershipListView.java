@@ -63,13 +63,13 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEd
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractTwoLevelTreeListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.TreeListEntity;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.memberships.editors.MembershipEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -103,17 +103,16 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param membershipService the service for accessing the memberships.
 	 * @param membershipEditorFactory the factory for creating the person membership editors.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
-	 * @param logger the logger to use.
 	 */
 	public StandardMembershipListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
 			MembershipService membershipService, MembershipEditorFactory membershipEditorFactory,
-			ResearchOrganizationService organizationService,
-			Logger logger) {
-		super(Person.class, Membership.class, authenticatedUser, messages, logger,
+			ResearchOrganizationService organizationService) {
+		super(Person.class, Membership.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 					.map(PROP_DELETION_TITLE_MESSAGE, "views.memberships.delete.title") //$NON-NLS-1$
 					.map(PROP_DELETION_MESSAGE, "views.memberships.delete.message") //$NON-NLS-1$
@@ -170,7 +169,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 		if (selection.isPresent()) {
 			final TreeListEntity<Person, Membership> entity = selection.get();
 			if (entity.getChildEntity() != null) {
-				openExtendContractEditor(this.membershipService.startEditing(entity.getChildEntity()), getTranslation("views.membership.extend_contract_membership", entity.getChildEntity().getPerson().getFullName())); //$NON-NLS-1$;
+				openExtendContractEditor(this.membershipService.startEditing(entity.getChildEntity(), getLogger()), getTranslation("views.membership.extend_contract_membership", entity.getChildEntity().getPerson().getFullName())); //$NON-NLS-1$;
 			}
 		}
 	}
@@ -250,7 +249,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 						newMembership.setMemberSinceWhen(sinceDatePicker.getValue());
 						newMembership.setMemberToWhen(toDatePicker.getValue());
 
-						var editor = this.membershipService.startEditing(newMembership);
+						var editor = this.membershipService.startEditing(newMembership, getLogger());
 						editor.save();
 						refreshGrid();
 						dialog.close();
@@ -428,9 +427,9 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 	protected void openMembershipEditor(Membership membership, String title, boolean isCreation) {
 		final AbstractEntityEditor<Membership> editor;
 		if (isCreation) {
-			editor = this.membershipEditorFactory.createAdditionEditor(membership, membership.getPerson() == null);
+			editor = this.membershipEditorFactory.createAdditionEditor(membership, getLogger(), membership.getPerson() == null);
 		} else {
-			editor = this.membershipEditorFactory.createUpdateEditor(membership, membership.getPerson() == null);
+			editor = this.membershipEditorFactory.createUpdateEditor(membership, getLogger(), membership.getPerson() == null);
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Membership> refreshAll = (dialog, entity) -> refreshGrid();
@@ -443,7 +442,7 @@ public class StandardMembershipListView extends AbstractTwoLevelTreeListView<Per
 
 	@Override
 	protected EntityDeletingContext<Membership> createDeletionContextForChildEntities(Set<Membership> entities) {
-		return this.membershipService.startDeletion(entities);
+		return this.membershipService.startDeletion(entities, getLogger());
 	}
 
 	@Override

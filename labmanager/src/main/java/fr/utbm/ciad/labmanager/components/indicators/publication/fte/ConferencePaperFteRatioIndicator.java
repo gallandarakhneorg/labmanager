@@ -41,6 +41,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConferencePaperFteRatioIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = 600210521403049974L;
+
 	private ConferencePaperCountIndicator paperCount;
 
 	private PermanentResearcherFteIndicator fteIndicator;

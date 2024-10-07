@@ -34,6 +34,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractInstantIndicator extends AbstractIndicator {
 
+	private static final long serialVersionUID = 4231316529509431609L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

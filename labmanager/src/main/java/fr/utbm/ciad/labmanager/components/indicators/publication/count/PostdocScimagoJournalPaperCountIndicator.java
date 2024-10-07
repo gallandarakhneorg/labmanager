@@ -38,6 +38,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostdocScimagoJournalPaperCountIndicator extends AbstractRankedJournalPaperCountIndicator {
 
+	private static final long serialVersionUID = -152950328281551294L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

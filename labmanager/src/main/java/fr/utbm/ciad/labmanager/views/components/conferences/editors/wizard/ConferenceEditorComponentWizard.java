@@ -1,17 +1,19 @@
 package fr.utbm.ciad.labmanager.views.components.conferences.editors.wizard;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
-
-import java.util.Arrays;
-import java.util.List;
 
 
 /** Wizard for adding a conference.
@@ -31,8 +33,10 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @param rankingDetailComponents the ranking detail components.
      * @param publisherDetailComponents the publisher detail components.
      */
-    public ConferenceEditorComponentWizard(VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents) {
-        this(defaultWizardConfiguration(null, false),
+    public ConferenceEditorComponentWizard(
+    		ContextualLoggerFactory loggerFactory,
+    		VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents) {
+        this(defaultWizardConfiguration(null, false), loggerFactory,
                 new Conference(), descriptionDetailComponents, rankingDetailComponents, publisherDetailComponents);
     }
 
@@ -43,8 +47,10 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @param publisherDetailComponents the publisher detail components.
      * @param administrationComponents the administration detail components.
      */
-    public ConferenceEditorComponentWizard(VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents, VerticalLayout administrationComponents) {
-        this(defaultWizardConfiguration(null, false),
+    public ConferenceEditorComponentWizard(
+    		ContextualLoggerFactory loggerFactory,
+    		VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents, VerticalLayout administrationComponents) {
+        this(defaultWizardConfiguration(null, false), loggerFactory,
                 new Conference(), descriptionDetailComponents, rankingDetailComponents, publisherDetailComponents, administrationComponents);
     }
 
@@ -60,8 +66,10 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @param rankingDetailComponents the ranking detail components
      * @param publisherDetailComponents the publisher detail components
      */
-    protected ConferenceEditorComponentWizard(WizardConfigurationProperties properties, Conference context, VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents) {
-        super(properties, context, Arrays.asList(
+    protected ConferenceEditorComponentWizard(WizardConfigurationProperties properties,
+    		ContextualLoggerFactory loggerFactory,
+    		Conference context, VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents) {
+        super(properties, loggerFactory, context, Arrays.asList(
                     new DescriptionDetailComponent(context, descriptionDetailComponents),
                     new RankingDetailComponent(context, rankingDetailComponents),
                     new PublisherDetailComponent(context, publisherDetailComponents)
@@ -77,8 +85,10 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @param publisherDetailComponents the publisher detail components
      * @param administrationComponents the administration detail components
      */
-    protected ConferenceEditorComponentWizard(WizardConfigurationProperties properties, Conference context, VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents, VerticalLayout administrationComponents) {
-        super(properties, context, Arrays.asList(
+    protected ConferenceEditorComponentWizard(WizardConfigurationProperties properties,
+    		ContextualLoggerFactory loggerFactory,
+    		Conference context, VerticalLayout descriptionDetailComponents, VerticalLayout rankingDetailComponents, VerticalLayout publisherDetailComponents, VerticalLayout administrationComponents) {
+        super(properties, loggerFactory, context, Arrays.asList(
                 new DescriptionDetailComponent(context, descriptionDetailComponents),
                 new RankingDetailComponent(context, rankingDetailComponents),
                 new PublisherDetailComponent(context, publisherDetailComponents),
@@ -96,7 +106,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class DescriptionDetailComponent extends AbstractFormWizardStep<Conference> {
+    protected static class DescriptionDetailComponent extends AbstractLabManagerFormWizardStep<Conference> {
 
         private VerticalLayout content;
 
@@ -157,7 +167,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class RankingDetailComponent extends AbstractFormWizardStep<Conference> {
+    protected static class RankingDetailComponent extends AbstractLabManagerFormWizardStep<Conference> {
 
         private VerticalLayout content;
 
@@ -197,7 +207,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PublisherDetailComponent extends AbstractFormWizardStep<Conference> {
+    protected static class PublisherDetailComponent extends AbstractLabManagerFormWizardStep<Conference> {
 
         private VerticalLayout content;
 
@@ -237,7 +247,7 @@ public class ConferenceEditorComponentWizard extends AbstractLabManagerWizard<Co
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class ConferenceAdministration extends AbstractFormWizardStep<Conference> {
+    protected static class ConferenceAdministration extends AbstractLabManagerFormWizardStep<Conference> {
 
         private VerticalLayout content;
         public ConferenceAdministration(Conference context, VerticalLayout content) {

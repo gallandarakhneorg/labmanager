@@ -19,6 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.conferences;
 
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
@@ -47,11 +55,13 @@ import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferenceRankingUpdate.ConferenceNewInformation;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullValueValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerProgressionWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizardStep;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 import jakarta.annotation.security.RolesAllowed;
@@ -59,14 +69,6 @@ import jakarta.persistence.criteria.Predicate;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 /** Wizard for updating the conference rankings.
  * 
@@ -84,10 +86,13 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 
 	/** Constructor.
 	 *
+	 * @param loggerFactory the factory for creating the loggers.
 	 * @param conferenceService the service for accessing the conference entities.
 	 */
-	public ConferenceRankingUpdaterWizard(@Autowired ConferenceService conferenceService) {
-		this(	conferenceService,
+	public ConferenceRankingUpdaterWizard(
+			@Autowired ContextualLoggerFactory loggerFactory,
+			@Autowired ConferenceService conferenceService) {
+		this(	loggerFactory, conferenceService,
 				defaultWizardConfiguration(null, false),
 				new ConferenceRankingUpdate());
 	}
@@ -98,8 +103,10 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 	 * @param properties the properties of the wizard.
 	 * @param context the data context.
 	 */
-	protected ConferenceRankingUpdaterWizard(ConferenceService conferenceService,  WizardConfigurationProperties properties, ConferenceRankingUpdate context) {
-		this(properties, context, Arrays.asList(
+	protected ConferenceRankingUpdaterWizard(
+			ContextualLoggerFactory loggerFactory, ConferenceService conferenceService,
+			WizardConfigurationProperties properties, ConferenceRankingUpdate context) {
+		this(properties, loggerFactory, context, Arrays.asList(
 				new ConferenceInputWizardStep(context),
 				new ConferenceRankLoadingWizardStep(context, conferenceService),
 				new ConferenceRankDownloadWizardStep(context, conferenceService),
@@ -107,8 +114,10 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 				new ConferenceRankSavingWizardStep(context, conferenceService)));
 	}
 
-	private ConferenceRankingUpdaterWizard(WizardConfigurationProperties properties, ConferenceRankingUpdate context, List<WizardStep<ConferenceRankingUpdate>> steps) {
-		super(properties, context, steps);
+	private ConferenceRankingUpdaterWizard(WizardConfigurationProperties properties,
+			ContextualLoggerFactory loggerFactory,
+			ConferenceRankingUpdate context, List<WizardStep<ConferenceRankingUpdate>> steps) {
+		super(properties, loggerFactory, context, steps);
 	}
 
 	/** Wizard step to input configuration parameters.
@@ -119,7 +128,7 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class ConferenceInputWizardStep extends AbstractFormWizardStep<ConferenceRankingUpdate> {
+	protected static class ConferenceInputWizardStep extends AbstractLabManagerFormWizardStep<ConferenceRankingUpdate> {
 
 		private static final long serialVersionUID = -1563783404374252866L;
 
@@ -297,7 +306,10 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 			final var extendedProgression0 = ProgressExtension.withCommentFormatter(progression, it -> MessageFormat.format(pattern0, it));
 			final var terminationMessage0 = getWizard().orElseThrow().getTranslation("views.conferences.updateRankings.step3.core_downloaded"); //$NON-NLS-1$
 			return () -> {
-				this.conferenceService.downloadConferenceIndicatorsFromCore(getContext().getYear(), getContext().getConferences(), extendedProgression0,
+				this.conferenceService.downloadConferenceIndicatorsFromCore(
+						getContext().getYear(), getContext().getConferences(),
+						getLogger(),
+						extendedProgression0,
 						(referenceYear, conferenceId, oldRanking, newRanking) -> getContext().addRanking(conferenceId, oldRanking, newRanking));
 				return terminationMessage0;
 			};
@@ -313,7 +325,7 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class ConferenceRankingSummaryWizardStep extends WizardStep<ConferenceRankingUpdate> {
+	protected static class ConferenceRankingSummaryWizardStep extends AbstractLabManagerWizardStep<ConferenceRankingUpdate> {
 
 		private static final long serialVersionUID = -72237848939790719L;
 
@@ -442,6 +454,7 @@ public class ConferenceRankingUpdaterWizard extends AbstractLabManagerWizard<Con
 							final var ranking = it.newRanking();
 							return new ConferenceRankingUpdateInformation(conference, ranking);
 						}).toList(),
+						getLogger(),
 						extendedProgression0);
 				return terminationMessage0;
 			};

@@ -87,7 +87,6 @@ import fr.utbm.ciad.labmanager.views.components.projects.fields.ProjectFieldFact
 import fr.utbm.ciad.labmanager.views.components.projects.fields.ProjectMemberListGridField;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a project.
@@ -201,7 +200,6 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 * @param fileManager the manager of the downloadable files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
@@ -213,8 +211,8 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 			OrganizationEditorFactory organizationEditorFactory,
 			OrganizationFieldFactory organizationFieldFactory,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
-		super(Project.class, authenticatedUser, messages, logger,
+			MessageSourceAccessor messages, ConstructionPropertiesBuilder properties) {
+		super(Project.class, authenticatedUser, messages,
 				projectCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.projects.administration_details") //$NON-NLS-1$
@@ -427,7 +425,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 */
 	protected void openOtherPartnerEditor(Consumer<ResearchOrganization> saver) {
 		final var newOrganization = new ResearchOrganization();
-		final var editor = this.organizationEditorFactory.createAdditionEditor(newOrganization);
+		final var editor = this.organizationEditorFactory.createAdditionEditor(newOrganization, getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.projects.other_partner.create"), //$NON-NLS-1$
 				editor, false,
@@ -575,12 +573,14 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		content.add(this.description, 2);
 
 		this.requirements = new ServerSideUploadablePdfField(this.fileManager,
-				ext -> this.fileManager.makeProjectScientificRequirementsFilename(getEditedEntity().getId()));
+				ext -> this.fileManager.makeProjectScientificRequirementsFilename(getEditedEntity().getId()),
+				() -> getLogger());
 		this.requirements.setClearButtonVisible(true);
 		content.add(this.requirements, 1);
 
 		this.powerpoint = new ServerSideUploadablePowerpointField(this.fileManager,
-				ext -> this.fileManager.makeProjectPowerpointFilename(getEditedEntity().getId(), ext));
+				ext -> this.fileManager.makeProjectPowerpointFilename(getEditedEntity().getId(), ext),
+				() -> getLogger());
 		this.powerpoint.setClearButtonVisible(true);
 		content.add(this.powerpoint, 1);
 
@@ -623,7 +623,7 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 	 */
 	protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
 		final var newAxis = new ScientificAxis();
-		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis);
+		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis, getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.projects.scientific_axes.create"), //$NON-NLS-1$
 				editor, false,
@@ -639,7 +639,8 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		final var content = ComponentFactory.newColumnForm(2);
 
 		this.logo = new ServerSideUploadableImageField(this.fileManager,
-				ext -> this.fileManager.makeProjectLogoFilename(getEditedEntity().getId(), ext));
+				ext -> this.fileManager.makeProjectLogoFilename(getEditedEntity().getId(), ext),
+				() -> getLogger());
 		this.logo.setClearButtonVisible(true);
 		content.add(this.logo, 1);
 
@@ -649,12 +650,14 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		content.add(this.projectUrl, 2);
 		
 		this.pressDocument = new ServerSideUploadablePdfField(this.fileManager,
-				ext -> this.fileManager.makeProjectPressDocumentFilename(getEditedEntity().getId()));
+				ext -> this.fileManager.makeProjectPressDocumentFilename(getEditedEntity().getId()),
+				() -> getLogger());
 		this.pressDocument.setClearButtonVisible(true);
 		content.add(this.pressDocument, 1);
 
 		this.pathsToImages = new ServerSideUploadableImagesField(this.fileManager,
-				(index, ext) -> this.fileManager.makeProjectImageFilename(getEditedEntity().getId(), index.intValue(), ext));
+				(index, ext) -> this.fileManager.makeProjectImageFilename(getEditedEntity().getId(), index.intValue(), ext),
+				() -> getLogger());
 		content.add(this.pathsToImages, 2);
 		
 		this.videosURLs = new TextListField<>(

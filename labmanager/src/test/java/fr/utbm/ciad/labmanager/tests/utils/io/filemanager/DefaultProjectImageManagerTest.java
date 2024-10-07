@@ -18,17 +18,16 @@ package fr.utbm.ciad.labmanager.tests.utils.io.filemanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.tests.utils.TestUtils;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DefaultProjectImageManager;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +47,7 @@ public class DefaultProjectImageManagerTest {
 
 	private DefaultProjectImageManager test;
 
+	
 	@BeforeEach
 	public void setUp() throws IOException {
 		this.root = new File(File.listRoots()[0], "rootuploads");

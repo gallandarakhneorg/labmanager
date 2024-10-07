@@ -26,6 +26,7 @@ import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.EmbeddedJournalEditor;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.regular.JournalCreationStatusComputer;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -68,8 +69,8 @@ public class DefaultJournalEditorFactory implements JournalEditorFactory {
 	}
 
 	@Override
-	public EntityEditingContext<Journal> createContextFor(Journal journal) {
-		return this.journalService.startEditing(journal);
+	public EntityEditingContext<Journal> createContextFor(Journal journal, Logger logger) {
+		return this.journalService.startEditing(journal, logger);
 	}
 
 	@Override

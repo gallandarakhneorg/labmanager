@@ -29,9 +29,6 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.EmbeddedOrganizationEditor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of organization information that may be embedded. This editor does not provide
@@ -50,8 +47,6 @@ public final class EmbeddedOrganizationEditorWizard extends AbstractOrganization
 	// FIXME: Update this wizard to be consistent and bug free
 	
     private static final long serialVersionUID = -5119278327562827799L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedOrganizationEditor.class);
 
     /** Constructor.
      *
@@ -74,7 +69,7 @@ public final class EmbeddedOrganizationEditorWizard extends AbstractOrganization
     		OrganizationEditorFactory organizationEditorFactory,
     		AddressEditorFactory addressEditorFactory) {
         super(context, organizationCreationStatusComputer,
-        		false, fileManager, authenticatedUser, messages, LOGGER, organizationService, addressService,
+        		false, fileManager, authenticatedUser, messages, organizationService, addressService,
         		organizationEditorFactory, addressEditorFactory, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }

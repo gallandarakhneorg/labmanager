@@ -47,7 +47,6 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,7 +61,9 @@ import org.springframework.web.util.UriBuilderFactory;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractComponent {
+public abstract class AbstractComponent implements Serializable {
+
+	private static final long serialVersionUID = 5194545834081292734L;
 
 	private static final String UNSET_STR = "-"; //$NON-NLS-1$
 	
@@ -75,8 +76,6 @@ public abstract class AbstractComponent {
 	private ConfigurationConstants constants;
 
 	private MessageSourceAccessor messages;
-
-	private Logger logger;
 
 	private final Random random = new Random();
 
@@ -91,33 +90,6 @@ public abstract class AbstractComponent {
 	public AbstractComponent(MessageSourceAccessor messages, ConfigurationConstants constants) {
 		this.messages = messages;
 		this.constants = constants;
-	}
-
-	/** Replies the logger of this service.
-	 *
-	 * @return the logger.
-	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Change the logger of this controller.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the controller logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
 	}
 
 	/** Replies the message provider of this controller.
@@ -615,13 +587,15 @@ public abstract class AbstractComponent {
 	 * @param createPerson indicates if any person that is not yet stored in the database must be created on the fly.
 	 * @param personService the service for accessing the persons in the database.
 	 * @param nameParser the parser of person names.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param consumer invoked for each person in the list.
 	 */
+	@SuppressWarnings("static-method")
 	protected void forEarchPerson(List<String> persons, boolean createPerson,
-			PersonService personService, PersonNameParser nameParser, Consumer<Person> consumer) {
+			PersonService personService, PersonNameParser nameParser, Logger logger, Consumer<Person> consumer) {
 		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 		for (final var personDesc : persons) {
-			final var person = extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
+			final var person = extractPerson(personDesc, idPattern, createPerson, personService, nameParser, logger);
 			if (person != null) {
 				consumer.accept(person);
 			}
@@ -635,15 +609,17 @@ public abstract class AbstractComponent {
 	 * @param createPerson indicates if any person that is not yet stored in the database must be created on the fly.
 	 * @param personService the service for accessing the persons in the database.
 	 * @param nameParser the parser of person names.
+	 * @param logger the logger to use for put a message in the log.
 	 */
+	@SuppressWarnings("static-method")
 	protected Person extractPerson(String personDesc, boolean createPerson,
-			PersonService personService, PersonNameParser nameParser) {
+			PersonService personService, PersonNameParser nameParser, Logger logger) {
 		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
-		return extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
+		return extractPerson(personDesc, idPattern, createPerson, personService, nameParser, logger);
 	}
 
-	private Person extractPerson(String personDesc, Pattern idPattern, boolean createPerson,
-			PersonService personService, PersonNameParser nameParser) {
+	private static Person extractPerson(String personDesc, Pattern idPattern, boolean createPerson,
+			PersonService personService, PersonNameParser nameParser, Logger logger) {
 		Person person = null;
 		var personId = 0l;
 		if (idPattern.matcher(personDesc).matches()) {
@@ -662,8 +638,8 @@ public abstract class AbstractComponent {
 			if (personId == 0) {
 				// Now, it is sure that the person is unknown
 				if (createPerson) {
-					person = personService.createPerson(firstName, lastName);
-					getLogger().info("New person \"" + personDesc + "\" created with id: " + person.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+					person = personService.createPerson(logger, firstName, lastName);
+					logger.info("New person \"" + personDesc + "\" created with id: " + person.getId()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			} else {
 				person = personService.getPersonById(personId);
@@ -686,6 +662,7 @@ public abstract class AbstractComponent {
 	 * @param explicitRemove indicates if the old path to the uploaded file should be removed from the database.
 	 * @param uploadedFile the uploaded file, or {@code null} if no file is uploaded.
 	 * @param logMessage a message that is used for output an INFO message about the file upload.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param setter a callback function that is invoked to change the attribute "pathTo..." in the associated JPA entity.
 	 *      The argument of the callback is the path to save.
 	 * @param filename a callback function that provides the filename to be saved in the database.
@@ -695,8 +672,9 @@ public abstract class AbstractComponent {
 	 * @throws IOException if the file cannot be uploaded.
 	 * @since 3.2
 	 */
+	@SuppressWarnings("static-method")
 	protected boolean updateUploadedFile(boolean explicitRemove, MultipartFile uploadedFile,
-			String logMessage, Consumer<String> setter, Supplier<File> filename,
+			String logMessage, Logger logger, Consumer<String> setter, Supplier<File> filename,
 			Callback delete, Saver save) throws IOException {
 		// Treat the uploaded files
 		var changed = false;
@@ -715,7 +693,7 @@ public abstract class AbstractComponent {
 			save.apply(fn, th);
 			setter.accept(fn.getPath());
 			changed = true;
-			getLogger().info(logMessage + fn.getPath());
+			logger.info(logMessage + fn.getPath());
 		}
 		return changed;
 	}

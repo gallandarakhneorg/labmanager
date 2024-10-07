@@ -24,7 +24,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
-import org.slf4j.Logger;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a list of entities based on a grid view.
@@ -46,7 +46,7 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	 * @param entityType the type of the entities to be listed.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
-	 * @param logger the logger to be used by this view.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param deletionTitleMessageKey the key in the localized messages for the dialog box title related to a deletion.
 	 * @param deletionMessageKey the key in the localized messages for the message related to a deletion.
 	 * @param deletionSuccessMessageKey the key in the localized messages for the messages related to a deletion success.
@@ -55,8 +55,8 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	 *     {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
 	 * @since 4.0
 	 */
-	public AbstractEntityListView(Class<T> entityType, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
-		super(entityType, authenticatedUser, messages, logger, properties);
+	public AbstractEntityListView(Class<T> entityType, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory, ConstructionPropertiesBuilder properties) {
+		super(entityType, authenticatedUser, messages, loggerFactory, properties);
 	}
 
 	@Override

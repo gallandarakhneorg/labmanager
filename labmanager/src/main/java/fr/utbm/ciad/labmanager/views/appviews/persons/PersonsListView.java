@@ -34,12 +34,11 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.views.StandardPersonListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -59,8 +58,6 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 
 	private static final long serialVersionUID = 1616874715478139507L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsListView.class);
-
 	private MenuItem updateRankingsButton;
 
 	private MenuItem switchView;
@@ -76,6 +73,7 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param authenticatedUser the connected user.
 	 */
     public PersonsListView(
@@ -86,10 +84,11 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ChronoMembershipComparator membershipComparator,
 			@Autowired AuthenticatedUser authenticatedUser,
-			@Autowired MessageSourceAccessor messages) {
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory) {
     	super(personService, userService, membershipService, organizationService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
-    			personEditorFactory, authenticatedUser, messages, LOGGER);
+    			personEditorFactory, authenticatedUser, messages, loggerFactory);
 	}
 
 	@Override

@@ -19,6 +19,17 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
@@ -49,14 +60,10 @@ import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.tuple.Pair;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.LocalDate;
-import java.util.*;
 
 /** Exporter of JSON data from the database.
  * 
@@ -69,6 +76,8 @@ import java.util.*;
  */
 @Component
 public class DatabaseToJsonExporter extends JsonTool {
+
+	private static final long serialVersionUID = 426529408893181686L;
 
 	private OrganizationAddressRepository addressRepository;
 
@@ -161,13 +170,14 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	/** Run the exporter.
 	 *
-	 * @param locale the locale to use for the messages. 
+	 * @param locale the locale to use for the messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator. 
 	 * @return the JSON content or {@code null} if empty.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	public Map<String, Object> exportFromDatabase(Locale locale, Progression progression) throws Exception {
-		return exportFromDatabase(null, null, locale, progression);
+	public Map<String, Object> exportFromDatabase(Locale locale, Logger logger, Progression progression) throws Exception {
+		return exportFromDatabase(null, null, locale, logger, progression);
 	}
 
 	/** Run the exporter.
@@ -178,18 +188,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param extraPublicationProvider this provider gives publications that must be exported into the JSON that are
 	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported. 
 	 * @param locale the locale to use for the messages. 
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator. 
 	 * @return the JSON content or {@code null} if empty.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> exportFromDatabase(SimilarPublicationProvider similarPublicationProvider,
-			ExtraPublicationProvider extraPublicationProvider, Locale locale, Progression progression) throws Exception {
+			ExtraPublicationProvider extraPublicationProvider, Locale locale, Logger logger, Progression progression) throws Exception {
 		final var progressionInstance = progression == null ? new DefaultProgression() : progression;
 		progressionInstance.setProperties(0, 0, 100, false);
 		final var mapper = JsonUtils.createMapper();
 		final var obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider, extraPublicationProvider,
-				locale, progressionInstance.subTask(98));
+				locale, logger, progressionInstance.subTask(98));
 		if (obj != null) {
 			final var tree = mapper.treeToValue(obj, Map.class);
 			progressionInstance.end();
@@ -203,12 +214,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 *
 	 * @param factory the factory of nodes.
 	 * @param locale the locale to use for the messages. 
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator. 
 	 * @return the JSON content.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, Locale locale, Progression progression) throws Exception {
-		return exportFromDatabaseToJsonObject(factory, null, null, locale, progression);
+	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, Locale locale, Logger logger, Progression progression) throws Exception {
+		return exportFromDatabaseToJsonObject(factory, null, null, locale, logger, progression);
 	}
 
 	/** Run the exporter for creating JSON objects.
@@ -220,12 +232,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param extraPublicationProvider this provider gives publications that must be exported into the JSON that are
 	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported.
 	 * @param locale the locale to use for the messages. 
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator. 
 	 * @return the JSON content.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, SimilarPublicationProvider similarPublicationProvider,
-			ExtraPublicationProvider extraPublicationProvider, Locale locale, Progression progression) throws Exception {
+			ExtraPublicationProvider extraPublicationProvider, Locale locale, Logger logger, Progression progression) throws Exception {
 		final var progressionInstance = progression == null ? new DefaultProgression() : progression;
 		progressionInstance.setProperties(0, 0, 16, false, getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.global_indicators", locale)); //$NON-NLS-1$
 		final var root = factory.objectNode();
@@ -244,7 +257,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.conferences", locale)); //$NON-NLS-1$
 		exportConferences(root, repository);
 		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.publications", locale)); //$NON-NLS-1$
-		exportPublications(root, repository, similarPublicationProvider, extraPublicationProvider);
+		exportPublications(root, repository, similarPublicationProvider, extraPublicationProvider, logger);
 		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.jury_memberships", locale)); //$NON-NLS-1$
 		exportJuryMemberships(root, repository);
 		progressionInstance.increment(getMessageSourceAccessor().getMessage("DatabaseToJsonExporter.exporting.supervisions", locale)); //$NON-NLS-1$
@@ -675,18 +688,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 *      If this argument is not {@code null} and if it replies a similar publication, the information in this
 	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
 	 * @param extraPublicationProvider this provider gives publications that must be exported into the JSON that are
-	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported. 
+	 *      not directly extracted from the database. If this argument is {@code null}, no extra publication is exported.
+	 * @param logger the logger to use for put a message in the log.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportPublications(ObjectNode root, Map<Object, String> repository, SimilarPublicationProvider similarPublicationProvider,
-			ExtraPublicationProvider extraPublicationProvider) throws Exception {
+			ExtraPublicationProvider extraPublicationProvider, Logger logger) throws Exception {
 		final var publications = this.publicationRepository.findAll();
 		final var array = root.arrayNode();
 		int i = 0;
 		if (!publications.isEmpty()) {
 			for (final var publication : publications) {
 				final var jsonPublication = array.objectNode();
-				final var id = exportPublication(i, publication, root, jsonPublication, repository, similarPublicationProvider);
+				final var id = exportPublication(i, publication, root, jsonPublication, repository, similarPublicationProvider, logger);
 				if (jsonPublication.size() > 0) {
 					jsonPublication.set(HIDDEN_INTERNAL_DATA_SOURCE_KEY, jsonPublication.textNode(HIDDEN_INTERNAL_DATABASE_SOURCE_VALUE));
 					repository.put(publication, id);
@@ -695,11 +709,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 		}
-		getLogger().info("Exporting " + array.size() + " publications from the database."); //$NON-NLS-1$ //$NON-NLS-2$
+		logger.info("Exporting " + array.size() + " publications from the database."); //$NON-NLS-1$ //$NON-NLS-2$
 		if (extraPublicationProvider != null) {
 			for (final var publication : extraPublicationProvider.getPublications()) {
 				final var jsonPublication = array.objectNode();
-				final var id = exportPublication(i, publication, root, jsonPublication, repository, null);
+				final var id = exportPublication(i, publication, root, jsonPublication, repository, null, logger);
 				if (jsonPublication.size() > 0) {
 					jsonPublication.set(HIDDEN_INTERNAL_DATA_SOURCE_KEY, jsonPublication.textNode(HIDDEN_INTERNAL_EXTERNAL_SOURCE_VALUE));
 					repository.put(publication, id);
@@ -707,7 +721,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					++i;
 				}
 			}
-			getLogger().info("Exporting " + extraPublicationProvider.getPublications().size() + " extra publications from the BibTeX."); //$NON-NLS-1$ //$NON-NLS-2$
+			logger.info("Exporting " + extraPublicationProvider.getPublications().size() + " extra publications from the BibTeX."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (array.size() > 0) {
 			root.set(PUBLICATIONS_SECTION, array);
@@ -724,17 +738,18 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param similarPublicationProvider a provider of a publication that is similar to a given publication. 
 	 *      If this argument is not {@code null} and if it replies a similar publication, the information in this
 	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
+	 * @param logger the logger to use for put a message in the log.
 	 * @return the identifier of the exported publication.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected String exportPublication(int index, Publication publication, ObjectNode root, ObjectNode jsonPublication, 
-			Map<Object, String> repository, SimilarPublicationProvider similarPublicationProvider) throws Exception {
+			Map<Object, String> repository, SimilarPublicationProvider similarPublicationProvider, Logger logger) throws Exception {
 		// Add missed information from any similar publication
 		final List<Publication> similarPublications;
 		if (similarPublicationProvider != null) {
 			similarPublications = similarPublicationProvider.get(publication);
 			if (similarPublications != null && !similarPublications.isEmpty()) {
-				getLogger().info("Found similar publication(s) for: " + publication.getTitle()); //$NON-NLS-1$
+				logger.info("Found similar publication(s) for: " + publication.getTitle()); //$NON-NLS-1$
 			}
 		} else {
 			similarPublications = Collections.emptyList();

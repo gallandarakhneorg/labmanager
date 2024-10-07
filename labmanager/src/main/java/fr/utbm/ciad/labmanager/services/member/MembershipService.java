@@ -62,6 +62,7 @@ import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -80,6 +81,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class MembershipService extends AbstractEntityService<Membership> {
+
+	private static final long serialVersionUID = 5648070897311895764L;
 
 	private ResearchOrganizationRepository organizationRepository;
 
@@ -609,9 +612,43 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty();
 	}
 
+	/** Replies the active memberships for the given person.
+	 *
+	 * @param person the person.
+	 * @param membershipComparator the comparator to use for sorting the memberships.
+	 * @return the list of the active memberships.
+	 */
+	public List<String> getActiveMembershipsForPerson(Person person, Comparator<Membership> membershipComparator) {
+		List<String> labels = new ArrayList<>();
+       Iterator<Membership> memberships = new MembershipIterator(person, this, membershipComparator);
+       while (memberships.hasNext()){
+           final var mbr = memberships.next();
+           final var organization = mbr.getDirectResearchOrganization();
+           labels.add(organization.getAcronymOrName());
+       }
+       return labels;
+	}
+
+	/** Replies the role of the person in the organization.
+	 *
+	 * @param person the person.
+	 * @param membershipComparator the comparator to use for sorting the memberships.
+	 * @return the role of the person in the organization.
+	 */
+	public String getRoleForPerson(Person person, Comparator<Membership> membershipComparator) {
+		Iterator<Membership> memberships = new MembershipIterator(person, this, membershipComparator);
+		while (memberships.hasNext()){
+			Membership membership = memberships.next();
+			if (membership.isActive())
+				return membership.getMemberStatus().getLabel(getMessageSourceAccessor(), person.getGender(), false, LocaleUtil.getLocale(LocaleUtil::getI18NProvider));
+		}
+		return null;
+   }
+
 	@Override
-	public EntityEditingContext<Membership> startEditing(Membership membership) {
+	public EntityEditingContext<Membership> startEditing(Membership membership, Logger logger) {
 		assert membership != null;
+		logger.info("Starting the edition of the organization membership: " + membership); //$NON-NLS-1$
 		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
 		inSession(session -> {
 			if (membership.getId() != 0l) {
@@ -635,12 +672,13 @@ public class MembershipService extends AbstractEntityService<Membership> {
 				Hibernate.initialize(membership.getScientificAxes());
 			}
 		});
-		return new EditingContext(membership);
+		return new EditingContext(membership, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Membership> startDeletion(Set<Membership> memberships) {
+	public EntityDeletingContext<Membership> startDeletion(Set<Membership> memberships, Logger logger) {
 		assert memberships != null && !memberships.isEmpty();
+		logger.info("Starting the deletion of the organization memberships: " + memberships); //$NON-NLS-1$
 		// Force loading of the memberships and authorships
 		inSession(session -> {
 			for (final var membership : memberships) {
@@ -650,7 +688,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 				}
 			}
 		});
-		return new DeletingContext(memberships);
+		return new DeletingContext(memberships, logger);
 	}
 
 	/** Context for editing a {@link Membership}.
@@ -670,19 +708,21 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		/** Constructor.
 		 *
 		 * @param membership the edited membership.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(Membership membership) {
-			super(membership);
+		protected EditingContext(Membership membership, Logger logger) {
+			super(membership, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = MembershipService.this.membershipRepository.save(this.entity);
+			getLogger().info("Saved organization membership: " + this.entity); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<Membership> createDeletionContext() {
-			return MembershipService.this.startDeletion(Collections.singleton(this.entity));
+			return MembershipService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -702,9 +742,10 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		/** Constructor.
 		 *
 		 * @param memberships the memberships to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Membership> memberships) {
-			super(memberships);
+		protected DeletingContext(Set<Membership> memberships, Logger logger) {
+			super(memberships, logger);
 		}
 
 		@Override
@@ -720,6 +761,7 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			MembershipService.this.membershipRepository.deleteAllById(identifiers);
+			getLogger().info("Deleted organization memberships: " + identifiers); //$NON-NLS-1$
 		}
 
 	}
@@ -826,38 +868,5 @@ public class MembershipService extends AbstractEntityService<Membership> {
 		}
 
 	}
-
-	/** Replies the active memberships for the given person.
-	 *
-	 * @param person the person.
-	 * @param membershipComparator the comparator to use for sorting the memberships.
-	 * @return the list of the active memberships.
-	 */
-	public List<String> getActiveMembershipsForPerson(Person person, Comparator<Membership> membershipComparator) {
-		List<String> labels = new ArrayList<>();
-        Iterator<Membership> memberships = new MembershipIterator(person, this, membershipComparator);
-        while (memberships.hasNext()){
-            final var mbr = memberships.next();
-            final var organization = mbr.getDirectResearchOrganization();
-            labels.add(organization.getAcronymOrName());
-        }
-        return labels;
-	}
-
-	/** Replies the role of the person in the organization.
-	 *
-	 * @param person the person.
-	 * @param membershipComparator the comparator to use for sorting the memberships.
-	 * @return the role of the person in the organization.
-	 */
-	public String getRoleForPerson(Person person, Comparator<Membership> membershipComparator) {
-		Iterator<Membership> memberships = new MembershipIterator(person, this, membershipComparator);
-		while (memberships.hasNext()){
-			Membership membership = memberships.next();
-			if (membership.isActive())
-				return membership.getMemberStatus().getLabel(getMessageSourceAccessor(), person.getGender(), false, LocaleUtil.getLocale(LocaleUtil::getI18NProvider));
-		}
-		return null;
-    }
 
 }

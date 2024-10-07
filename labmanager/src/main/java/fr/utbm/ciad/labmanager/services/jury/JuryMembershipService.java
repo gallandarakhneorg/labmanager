@@ -42,6 +42,8 @@ import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -59,6 +61,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JuryMembershipService extends AbstractEntityService<JuryMembership> {
+
+	private static final long serialVersionUID = 690837525262871129L;
 
 	private JuryMembershipRepository membershipRepository;
 
@@ -226,16 +230,17 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 			throw new IllegalStateException("Unsupported type of jury membership for " + defenseType.name() + " and " + membershipType.name()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		//
+		final var logger = LoggerFactory.getLogger(getClass());
 		membership.setPerson(person);
 		membership.setDate(date);
 		membership.setType(membershipType);
 		membership.setDefenseType(defenseType);
 		membership.setTitle(title);
-		membership.setCandidate(extractPerson(candidate, true, this.personService, this.nameParser));
+		membership.setCandidate(extractPerson(candidate, true, this.personService, this.nameParser, logger));
 		membership.setUniversity(university);
 		membership.setCountry(country);
 		final var promoterArray = new ArrayList<Person>();
-		forEarchPerson(promoters, true, this.personService, this.nameParser, it -> promoterArray.add(it));
+		forEarchPerson(promoters, true, this.personService, this.nameParser, logger, it -> promoterArray.add(it));
 		membership.setPromoters(promoterArray);
 	}
 
@@ -282,8 +287,9 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 	}
 
 	@Override
-	public EntityEditingContext<JuryMembership> startEditing(JuryMembership jury) {
+	public EntityEditingContext<JuryMembership> startEditing(JuryMembership jury, Logger logger) {
 		assert jury != null;
+		logger.info("Starting the edition of the jury membership: " + jury); //$NON-NLS-1$
 		// Force loading of the persons and universities that may be edited at the same time as the rest of the journal properties
 		inSession(session -> {
 			if (jury.getId() != 0l) {
@@ -293,13 +299,13 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 				Hibernate.initialize(jury.getPromoters());
 			}
 		});
-		return new EditingContext(jury);
+		return new EditingContext(jury, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<JuryMembership> startDeletion(Set<JuryMembership> memberships) {
+	public EntityDeletingContext<JuryMembership> startDeletion(Set<JuryMembership> memberships, Logger logger) {
 		assert memberships != null && !memberships.isEmpty();
-		return new DeletingContext(memberships);
+		return new DeletingContext(memberships, logger);
 	}
 
 	/** Context for editing a {@link JuryMembership}.
@@ -319,19 +325,21 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 		/** Constructor.
 		 *
 		 * @param jury the edited jury membership.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(JuryMembership jury) {
-			super(jury);
+		protected EditingContext(JuryMembership jury, Logger logger) {
+			super(jury, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = JuryMembershipService.this.membershipRepository.save(this.entity);
+			getLogger().info("Saved jury membership: " + this.entity); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<JuryMembership> createDeletionContext() {
-			return JuryMembershipService.this.startDeletion(Collections.singleton(this.entity));
+			return JuryMembershipService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -351,14 +359,16 @@ public class JuryMembershipService extends AbstractEntityService<JuryMembership>
 		/** Constructor.
 		 *
 		 * @param memberships the jury memberships to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<JuryMembership> memberships) {
-			super(memberships);
+		protected DeletingContext(Set<JuryMembership> memberships, Logger logger) {
+			super(memberships, logger);
 		}
 
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			JuryMembershipService.this.membershipRepository.deleteAllById(identifiers);
+			getLogger().info("Deleted jury memberships: " + identifiers); //$NON-NLS-1$
 		}
 
 	}

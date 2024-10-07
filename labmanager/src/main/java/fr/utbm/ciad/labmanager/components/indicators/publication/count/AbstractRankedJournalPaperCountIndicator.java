@@ -40,6 +40,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = 2989065255521518504L;
+
 	private JournalPaperService journalPaperService;
 
 	private final Predicate<? super JournalPaper> filter;
@@ -52,8 +54,7 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 	 * @param filter the filter to be used for the publications.
 	 */
 	public AbstractRankedJournalPaperCountIndicator(
-			MessageSourceAccessor messages,
-			ConfigurationConstants constants,
+			MessageSourceAccessor messages, ConfigurationConstants constants,
 			JournalPaperService journalPaperService,
 			Predicate<? super JournalPaper> filter) {
 		this(messages, constants, AbstractAnnualIndicator::sum, journalPaperService, filter);
@@ -69,8 +70,7 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 	 * @param filter the filter to be used for the publications.
 	 */
 	public AbstractRankedJournalPaperCountIndicator(
-			MessageSourceAccessor messages,
-			ConfigurationConstants constants,
+			MessageSourceAccessor messages, ConfigurationConstants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
 			JournalPaperService journalPaperService,
 			Predicate<? super JournalPaper> filter) {

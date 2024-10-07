@@ -29,12 +29,11 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.views.StandardJournalListView;
 import jakarta.annotation.security.PermitAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -53,23 +52,23 @@ public class JournalsListView extends StandardJournalListView implements HasDyna
 
 	private static final long serialVersionUID = 4004385277053773899L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JournalsListView.class);
-
 	private MenuItem updateRankingsButton;
 
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param journalService the service for accessing the journals.
 	 * @param journalEditorFactory the factory for creating journal editors.
 	 */
 	public JournalsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired JournalService journalService,
 			@Autowired JournalEditorFactory journalEditorFactory) {
-		super(authenticatedUser, messages, journalService, journalEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, journalService, journalEditorFactory);
 	}
 
 	@Override

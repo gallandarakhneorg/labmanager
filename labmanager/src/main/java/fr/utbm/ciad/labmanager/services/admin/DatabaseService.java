@@ -41,6 +41,7 @@ import jakarta.transaction.Transactional;
 import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.util.OutputParameter;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DatabaseService extends AbstractService {
+
+	private static final long serialVersionUID = 9203318168830086896L;
 
 	private final DatabaseToJsonExporter jsonExporter;
 	
@@ -99,17 +102,19 @@ public class DatabaseService extends AbstractService {
 	/** Export database content to Json.
 	 *
 	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator.
 	 * @return the content of the file.
 	 * @throws Exception the export error.
 	 */
 	@Transactional
-	public InputStream exportJson(Locale locale, Progression progression) throws Exception {
+	public InputStream exportJson(Locale locale, Logger logger, Progression progression) throws Exception {
+		logger.info("Exporting database content to JSON"); //$NON-NLS-1$
 		progression.setProperties(0, 0, 50, false);
 		final var bytes = new OutputParameter<byte[]>();
 		inSession(session -> {
 			final var mapper = JsonUtils.createMapper();
-			final var obj = this.jsonExporter.exportFromDatabaseToJsonObject(mapper.getNodeFactory(), null, null, locale, progression.subTask(40));
+			final var obj = this.jsonExporter.exportFromDatabaseToJsonObject(mapper.getNodeFactory(), null, null, locale, logger, progression.subTask(40));
 			if (obj != null) {
 				bytes.set(mapper.writeValueAsBytes(obj));
 			}
@@ -127,15 +132,17 @@ public class DatabaseService extends AbstractService {
 	/** Export database content to ZIP.
 	 *
 	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator.
 	 * @return the content of the file.
 	 * @throws Exception the export error.
 	 */
 	@SuppressWarnings("resource")
 	@Transactional
-	public InputStream exportZip(Locale locale, Progression progression) throws Exception {
+	public InputStream exportZip(Locale locale, Logger logger, Progression progression) throws Exception {
+		logger.info("Exporting database content to ZIP"); //$NON-NLS-1$
 		final var exporter = inSessionWithResult(session -> {
-			return this.zipExporter.startExportFromDatabase(locale, progression);
+			return this.zipExporter.startExportFromDatabase(locale, logger, progression);
 		});
 
 		final var tmpFile = File.createTempFile(JsonDatabaseInitializer.INITIALIZATION_BASENAME, IoConstants.ZIP_FILENAME_EXTENSION);
@@ -148,11 +155,13 @@ public class DatabaseService extends AbstractService {
 	 * @param organizationId the identifier of the organization for which the publications must be extracted.
 	 * @param year the reference year.
 	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator.
 	 * @return the content of the file.
 	 * @throws Exception the export error.
 	 */
-	public DownloadableFileDescription exportUtbmActivityReport(long organizationId, int year, Locale locale, Progression progression) throws Exception {
+	public DownloadableFileDescription exportUtbmActivityReport(long organizationId, int year, Locale locale, Logger logger, Progression progression) throws Exception {
+		logger.info("Exporting UTBM's activity report for year " + year + " and organization " + organizationId); //$NON-NLS-1$ //$NON-NLS-2$
 		return this.utbmActivityReportGenerator.exportUtbmAnnualReport(organizationId, year, locale, progression);
 	}
 
@@ -161,11 +170,13 @@ public class DatabaseService extends AbstractService {
 	 * @param organizationId the identifier of the organization for which the publications must be extracted.
 	 * @param year the reference year.
 	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator.
 	 * @return the content of the file.
 	 * @throws Exception the export error.
 	 */
-	public DownloadableFileDescription exportSpimActivityReport(long organizationId, int year, Locale locale, Progression progression) throws Exception {
+	public DownloadableFileDescription exportSpimActivityReport(long organizationId, int year, Locale locale, Logger logger, Progression progression) throws Exception {
+		logger.info("Exporting SPIM's activity report for year " + year + " and organization " + organizationId); //$NON-NLS-1$ //$NON-NLS-2$
 		return this.spimActivityReportGenerator.exportSpimAnnualReport(organizationId, year, locale, progression);
 	}
 
@@ -174,11 +185,13 @@ public class DatabaseService extends AbstractService {
 	 * @param organizationId the identifier of the organization for which the publications must be extracted.
 	 * @param year the reference year.
 	 * @param locale the locale to be used for obtaining the progression messages.
+	 * @param logger the logger to use for put a message in the log.
 	 * @param progression the progression indicator.
 	 * @return the content of the file.
 	 * @throws Exception the export error.
 	 */
-	public DownloadableFileDescription exportIcartsActivityReport(long organizationId, int year, Locale locale, Progression progression) throws Exception {
+	public DownloadableFileDescription exportIcartsActivityReport(long organizationId, int year, Locale locale, Logger logger, Progression progression) throws Exception {
+		logger.info("Exporting Institut Carnot ARTS' activity report for year " + year + " and organization " + organizationId); //$NON-NLS-1$ //$NON-NLS-2$
 		return this.icartsActivityReportGenerator.exportIcartsAnnualReport(organizationId, year, locale, progression);
 	}
 

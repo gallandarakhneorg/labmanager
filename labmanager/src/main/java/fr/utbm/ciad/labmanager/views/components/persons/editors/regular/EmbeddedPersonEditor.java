@@ -25,8 +25,6 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of person information that may be embedded. This editor does not provide
@@ -43,9 +41,6 @@ public final class EmbeddedPersonEditor extends AbstractPersonEditor {
 
     private static final long serialVersionUID = 3928100811567654630L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPersonEditor.class);
-
-
     /** Constructor.
      *
      * @param userContext the editing context for the user.
@@ -58,7 +53,7 @@ public final class EmbeddedPersonEditor extends AbstractPersonEditor {
     		EntityCreationStatusComputer<Person> personCreationStatusComputer,
     		PersonService personService, AuthenticatedUser authenticatedUser,
     		MessageSourceAccessor messages) {
-        super(userContext, personCreationStatusComputer, personService, false, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+        super(userContext, personCreationStatusComputer, personService, false, authenticatedUser, messages, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }
 

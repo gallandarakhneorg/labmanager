@@ -26,11 +26,10 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.memberships.editors.MembershipEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.memberships.views.StandardMembershipListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -48,12 +47,11 @@ public class MembershipsListView extends StandardMembershipListView implements H
 
 	private static final long serialVersionUID = -557163925957008625L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MembershipsListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param membershipService the service for accessing the memberships.
 	 * @param membershipEditorFactory the factory for creating the person membership editors.
 	 * @param organizationService the service for accessing the JPA entities for research organizations.
@@ -61,11 +59,11 @@ public class MembershipsListView extends StandardMembershipListView implements H
 	public MembershipsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired MembershipService membershipService,
 			@Autowired MembershipEditorFactory membershipEditorFactory,
 			@Autowired ResearchOrganizationService organizationService) {
-		super(authenticatedUser, messages, membershipService, membershipEditorFactory,
-				organizationService, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, membershipService, membershipEditorFactory, organizationService);
 	}
 
 	@Override

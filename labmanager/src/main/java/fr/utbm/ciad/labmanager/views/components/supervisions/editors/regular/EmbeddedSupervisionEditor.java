@@ -26,8 +26,6 @@ import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.memberships.fields.MembershipFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.fields.SupervisionFieldFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of supervision information that may be embedded. This editor does not provide
@@ -43,8 +41,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 public final class EmbeddedSupervisionEditor extends AbstractSupervisionEditor {
 
 	private static final long serialVersionUID = -2908551063864242284L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSupervisionEditor.class);
 
 	/** Constructor.
 	 *
@@ -63,7 +59,7 @@ public final class EmbeddedSupervisionEditor extends AbstractSupervisionEditor {
 			EntityCreationStatusComputer<Supervision> supervisionCreationStatusComputer,
 			MembershipFieldFactory membershipFieldFactory, SupervisionFieldFactory supervisionFieldFactory,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, false, supervisionCreationStatusComputer, membershipFieldFactory, supervisionFieldFactory, authenticatedUser, messages, LOGGER,
+		super(context, false, supervisionCreationStatusComputer, membershipFieldFactory, supervisionFieldFactory, authenticatedUser, messages,
 				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}

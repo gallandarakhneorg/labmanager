@@ -57,8 +57,8 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -112,14 +112,15 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
-	 * @param logger the logger to be used by this view.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
 	public StandardPersonListView(
 			PersonService personService, UserService userService, MembershipService membershipService,
 			ResearchOrganizationService organizationService, ChronoMembershipComparator membershipComparator,
-			PersonDataProvider dataProvider, PersonEditorFactory personEditorFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			Logger logger) {
-		super(Person.class, authenticatedUser, messages, logger,
+			PersonDataProvider dataProvider, PersonEditorFactory personEditorFactory,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ContextualLoggerFactory loggerFactory) {
+		super(Person.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.persons.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.persons.delete.message") //$NON-NLS-1$
@@ -196,9 +197,9 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 	protected void openPersonEditor(Person person, String title, boolean isCreation) {
 		final AbstractEntityEditor<Person> editor;
 		if (isCreation) {
-			editor = this.personEditorFactory.createAdditionEditor(person);
+			editor = this.personEditorFactory.createAdditionEditor(person, getLogger());
 		} else {
-			editor = this.personEditorFactory.createUpdateEditor(person);
+			editor = this.personEditorFactory.createUpdateEditor(person, getLogger());
 		}
 		openPersonEditor(editor, title);
 	}
@@ -220,7 +221,7 @@ public class StandardPersonListView extends AbstractEntityListView<Person> {
 
 	@Override
 	protected EntityDeletingContext<Person> createDeletionContextFor(Set<Person> entities) {
-		final var personContext = this.personService.startDeletion(entities);
+		final var personContext = this.personService.startDeletion(entities, getLogger());
 		return this.userService.startDeletion(personContext);
 	}
 	

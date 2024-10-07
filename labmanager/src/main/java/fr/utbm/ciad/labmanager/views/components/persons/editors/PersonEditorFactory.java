@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.persons.editors;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing a person editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface PersonEditorFactory {
 	/** Replies the editing context for the given person.
 	 *
 	 * @param person the person to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	UserEditingContext createUserContextFor(Person person);
+	UserEditingContext createUserContextFor(Person person, Logger logger);
 	
 	/** Create an editor that may be used for creating a new person.
 	 * 
@@ -50,10 +52,11 @@ public interface PersonEditorFactory {
 	/** Create an editor that may be used for creating a new person.
 	 * 
      * @param person the person to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Person> createAdditionEditor(Person person) {
-		final var userContext = createUserContextFor(person);
+	default AbstractEntityEditor<Person> createAdditionEditor(Person person, Logger logger) {
+		final var userContext = createUserContextFor(person, logger);
 		return createAdditionEditor(userContext);
 	}
 
@@ -67,10 +70,11 @@ public interface PersonEditorFactory {
 	/** Create an editor that may be used for updating an existing person.
 	 * 
      * @param person the person to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Person> createUpdateEditor(Person person) {
-		final var userContext = createUserContextFor(person);
+	default AbstractEntityEditor<Person> createUpdateEditor(Person person, Logger logger) {
+		final var userContext = createUserContextFor(person, logger);
 		return createUpdateEditor(userContext);
 	}
 

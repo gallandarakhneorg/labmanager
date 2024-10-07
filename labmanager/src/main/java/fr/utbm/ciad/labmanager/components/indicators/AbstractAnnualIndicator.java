@@ -39,6 +39,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractAnnualIndicator extends AbstractIndicator implements AnnualIndicator {
 
+	private static final long serialVersionUID = 3420694450212058330L;
+
 	/** Default number of years for the year window.
 	 */
 	public static final int DEFAULT_YEAR_WINDOW = 5;

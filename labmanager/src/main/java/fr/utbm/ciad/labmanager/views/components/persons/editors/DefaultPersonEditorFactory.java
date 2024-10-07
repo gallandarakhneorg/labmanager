@@ -27,6 +27,7 @@ import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.EmbeddedPersonEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.PersonCreationStatusComputer;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -74,8 +75,8 @@ public class DefaultPersonEditorFactory implements PersonEditorFactory {
 	}
 
 	@Override
-	public UserEditingContext createUserContextFor(Person person) {
-        final var personContext = this.personService.startEditing(person);
+	public UserEditingContext createUserContextFor(Person person, Logger logger) {
+        final var personContext = this.personService.startEditing(person, logger);
         final var user = this.userService.getUserFor(person);
         final var userContext = this.userService.startEditing(user, personContext);
         return userContext;

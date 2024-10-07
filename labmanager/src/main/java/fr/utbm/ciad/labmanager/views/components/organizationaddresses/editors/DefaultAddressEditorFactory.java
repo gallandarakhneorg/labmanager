@@ -26,6 +26,7 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.regular.EmbeddedAddressEditor;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -68,8 +69,8 @@ public class DefaultAddressEditorFactory implements AddressEditorFactory {
 	}
 
 	@Override
-	public EntityEditingContext<OrganizationAddress> createContextFor(OrganizationAddress address) {
-		return this.addressService.startEditing(address);
+	public EntityEditingContext<OrganizationAddress> createContextFor(OrganizationAddress address, Logger logger) {
+		return this.addressService.startEditing(address, logger);
 	}
 
 	@Override

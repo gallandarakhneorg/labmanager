@@ -37,6 +37,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScimagoJournalPaperFteRatioIndicator extends AbstractRankedJournalPaperFteRatioIndicator {
 
+	private static final long serialVersionUID = -7359074232158254053L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

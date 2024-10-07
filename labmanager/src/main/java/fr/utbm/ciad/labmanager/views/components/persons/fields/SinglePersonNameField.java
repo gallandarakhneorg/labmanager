@@ -88,19 +88,18 @@ public class SinglePersonNameField extends AbstractSingleEntityNameField<Person>
 			String creationTitle, Logger logger) {
 		this(personService,
 				(newPerson, saver) -> {
-					final var editor = personEditorFactory.createAdditionEditor(newPerson);
+					final var editor = personEditorFactory.createAdditionEditor(newPerson, logger);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedPerson) -> saver.accept(changedPerson),
 							null);
 				},
 				(newPerson, saver) -> {
 					try {
-						final var creationContext = personService.startEditing(newPerson);
+						final var creationContext = personService.startEditing(newPerson, logger);
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating a person by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
-							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+						logger.warn("Error when creating a person: " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(personService.getMessageSourceAccessor().getMessage("views.persons.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				});

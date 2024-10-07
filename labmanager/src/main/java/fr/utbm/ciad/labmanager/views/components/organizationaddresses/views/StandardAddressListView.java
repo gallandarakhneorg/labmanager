@@ -43,11 +43,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -80,15 +80,14 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param addressService the service for accessing the addresses.
 	 * @param addressEditorFactory the factory for creating the address editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardAddressListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			OrganizationAddressService addressService, AddressEditorFactory addressEditorFactory,
-			Logger logger) {
-		super(OrganizationAddress.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			OrganizationAddressService addressService, AddressEditorFactory addressEditorFactory) {
+		super(OrganizationAddress.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.addresses.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.addresses.delete.message") //$NON-NLS-1$
@@ -164,9 +163,9 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 	protected void openAddressEditor(OrganizationAddress address, String title, boolean isCreation) {
 		final AbstractEntityEditor<OrganizationAddress> editor;
 		if (isCreation) {
-			editor = this.addressEditorFactory.createAdditionEditor(address);
+			editor = this.addressEditorFactory.createAdditionEditor(address, getLogger());
 		} else {
-			editor = this.addressEditorFactory.createUpdateEditor(address);
+			editor = this.addressEditorFactory.createUpdateEditor(address, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, OrganizationAddress> refreshAll = (dialog, entity) -> refreshGrid();
@@ -179,7 +178,7 @@ public class StandardAddressListView extends AbstractEntityListView<Organization
 
 	@Override
 	protected EntityDeletingContext<OrganizationAddress> createDeletionContextFor(Set<OrganizationAddress> entities) {
-		return this.addressService.startDeletion(entities);
+		return this.addressService.startDeletion(entities, getLogger());
 	}
 
 	@Override

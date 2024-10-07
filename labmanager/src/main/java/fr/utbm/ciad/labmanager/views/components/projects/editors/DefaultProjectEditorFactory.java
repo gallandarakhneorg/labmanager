@@ -33,6 +33,7 @@ import fr.utbm.ciad.labmanager.views.components.organizations.fields.Organizatio
 import fr.utbm.ciad.labmanager.views.components.projects.editors.regular.EmbeddedProjectEditor;
 import fr.utbm.ciad.labmanager.views.components.projects.fields.ProjectFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -110,8 +111,8 @@ public class DefaultProjectEditorFactory implements ProjectEditorFactory {
 	}
 
 	@Override
-	public EntityEditingContext<Project> createContextFor(Project project) {
-		return this.projectService.startEditing(project);
+	public EntityEditingContext<Project> createContextFor(Project project, Logger logger) {
+		return this.projectService.startEditing(project, logger);
 	}
 
 	@Override

@@ -25,9 +25,6 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
-import fr.utbm.ciad.labmanager.views.components.conferences.editors.regular.EmbeddedConferenceEditor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of conference information that may be embedded. This editor does not provide
@@ -45,8 +42,6 @@ public final class EmbeddedConferenceEditorWizard extends AbstractConferenceEdit
 
     private static final long serialVersionUID = -2522520461244264353L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedConferenceEditor.class);
-
     /** Constructor.
      *
      * @param context the editing context for the conference.
@@ -57,8 +52,9 @@ public final class EmbeddedConferenceEditorWizard extends AbstractConferenceEdit
      */
     public EmbeddedConferenceEditorWizard(EntityEditingContext<Conference> context,
 			EntityCreationStatusComputer<Conference> conferenceCreationStatusComputer,
-			AuthenticatedUser authenticatedUser, ConferenceService conferenceService, MessageSourceAccessor messages) {
-        super(context, conferenceCreationStatusComputer, false, conferenceService , authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+			AuthenticatedUser authenticatedUser, ConferenceService conferenceService,
+			MessageSourceAccessor messages) {
+        super(context, conferenceCreationStatusComputer, false, conferenceService , authenticatedUser, messages, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }
 

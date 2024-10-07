@@ -36,6 +36,8 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -54,6 +56,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class OrganizationAddressService extends AbstractEntityService<OrganizationAddress> {
+
+	private static final long serialVersionUID = 1997081746266439673L;
 
 	private final OrganizationAddressRepository addressRepository;
 
@@ -209,12 +213,13 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	@Deprecated(since = "4.0", forRemoval = true)
 	protected void updateUploadedImage(OrganizationAddress address, MultipartFile backgroundImage,
 			boolean removedBackgroundImage, boolean saveInDb) throws IOException {
+		final var logger = LoggerFactory.getLogger(getClass());
 		// Treat the uploaded files
 		var hasChanged = false;
 		if (removedBackgroundImage) {
 			final var ext = FileSystem.extension(address.getPathToBackgroundImage());
 			try {
-				this.fileManager.deleteAddressBackgroundImage(address.getId(), ext);
+				this.fileManager.deleteAddressBackgroundImage(address.getId(), ext, logger);
 			} catch (Throwable ex) {
 				// Silent
 			}
@@ -224,10 +229,10 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 		if (backgroundImage != null && !backgroundImage.isEmpty()) {
 			final var ext = FileSystem.extension(backgroundImage.getOriginalFilename());
 			final var filename = this.fileManager.makeAddressBackgroundImage(address.getId(), ext);
-			this.fileManager.saveImage(filename, backgroundImage);
+			this.fileManager.saveImage(filename, backgroundImage, logger);
 			address.setPathToBackgroundImage(filename.getPath());
 			hasChanged = true;
-			getLogger().info("Address background image uploaded at: " + filename.getPath()); //$NON-NLS-1$
+			//getLogger().info("Address background image uploaded at: " + filename.getPath()); //$NON-NLS-1$
 		}
 		if (hasChanged && saveInDb) {
 			this.addressRepository.save(address);
@@ -247,14 +252,16 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 	}
 
 	@Override
-	public EntityEditingContext<OrganizationAddress> startEditing(OrganizationAddress address) {
+	public EntityEditingContext<OrganizationAddress> startEditing(OrganizationAddress address, Logger logger) {
 		assert address != null;
-		return new EditingContext(address);
+		logger.info("Starting the editing of the organization address: " + address); //$NON-NLS-1$
+		return new EditingContext(address, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<OrganizationAddress> startDeletion(Set<OrganizationAddress> addresses) {
+	public EntityDeletingContext<OrganizationAddress> startDeletion(Set<OrganizationAddress> addresses, Logger logger) {
 		assert addresses != null && !addresses.isEmpty();
+		logger.info("Starting the deletion of the organization addresses: " + addresses); //$NON-NLS-1$
 		// Force loading of the linked entities
 		inSession(session -> {
 			for (final var address : addresses) {
@@ -264,7 +271,7 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 				}
 			}
 		});
-		return new DeletingContext(addresses);
+		return new DeletingContext(addresses, logger);
 	}
 
 	/** Context for editing a {@link OrganizationAddress}.
@@ -286,16 +293,17 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 		/** Constructor.
 		 *
 		 * @param address the edited address.
+		 * @param logger the logger to be used.
 		 */
-		EditingContext(OrganizationAddress address) {
-			super(address);
+		EditingContext(OrganizationAddress address, Logger logger) {
+			super(address, logger);
 			this.pathToBackgroundImage = newUploadedFileTracker(address,
 					OrganizationAddress::getPathToBackgroundImage,
 					(id, savedPath) -> {
 						if (!Strings.isNullOrEmpty(savedPath)) {
 							final var ext = FileSystem.extension(savedPath);
 							if (!Strings.isNullOrEmpty(ext)) {
-								OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id.longValue(), ext);
+								OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id.longValue(), ext, logger);
 							}
 						}
 					},
@@ -304,27 +312,29 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 
 		@Override
 		protected OrganizationAddress writeInJPA(OrganizationAddress entity, boolean initialSaving) {
-			return OrganizationAddressService.this.addressRepository.save(this.entity);
+			final var address = OrganizationAddressService.this.addressRepository.save(this.entity);
+			getLogger().info("Saved the organization address: " + address); //$NON-NLS-1$
+			return address;
 		}
 
 		@Override
 		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
-			this.pathToBackgroundImage.deleteOrRenameFile(oldId, this.entity);
+			this.pathToBackgroundImage.deleteOrRenameFile(oldId, this.entity, getLogger());
 		}
 
 		@Override
 		protected boolean prepareAssociatedFileUpload() throws IOException {
-			return !this.pathToBackgroundImage.deleteFile(this.entity);
+			return !this.pathToBackgroundImage.deleteFile(this.entity, getLogger());
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() {
-			this.pathToBackgroundImage.resetPathMemory(this.entity);
+			this.pathToBackgroundImage.resetPathMemory(this.entity, getLogger());
 		}
 
 		@Override
 		public EntityDeletingContext<OrganizationAddress> createDeletionContext() {
-			return OrganizationAddressService.this.startDeletion(Collections.singleton(this.entity));
+			return OrganizationAddressService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -344,9 +354,10 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 		/** Constructor.
 		 *
 		 * @param addresses the organization addresses to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<OrganizationAddress> addresses) {
-			super(addresses);
+		protected DeletingContext(Set<OrganizationAddress> addresses, Logger logger) {
+			super(addresses, logger);
 		}
 
 		@Override
@@ -362,8 +373,9 @@ public class OrganizationAddressService extends AbstractEntityService<Organizati
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			OrganizationAddressService.this.addressRepository.deleteAllById(identifiers);
+			getLogger().info("Deletd organization addresses: " + identifiers); //$NON-NLS-1$
 			for (final Long id : identifiers) {
-				OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id.longValue());
+				OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id.longValue(), getLogger());
 			}
 		}
 

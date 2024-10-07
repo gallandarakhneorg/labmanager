@@ -91,19 +91,18 @@ public class SingleMembershipNameField extends AbstractSingleEntityNameField<Mem
 			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger, Supplier<Locale> locale, Consumer<Membership> entityInitializer) {
 		this(membershipService, locale,
 				(newMembership, saver) -> {
-					final var editor = membershipEditorFactory.createAdditionEditor(newMembership, true);
+					final var editor = membershipEditorFactory.createAdditionEditor(newMembership, logger, true);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);
 				},
 				(newMembership, saver) -> {
 					try {
-						final var creationContext = membershipService.startEditing(newMembership);
+						final var creationContext = membershipService.startEditing(newMembership, logger);
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating a membership by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
-							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+						logger.warn("Error when creating a membership: " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(membershipService.getMessageSourceAccessor().getMessage("views.membership.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				},

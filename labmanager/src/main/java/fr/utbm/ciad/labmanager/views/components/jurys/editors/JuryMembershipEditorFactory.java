@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.jurys.editors;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing an jury membership editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface JuryMembershipEditorFactory {
 	/** Replies the editing context for the given jury membership.
 	 *
 	 * @param membership the jury membership to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<JuryMembership> createContextFor(JuryMembership membership);
+	EntityEditingContext<JuryMembership> createContextFor(JuryMembership membership, Logger logger);
 
 	/** Create an editor that may be used for creating a new jury membership.
 	 * 
@@ -50,10 +52,11 @@ public interface JuryMembershipEditorFactory {
 	/** Create an editor that may be used for creating a new jury membership.
 	 * 
 	 * @param membership the jury membership to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<JuryMembership> createAdditionEditor(JuryMembership membership) {
-		final var context = createContextFor(membership);
+	default AbstractEntityEditor<JuryMembership> createAdditionEditor(JuryMembership membership, Logger logger) {
+		final var context = createContextFor(membership, logger);
 		return createAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface JuryMembershipEditorFactory {
 	/** Create an editor that may be used for updating an existing jury membership.
 	 * 
 	 * @param membership the jury membership to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<JuryMembership> createUpdateEditor(JuryMembership membership) {
-		final var context = createContextFor(membership);
+	default AbstractEntityEditor<JuryMembership> createUpdateEditor(JuryMembership membership, Logger logger) {
+		final var context = createContextFor(membership, logger);
 		return createUpdateEditor(context);
 	}
 

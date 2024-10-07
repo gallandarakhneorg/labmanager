@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.assocstructures.editors;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing a associated-structure editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface AssociatedStructureEditorFactory {
 	/** Replies the editing context for the given structure.
 	 *
 	 * @param structure the structure to be edited.
+	 * @param logger the logger to be used.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<AssociatedStructure> createContextFor(AssociatedStructure structure);
+	EntityEditingContext<AssociatedStructure> createContextFor(AssociatedStructure structure, Logger logger);
 
 	/** Create an editor that may be used for creating a new associated structure.
 	 * 
@@ -50,10 +52,11 @@ public interface AssociatedStructureEditorFactory {
 	/** Create an editor that may be used for creating a new associated structure.
 	 * 
 	 * @param structure the structure to be edited.
+	 * @param logger the logger to be used.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<AssociatedStructure> createAdditionEditor(AssociatedStructure structure) {
-		final var context = createContextFor(structure);
+	default AbstractEntityEditor<AssociatedStructure> createAdditionEditor(AssociatedStructure structure, Logger logger) {
+		final var context = createContextFor(structure, logger);
 		return createAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface AssociatedStructureEditorFactory {
 	/** Create an editor that may be used for updating an existing associated structure.
 	 * 
 	 * @param structure the structure to be edited.
+	 * @param logger the logger to be used.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<AssociatedStructure> createUpdateEditor(AssociatedStructure structure) {
-		final var context = createContextFor(structure);
+	default AbstractEntityEditor<AssociatedStructure> createUpdateEditor(AssociatedStructure structure, Logger logger) {
+		final var context = createContextFor(structure, logger);
 		return createUpdateEditor(context);
 	}
 

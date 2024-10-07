@@ -16,6 +16,7 @@ import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.PersonCardDataProvider;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -59,22 +60,23 @@ public class StandardPersonCardGridItemFactory {
 	/** Create a card item.
 	 *
 	 * @param person the person who is associated to the card.
+	 * @param logger the logger to be used by the card tools.
 	 * @param updaterCallback the functional function that is invoked for refreshing the container of this item.
 	 * @return the item.
 	 */
-	public StandardPersonCardGridItem createCard(Person person, Runnable updaterCallback) {
+	public StandardPersonCardGridItem createCard(Person person, Logger logger, Runnable updaterCallback) {
 		final var provider = new CardDataProvider(person, this.membershipService, this.membershipComparator);
-		return new StandardPersonCardGridItem(provider, this.personEditorFactory, this.authenticatedUser, updaterCallback);
+		return new StandardPersonCardGridItem(provider, this.personEditorFactory, this.authenticatedUser, logger, updaterCallback);
 	}
 
 	/** Create a card item.
 	 *
 	 * @param person the person who is associated to the card.
-	 * @param updaterCallback the functional function that is invoked for refreshing the container of this item.
+	 * @param logger the logger to be used by the card tools.
 	 * @return the item.
 	 */
-	public StandardPersonCardGridItem createCard(Person person) {
-		return createCard(person, null);
+	public StandardPersonCardGridItem createCard(Person person, Logger logger) {
+		return createCard(person, logger, null);
 	}
 
 	/** Tool for building the specification of a person's card.

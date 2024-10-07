@@ -37,6 +37,8 @@ import org.springframework.util.function.ThrowingFunction;
  */
 public abstract class AbstractService extends AbstractComponent {
 
+	private static final long serialVersionUID = -9185252700109170262L;
+
 	private final SessionFactory sessionFactory;
 
 	/** Constructor.

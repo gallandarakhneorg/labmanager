@@ -51,6 +51,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class KeyNoteService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = -1022043759877548778L;
+
 	private KeyNoteRepository repository;
 
 	/** Constructor for injector.

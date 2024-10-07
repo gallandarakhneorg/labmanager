@@ -26,6 +26,7 @@ import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.regular.ConferenceCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.regular.EmbeddedConferenceEditor;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -68,8 +69,8 @@ public class DefaultConferenceEditorFactory implements ConferenceEditorFactory {
 	}
 	
 	@Override
-	public EntityEditingContext<Conference> createContextFor(Conference conference) {
-		return this.conferenceService.startEditing(conference);
+	public EntityEditingContext<Conference> createContextFor(Conference conference, Logger logger) {
+		return this.conferenceService.startEditing(conference, logger);
 	}
 
 	@Override

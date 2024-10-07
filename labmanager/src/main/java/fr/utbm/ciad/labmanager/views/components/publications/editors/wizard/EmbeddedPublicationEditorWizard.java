@@ -39,8 +39,6 @@ import fr.utbm.ciad.labmanager.views.components.journals.fields.JournalFieldFact
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /**
@@ -57,8 +55,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEditorWizard {
 
     private static final long serialVersionUID = 7233675942546351403L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPublicationEditorWizard.class);
 
     /**
      * Constructor.
@@ -84,6 +80,7 @@ public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEd
      * @param axisEditorFactory the factory for creating the scientific axis editors.
      * @param authenticatedUser         the connected user.
      * @param messages                  the accessor to the localized messages (Spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
      */
@@ -100,7 +97,7 @@ public final class EmbeddedPublicationEditorWizard extends AbstractPublicationEd
         super(context, supportedTypes, false, enableTypeSelector, mandatoryAbstractText, publicationCreationStatusComputer, fileManager,
         		publicationService, personService, personEditorFactory, personFieldFactory, userService,
                 journalService, journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory, conferenceFieldFactory, axisService, axisEditorFactory,
-                authenticatedUser, messages, LOGGER, properties);
+                authenticatedUser, messages, properties);
         createEditorContentAndLinkBeans();
     }
 

@@ -21,7 +21,9 @@ package fr.utbm.ciad.labmanager.views.components.addons.uploads.image;
 
 import java.io.File;
 
+import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.AbstractServerSideUploadableFileImageViewerField;
+import org.slf4j.Logger;
 
 /** A field that enables to upload an image to the server.
  * This field does not assume that the field's data is of a specific type.
@@ -42,8 +44,11 @@ public abstract class AbstractServerSideUploadableImageField<T> extends Abstract
 	private static final long serialVersionUID = 8918559663409687792L;
 
 	/** Default constructor.
+	 *
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadableImageField() {
+	public AbstractServerSideUploadableImageField(SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
 		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
 	}
 

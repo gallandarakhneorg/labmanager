@@ -26,6 +26,7 @@ import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.jurys.editors.regular.EmbeddedJuryMembershipEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -56,6 +57,7 @@ public class DefaultJuryMembershipEditorFactory implements JuryMembershipEditorF
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
 	public DefaultJuryMembershipEditorFactory(
 			@Autowired JuryMembershipService juryMembershipService,
@@ -69,8 +71,8 @@ public class DefaultJuryMembershipEditorFactory implements JuryMembershipEditorF
 	}
 
 	@Override
-	public EntityEditingContext<JuryMembership> createContextFor(JuryMembership membership) {
-		return this.juryMembershipService.startEditing(membership);
+	public EntityEditingContext<JuryMembership> createContextFor(JuryMembership membership, Logger logger) {
+		return this.juryMembershipService.startEditing(membership, logger);
 	}
 	
 	@Override

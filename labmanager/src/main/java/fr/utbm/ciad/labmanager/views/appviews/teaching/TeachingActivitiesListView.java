@@ -26,11 +26,10 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.teaching.editors.TeachingActivityEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.teaching.views.StandardTeachingActivitiesListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -48,13 +47,12 @@ public class TeachingActivitiesListView extends StandardTeachingActivitiesListVi
 
 	private static final long serialVersionUID = -3394037347708282892L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TeachingActivitiesListView.class);
-
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the downloadable files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param teachingService the service for accessing the teaching activities.
 	 * @param teachingEditorFactory the factory for creating the teaching activity editors.
 	 */
@@ -62,9 +60,10 @@ public class TeachingActivitiesListView extends StandardTeachingActivitiesListVi
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired TeachingService teachingService,
 			@Autowired TeachingActivityEditorFactory teachingEditorFactory) {
-		super(fileManager, authenticatedUser, messages, teachingService, teachingEditorFactory, LOGGER);
+		super(fileManager, authenticatedUser, messages, loggerFactory, teachingService, teachingEditorFactory);
 	}
 
 	@Override

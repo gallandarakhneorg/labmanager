@@ -20,16 +20,15 @@
 package fr.utbm.ciad.labmanager.views.appviews.login;
 
 import com.vaadin.flow.component.login.LoginI18n;
-import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.internal.RouteUtil;
-import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerLoginOverlay;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -44,7 +43,7 @@ import org.springframework.beans.factory.annotation.Value;
 @AnonymousAllowed
 @PageTitle("AdaptiveLogin")
 @Route(value = "devlogin")
-public class DevelopperLoginView extends LoginOverlay implements BeforeEnterObserver {
+public class DevelopperLoginView extends AbstractLoggerLoginOverlay implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = 4873621745334362590L;
 
@@ -60,11 +59,9 @@ public class DevelopperLoginView extends LoginOverlay implements BeforeEnterObse
 			@Value("${labmanager.application-name}") String applicationName) {
 		this.authenticatedUser = authenticatedUser;
 
-		final var isProductionMode = VaadinRequest.getCurrent().getService().getDeploymentConfiguration().isProductionMode();
-
 		setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
-		final var inviteMessage = getTranslation(isProductionMode ? "views.login.prod.invite" : "views.login.dev.invite"); //$NON-NLS-1$ //$NON-NLS-2$
+		final var inviteMessage = getTranslation("views.login.dev.invite"); //$NON-NLS-1$
 		
 		final var i18n = LoginI18n.createDefault();
 		i18n.setHeader(new LoginI18n.Header());

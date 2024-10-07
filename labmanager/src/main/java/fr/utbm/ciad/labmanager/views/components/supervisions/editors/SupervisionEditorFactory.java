@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.supervisions.editors;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing a person supervision editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface SupervisionEditorFactory {
 	/** Replies the editing context for the given person supervision.
 	 *
 	 * @param supervision the person supervision to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<Supervision> createContextFor(Supervision supervision);
+	EntityEditingContext<Supervision> createContextFor(Supervision supervision, Logger logger);
 
 	/** Create an editor that may be used for creating a new person supervision.
 	 * 
@@ -50,10 +52,11 @@ public interface SupervisionEditorFactory {
 	/** Create an editor that may be used for creating a new person supervision.
 	 * 
 	 * @param supervision the person supervision to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Supervision> createAdditionEditor(Supervision supervision) {
-		final var context = createContextFor(supervision);
+	default AbstractEntityEditor<Supervision> createAdditionEditor(Supervision supervision, Logger logger) {
+		final var context = createContextFor(supervision, logger);
 		return createAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface SupervisionEditorFactory {
 	/** Create an editor that may be used for updating an existing person supervision.
 	 * 
 	 * @param supervision the person supervision to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Supervision> createUpdateEditor(Supervision supervision) {
-		final var context = createContextFor(supervision);
+	default AbstractEntityEditor<Supervision> createUpdateEditor(Supervision supervision, Logger logger) {
+		final var context = createContextFor(supervision, logger);
 		return createUpdateEditor(context);
 	}
 

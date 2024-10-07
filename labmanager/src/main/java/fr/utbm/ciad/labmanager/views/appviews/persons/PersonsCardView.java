@@ -9,6 +9,7 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.views.AbstractPersonCardView;
 import fr.utbm.ciad.labmanager.views.components.persons.views.StandardPersonCardGridItemFactory;
@@ -32,9 +33,7 @@ public class PersonsCardView extends AbstractPersonCardView implements HasDynami
 
 	/** Constructor.
 	 *
-	 * @param cardsPerRow the number of cards in a row in the grid. It must be greater or equal to 1.
-	 * @param numberOfRows the number of rows to show in the cards' viewer. It must be greater or equal to 1.
-	 * @param initialPageIndex the index of the card page to show up at startup. It must be greater or equal to zero.
+	 * @param loggerFactory the factory of the loggers.
 	 * @param organizationService the service for accessing the JPA entities of the research organizations.
 	 * @param personService the service for accessing the JPA entities of the persons.
 	 * @param personEditorFactory the factory for creating the person editors.
@@ -46,13 +45,14 @@ public class PersonsCardView extends AbstractPersonCardView implements HasDynami
 			@Autowired PersonService personService,
 			@Autowired PersonEditorFactory personEditorFactory,
 			@Autowired StandardPersonCardGridItemFactory cardFactory,
-			@Autowired AuthenticatedUser authenticatedUser) {
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired ContextualLoggerFactory loggerFactory) {
 		super(
 				ViewConstants.DEFAULT_PERSON_CARDS_PER_ROW,
 				ViewConstants.DEFAULT_ROWS_IN_PERSON_CARD_GRID,
 				0,
 				organizationService, personService, personEditorFactory,
-				cardFactory, authenticatedUser);
+				cardFactory, authenticatedUser, loggerFactory);
 	}
 
 	@Override

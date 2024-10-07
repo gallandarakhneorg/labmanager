@@ -72,7 +72,6 @@ import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactor
 import fr.utbm.ciad.labmanager.views.components.persons.fields.SinglePersonNameField;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a membership.
@@ -153,7 +152,6 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	 * @param axisEditorFactory the factory for creating the scientific axis editors.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
@@ -162,8 +160,8 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 			boolean editAssociatedPerson, boolean relinkEntityWhenSaving, PersonFieldFactory personFieldFactory,
 			OrganizationFieldFactory organizationFieldFactory, ScientificAxisService axisService,
 			ScientificAxisEditorFactory axisEditorFactory, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
-		super(Membership.class, authenticatedUser, messages, logger,
+			MessageSourceAccessor messages, ConstructionPropertiesBuilder properties) {
+		super(Membership.class, authenticatedUser, messages,
 				membershipCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.membership.administration_details") //$NON-NLS-1$
@@ -476,7 +474,7 @@ public abstract class AbstractMembershipEditor extends AbstractEntityEditor<Memb
 	 */
 	protected void openScientificAxisEditor(Consumer<ScientificAxis> saver) {
 		final var newAxis = new ScientificAxis();
-		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis);
+		final var editor = this.axisEditorFactory.createAdditionEditor(newAxis, getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.membership.scientific_axes.create"), //$NON-NLS-1$
 				editor, false,
