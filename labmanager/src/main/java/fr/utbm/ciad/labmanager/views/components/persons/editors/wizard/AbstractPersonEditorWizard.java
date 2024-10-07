@@ -218,10 +218,15 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
 
         final var content = ComponentFactory.newColumnForm(1);
 
-        this.email = new TextField();
-        this.email.setPrefixComponent(VaadinIcon.AT.create());
-        this.email.setClearButtonVisible(true);
-        content.add(this.email, 2);
+        this.primaryEmail = new TextField();
+        this.primaryEmail.setPrefixComponent(VaadinIcon.AT.create());
+        this.primaryEmail.setClearButtonVisible(true);
+        content.add(this.primaryEmail, 2);
+
+        this.secondaryEmail = new TextField();
+        this.secondaryEmail.setPrefixComponent(VaadinIcon.AT.create());
+        this.secondaryEmail.setClearButtonVisible(true);
+        content.add(this.secondaryEmail, 2);
 
         this.officePhone = new PhoneNumberField();
         this.officePhone.setClearButtonVisible(true);
@@ -239,10 +244,14 @@ public abstract class AbstractPersonEditorWizard extends AbstractPersonEditor {
         content.add(this.officeRoom, 2);
 
 
-        getEntityDataBinder().forField(this.email)
+        getEntityDataBinder().forField(this.primaryEmail)
                 .withConverter(new StringTrimer())
                 .withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
-                .bind(Person::getEmail, Person::setEmail);
+                .bind(Person::getPrimaryEmail, Person::setPrimaryEmail);
+        getEntityDataBinder().forField(this.secondaryEmail)
+                .withConverter(new StringTrimer())
+                .withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
+                .bind(Person::getSecondaryEmail, Person::setSecondaryEmail);
         getEntityDataBinder().forField(this.officePhone)
                 .withValidator(this.officePhone.getDefaultValidator())
                 .bind(Person::getOfficePhone, Person::setOfficePhone);

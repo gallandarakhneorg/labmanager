@@ -115,7 +115,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 	protected DetailsWithErrorMark contactInformationDetails;
 
-	protected TextField email;
+	protected TextField primaryEmail;
+
+	protected TextField secondaryEmail;
 
 	protected PhoneNumberField officePhone;
 
@@ -439,10 +441,15 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	protected void createContactInformationComponents(VerticalLayout receiver) {
 		final var content = ComponentFactory.newColumnForm(1);
 
-		this.email = new TextField();
-		this.email.setPrefixComponent(VaadinIcon.AT.create());
-		this.email.setClearButtonVisible(true);
-		content.add(this.email, 2);
+		this.primaryEmail = new TextField();
+		this.primaryEmail.setPrefixComponent(VaadinIcon.AT.create());
+		this.primaryEmail.setClearButtonVisible(true);
+		content.add(this.primaryEmail, 2);
+
+		this.secondaryEmail = new TextField();
+		this.secondaryEmail.setPrefixComponent(VaadinIcon.AT.create());
+		this.secondaryEmail.setClearButtonVisible(true);
+		content.add(this.secondaryEmail, 2);
 
 		this.officePhone = new PhoneNumberField();
 		this.officePhone.setClearButtonVisible(true);
@@ -461,11 +468,16 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 		this.contactInformationDetails = createDetailsWithErrorMark(receiver, content, "contact"); //$NON-NLS-1$
 
-		getEntityDataBinder().forField(this.email)
+		getEntityDataBinder().forField(this.primaryEmail)
 			.withConverter(new StringTrimer())
 			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.email, this.contactInformationDetails))
-			.bind(Person::getEmail, Person::setEmail);
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.primaryEmail, this.contactInformationDetails))
+			.bind(Person::getPrimaryEmail, Person::setPrimaryEmail);
+		getEntityDataBinder().forField(this.secondaryEmail)
+			.withConverter(new StringTrimer())
+			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.secondaryEmail, this.contactInformationDetails))
+			.bind(Person::getSecondaryEmail, Person::setSecondaryEmail);
 		getEntityDataBinder().forField(this.officePhone)
 			.withValidator(this.officePhone.getDefaultValidator())
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.officePhone, this.contactInformationDetails))
@@ -756,8 +768,13 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		if(this.contactInformationDetails != null){
 			this.contactInformationDetails.setSummaryText(getTranslation("views.persons.contact_informations")); //$NON-NLS-1$
 		}
-		this.email.setLabel(getTranslation("views.persons.email")); //$NON-NLS-1$
-		this.email.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
+		this.primaryEmail.setLabel(getTranslation("views.persons.primary_email")); //$NON-NLS-1$
+		this.primaryEmail.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
+		this.primaryEmail.setHelperText(getTranslation("views.persons.primary_email.helper")); //$NON-NLS-1$
+		this.secondaryEmail.setLabel(getTranslation("views.persons.secondary_email")); //$NON-NLS-1$
+		this.secondaryEmail.setErrorMessage(getTranslation("views.persons.secondary_email.error")); //$NON-NLS-1$
+		this.secondaryEmail.setHelperText(getTranslation("views.persons.secondary_email.helper")); //$NON-NLS-1$
+
 		this.officePhone.setLabel(getTranslation("views.persons.officephone")); //$NON-NLS-1$
 		this.officePhone.setDynamicHelperText(helpPhone);
 		this.officePhone.setErrorMessage(errPhone);

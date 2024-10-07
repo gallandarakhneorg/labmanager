@@ -360,6 +360,12 @@ public abstract class JsonTool implements Serializable {
 	 */
 	protected static final String GRANT_KEY = "grant"; //$NON-NLS-1$
 
+	/** Old name of the field for the reference to a person email.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String OLD_FIELD_EMAIL_KEY = "email"; //$NON-NLS-1$
+
 	/** Name of the field for the reference to an office phone number.
 	 *
 	 * @since 4.0

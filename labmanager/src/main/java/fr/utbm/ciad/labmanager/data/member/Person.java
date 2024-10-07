@@ -208,10 +208,19 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
-	/** Email of the person.
+	/** Primary email of the person.
+	 *
+	 * @since 4.0
 	 */
 	@Column
-	private String email;
+	private String primaryEmail;
+
+	/** Secondary email of the person.
+	 *
+	 * @since 4.0
+	 */
+	@Column
+	private String secondaryEmail;
 
 	/** Naming convention for the webpage of the person.
 	 */
@@ -427,11 +436,13 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @param gender the gender of the person.
-	 * @param email the email of the person.
+	 * @param primaryEmail the email of the person.
+	 * @param secondaryEmail the email of the person.
 	 * @param orcid the ORCID identifier of the person.
+	 * @since 4.0
 	 */
 	public Person(int id, Set<Authorship> publications, Set<Membership> orgas, String firstName, String lastName,
-			Gender gender, String email, String orcid) {
+			Gender gender, String primaryEmail, String secondaryEmail, String orcid) {
 		this.id = id;
 		this.authorships = publications;
 		this.memberships = orgas;
@@ -442,7 +453,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		}else {
 			this.gender = gender;
 		}
-		this.email = email;
+		this.primaryEmail = primaryEmail;
+		this.secondaryEmail = secondaryEmail;
 		this.orcid = orcid;
 	}
 
@@ -461,7 +473,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		h = HashCodeUtils.add(h, this.lastName);
 		h = HashCodeUtils.add(h, this.firstName);
 		h = HashCodeUtils.add(h, this.orcid);
-		h = HashCodeUtils.add(h, this.email);
+		h = HashCodeUtils.add(h, this.primaryEmail);
+		h = HashCodeUtils.add(h, this.secondaryEmail);
 		return h;
 	}
 
@@ -483,7 +496,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		return Objects.equals(this.lastName, other.lastName)
 				&& Objects.equals(this.firstName, other.firstName)
 				&& Objects.equals(this.orcid, other.orcid)
-				&& Objects.equals(this.email, other.email);
+				&& Objects.equals(this.primaryEmail, other.primaryEmail)
+				&& Objects.equals(this.secondaryEmail, other.secondaryEmail);
 	}
 
 	@Override
@@ -505,8 +519,11 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		if (!Strings.isNullOrEmpty(getDblpURL())) {
 			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getEmail())) {
-			consumer.accept("email", getEmail()); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getPrimaryEmail())) {
+			consumer.accept("primaryEmail", getPrimaryEmail()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getSecondaryEmail())) {
+			consumer.accept("secondaryEmail", getSecondaryEmail()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			consumer.accept("facebookId", getFacebookId()); //$NON-NLS-1$
@@ -734,20 +751,62 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		return getLastName() + " " + getFirstName(); //$NON-NLS-1$
 	}
 
-	/** Replies the email of the person.
+	/** Replies the primary or secondary email of the person.
+	 * If the primary email is not set, the secondary email is replied.
+	 * Otherwise, the primary email is replied.
 	 *
 	 * @return the email.
+	 * @see #getPrimaryEmail()
+	 * @see #getSecondaryEmail()
 	 */
-	public String getEmail() {
-		return this.email;
+	public final String getEmail() {
+		if (Strings.isNullOrEmpty(this.primaryEmail)) {
+			return this.secondaryEmail;
+		}
+		return this.primaryEmail;
 	}
 
-	/** Change the email of the person.
+	/** Replies the primary email of the person.
+	 *
+	 * @return the primary email.
+	 * @since 4.0
+	 * @see #getSecondaryEmail()
+	 * @see #getEmail()
+	 */
+	public String getPrimaryEmail() {
+		return this.primaryEmail;
+	}
+
+	/** Change the primary email of the person.
 	 *
 	 * @param email the email.
+	 * @since 4.0
+	 * @see #setSecondaryEmail(String)
 	 */
-	public void setEmail(String email) {
-		this.email = Strings.emptyToNull(email);
+	public void setPrimaryEmail(String email) {
+		this.primaryEmail = Strings.emptyToNull(email);
+		resetWebPageId();
+	}
+
+	/** Replies the secondary email of the person.
+	 *
+	 * @return the secondary email.
+	 * @since 4.0
+	 * @see #getPrimaryEmail()
+	 * @see #getEmail()
+	 */
+	public String getSecondaryEmail() {
+		return this.secondaryEmail;
+	}
+
+	/** Change the primary email of the person.
+	 *
+	 * @param email the email.
+	 * @since 4.0
+	 * @see #setPrimaryEmail(String)
+	 */
+	public void setSecondaryEmail(String email) {
+		this.secondaryEmail = Strings.emptyToNull(email);
 		resetWebPageId();
 	}
 

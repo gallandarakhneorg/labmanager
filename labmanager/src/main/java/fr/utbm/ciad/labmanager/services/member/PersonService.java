@@ -263,7 +263,8 @@ public class PersonService extends AbstractEntityService<Person> {
 				false,
 				firstName, lastName,
 				Gender.NOT_SPECIFIED,
-				null, // email
+				null, // primary email
+				null, // secondary email
 				null, // office phone
 				null, // mobile phone
 				null, // office room
@@ -297,7 +298,8 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @param gender the gender.
-	 * @param email the email of the person.
+	 * @param primaryEmail the primary email of the person.
+	 * @param secondaryEmail the secondary email of the person.
 	 * @param officePhone the phone number at office.
 	 * @param mobilePhone the mobile phone number.
 	 * @param officeRoom the number of the office room.
@@ -325,8 +327,9 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @return the person in the database.
 	 * @see #createPerson(String, String)
 	 * @see Gender
+	 * @since 4.0
 	 */
-	public Person createPerson(Logger logger, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
+	public Person createPerson(Logger logger, boolean validated, String firstName, String lastName, Gender gender, String primaryEmail, String secondaryEmail, PhoneNumber officePhone,
 			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
 			String scholarId, String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
@@ -335,7 +338,8 @@ public class PersonService extends AbstractEntityService<Person> {
 		res.setFirstName(firstName);
 		res.setLastName(lastName);
 		res.setGender(gender);
-		res.setEmail(email);
+		res.setPrimaryEmail(primaryEmail);
+		res.setSecondaryEmail(secondaryEmail);
 		res.setOfficePhone(officePhone);
 		res.setMobilePhone(mobilePhone);
 		res.setOfficeRoom(officeRoom);
@@ -600,7 +604,7 @@ public class PersonService extends AbstractEntityService<Person> {
 				person.setLastName(lastName);
 			}
 			person.setGender(gender);
-			person.setEmail(email);
+			person.setPrimaryEmail(email);
 			person.setOfficePhone(officePhone);
 			person.setMobilePhone(mobilePhone);
 			person.setOfficeRoom(officeRoom);

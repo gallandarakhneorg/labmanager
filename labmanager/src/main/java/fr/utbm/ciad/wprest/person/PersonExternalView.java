@@ -200,7 +200,7 @@ public class PersonExternalView extends AbstractExternalView {
 		//
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		final Map<String, Object> obfuscatedValues = new HashMap<>();
-		addObfuscatedEmailFields(obfuscatedValues, personObj.getEmail(), null);
+		addObfuscatedEmailFields(obfuscatedValues, personObj.getPrimaryEmail(), null);
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getOfficePhone().toInternationalForm(), "o"); //$NON-NLS-1$
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getMobilePhone().toInternationalForm(), "m"); //$NON-NLS-1$
 		addObfuscatedValues(modelAndView, obfuscatedValues);

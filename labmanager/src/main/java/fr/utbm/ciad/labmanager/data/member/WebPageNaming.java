@@ -55,12 +55,12 @@ public enum WebPageNaming {
 		}
 	},
 
-	/** The URL of the person's webpage is: {@code <EMAIL_ID>} where the email of the person is defined by {@code <EMAIL_ID>@<DOMAIN>}.
+	/** The URL of the person's webpage is: {@code <PRIMARY_EMAIL_ID>} where the email of the person is defined by {@code <EMAIL_ID>@<DOMAIN>}.
 	 */
 	EMAIL_ID {
 		@Override
 		public String getWebpageIdFor(Person person) {
-			final var email = person.getEmail();
+			final var email = person.getPrimaryEmail();
 			final var id = StringUtils.substringBefore(email, "@"); //$NON-NLS-1$
 			return id;
 		}

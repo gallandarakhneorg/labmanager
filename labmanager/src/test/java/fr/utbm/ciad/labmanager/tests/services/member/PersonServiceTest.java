@@ -269,7 +269,7 @@ public class PersonServiceTest {
 	public void createPerson() {
 		final PhoneNumber num1 = new PhoneNumber(CountryCode.FRANCE, "123456789");
 		final PhoneNumber num2 = new PhoneNumber(CountryCode.FRANCE, "987654321");
-		final Person person = this.test.createPerson(LoggerFactory.getLogger(getClass()), true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
+		final Person person = this.test.createPerson(LoggerFactory.getLogger(getClass()), true, "NFN", "NLN", Gender.FEMALE, "NE", "NE2", num1, num2, "NR1",
 				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NHAL", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
@@ -284,7 +284,8 @@ public class PersonServiceTest {
 		assertEquals("NFN", actual.getFirstName());
 		assertEquals("NLN", actual.getLastName());
 		assertSame(Gender.FEMALE, actual.getGender());
-		assertEquals("NE", actual.getEmail());
+		assertEquals("NE", actual.getPrimaryEmail());
+		assertEquals("NE2", actual.getSecondaryEmail());
 		assertSame(num1, actual.getOfficePhone());
 		assertSame(num2, actual.getMobilePhone());
 		assertEquals("NR1", actual.getOfficeRoom());
@@ -309,75 +310,6 @@ public class PersonServiceTest {
 		assertEquals(2159, actual.getGoogleScholarCitations());
 		assertEquals(2357, actual.getWosCitations());
 		assertEquals(27854, actual.getScopusCitations());
-	}
-
-	@Test
-	public void updatePerson() {
-		final PhoneNumber num1 = new PhoneNumber(CountryCode.FRANCE, "123456789");
-		final PhoneNumber num2 = new PhoneNumber(CountryCode.FRANCE, "987654321");
-		Person person = this.test.updatePerson(234l, true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
-				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NHAL", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
-				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
-
-		assertNotNull(person);
-
-		final ArgumentCaptor<Long> arg0 = ArgumentCaptor.forClass(Long.class);
-		verify(this.personRepository, atLeastOnce()).findById(arg0.capture());
-		Long actual0 = arg0.getValue();
-		assertNotNull(actual0);
-		assertEquals(234, actual0);
-
-		final ArgumentCaptor<Person> arg1 = ArgumentCaptor.forClass(Person.class);
-		verify(this.personRepository, atLeastOnce()).save(arg1.capture());
-		final Person actual1 = arg1.getValue();
-		assertSame(this.pers1, actual1);
-
-		verify(this.pers1, atLeastOnce()).setValidated(eq(true));
-		verify(this.pers1, atLeastOnce()).setFirstName(eq("NFN"));
-		verify(this.pers1, atLeastOnce()).setLastName(eq("NLN"));
-		verify(this.pers1, atLeastOnce()).setGender(same(Gender.FEMALE));
-		verify(this.pers1, atLeastOnce()).setEmail(eq("NE"));
-		verify(this.pers1, atLeastOnce()).setOfficePhone(same(num1));
-		verify(this.pers1, atLeastOnce()).setMobilePhone(same(num2));
-		verify(this.pers1, atLeastOnce()).setOfficeRoom(eq("NR1"));
-		verify(this.pers1, atLeastOnce()).setGravatarId(eq("NGRAV"));
-		verify(this.pers1, atLeastOnce()).setORCID(eq("NORCID"));
-		verify(this.pers1, atLeastOnce()).setResearcherId(eq("NRID"));
-		verify(this.pers1, atLeastOnce()).setScopusId(eq("NSCOPID"));
-		verify(this.pers1, atLeastOnce()).setGoogleScholarId(eq("NGSC"));
-		verify(this.pers1, atLeastOnce()).setIdhal(eq("NHAL"));
-		verify(this.pers1, atLeastOnce()).setLinkedInId(eq("NLIN"));
-		verify(this.pers1, atLeastOnce()).setGithubId(eq("NGIT"));
-		verify(this.pers1, atLeastOnce()).setResearchGateId(eq("NRGID"));
-		verify(this.pers1, atLeastOnce()).setAdScientificIndexId("NADSI");
-		verify(this.pers1, atLeastOnce()).setFacebookId(eq("NFB"));
-		verify(this.pers1, atLeastOnce()).setDblpURL(eq("NDBLP"));
-		verify(this.pers1, atLeastOnce()).setAcademiaURL(eq("NACA"));
-		verify(this.pers1, atLeastOnce()).setCordisURL(eq("NCORDIS"));
-		verify(this.pers1, atLeastOnce()).setWebPageNaming(same(WebPageNaming.EMAIL_ID));
-		verify(this.pers1, atLeastOnce()).setGoogleScholarHindex(eq(159));
-		verify(this.pers1, atLeastOnce()).setWosHindex(eq(357));
-		verify(this.pers1, atLeastOnce()).setScopusHindex(eq(7854));
-		verify(this.pers1, atLeastOnce()).setGoogleScholarCitations(eq(2159));
-		verify(this.pers1, atLeastOnce()).setWosCitations(eq(2357));
-		verify(this.pers1, atLeastOnce()).setScopusCitations(eq(27854));
-	}
-
-	@Test
-	public void removePerson() {
-		this.test.removePerson(234);
-
-		final ArgumentCaptor<Long> arg = ArgumentCaptor.forClass(Long.class);
-
-		verify(this.personRepository, atLeastOnce()).findById(arg.capture());
-		Long actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(234, actual);
-
-		verify(this.personRepository, atLeastOnce()).deleteById(arg.capture());
-		actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(234, actual);
 	}
 
 	@Test

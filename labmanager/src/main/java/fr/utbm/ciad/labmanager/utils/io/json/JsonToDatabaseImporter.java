@@ -778,6 +778,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final var id = getId(personObject);
 					var person = createObject(Person.class, personObject, aliasRepository, null);
 					if (person != null) {
+						// Get the old specification of the email
+						if (Strings.isNullOrEmpty(person.getPrimaryEmail())) {
+							final var oldStyleEmail = getStringValue(personObject.get(OLD_FIELD_EMAIL_KEY));
+							person.setPrimaryEmail(oldStyleEmail);
+						}
 						// Get the phone numbers
 						final var officePhone = getPhoneNumber(personObject, OFFICE_PHONE_NUMBER_KEY);
 						person.setOfficePhone(officePhone);

@@ -59,7 +59,7 @@ public class WebPageNamingTest {
 
 		this.person = mock(Person.class);
 		when(this.person.getId()).thenReturn(1456l);
-		when(this.person.getEmail()).thenReturn("myfirst.mylast@institution.org");
+		when(this.person.getPrimaryEmail()).thenReturn("myfirst.mylast@institution.org");
 		when(this.person.getFirstName()).thenReturn("I am Stéphane");
 		when(this.person.getLastName()).thenReturn("My Last Name");
 	}
