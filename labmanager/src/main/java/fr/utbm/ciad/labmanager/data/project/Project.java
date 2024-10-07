@@ -1549,7 +1549,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getAcronym(), getScientificTitle());
 	}
 
 	/** Replies the associated axes that are associated to this project.

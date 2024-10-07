@@ -218,7 +218,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this);
 	}
 
 }

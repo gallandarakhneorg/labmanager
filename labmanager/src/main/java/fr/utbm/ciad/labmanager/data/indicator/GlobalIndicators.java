@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import jakarta.persistence.Column;
@@ -278,7 +279,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this);
 	}
 
 }

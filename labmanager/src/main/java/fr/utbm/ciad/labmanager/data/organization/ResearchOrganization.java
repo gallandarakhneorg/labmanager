@@ -875,7 +875,7 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getAcronym(), getName());
 	}
 
 	/** Replies the list of teaching activities associated to the organization.

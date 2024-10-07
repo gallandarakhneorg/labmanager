@@ -2166,7 +2166,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getFullNameWithLastNameFirst());
 	}
 
 	/** Replies the list of projects in which the person is involved.

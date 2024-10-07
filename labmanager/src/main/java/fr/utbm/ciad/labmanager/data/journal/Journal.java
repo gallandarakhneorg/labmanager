@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
@@ -790,7 +791,7 @@ public class Journal extends AbstractContextData implements JsonSerializable, At
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getJournalName(), getPublisher());
 	}
 
 }
