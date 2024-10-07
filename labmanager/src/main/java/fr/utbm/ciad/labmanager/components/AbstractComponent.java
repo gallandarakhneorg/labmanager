@@ -832,7 +832,7 @@ public abstract class AbstractComponent {
 	 */
 	protected String rootedThumbnail(String filename, boolean preserveFileExtension) {
 		try {
-			final var url = new URL("file:" + filename); //$NON-NLS-1$
+			final var url = new URI("file:" + filename).toURL(); //$NON-NLS-1$
 			final URL normalized;
 			if (preserveFileExtension) {
 				normalized = url;
