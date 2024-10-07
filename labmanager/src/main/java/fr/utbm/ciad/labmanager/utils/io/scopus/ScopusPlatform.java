@@ -19,10 +19,11 @@
 
 package fr.utbm.ciad.labmanager.utils.io.scopus;
 
-import org.arakhne.afc.progress.Progression;
-
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URL;
+
+import org.arakhne.afc.progress.Progression;
 
 /** Accessor to the online Elsevier Scopus platform.
  * 
@@ -52,7 +53,7 @@ public interface ScopusPlatform {
 	 * @throws Exception if rankings cannot be read.
 	 */
 	default ScopusPerson getPersonRanking(String personId, Progression progress) throws Exception {
-		final var apiUrl = new URL("https://www.scopus.com/authid/detail.uri?authorId=" + personId); //$NON-NLS-1$
+		final var apiUrl = new URI("https://www.scopus.com/authid/detail.uri?authorId=" + personId).toURL(); //$NON-NLS-1$
 		return getPersonRanking(apiUrl, progress);
 	}
 

@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.validators;
 
-import java.net.URL;
+import java.net.URI;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -91,7 +91,7 @@ public class UrlValidator extends AbstractValidator<String> {
 			return this.allowEmptyValue;
 		}
         try {
-        	final var url = new URL(value.trim());
+        	final var url = new URI(value.trim()).toURL();
         	assert url != null;
         	// URL was built, the format is good.
         	return true;

@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.projects.editors.regular;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.function.Consumer;
 
 import com.vaadin.componentfactory.ToggleButton;
@@ -659,7 +659,13 @@ public abstract class AbstractProjectEditor extends AbstractEntityEditor<Project
 		
 		this.videosURLs = new TextListField<>(
 				StringUtils::compare,
-				it -> new URL(it).toExternalForm(),
+				it -> {
+					try {
+						return new URI(it).toURL().toExternalForm();
+					} catch (Throwable ex) {
+						return ""; //$NON-NLS-1$
+					}
+				},
 				"views.projects.video_urls.error"); //$NON-NLS-1$
 		content.add(this.videosURLs, 2);
 		

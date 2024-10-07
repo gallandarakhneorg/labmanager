@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.data.project;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
@@ -814,8 +813,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	public URL getProjectURLObject() {
 		try {
-			return new URL(getProjectURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getProjectURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -899,7 +898,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	public final List<URL> getVideoURLsObject() {
 		return getVideoURLs().stream().map(it -> {
 			try {
-				return new URL(it);
+				return new URI(it).toURL();
 			} catch (RuntimeException ex) {
 				throw ex;
 			} catch (Exception ex) {

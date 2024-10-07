@@ -19,8 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.converters;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValueContext;
@@ -46,12 +45,12 @@ public class StringToDoiConverter implements Converter<String, String> {
 		final var value0 = value.trim();
 		var value1 = value0;
 		try {
-			final var url = new URL(value0);
+			final var url = new URI(value0).toURL();
 			value1 = url.getPath();
 			if (value1.startsWith("/")) { //$NON-NLS-1$
 				value1 = value1.substring(1);
 			}
-		} catch (MalformedURLException ex) {
+		} catch (Throwable ex) {
 			value1 = value0;
 		}
 		return Result.ok(value1);

@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.data.conference;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Locale;
@@ -400,8 +400,8 @@ public class Conference extends AbstractContextData implements JsonSerializable,
 	 */
 	public final URL getConferenceURLObject() {
 		try {
-			return new URL(getConferenceURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getConferenceURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}

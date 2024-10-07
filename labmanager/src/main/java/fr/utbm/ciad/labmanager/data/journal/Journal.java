@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.data.journal;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Locale;
@@ -355,8 +355,8 @@ public class Journal extends AbstractContextData implements JsonSerializable, At
 	 */
 	public final URL getJournalURLObject() {
 		try {
-			return new URL(getJournalURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getJournalURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}

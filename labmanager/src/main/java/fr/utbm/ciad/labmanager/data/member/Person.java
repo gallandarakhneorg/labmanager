@@ -874,7 +874,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getOrcidURL() {
 		if (!Strings.isNullOrEmpty(getORCID())) {
 			try {
-				return new URL(ORCID_BASE_URL + getORCID());
+				return new URI(ORCID_BASE_URL + getORCID()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1246,7 +1246,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getAcademiaURLObject() {
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			try {
-				return new URL(getAcademiaURL());
+				return new URI(getAcademiaURL()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1277,7 +1277,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getCordisURLObject() {
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			try {
-				return new URL(getCordisURL());
+				return new URI(getCordisURL()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1308,7 +1308,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getDblpURLObject() {
 		if (!Strings.isNullOrEmpty(getDblpURL())) {
 			try {
-				return new URL(getDblpURL());
+				return new URI(getDblpURL()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1339,7 +1339,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getFacebookURL() {
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			try {
-				return new URL(FACEBOOK_BASE_URL + getFacebookId());
+				return new URI(FACEBOOK_BASE_URL + getFacebookId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1371,7 +1371,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGithubURL() {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
-				return new URL(GITHUB_BASE_URL + getGithubId());
+				return new URI(GITHUB_BASE_URL + getGithubId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1389,7 +1389,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
 
-				return new URL(GITHUB_AVATAR_URL + getGithubId());
+				return new URI(GITHUB_AVATAR_URL + getGithubId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1407,7 +1407,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGithubAvatarURL(int size) {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
-				return new URL(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)).toURL(); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -1438,7 +1438,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getLinkedInURL() {
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			try {
-				return new URL(LINKEDIN_URL + getLinkedInId());
+				return new URI(LINKEDIN_URL + getLinkedInId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1469,7 +1469,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getResearcherIdURL() {
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			try {
-				return new URL(WOS_URL + getResearcherId());
+				return new URI(WOS_URL + getResearcherId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1502,7 +1502,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getScopusURL() {
 		if (!Strings.isNullOrEmpty(getScopusId())) {
 			try {
-				return new URL(SCOPUS_URL + getScopusId());
+				return new URI(SCOPUS_URL + getScopusId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1534,7 +1534,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGoogleScholarURL() {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLESCHOLAR_URL + getGoogleScholarId());
+				return new URI(GOOGLESCHOLAR_URL + getGoogleScholarId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1551,7 +1551,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGoogleScholarAvatarURL() {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId());
+				return new URI(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1569,7 +1569,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGoogleScholarAvatarURL(int size) {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)).toURL(); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -1601,7 +1601,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getHalURL() {
 		if (!Strings.isNullOrEmpty(getIdhal())) {
 			try {
-				return new URL(HAL_URL + getIdhal());
+				return new URI(HAL_URL + getIdhal()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1632,7 +1632,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getResearchGateURL() {
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			try {
-				return new URL(RESEARCHGATE_URL + getResearchGateId());
+				return new URI(RESEARCHGATE_URL + getResearchGateId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1869,7 +1869,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		final String id = getGravatarId();
 		if (!Strings.isNullOrEmpty(id)) {
 			try {
-				return new URL(GRAVATAR_URL + id);
+				return new URI(GRAVATAR_URL + id).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1887,7 +1887,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		final var id = getGravatarId();
 		if (size > 0 && !Strings.isNullOrEmpty(id)) {
 			try {
-				return new URL(GRAVATAR_URL + id + "?" + GRAVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI(GRAVATAR_URL + id + "?" + GRAVATAR_SIZE_PARAM + "=" + Integer.toString(size)).toURL(); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -2148,7 +2148,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		if (!Strings.isNullOrEmpty(getAdScientificIndexId())) {
 			try {
 
-				return new URL(ADSCIENTIFICINDEX_URL + getAdScientificIndexId());
+				return new URI(ADSCIENTIFICINDEX_URL + getAdScientificIndexId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}

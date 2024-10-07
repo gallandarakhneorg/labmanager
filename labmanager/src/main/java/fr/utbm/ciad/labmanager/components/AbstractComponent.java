@@ -21,6 +21,8 @@ package fr.utbm.ciad.labmanager.components;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
@@ -525,7 +527,7 @@ public abstract class AbstractComponent {
 		final var strInput = inString(input);
 		if (!Strings.isNullOrEmpty(strInput)) {
 			try {
-				return new URL(strInput);
+				return new URI(strInput).toURL();
 			} catch (Throwable ex) {
 				//
 			}
