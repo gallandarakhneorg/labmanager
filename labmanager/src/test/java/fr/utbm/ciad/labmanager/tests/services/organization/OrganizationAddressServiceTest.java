@@ -82,7 +82,8 @@ public class OrganizationAddressServiceTest {
 		this.fileManager = mock(DownloadableFileManager.class);
 		this.sessionFactory = mock(SessionFactory.class);
 		
-		this.test = new OrganizationAddressService(this.fileManager, this.addressRepository, this.messages, new ConfigurationConstants(), this.sessionFactory);
+		this.test = new OrganizationAddressService(this.fileManager, this.addressRepository, this.messages,
+				new ConfigurationConstants(), this.sessionFactory);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

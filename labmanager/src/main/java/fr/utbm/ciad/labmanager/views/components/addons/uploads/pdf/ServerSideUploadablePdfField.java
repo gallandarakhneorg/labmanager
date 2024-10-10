@@ -28,6 +28,7 @@ import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 
 /** A field that enables to upload and show a PDF file, and to write the file in a
  * folder of the server. 
@@ -50,9 +51,11 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public ServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier) {
-		super(fileManager, filenameSupplier);
+	public ServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(fileManager, filenameSupplier, loggerSupplier);
 	}
 
 	/** Constructor.
@@ -60,9 +63,11 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public ServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
-		super(fileManager, filenameSupplier);
+	public ServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(fileManager, filenameSupplier, loggerSupplier);
 	}
 
 	@Override

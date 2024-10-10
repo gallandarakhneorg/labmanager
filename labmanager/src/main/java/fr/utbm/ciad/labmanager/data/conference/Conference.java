@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.data.conference;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Locale;
@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
@@ -400,8 +401,8 @@ public class Conference extends AbstractContextData implements JsonSerializable,
 	 */
 	public final URL getConferenceURLObject() {
 		try {
-			return new URL(getConferenceURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getConferenceURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -657,7 +658,7 @@ public class Conference extends AbstractContextData implements JsonSerializable,
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getAcronym(), getName());
 	}
 
 	/** Replies the set of published papers in this conference.

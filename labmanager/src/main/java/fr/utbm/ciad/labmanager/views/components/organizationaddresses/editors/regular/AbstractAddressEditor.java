@@ -42,7 +42,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideU
 import fr.utbm.ciad.labmanager.views.components.addons.validators.GpsCoordinatesValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to an organization address.
@@ -91,7 +90,6 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
@@ -99,8 +97,8 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 			EntityCreationStatusComputer<OrganizationAddress> addressCreationStatusComputer, 
 			boolean relinkEntityWhenSaving, DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			Logger logger, ConstructionPropertiesBuilder properties) {
-		super(OrganizationAddress.class, authenticatedUser, messages, logger,
+			ConstructionPropertiesBuilder properties) {
+		super(OrganizationAddress.class, authenticatedUser, messages, 
 				addressCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.addresses.administration_details") //$NON-NLS-1$
@@ -220,7 +218,8 @@ public abstract class AbstractAddressEditor extends AbstractEntityEditor<Organiz
 		final var content = ComponentFactory.newColumnForm(2);
 
 		this.uploadImage = new ServerSideUploadableImageField(this.fileManager,
-				ext -> this.fileManager.makeAddressBackgroundImage(getEditedEntity().getId(), ext));
+				ext -> this.fileManager.makeAddressBackgroundImage(getEditedEntity().getId(), ext),
+				() -> getLogger());
 		this.uploadImage.setClearButtonVisible(true);
 		content.add(this.uploadImage, 2);
 

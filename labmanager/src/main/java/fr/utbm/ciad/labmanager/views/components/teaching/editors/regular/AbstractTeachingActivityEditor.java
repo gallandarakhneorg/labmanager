@@ -64,7 +64,6 @@ import fr.utbm.ciad.labmanager.views.components.organizations.fields.Organizatio
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.SingleOrganizationNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.SinglePersonNameField;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a teaching activity.
@@ -149,16 +148,16 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 	 * @param organizationFieldFactory the factory for creating the organization fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractTeachingActivityEditor(EntityEditingContext<TeachingActivity> context, boolean relinkEntityWhenSaving,
 			EntityCreationStatusComputer<TeachingActivity> activityCreationStatusComputer, DownloadableFileManager fileManager,
 			PersonFieldFactory personFieldFactory, OrganizationFieldFactory organizationFieldFactory,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ConstructionPropertiesBuilder properties) {
-		super(TeachingActivity.class, authenticatedUser, messages, logger,
+		super(TeachingActivity.class, authenticatedUser, messages,
 				activityCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.teaching_activity.administration_details") //$NON-NLS-1$
@@ -407,7 +406,8 @@ public abstract class AbstractTeachingActivityEditor extends AbstractEntityEdito
 		content.add(this.sourceUrl, 1);
 
 		this.slides = new ServerSideUploadablePdfField(this.fileManager,
-				ext -> this.fileManager.makeTeachingActivitySlidesFilename(getEditedEntity().getId()));
+				ext -> this.fileManager.makeTeachingActivitySlidesFilename(getEditedEntity().getId()),
+				() -> getLogger());
 		this.slides.setClearButtonVisible(true);
 		content.add(this.slides, 2);
 

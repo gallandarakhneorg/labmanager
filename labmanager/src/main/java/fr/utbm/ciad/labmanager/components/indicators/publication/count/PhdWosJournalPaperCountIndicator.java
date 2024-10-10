@@ -38,6 +38,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PhdWosJournalPaperCountIndicator extends AbstractRankedJournalPaperCountIndicator {
 
+	private static final long serialVersionUID = 572181727964798019L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

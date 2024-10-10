@@ -34,14 +34,16 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiFunction;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import org.slf4j.Logger;
 
 /** A field that enables to upload a file and show the image representations of the uploaded files.
  * This field does not assume that the field's data is of a specific type.
@@ -69,8 +71,12 @@ public abstract class AbstractUploadableFilesViewerField<T> extends AbstractUplo
 	 *
 	 * @param filenameSupplier the supplier of the filenames. First argument is the index of the image.
 	 *      Second argument is the filename extension. It returns the filename.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractUploadableFilesViewerField(SerializableBiFunction<Integer, String, File> filenameSupplier) {
+	public AbstractUploadableFilesViewerField(SerializableBiFunction<Integer, String, File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
+
 		this.filenameSupplier = filenameSupplier;
 
 		this.list = new EmptySetMultiSelectListBox();

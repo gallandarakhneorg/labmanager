@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.data.organization;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
@@ -626,8 +626,8 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 	 */
 	public final URL getOrganizationURLObject() {
 		try {
-			return new URL(getOrganizationURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getOrganizationURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -744,8 +744,8 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 		final var number = getRnsr();
 		if (!Strings.isNullOrEmpty(number)) {
 			try {
-				return new URL(RNSR_URL + number);
-			} catch (MalformedURLException ex) {
+				return new URI(RNSR_URL + number).toURL();
+			} catch (Throwable ex) {
 				return null;
 			}
 		}
@@ -875,7 +875,7 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getAcronym(), getName());
 	}
 
 	/** Replies the list of teaching activities associated to the organization.

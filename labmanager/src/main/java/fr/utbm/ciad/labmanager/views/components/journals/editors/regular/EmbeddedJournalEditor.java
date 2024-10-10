@@ -25,8 +25,6 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of journal information that may be embedded. This editor does not provide
@@ -43,8 +41,6 @@ public final class EmbeddedJournalEditor extends AbstractJournalEditor {
 
 	private static final long serialVersionUID = -8334616123986168541L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedJournalEditor.class);
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the conference.
@@ -56,7 +52,7 @@ public final class EmbeddedJournalEditor extends AbstractJournalEditor {
 	public EmbeddedJournalEditor(EntityEditingContext<Journal> context,
 			EntityCreationStatusComputer<Journal> journalCreationStatusComputer, JournalService journalService,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, journalCreationStatusComputer, false, journalService, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+		super(context, journalCreationStatusComputer, false, journalService, authenticatedUser, messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

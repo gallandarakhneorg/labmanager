@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.DelegateContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.markdown.MarkdownField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.image.ServerSideUploadableImageField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
@@ -38,7 +39,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.value.LeftRightListsField
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.AbstractOrganizationEditor;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Implementation for the editor of the information related to an organization. It is directly linked for
@@ -65,7 +65,6 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param relinkEntityWhenSaving indicates if the editor must be relink to the edited entity when it is saved. This new link may
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param organizationService the service for accessing the organizations.
@@ -78,11 +77,10 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	public AbstractOrganizationEditorWizard(AbstractEntityService.EntityEditingContext<ResearchOrganization> context,
 			EntityCreationStatusComputer<ResearchOrganization> organizationCreationStatusComputer, boolean relinkEntityWhenSaving,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			MessageSourceAccessor messages, ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory,
 			ConstructionPropertiesBuilder properties) {
-		super(context, organizationCreationStatusComputer, relinkEntityWhenSaving, fileManager, authenticatedUser, messages, logger,
+		super(context, organizationCreationStatusComputer, relinkEntityWhenSaving, fileManager, authenticatedUser, messages,
 				organizationService, addressService, organizationEditorFactory, addressEditorFactory, properties);
 	}
 
@@ -95,9 +93,11 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	@Override
 	protected void createEditorContent(VerticalLayout rootContainer) {
 		if (isBaseAdmin()) {
-			this.organizationEditorComponentWizard = new OrganizationEditorComponentWizard(createDescriptionDetails(),
-					createGeographicalDetails(), createIdentificationDetails(), createSuperStructureDetails(),
-					createCommunicationDetails(),createAdministrationComponents(
+			this.organizationEditorComponentWizard = new OrganizationEditorComponentWizard(
+					new DelegateContextualLoggerFactory(getLogger()),
+					createDescriptionDetails(), createGeographicalDetails(), createIdentificationDetails(),
+					createSuperStructureDetails(), createCommunicationDetails(),
+					createAdministrationComponents(
 							content -> {
 								this.majorOrganization = new ToggleButton();
 								content.add(this.majorOrganization, 1);
@@ -108,9 +108,10 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 							it -> it.bind(ResearchOrganization::isValidated, ResearchOrganization::setValidated)));
 
 		} else {
-			this.organizationEditorComponentWizard = new OrganizationEditorComponentWizard(createDescriptionDetails(),
-					createGeographicalDetails(), createIdentificationDetails(), createSuperStructureDetails(),
-					createCommunicationDetails());
+			this.organizationEditorComponentWizard = new OrganizationEditorComponentWizard(
+					new DelegateContextualLoggerFactory(getLogger()),
+					createDescriptionDetails(), createGeographicalDetails(), createIdentificationDetails(),
+					createSuperStructureDetails(), createCommunicationDetails());
 		}
 		rootContainer.add(this.organizationEditorComponentWizard);
 	}
@@ -185,7 +186,7 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	@Override
 	protected void openAddressEditor(Consumer<OrganizationAddress> saver) {
 		final var newAddress = new OrganizationAddress();
-		final var editor = this.addressEditorFactory.createAdditionEditor(newAddress);
+		final var editor = this.addressEditorFactory.createAdditionEditor(newAddress, getEditingContext().getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_address"), //$NON-NLS-1$
 				editor, false,
@@ -255,7 +256,7 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 	@Override
 	protected void openOrganizationEditor(Consumer<ResearchOrganization> saver) {
 		final var newOrganization = new ResearchOrganization();
-		final var editor = getOrganizationEditorFactory().createAdditionEditor(newOrganization);
+		final var editor = getOrganizationEditorFactory().createAdditionEditor(newOrganization, getEditingContext().getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_organization"), //$NON-NLS-1$
 				editor, false,
@@ -302,7 +303,8 @@ public abstract class AbstractOrganizationEditorWizard extends AbstractOrganizat
 		content.add(this.description, 2);
 
 		this.logo = new ServerSideUploadableImageField(this.fileManager,
-				ext -> this.fileManager.makeOrganizationLogoFilename(getEditedEntity().getId(), ext));
+				ext -> this.fileManager.makeOrganizationLogoFilename(getEditedEntity().getId(), ext),
+				() -> getLogger());
 		this.logo.setClearButtonVisible(true);
 		content.add(this.logo, 2);
 

@@ -27,6 +27,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEd
 import fr.utbm.ciad.labmanager.views.components.invitations.editors.regular.EmbeddedIncomingInvitationEditor;
 import fr.utbm.ciad.labmanager.views.components.invitations.editors.regular.EmbeddedOutgoingInvitationEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -69,8 +70,8 @@ public class DefaultInvitationEditorFactory implements InvitationEditorFactory {
 	}
 
 	@Override
-	public EntityEditingContext<PersonInvitation> createContextFor(PersonInvitation invitation) {
-		return this.personInvitationService.startEditing(invitation);
+	public EntityEditingContext<PersonInvitation> createContextFor(PersonInvitation invitation, Logger logger) {
+		return this.personInvitationService.startEditing(invitation, logger);
 	}
 	
 	@Override

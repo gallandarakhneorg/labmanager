@@ -41,6 +41,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActiveMemberCountIndicator extends AbstractInstantIndicator {
 
+	private static final long serialVersionUID = 3309035584800030140L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

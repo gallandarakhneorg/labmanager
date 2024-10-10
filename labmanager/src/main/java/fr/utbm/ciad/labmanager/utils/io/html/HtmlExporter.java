@@ -23,6 +23,7 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import org.arakhne.afc.progress.Progression;
+import org.slf4j.Logger;
 
 import java.util.Collection;
 
@@ -86,10 +87,11 @@ public interface HtmlExporter extends PublicationExporter<String> {
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
 	 * @param progression the progression indicator.
+	 * @param logger the logger to be used.
 	 * @return the HTML representation of the publications.
 	 * @throws Exception if the publication cannot be converted to HTML.
 	 */
 	@Override
-	String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception;
+	String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) throws Exception;
 
 }

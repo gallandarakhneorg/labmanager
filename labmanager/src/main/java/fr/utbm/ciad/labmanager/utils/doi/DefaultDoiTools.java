@@ -19,15 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils.doi;
 
+import java.net.URI;
+import java.net.URL;
+import java.util.regex.Pattern;
+
 import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.regex.Pattern;
 
 /** Default implementation for the utilities for DOI numbers.
  * 
@@ -49,8 +48,8 @@ public class DefaultDoiTools implements DoiTools {
 
 	static {
 		try {
-			DOI_BASE = new URL("https://doi.org"); //$NON-NLS-1$
-		} catch (MalformedURLException ex) {
+			DOI_BASE = new URI("https://doi.org").toURL(); //$NON-NLS-1$
+		} catch (Throwable ex) {
 			throw new Error(ex);
 		}
 		DOI_PATTERN = Pattern.compile(DOI_PATTERN_STR);

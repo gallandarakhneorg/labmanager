@@ -29,8 +29,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationSt
 import fr.utbm.ciad.labmanager.views.components.assocstructures.fields.AssociatedStructureFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of associated structure information that may be embedded. This editor does not provide
@@ -47,8 +45,6 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 
 	private static final long serialVersionUID = -1397381071432537857L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedAssociatedStructureEditor.class);
-
 	/** Constructor.
 	 *
 	 * @param context the context for editing the entity.
@@ -61,7 +57,6 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 	 * @param authenticatedUser the connected user.
 	 * @param organizationFieldFactory the factory for creating the organization fields.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 */
 	public EmbeddedAssociatedStructureEditor(EntityEditingContext<AssociatedStructure> context,
 			EntityCreationStatusComputer<AssociatedStructure> structureCreationStatusComputer,
@@ -71,7 +66,7 @@ public final class EmbeddedAssociatedStructureEditor extends AbstractAssociatedS
 			AuthenticatedUser authenticatedUser, OrganizationFieldFactory organizationFieldFactory,
 			MessageSourceAccessor messages) {
 		super(context, structureCreationStatusComputer, false, structureFieldFactory, projectService, projectEditorFactory, organizationService,
-				authenticatedUser, organizationFieldFactory, messages, LOGGER, ConstructionPropertiesBuilder.create());
+				authenticatedUser, organizationFieldFactory, messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

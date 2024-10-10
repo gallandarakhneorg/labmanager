@@ -25,11 +25,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.editors.SupervisionEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.views.StandardSupervisionListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -47,21 +46,21 @@ public class SupervisionsListView extends StandardSupervisionListView implements
 
 	private static final long serialVersionUID = 7290371153524168134L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SupervisionsListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param supervisionService the service for accessing the supervisions.
 	 * @param supervisionEditorFactory the factory for creating the person supervision editors.
 	 */
 	public SupervisionsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired SupervisionService supervisionService,
 			@Autowired SupervisionEditorFactory supervisionEditorFactory) {
-		super(authenticatedUser, messages, supervisionService, supervisionEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, supervisionService, supervisionEditorFactory);
 	}
 
 	@Override

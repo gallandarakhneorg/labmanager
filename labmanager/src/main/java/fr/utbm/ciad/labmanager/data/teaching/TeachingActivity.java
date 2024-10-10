@@ -720,7 +720,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		final var url = getActivityUrl();
 		if (!Strings.isNullOrEmpty(url)) {
 			try {
-				return new URL(url);
+				return new URI(url).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -764,7 +764,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		final var url = getSourceUrl();
 		if (!Strings.isNullOrEmpty(url)) {
 			try {
-				return new URL(url);
+				return new URI(url).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1033,7 +1033,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getCode(), getTitle());
 	}
 
 }

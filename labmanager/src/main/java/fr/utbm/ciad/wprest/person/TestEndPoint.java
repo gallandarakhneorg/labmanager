@@ -20,6 +20,8 @@
 package fr.utbm.ciad.wprest.person;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.hilla.BrowserCallable;
+import com.vaadin.hilla.Endpoint;
 import fr.utbm.ciad.labmanager.Constants;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,15 +37,17 @@ import org.springframework.web.bind.annotation.RestController;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-@RestController
-@RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION)
-@ResponseBody
-@CrossOrigin
+//@RestController
+//@RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION)
+//@ResponseBody
+//@CrossOrigin
+@Endpoint
+@AnonymousAllowed
 public class TestEndPoint {
 
-	@GetMapping(value = "/hello")
-	public String hello() {
-		return "Hello, world!";
+//	@GetMapping(value = "/hello")
+	public int addOne(int value) {
+		return value + 1;
 	}
 
 }

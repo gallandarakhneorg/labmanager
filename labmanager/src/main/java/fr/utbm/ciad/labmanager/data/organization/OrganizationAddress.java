@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.organization;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -373,7 +374,11 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	public URL getGoogleMapURL() throws MalformedURLException {
 		final var link = getGoogleMapLink();
 		if (!Strings.isNullOrEmpty(link)) {
-			return new URL(link);
+			try {
+				return new URI(link).toURL();
+			} catch (Throwable ex) {
+				//
+			}
 		}
 		return null;
 	}
@@ -462,7 +467,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getName());
 	}
 
 	/** Replies the memberships that are associated to this organization address.

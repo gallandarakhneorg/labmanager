@@ -25,11 +25,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.editors.AssociatedStructureEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.views.StandardAssociatedStructureListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -47,21 +46,21 @@ public class AssociatedStructuresListView extends StandardAssociatedStructureLis
 
 	private static final long serialVersionUID = -2694471588623830169L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AssociatedStructuresListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param structureService the service for accessing the associated structures.
 	 * @param associatedStructureEditorFactory the factory for creating the associated-structure editors.
 	 */
 	public AssociatedStructuresListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired AssociatedStructureService structureService,
 			@Autowired AssociatedStructureEditorFactory associatedStructureEditorFactory) {
-		super(authenticatedUser, messages, structureService, associatedStructureEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, structureService, associatedStructureEditorFactory);
 	}
 
 	@Override

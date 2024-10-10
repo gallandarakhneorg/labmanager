@@ -43,6 +43,7 @@ import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.Abs
 import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.EmbeddedPublicationEditor;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.PublicationCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -150,8 +151,8 @@ public class DefaultPublicationEditorFactory implements PublicationEditorFactory
 	}
 
 	@Override
-	public EntityEditingContext<Publication> createContextFor(Publication publication) {
-		return this.publicationService.startEditing(publication);
+	public EntityEditingContext<Publication> createContextFor(Publication publication, Logger logger) {
+		return this.publicationService.startEditing(publication, logger);
 	}
 
 	@Override

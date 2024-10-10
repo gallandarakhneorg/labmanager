@@ -48,7 +48,6 @@ import fr.utbm.ciad.labmanager.views.components.memberships.fields.MembershipFie
 import fr.utbm.ciad.labmanager.views.components.memberships.fields.SingleMembershipNameField;
 import fr.utbm.ciad.labmanager.views.components.supervisions.fields.SupervisionFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.fields.SupervisorListGridField;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a supervision.
@@ -110,16 +109,16 @@ public abstract class AbstractSupervisionEditor extends AbstractEntityEditor<Sup
 	 * @param supervisionFieldFactory the factory for creating the supervision fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractSupervisionEditor(EntityEditingContext<Supervision> context, boolean relinkEntityWhenSaving,
 			EntityCreationStatusComputer<Supervision> supervisionCreationStatusComputer,
 			MembershipFieldFactory membershipFieldFactory, SupervisionFieldFactory supervisionFieldFactory,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ConstructionPropertiesBuilder properties) {
-		super(Supervision.class, authenticatedUser, messages, logger, supervisionCreationStatusComputer, context, null, relinkEntityWhenSaving,
+		super(Supervision.class, authenticatedUser, messages,
+				supervisionCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.mapToNull(PROP_ADMIN_SECTION)
 				.mapToNull(PROP_ADMIN_VALIDATION_BOX));

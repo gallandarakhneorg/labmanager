@@ -40,8 +40,6 @@ import fr.utbm.ciad.labmanager.views.components.journals.fields.JournalFieldFact
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of publication information that may be embedded. This editor does not provide
@@ -57,8 +55,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 public final class EmbeddedPublicationEditor extends AbstractPublicationEditor {
 
 	private static final long serialVersionUID = 7233675942546351403L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPublicationEditor.class);
 
 	/** Constructor.
 	 *
@@ -101,7 +97,7 @@ public final class EmbeddedPublicationEditor extends AbstractPublicationEditor {
 				fileManager, publicationService, personService, personEditorFactory, personFieldFactory, userService,
 				journalService, journalEditorFactory, journalFieldFactory, conferenceService, conferenceEditorFactory,
 				conferenceFieldFactory, axisService, axisEditorFactory, authenticatedUser,
-				messages, LOGGER, properties);
+				messages, properties);
 		createEditorContentAndLinkBeans();
 	}
 

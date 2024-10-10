@@ -916,7 +916,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this);
 	}
 
 	/** Replies the employer organization. If the membership is associated to multiple employing organizations,

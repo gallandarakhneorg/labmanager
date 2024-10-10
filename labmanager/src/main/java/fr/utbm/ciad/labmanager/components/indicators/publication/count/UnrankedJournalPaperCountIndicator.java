@@ -40,6 +40,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class UnrankedJournalPaperCountIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = 8586666423829525726L;
+
 	private JournalPaperService journalPaperService;
 
 	/** Constructor.

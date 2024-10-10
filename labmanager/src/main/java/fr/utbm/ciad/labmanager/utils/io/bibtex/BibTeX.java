@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import org.arakhne.afc.progress.Progression;
+import org.slf4j.Logger;
 
 /** Utilities for BibTeX. BibTeX is reference management software for formatting lists of bibliography references.
  * The BibTeX tool is typically used together with the LaTeX document preparation system.
@@ -235,9 +236,9 @@ public interface BibTeX extends PublicationExporter<String> {
 			boolean createMissedJournal, boolean createMissedConference, Progression progression) throws Exception;
 
 	@Override
-	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
+	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) {
 		try (final var writer = new StringWriter()) {
-			exportPublications(writer, publications, configurator, progression);
+			exportPublications(writer, publications, configurator, progression, logger);
 			return Strings.emptyToNull(writer.toString());
 		} catch (IOException ex) {
 			return null;
@@ -250,8 +251,9 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param publications the publications to export.
 	 * @param configurator the configuration of the exporter.
 	 * @param progression the progression indicator.
+	 * @param logger the logger to be used.
 	 * @throws IOException if any problem occurred when writing the BibTeX content.
 	 */
-	void exportPublications(Writer output, Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws IOException;
+	void exportPublications(Writer output, Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) throws IOException;
 
 }

@@ -50,6 +50,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ThesisService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = 951337993638515486L;
+
 	private ThesisRepository repository;
 
 	/** Constructor for injector.

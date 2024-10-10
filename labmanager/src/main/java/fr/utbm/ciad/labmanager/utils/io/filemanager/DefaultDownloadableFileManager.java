@@ -19,22 +19,15 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
-import com.aspose.pdf.Document;
-import com.aspose.pdf.devices.JpegDevice;
-import com.aspose.pdf.devices.Resolution;
-import com.aspose.slides.Presentation;
-import com.google.common.base.Strings;
-import org.arakhne.afc.sizediterator.SizedIterator;
-import org.arakhne.afc.vmutil.FileSystem;
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -43,6 +36,22 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+
+import javax.imageio.ImageIO;
+
+import com.aspose.pdf.Document;
+import com.aspose.pdf.devices.JpegDevice;
+import com.aspose.pdf.devices.Resolution;
+import com.aspose.slides.Presentation;
+import com.google.common.base.Strings;
+import org.arakhne.afc.sizediterator.SizedIterator;
+import org.arakhne.afc.vmutil.FileSystem;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 /** Utilities for managing the downloadable files. This implementation is dedicated to the WordPress service
  * of the lab.
@@ -57,6 +66,8 @@ import java.util.stream.Stream;
 @Primary
 public class DefaultDownloadableFileManager extends AbstractFileManager implements DownloadableFileManager {
 	
+	private static final long serialVersionUID = 7418764532292466276L;
+
 	private static final int JPEG_RESOLUTION = 50;
 
 	private static final float JPEG_RESOLUTION_F = .5f;
@@ -289,152 +300,167 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void deletePublicationPdfFile(long id) throws IOException {
+	public void deletePublicationPdfFile(long id, Logger logger) throws IOException {
 		var file = makePdfFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 		file = makePdfPictureFilename(id);
 		absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deletePublicationAwardPdfFile(long id) throws IOException {
+	public void deletePublicationAwardPdfFile(long id, Logger logger) throws IOException {
 		var file = makeAwardFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 		file = makeAwardPictureFilename(id);
 		absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deleteAddressBackgroundImage(long id, String fileExtension) {
+	public void deleteAddressBackgroundImage(long id, String fileExtension, Logger logger) {
 		final var file = makeAddressBackgroundImage(id, fileExtension);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
-	private void deleteFiles(File reference) {
+	private void deleteFiles(File reference, Logger logger) {
 		final var absFile = normalizeForServerSide(reference);
 		for (final var deletableFile : absFile.getParentFile().listFiles(new BasenameFilter(reference.getName()))) {
 			if (deletableFile.exists()) {
 				deletableFile.delete();
+				logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 			}
 		}
 	}
 
 	@Override
-	public void deleteAddressBackgroundImage(long id) {
-		deleteFiles(makeAddressBackgroundImage(id));
+	public void deleteAddressBackgroundImage(long id, Logger logger) {
+		deleteFiles(makeAddressBackgroundImage(id), logger);
 	}
 
 	@Override
-	public void deleteOrganizationLogo(long id, String fileExtension) {
+	public void deleteOrganizationLogo(long id, String fileExtension, Logger logger) {
 		final var file = makeOrganizationLogoFilename(id, fileExtension);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deleteOrganizationLogo(long id) {
-		deleteFiles(makeOrganizationLogoFilename(id));
+	public void deleteOrganizationLogo(long id, Logger logger) {
+		deleteFiles(makeOrganizationLogoFilename(id), logger);
 	}
 
 	@Override
-	public void deleteProjectLogo(long id, String fileExtension) {
+	public void deleteProjectLogo(long id, String fileExtension, Logger logger) {
 		final var file = makeProjectLogoFilename(id, fileExtension);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deleteProjectLogo(long id) {
-		deleteFiles(makeProjectLogoFilename(id));
+	public void deleteProjectLogo(long id, Logger logger) {
+		deleteFiles(makeProjectLogoFilename(id), logger);
 	}
 
 	@Override
-	public void deleteProjectImage(long id, int imageIndex, String fileExtension) {
+	public void deleteProjectImage(long id, int imageIndex, String fileExtension, Logger logger) {
 		final var file = makeProjectImageFilename(id, imageIndex, fileExtension);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deleteProjectImage(long id) {
-		deleteFiles(makeProjectImageFilename(id));
+	public void deleteProjectImage(long id, Logger logger) {
+		deleteFiles(makeProjectImageFilename(id), logger);
 	}
 
 	@Override
-	public void deleteProjectScientificRequirements(long id) {
+	public void deleteProjectScientificRequirements(long id, Logger logger) {
 		var file = makeProjectScientificRequirementsFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 		file = makeProjectScientificRequirementsPictureFilename(id);
 		absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deleteProjectPowerpoint(long id, String fileExtension) {
+	public void deleteProjectPowerpoint(long id, String fileExtension, Logger logger) {
 		final var file = makeProjectPowerpointFilename(id, fileExtension);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
-		deleteProjectPowerpointThumbnail(id);
+		deleteProjectPowerpointThumbnail(id, logger);
 	}
 
-	private void deleteProjectPowerpointThumbnail(long id) {
+	private void deleteProjectPowerpointThumbnail(long id, Logger logger) {
 		final var file = makeProjectPowerpointPictureFilename(id);
 		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void deleteProjectPowerpoint(long id) {
-		deleteFiles(makeProjectPowerpointFilename(id));
-		deleteProjectPowerpointThumbnail(id);
+	public void deleteProjectPowerpoint(long id, Logger logger) {
+		deleteFiles(makeProjectPowerpointFilename(id), logger);
+		deleteProjectPowerpointThumbnail(id, logger);
 	}
 
 	@Override
-	public void deleteProjectPressDocument(long id) {
+	public void deleteProjectPressDocument(long id, Logger logger) {
 		var file = makeProjectPressDocumentFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 		file = makeProjectPressDocumentPictureFilename(id);
 		absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void ensurePictureFile(File inputFilename, File pictureFilename) throws IOException {
+	public void ensurePictureFile(File inputFilename, File pictureFilename, Logger logger) throws IOException {
 		final var inputFilenameAbs = normalizeForServerSide(inputFilename);
 		if (inputFilenameAbs.canRead()) {
 			final var pictureFilenameAbs = normalizeForServerSide(pictureFilename);
@@ -451,6 +477,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 						convertPptToJpeg(inputFilenameAbs, outputStream);
 					}
 				} catch (IOException ioe) {
+					logger.error("Invalid associated picture: " + ioe.getLocalizedMessage(), ioe); //$NON-NLS-1$
 					throw new IOException("Could not save picture file: " + pictureFilenameAbs.getName(), ioe); //$NON-NLS-1$
 				}
 			}
@@ -462,13 +489,14 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		return FileSystem.replaceExtension(file, JPEG_FILE_EXTENSION);
 	}
 
-	private File saveMultipart(File filename, MultipartFile source, String errorMessage) throws IOException {
+	private File saveMultipart(File filename, MultipartFile source, String errorMessage, Logger logger) throws IOException {
 		final var normalizedFilename = normalizeForServerSide(filename);
 		final var uploadDir = normalizedFilename.getParentFile();
 		uploadDir.mkdirs();
 		try (final var inputStream = source.getInputStream()) {
 			final Path filePath = normalizedFilename.toPath();
 			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+			logger.info("Creating file: " + filePath); //$NON-NLS-1$
 		} catch (IOException ioe) {
 			throw new IOException(errorMessage + normalizedFilename.getName(), ioe);
 		}
@@ -476,13 +504,13 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void saveImage(File filename, MultipartFile backgroundImage) throws IOException {
-		saveMultipart(filename, backgroundImage, "Could not save image: "); //$NON-NLS-1$
+	public void saveImage(File filename, MultipartFile backgroundImage, Logger logger) throws IOException {
+		saveMultipart(filename, backgroundImage, "Could not save image: ", logger); //$NON-NLS-1$
 	}
 
 	@Override
-	public void savePowerpointAndThumbnailFiles(File pptFilename, File pictureFilename, MultipartFile powerpointDocument) throws IOException {
-		final var normalizedPdfFilename = saveMultipart(pptFilename, powerpointDocument, "Could not save PowerPoint: "); //$NON-NLS-1$
+	public void savePowerpointAndThumbnailFiles(File pptFilename, File pictureFilename, MultipartFile powerpointDocument, Logger logger) throws IOException {
+		final var normalizedPdfFilename = saveMultipart(pptFilename, powerpointDocument, "Could not save PowerPoint: ", logger); //$NON-NLS-1$
 		//
 		final var normalizedJpgFilename = normalizeForServerSide(pictureFilename);
 		final var jpgUploadDir = normalizedJpgFilename.getParentFile();
@@ -491,6 +519,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		}
 		try (final var outputStream = new FileOutputStream(normalizedJpgFilename)) {
 			convertPptToJpeg(normalizedPdfFilename, outputStream);
+			logger.info("Creating file: " + normalizedJpgFilename); //$NON-NLS-1$
 		} catch (IOException ioe) {
 			throw new IOException("Could not save picture file: " + normalizedJpgFilename.getName(), ioe); //$NON-NLS-1$
 		}
@@ -529,8 +558,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 	
 	@Override
-	public void savePdfAndThumbnailFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException {
-		final var normalizedPdfFilename = saveMultipart(pdfFilename, multipartPdfFile, "Could not save PDF file: "); //$NON-NLS-1$
+	public void savePdfAndThumbnailFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile, Logger logger) throws IOException {
+		final var normalizedPdfFilename = saveMultipart(pdfFilename, multipartPdfFile, "Could not save PDF file: ", logger); //$NON-NLS-1$
 		//
 		final var normalizedJpgFilename = normalizeForServerSide(pictureFilename);
 		final var jpgUploadDir = normalizedJpgFilename.getParentFile();
@@ -539,6 +568,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		}
 		try (final var outputStream = new FileOutputStream(normalizedJpgFilename)) {
 			convertPdfToJpeg(normalizedPdfFilename, outputStream);
+			logger.info("Creating file: " + normalizedJpgFilename); //$NON-NLS-1$
 		} catch (IOException ioe) {
 			throw new IOException("Could not save picture file: " + normalizedJpgFilename.getName(), ioe); //$NON-NLS-1$
 		}
@@ -575,17 +605,18 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void generateThumbnail(String basename, InputStream input, OutputStream output) throws IOException {
+	public void generateThumbnail(String basename, InputStream input, OutputStream output, Logger logger) throws IOException {
 		final var isPdf = FileSystem.hasExtension(basename, PDF_FILE_EXTENSION);
 		if (isPdf) {
 			convertPdfToJpeg(input, output);
 		} else {
 			convertPptToJpeg(input, output);
 		}
+		logger.info("Creating file: " + basename); //$NON-NLS-1$
 	}
 
 	@Override
-	public void moveFiles(long sourceId, long targetId, Procedure3<String, String, String> callback) throws IOException {
+	public void moveFiles(long sourceId, long targetId, Logger logger, Procedure3<String, String, String> callback) throws IOException {
 		final var sourcePdfRel = makePdfFilename(sourceId);
 		final var sourcePdfAbs = normalizeForServerSide(sourcePdfRel);
 		if (sourcePdfAbs.exists()) {
@@ -593,11 +624,13 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			final var targetPdfAbs = normalizeForServerSide(targetPdfRel);
 			if (targetPdfAbs.exists()) {
 				Files.deleteIfExists(sourcePdfAbs.toPath());
+				logger.info("Deleted file: " + sourcePdfAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("pdf", sourcePdfRel.toString(), null); //$NON-NLS-1$
 				}
 			} else {
 				Files.move(sourcePdfAbs.toPath(), targetPdfAbs.toPath());
+				logger.info("Moved file to : " + targetPdfAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("pdf", sourcePdfRel.toString(), targetPdfRel.toString()); //$NON-NLS-1$
 				}
@@ -611,11 +644,13 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			final var targetPdfPictureAbs = normalizeForServerSide(targetPdfPictureRel);
 			if (targetPdfPictureAbs.exists()) {
 				Files.deleteIfExists(sourcePdfPictureAbs.toPath());
+				logger.info("Deleted file: " + sourcePdfPictureAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("pdf_picture", sourcePdfPictureRel.toString(), null); //$NON-NLS-1$
 				}
 			} else {
 				Files.move(sourcePdfPictureAbs.toPath(), targetPdfPictureAbs.toPath());
+				logger.info("Moved file to : " + targetPdfPictureAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("pdf_picture", sourcePdfPictureRel.toString(), targetPdfPictureRel.toString()); //$NON-NLS-1$
 				}
@@ -629,11 +664,13 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			final var targetAwardAbs = normalizeForServerSide(targetAwardRel);
 			if (targetAwardAbs.exists()) {
 				Files.deleteIfExists(sourceAwardAbs.toPath());
+				logger.info("Deleted file: " + sourceAwardAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("award", sourceAwardRel.toString(), null); //$NON-NLS-1$
 				}
 			} else {
 				Files.move(sourceAwardAbs.toPath(), targetAwardAbs.toPath());
+				logger.info("Moved file to : " + targetAwardAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("award", sourceAwardRel.toString(), targetAwardRel.toString()); //$NON-NLS-1$
 				}
@@ -647,11 +684,13 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			final var targetAwardPictureAbs = normalizeForServerSide(targetAwardPictureRel);
 			if (targetAwardPictureAbs.exists()) {
 				Files.deleteIfExists(sourceAwardPictureAbs.toPath());
+				logger.info("Deleted file: " + sourceAwardPictureAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("award_picture", sourceAwardPictureRel.toString(), null); //$NON-NLS-1$
 				}
 			} else {
 				Files.move(sourceAwardPictureAbs.toPath(), targetAwardPictureAbs.toPath());
+				logger.info("Moved file to : " + targetAwardPictureAbs); //$NON-NLS-1$
 				if (callback != null) {
 					callback.apply("award_picture", sourceAwardPictureRel.toString(), targetAwardPictureRel.toString()); //$NON-NLS-1$
 				}
@@ -691,22 +730,24 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	@Override
-	public void regenerateThumbnail(File file) throws IOException {
+	public void regenerateThumbnail(File file, Logger logger) throws IOException {
 		final File jpegFile = FileSystem.replaceExtension(file, JPEG_FILE_EXTENSION);
-		ensurePictureFile(file, jpegFile);
+		ensurePictureFile(file, jpegFile, logger);
 	}
 
 	@Override
-	public void deleteTeachingActivitySlides(long id) {
+	public void deleteTeachingActivitySlides(long id, Logger logger) {
 		var file = makeTeachingActivitySlidesFilename(id);
 		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 		file = makeTeachingActivitySlidesPictureFilename(id);
 		absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
+			logger.info("Deleted file: " + absFile); //$NON-NLS-1$
 		}
 	}
 

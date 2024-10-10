@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
+import java.util.Collection;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -26,8 +28,7 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.PublicationExporter;
 import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
-
-import java.util.Collection;
+import org.slf4j.Logger;
 
 /** Utilities for exporting publications to JSON.
  * 
@@ -40,8 +41,9 @@ import java.util.Collection;
 public interface JsonExporter extends PublicationExporter<String> {
 
 	@Override
-	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
-		return exportPublicationsWithRootKeys(publications, configurator, progression);
+	default String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression,
+			Logger logger) throws Exception {
+		return exportPublicationsWithRootKeys(publications, configurator, progression, logger);
 	}
 
 	/** Export publications. The content of the exported flow depends on the sub-interfaces.
@@ -49,19 +51,21 @@ public interface JsonExporter extends PublicationExporter<String> {
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
 	 * @param progression the progression indicator.
+	 * @param logger the logger to be used.
 	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
 	 *     output into the last created node with the {@code rootKeys}.
 	 * @return the representation of the publications.
 	 * @throws Exception if the publication cannot be converted.
 	 */
 	String exportPublicationsWithRootKeys(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression,
-			String... rootKeys) throws Exception;
+			Logger logger, String... rootKeys) throws Exception;
 
 	/** Export publications. The content of the exported flow depends on the sub-interfaces.
 	 *
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
 	 * @param progression the progression indicator.
+	 * @param logger the logger to be used.
 	 * @param callback a function that is invoked for each publication for giving the opportunity
 	 *     to fill up the Json node of the publication.
 	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
@@ -70,6 +74,6 @@ public interface JsonExporter extends PublicationExporter<String> {
 	 * @throws Exception if the publication cannot be converted.
 	 */
 	JsonNode exportPublicationsAsTreeWithRootKeys(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression,
-			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception;
+			Logger logger, Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception;
 
 }

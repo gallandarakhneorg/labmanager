@@ -21,13 +21,13 @@ import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.DelegateContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.ranking.ConferenceAnnualRankingField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IsbnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.IssnValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.regular.AbstractConferenceEditor;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Implementation for the editor of the information related to a scientific conference. It is directly linked for
@@ -54,16 +54,15 @@ public abstract class AbstractConferenceEditorWizard extends AbstractConferenceE
      *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
      * @param authenticatedUser the connected user.
      * @param messages the accessor to the localized messages (Spring layer).
-     * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
      */
     public AbstractConferenceEditorWizard(AbstractEntityService.EntityEditingContext<Conference> context,
 			EntityCreationStatusComputer<Conference> conferenceCreationStatusComputer,
     		boolean relinkEntityWhenSaving, ConferenceService conferenceService,
-    		AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
+    		AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
     		ConstructionPropertiesBuilder properties) {
-        super(context, conferenceCreationStatusComputer, relinkEntityWhenSaving, conferenceService, authenticatedUser, messages, logger, properties);
+        super(context, conferenceCreationStatusComputer, relinkEntityWhenSaving, conferenceService, authenticatedUser, messages, properties);
     }
 
     /** Create the content of the editor.
@@ -76,12 +75,14 @@ public abstract class AbstractConferenceEditorWizard extends AbstractConferenceE
     protected void createEditorContent(VerticalLayout rootContainer) {
         if (isBaseAdmin()) {
             conferenceEditorComponentWizard = new ConferenceEditorComponentWizard(
+            		new DelegateContextualLoggerFactory(getLogger()),
                     createDescriptionDetails(),
                     createRankingDetails(),
                     createPublisherDetails(),
                     createAdministrationComponents((Consumer<FormLayout>) null, it -> it.bind(Conference::isValidated, Conference::setValidated)));
         }else{
             conferenceEditorComponentWizard = new ConferenceEditorComponentWizard(
+            		new DelegateContextualLoggerFactory(getLogger()),
                     createDescriptionDetails(),
                     createRankingDetails(),
                     createPublisherDetails());

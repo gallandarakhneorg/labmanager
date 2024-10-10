@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.components.addons.wizard;
 
+import java.lang.ref.SoftReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Tag;
@@ -40,10 +42,13 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import io.overcoded.vaadin.wizard.Wizard;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 import io.overcoded.vaadin.wizard.config.WizardContentConfigurationProperties;
+import org.slf4j.Logger;
 
 /** Abstract implementation of a Wizard with localized steps.
  * 
@@ -63,19 +68,44 @@ public abstract class AbstractLabManagerWizard<T extends AbstractContextData> ex
 
 	private static final String TERMINATION_VIEW_KEY = "termination"; //$NON-NLS-1$
 
+	private final ContextualLoggerFactory loggerFactory;
+
+	private SoftReference<Logger> logger;
+
 	private Class<? extends Component> terminationView;
 	
 	/** Constructor.
 	 *
 	 * @param properties the properties that are used by the wizard.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param context the context data.
 	 * @param steps the wizard steps.
 	 */
-	protected AbstractLabManagerWizard(WizardConfigurationProperties properties, T context, List<WizardStep<T>> steps) {
+	protected AbstractLabManagerWizard(WizardConfigurationProperties properties, ContextualLoggerFactory loggerFactory, T context, List<WizardStep<T>> steps) {
 		super(properties, context, steps,
 				backConditionPagerFactory(),
 				defaultStartEndPointFactory(),
 				defaulyFinishEndPointFactory());
+		this.loggerFactory = loggerFactory;
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		// The following line is creating the logger for the wizard as soon as this later is created 
+		getLogger().debug(getTitle().orElse("Running wizard")); //$NON-NLS-1$
+	}
+
+	/** Replies the logger than should be used by this component.
+	 *
+	 * @return the logger, never {@code null}.
+	 */
+	public synchronized Logger getLogger() {
+		var log = this.logger == null ? null : this.logger.get();
+		if (log == null) {
+			log = this.loggerFactory.getLogger(getClass().getName(), AbstractLoggerComposite.getAuthenticatedUserName());
+			this.logger = new SoftReference<>(log);
+		}
+		return log;
 	}
 
 	/** Replies the wizard that is containing this step.

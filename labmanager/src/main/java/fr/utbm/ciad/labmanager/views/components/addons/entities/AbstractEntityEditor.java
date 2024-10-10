@@ -23,7 +23,6 @@ import java.util.function.Consumer;
 
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.details.Details;
@@ -44,8 +43,9 @@ import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.DelegateContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to an entity.
@@ -57,7 +57,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends Composite<VerticalLayout> implements LocaleChangeObserver {
+public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends AbstractLoggerComposite<VerticalLayout> implements LocaleChangeObserver {
 
 	/** Key of the property that is the key in the translation file that corresponds to the label of the administration section.
 	 */
@@ -70,8 +70,6 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	private static final long serialVersionUID = -9123030449423137764L;
 
 	private final Class<T> entityType;
-
-	private final Logger logger;
 
 	private final MessageSourceAccessor messages;
 
@@ -102,7 +100,6 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param entityType the type of the edited entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param entityCreationStatusComputer the tool for computer the creation status for the entity.
 	 * @param editingContext the context that is used for representing the edited entity and all the associated files and entities.
 	 * @param initialEntityStatus the initial status of the entity.
@@ -112,16 +109,16 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @since 4.0
 	 */
 	public AbstractEntityEditor(Class<T> entityType, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger,
+			MessageSourceAccessor messages,
 			EntityCreationStatusComputer<T> entityCreationStatusComputer,
 			EntityEditingContext<T> editingContext,
 			EntityCreationStatus initialEntityStatus,
 			boolean relinkEntityWhenSaving,
 			ConstructionPropertiesBuilder properties) {
+		super(new DelegateContextualLoggerFactory(editingContext.getLogger()));
 		this.entityType = entityType;
 		this.properties = properties.build();
 		this.messages = messages;
-		this.logger = logger;
 		this.entityBinder = createBinder(this.entityType);
 		this.authenticatedUser = authenticatedUser;
 		this.entityCreationStatusComputer = entityCreationStatusComputer == null ? EntityCreationStatusComputer.getNoErrorEntityCreationStatusComputer() : entityCreationStatusComputer;
@@ -258,14 +255,6 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	public boolean isNewEntity() {
 		final var entity = getEditedEntity();
 		return entity == null || entity.getId() == 0l;
-	}
-
-	/** Replies the logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger getLogger() {
-		return this.logger;
 	}
 
 	/** Replies the type of the edited entity.
@@ -492,8 +481,8 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifyValidationError(Throwable error, String message) {
-		this.logger.warn("Error when validating the entity by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
-		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
+		getLogger().warn("Error when validating the entity: " //$NON-NLS-1$
+				+ message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$
 		ComponentFactory.showErrorNotification(message);
 	}
 
@@ -545,8 +534,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifySaved(String message) {
-		this.logger.info("Data successfully saved by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
-		+ ": " + message); //$NON-NLS-1$
+		getLogger().info("Data successfully saved: " + message); //$NON-NLS-1$
 		ComponentFactory.showSuccessNotification(message);
 	}
 
@@ -570,8 +558,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifySavingError(Throwable error, String message) {
-		this.logger.warn("Error when saving entity data by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
-		+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
+		getLogger().warn("Error when saving entity data: " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
 		ComponentFactory.showErrorNotification(message);
 	}
 
@@ -638,8 +625,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifyDeleted(String message) {
-		this.logger.info("Data successfully deleted by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
-		+ ": " + message); //$NON-NLS-1$
+		getLogger().info("Data successfully deleted: " + message); //$NON-NLS-1$
 		ComponentFactory.showSuccessNotification(message);
 	}
 
@@ -663,8 +649,7 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param message the message to show up to the user.
 	 */
 	protected void notifyDeletionError(Throwable error, String message) {
-		this.logger.warn("Error when deleting entity data by " + AuthenticatedUser.getUserName(this.authenticatedUser) //$NON-NLS-1$
-			+ ": " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
+		getLogger().warn("Error when deleting entity data: " + message + "\n-> " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$
 		ComponentFactory.showErrorNotification(message);
 	}
 

@@ -19,6 +19,17 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
@@ -26,15 +37,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.lang.reflect.Method;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /** Definition of constants for the JSON tools.
  * 
@@ -44,7 +47,9 @@ import java.util.stream.Collectors;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public abstract class JsonTool {
+public abstract class JsonTool implements Serializable {
+
+	private static final long serialVersionUID = 2357109361010281995L;
 
 	/** Prefix for hidden JSON fields.
 	 */
@@ -355,6 +360,12 @@ public abstract class JsonTool {
 	 */
 	protected static final String GRANT_KEY = "grant"; //$NON-NLS-1$
 
+	/** Old name of the field for the reference to a person email.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String OLD_FIELD_EMAIL_KEY = "email"; //$NON-NLS-1$
+
 	/** Name of the field for the reference to an office phone number.
 	 *
 	 * @since 4.0
@@ -630,10 +641,6 @@ public abstract class JsonTool {
 	 */
 	protected static final String FULLNAME_KEY = "fullName"; //$NON-NLS-1$
 
-	/** Logger of the service. It is lazy loaded.
-	 */
-	private Logger logger;
-
 	private final MessageSourceAccessor messages;
 
 	/** Constructor.
@@ -652,33 +659,6 @@ public abstract class JsonTool {
 		return this.messages;
 	}
 	
-	/** Replies the logger of this service.
-	 *
-	 * @return the logger.
-	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Change the logger of this service.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the service logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
-	}
-
 	/** Extract the raw value from the given node.
 	 *
 	 * @param node the JSON node.

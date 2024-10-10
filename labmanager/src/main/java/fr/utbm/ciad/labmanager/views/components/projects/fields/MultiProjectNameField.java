@@ -116,19 +116,18 @@ public class MultiProjectNameField extends AbstractMultiEntityNameField<Project>
 			Logger logger, Consumer<Project> initializer) {
 		this(projectService,
 				(newProject, saver) -> {
-					final var editor = projectEditorFactory.createAdditionEditor(newProject);
+					final var editor = projectEditorFactory.createAdditionEditor(newProject, logger);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);
 				},
 				(newProject, saver) -> {
 					try {
-						final var creationContext = projectService.startEditing(newProject);
+						final var creationContext = projectService.startEditing(newProject, logger);
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating a project by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
-							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+						logger.warn("Error when creating a project: " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(projectService.getMessageSourceAccessor().getMessage("views.projects.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				},

@@ -19,6 +19,14 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.journals;
 
+import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
@@ -48,11 +56,13 @@ import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.appviews.journals.JournalRankingUpdate.JournalNewInformation;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullValueValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerProgressionWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizardStep;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 import jakarta.annotation.security.RolesAllowed;
@@ -60,14 +70,6 @@ import jakarta.persistence.criteria.Predicate;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 /** Wizard for updating the journal rankings.
  * 
@@ -85,22 +87,28 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 
 	/** Constructor.
 	 *
+	 * @param loggerFactory the factory of the loggers.
 	 * @param journalService the service for accessing the journal entities.
 	 */
-	public JournalRankingUpdaterWizard(@Autowired JournalService journalService) {
-		this(	journalService,
+	public JournalRankingUpdaterWizard(
+			@Autowired ContextualLoggerFactory loggerFactory,
+			@Autowired JournalService journalService) {
+		this(	loggerFactory, journalService,
 				defaultWizardConfiguration(null, false),
 				new JournalRankingUpdate());
 	}
 
 	/** Constructor.
 	 *
+	 * @param loggerFactory the factory of the loggers.
 	 * @param journalService the service for accessing the journal entities.
 	 * @param properties the properties of the wizard.
 	 * @param context the data context.
 	 */
-	protected JournalRankingUpdaterWizard(JournalService journalService,  WizardConfigurationProperties properties, JournalRankingUpdate context) {
-		this(properties, context, Arrays.asList(
+	protected JournalRankingUpdaterWizard(
+			ContextualLoggerFactory loggerFactory, JournalService journalService, 
+			WizardConfigurationProperties properties, JournalRankingUpdate context) {
+		this(properties, loggerFactory, context, Arrays.asList(
 				new JournalInputWizardStep(context),
 				new JournalRankLoadingWizardStep(context, journalService),
 				new JournalRankDownloadWizardStep(context, journalService),
@@ -108,8 +116,10 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 				new JournalRankSavingWizardStep(context, journalService)));
 	}
 
-	private JournalRankingUpdaterWizard(WizardConfigurationProperties properties, JournalRankingUpdate context, List<WizardStep<JournalRankingUpdate>> steps) {
-		super(properties, context, steps);
+	private JournalRankingUpdaterWizard(WizardConfigurationProperties properties,
+			ContextualLoggerFactory loggerFactory, JournalRankingUpdate context,
+			List<WizardStep<JournalRankingUpdate>> steps) {
+		super(properties, loggerFactory, context, steps);
 	}
 
 	private static boolean isEnabled(ToggleButton button) {
@@ -126,7 +136,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class JournalInputWizardStep extends AbstractFormWizardStep<JournalRankingUpdate> {
+	protected static class JournalInputWizardStep extends AbstractLabManagerFormWizardStep<JournalRankingUpdate> {
 
 		private static final long serialVersionUID = 5165672963156038933L;
 
@@ -359,7 +369,9 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 				return () -> {
 					if (getContext().getScimagoEnable()) {
 						getContext().clearScimagoRankings();
-						this.journalService.downloadJournalIndicatorsFromScimago(getContext().getYear(), getContext().getJournals(), extendedProgression0,
+						this.journalService.downloadJournalIndicatorsFromScimago(
+								getContext().getYear(), getContext().getJournals(),
+								getLogger(), extendedProgression0,
 								(referenceYear, journalId, scientificField, oldQuartile, newQuartiles) -> getContext().addScimagoRanking(journalId, oldQuartile, newQuartiles));
 					} else {
 						progression.end();
@@ -380,7 +392,9 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 						if (eif) {
 							getContext().clearImpactFactors();
 						}
-						this.journalService.downloadJournalIndicatorsFromWoS(getContext().getYear(), getContext().getJournals(), extendedProgression1,
+						this.journalService.downloadJournalIndicatorsFromWoS(
+								getContext().getYear(), getContext().getJournals(),
+								getLogger(), extendedProgression1,
 								(referenceYear, journalId, scientificField, oldQuartile, newQuartiles, oldImpact, newImpact) -> {
 									if (ewos) {
 										getContext().addWosRanking(journalId, oldQuartile, newQuartiles);
@@ -409,7 +423,7 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class JournalRankingSummaryWizardStep extends WizardStep<JournalRankingUpdate> {
+	protected static class JournalRankingSummaryWizardStep extends AbstractLabManagerWizardStep<JournalRankingUpdate> {
 
 		private static final long serialVersionUID = -5461457655161100043L;
 
@@ -591,7 +605,8 @@ public class JournalRankingUpdaterWizard extends AbstractLabManagerWizard<Journa
 							final var factor = it.newImpactFactor();
 							return new JournalRankingUpdateInformation(journal, scimago, wos, factor);
 						}).toList(),
-						context.getScimagoEnable(), context.getWosEnable(), context.getImpactFactorsEnable(), extendedProgression0);
+						context.getScimagoEnable(), context.getWosEnable(), context.getImpactFactorsEnable(),
+						getLogger(), extendedProgression0);
 				return terminationMessage0;
 			};
 		}

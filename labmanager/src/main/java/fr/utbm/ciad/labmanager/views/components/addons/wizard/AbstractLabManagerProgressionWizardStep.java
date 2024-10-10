@@ -29,6 +29,7 @@ import io.overcoded.vaadin.wizard.AbstractProgressionWizardStep;
 import io.overcoded.vaadin.wizard.ExceptionRunnable;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.slf4j.Logger;
 
 /** Abstract implementation of a wizard step with progression indicator with components specific to the lab manager API.
  *
@@ -54,6 +55,14 @@ public abstract class AbstractLabManagerProgressionWizardStep<T extends Abstract
 	 */
 	public AbstractLabManagerProgressionWizardStep(T context, String name, int order, int tasksCount, boolean automaticNextClick, boolean automaticFinishClick) {
 		super(context, name, order, tasksCount, automaticNextClick, automaticFinishClick);
+	}
+
+	/** Replies the logger than should be used by this component.
+	 *
+	 * @return the logger, never {@code null}.
+	 */
+	protected Logger getLogger() {
+		return AbstractLabManagerWizardStep.getLogger(getWizard());
 	}
 
 	@Override

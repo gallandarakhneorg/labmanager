@@ -48,11 +48,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -87,14 +87,14 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param axisService the service for accessing the scientific axes.
 	 * @param axisEditorFactory the factory for creating scientific axis editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardScientificAxisListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory, Logger logger) {
-		super(ScientificAxis.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			ScientificAxisService axisService, ScientificAxisEditorFactory axisEditorFactory) {
+		super(ScientificAxis.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.scientific_axes.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.scientific_axes.delete.message") //$NON-NLS-1$
@@ -186,9 +186,9 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 	protected void openAxisEditor(ScientificAxis axis, String title, boolean isCreation) {
 		final AbstractEntityEditor<ScientificAxis> editor;
 		if (isCreation) {
-			editor = this.axisEditorFactory.createAdditionEditor(axis);
+			editor = this.axisEditorFactory.createAdditionEditor(axis, getLogger());
 		} else {
-			editor = this.axisEditorFactory.createUpdateEditor(axis);
+			editor = this.axisEditorFactory.createUpdateEditor(axis, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, ScientificAxis> refreshAll = (dialog, entity) -> refreshGrid();
@@ -201,7 +201,7 @@ public class StandardScientificAxisListView extends AbstractEntityListView<Scien
 
 	@Override
 	protected EntityDeletingContext<ScientificAxis> createDeletionContextFor(Set<ScientificAxis> entities) {
-		return this.axisService.startDeletion(entities);
+		return this.axisService.startDeletion(entities, getLogger());
 	}
 
 	@Override

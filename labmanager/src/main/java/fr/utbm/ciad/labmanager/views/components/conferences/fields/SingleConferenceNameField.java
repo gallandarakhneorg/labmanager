@@ -85,19 +85,18 @@ public class SingleConferenceNameField extends AbstractSingleEntityNameField<Con
 	public SingleConferenceNameField(ConferenceService conferenceService, ConferenceEditorFactory conferenceEditorFactory, AuthenticatedUser authenticatedUser, String creationTitle, Logger logger) {
 		this(conferenceService,
 				(newConference, saver) -> {
-					final var editor = conferenceEditorFactory.createAdditionEditor(newConference);
+					final var editor = conferenceEditorFactory.createAdditionEditor(newConference, logger);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedConference) -> saver.accept(changedConference),
 							null);
 				},
 				(newConference, saver) -> {
 					try {
-						final var creationContext = conferenceService.startEditing(newConference);
+						final var creationContext = conferenceService.startEditing(newConference, logger);
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating a conference by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
-							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+						logger.warn("Error when creating a conference: " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(conferenceService.getMessageSourceAccessor().getMessage("views.conferences.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				});

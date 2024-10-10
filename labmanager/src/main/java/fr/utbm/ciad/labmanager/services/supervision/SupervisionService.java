@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -59,6 +60,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SupervisionService extends AbstractEntityService<Supervision> {
+
+	private static final long serialVersionUID = 433344219674827021L;
 
 	private SupervisionRepository supervisionRepository;
 
@@ -334,7 +337,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	}
 
 	@Override
-	public EntityEditingContext<Supervision> startEditing(Supervision supervision) {
+	public EntityEditingContext<Supervision> startEditing(Supervision supervision, Logger logger) {
 		assert supervision != null;
 		// Force initialization of the internal properties that are needed for editing
 		if (supervision.getId() != 0l) {
@@ -347,13 +350,13 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 				});
 			});
 		}
-		return new EditingContext(supervision);
+		return new EditingContext(supervision, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Supervision> startDeletion(Set<Supervision> entities) {
+	public EntityDeletingContext<Supervision> startDeletion(Set<Supervision> entities, Logger logger) {
 		assert entities != null && !entities.isEmpty();
-		return new DeletingContext(entities);
+		return new DeletingContext(entities, logger);
 	}
 
 	/** Context for editing a {@link Supervision}.
@@ -373,9 +376,10 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 		/** Constructor.
 		 *
 		 * @param supervision the edited supervision.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(Supervision supervision) {
-			super(supervision);
+		protected EditingContext(Supervision supervision, Logger logger) {
+			super(supervision, logger);
 		}
 
 		@Override
@@ -385,7 +389,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 
 		@Override
 		public EntityDeletingContext<Supervision> createDeletionContext() {
-			return SupervisionService.this.startDeletion(Collections.singleton(this.entity));
+			return SupervisionService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -405,9 +409,10 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 		/** Constructor.
 		 *
 		 * @param supervisions the supervisions to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Supervision> supervisions) {
-			super(supervisions);
+		protected DeletingContext(Set<Supervision> supervisions, Logger logger) {
+			super(supervisions, logger);
 		}
 
 		@Override

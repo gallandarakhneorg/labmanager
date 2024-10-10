@@ -44,6 +44,8 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -61,6 +63,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PersonInvitationService extends AbstractEntityService<PersonInvitation> {
+
+	private static final long serialVersionUID = -7133335114414082230L;
 
 	private PersonInvitationRepository invitationRepository;
 
@@ -225,8 +229,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 			LocalDate startDate, LocalDate endDate,
 			PersonInvitationType type,
 			String title, String university, CountryCode country) {
-		final var guestObj = extractPerson(guest, true, this.personService, this.nameParser);
-		final var inviterObj = extractPerson(inviter, true, this.personService, this.nameParser);
+		final var logger = LoggerFactory.getLogger(getClass());
+		final var guestObj = extractPerson(guest, true, this.personService, this.nameParser, logger);
+		final var inviterObj = extractPerson(inviter, true, this.personService, this.nameParser, logger);
 		if (person.getId() != guestObj.getId() && person.getId() != inviterObj.getId()) {
 			throw new IllegalArgumentException("Person with name '" + person.getFullName() + "' is neither guest nor inviter"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -281,8 +286,9 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 	}
 
 	@Override
-	public EntityEditingContext<PersonInvitation> startEditing(PersonInvitation invitation) {
+	public EntityEditingContext<PersonInvitation> startEditing(PersonInvitation invitation, Logger logger) {
 		assert invitation != null;
+		logger.info("Starting the edition of the person's invitation for " + invitation); //$NON-NLS-1$
 		// Force loading of the persons that may be edited at the same time as the rest of the invitation properties
 		inSession(session -> {
 			if (invitation.getId() != 0l) {
@@ -291,13 +297,14 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 				Hibernate.initialize(invitation.getGuest());
 			}
 		});
-		return new EditingContext(invitation);
+		return new EditingContext(invitation, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<PersonInvitation> startDeletion(Set<PersonInvitation> invitations) {
+	public EntityDeletingContext<PersonInvitation> startDeletion(Set<PersonInvitation> invitations, Logger logger) {
 		assert invitations != null && !invitations.isEmpty();
-		return new DeletingContext(invitations);
+		logger.info("Starting the deletion of the person's invitations: " + invitations); //$NON-NLS-1$
+		return new DeletingContext(invitations, logger);
 	}
 
 	/** Context for editing a {@link PersonInvitation}.
@@ -317,19 +324,21 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 		/** Constructor.
 		 *
 		 * @param invitation the edited invitation.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(PersonInvitation invitation) {
-			super(invitation);
+		protected EditingContext(PersonInvitation invitation, Logger logger) {
+			super(invitation, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = PersonInvitationService.this.invitationRepository.save(this.entity);
+			getLogger().info("Saved person's invitation: " + this.entity); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<PersonInvitation> createDeletionContext() {
-			return PersonInvitationService.this.startDeletion(Collections.singleton(this.entity));
+			return PersonInvitationService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -349,14 +358,16 @@ public class PersonInvitationService extends AbstractEntityService<PersonInvitat
 		/** Constructor.
 		 *
 		 * @param invitations the person invitations to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<PersonInvitation> invitations) {
-			super(invitations);
+		protected DeletingContext(Set<PersonInvitation> invitations, Logger logger) {
+			super(invitations, logger);
 		}
 
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			PersonInvitationService.this.invitationRepository.deleteAllById(identifiers);
+			getLogger().info("Deleted persons' invitations: " + identifiers); //$NON-NLS-1$
 		}
 
 	}

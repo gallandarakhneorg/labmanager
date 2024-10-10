@@ -19,6 +19,13 @@
 
 package fr.utbm.ciad.labmanager.services.organization;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
@@ -31,11 +38,10 @@ import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.names.OrganizationNameComparator;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 /** Service for the merging organizations.
  * 
@@ -49,6 +55,8 @@ import java.util.*;
 @Deprecated(since = "4.0", forRemoval = true)
 @Service
 public class OrganizationMergingService extends AbstractEntityService<ResearchOrganization> {
+
+	private static final long serialVersionUID = 1L;
 
 	private final ResearchOrganizationService organizationService;
 
@@ -194,7 +202,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 		var changed = false;
 		for (final var source : sources) {
 			if (source.getId() != target.getId()) {
-				getLogger().info("Reassign to " + target.getAcronymOrName() + " the elements of " + source.getAcronymOrName()); //$NON-NLS-1$ //$NON-NLS-2$
+				//getLogger().info("Reassign to " + target.getAcronymOrName() + " the elements of " + source.getAcronymOrName()); //$NON-NLS-1$ //$NON-NLS-2$
 				var lchange = reassignOrganizationMemberships(source, target);
 				lchange = reassignProjects(source, target) || lchange;
 				lchange = reassignAssociatedStructures(source, target) || lchange;
@@ -325,12 +333,12 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	}
 
 	@Override
-	public EntityEditingContext<ResearchOrganization> startEditing(ResearchOrganization entity) {
+	public EntityEditingContext<ResearchOrganization> startEditing(ResearchOrganization entity, Logger logger) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> entities) {
+	public EntityDeletingContext<ResearchOrganization> startDeletion(Set<ResearchOrganization> entities, Logger logger) {
 		throw new UnsupportedOperationException();
 	}
 

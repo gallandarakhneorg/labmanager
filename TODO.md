@@ -17,7 +17,7 @@
 	* No DOI for publications
   * Access rights to pages
     * Review the access rights to the Vaadin pages according to the role of the authenticated user
-* Front-end components:
+* Back-end services for front-end components:
   * Person's card for the public page
   * Person biography (if public biography)
   * Lab Publication Viewer
@@ -88,3 +88,4 @@
 * Remplacer dans certains projets recents le financement PIA par France 2030
 * Revoir la structure entre les organizations UBFC, UTBM, UB, UFC
 * Reclassifier les publications de type AP pour intégrer les nouveaux types de publications
+* Move some person emails from primary to secondary

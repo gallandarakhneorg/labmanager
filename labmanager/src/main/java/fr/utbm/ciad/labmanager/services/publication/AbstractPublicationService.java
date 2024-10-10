@@ -19,6 +19,13 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
+import java.time.LocalDate;
+import java.util.LinkedList;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -27,13 +34,6 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import org.hibernate.SessionFactory;
 import org.springframework.context.support.MessageSourceAccessor;
-
-import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** Abstract implementation of a service for managing the publications.
  * 
@@ -44,6 +44,8 @@ import java.util.stream.Stream;
  * @mavenartifactid $ArtifactId$
  */
 public abstract class AbstractPublicationService extends AbstractEntityService<Publication> {
+
+	private static final long serialVersionUID = -2270356030070781031L;
 
 	/** Constructor.
 	 *

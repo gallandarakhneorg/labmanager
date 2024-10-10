@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.data.journal;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Locale;
@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityConstants;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
@@ -355,8 +356,8 @@ public class Journal extends AbstractContextData implements JsonSerializable, At
 	 */
 	public final URL getJournalURLObject() {
 		try {
-			return new URL(getJournalURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getJournalURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -790,7 +791,7 @@ public class Journal extends AbstractContextData implements JsonSerializable, At
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getJournalName(), getPublisher());
 	}
 
 }

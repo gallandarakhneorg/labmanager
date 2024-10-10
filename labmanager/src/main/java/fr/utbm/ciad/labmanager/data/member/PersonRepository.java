@@ -94,9 +94,7 @@ public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecif
 	 *
 	 * @param id the identifier of the publication.
 	 * @return the persons.
-	 * @deprecated no replacement
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(long id);
 
 }

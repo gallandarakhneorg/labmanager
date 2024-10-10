@@ -37,6 +37,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class WosJournalPaperPhdRatioIndicator extends AbstractRankedJournalPaperFteRatioIndicator {
 
+	private static final long serialVersionUID = 9089584928055163410L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

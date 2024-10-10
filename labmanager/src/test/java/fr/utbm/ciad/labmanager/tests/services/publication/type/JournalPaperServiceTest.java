@@ -87,7 +87,8 @@ public class JournalPaperServiceTest {
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(JournalPaperRepository.class);
 		this.membershipService = mock(MembershipService.class);
-		this.test = new JournalPaperService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.membershipService, this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
+		this.test = new JournalPaperService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.membershipService,
+				this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

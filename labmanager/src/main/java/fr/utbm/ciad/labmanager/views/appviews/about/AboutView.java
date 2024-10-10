@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.about;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.Uses;
@@ -37,7 +36,10 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.Constants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 /** The view that show the application informations.
@@ -51,7 +53,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Route(value = "about", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class AboutView extends Composite<HorizontalLayout> implements HasDynamicTitle {
+public class AboutView extends AbstractLoggerComposite<HorizontalLayout> implements HasDynamicTitle {
 
     private static final long serialVersionUID = -3953932858588108431L;
 
@@ -68,10 +70,13 @@ public class AboutView extends Composite<HorizontalLayout> implements HasDynamic
      * @param applicationName the name of the current application.
      * @param applicationImage the resource path to the image of the current application.
      * @param applicationCopyrightText the text of the copyright for the current application.
+	 * @param loggerFactory the factory to be used for the composite logger.
      */
 	public AboutView(@Value("${labmanager.application-name}") String applicationName,
 			@Value("${labmanager.application-image}") String applicationImage,
-			@Value("${labmanager.application-copyright}") String applicationCopyrightText) {
+			@Value("${labmanager.application-copyright}") String applicationCopyrightText,
+			@Autowired ContextualLoggerFactory loggerFactory) {
+		super(loggerFactory);
 		this.applicationName = applicationName;
         getContent().setSizeFull();
         getContent().setSpacing(false);

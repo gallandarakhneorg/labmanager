@@ -43,6 +43,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AssociatedStructureService extends AbstractEntityService<AssociatedStructure> {
+
+	private static final long serialVersionUID = 4645478597368768979L;
 
 	private AssociatedStructureRepository structureRepository;
 
@@ -128,7 +131,7 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 					fundingOrganization, holders, description, budget, projects, confidential);
 		} catch (Throwable ex) {
 			// Delete created structure
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			//getLogger().error(ex.getLocalizedMessage(), ex);
 			throw ex;
 		}
 		return Optional.of(structure);
@@ -337,8 +340,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 	}
 
 	@Override
-	public EntityEditingContext<AssociatedStructure> startEditing(AssociatedStructure structure) {
+	public EntityEditingContext<AssociatedStructure> startEditing(AssociatedStructure structure, Logger logger) {
 		assert structure != null;
+		logger.info("Starting edition of associated structure " + structure); //$NON-NLS-1$
 		// Force loading of the entities that may be edited at the same time as the rest of the structure properties
 		inSession(session -> {
 			if (structure.getId() != 0l) {
@@ -357,13 +361,14 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 				}
 			}
 		});
-		return new EditingContext(structure);
+		return new EditingContext(structure, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<AssociatedStructure> startDeletion(Set<AssociatedStructure> structures) {
+	public EntityDeletingContext<AssociatedStructure> startDeletion(Set<AssociatedStructure> structures, Logger logger) {
 		assert structures != null && !structures.isEmpty();
-		return new DeletingContext(structures);
+		logger.info("Starting deletion of associated structures: " + structures.toString()); //$NON-NLS-1$
+		return new DeletingContext(structures, logger);
 	}
 
 	/** Context for editing a {@link AssociatedStructure}.
@@ -383,19 +388,21 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 		/** Constructor.
 		 *
 		 * @param structure the edited associated structure.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(AssociatedStructure structure) {
-			super(structure);
+		protected EditingContext(AssociatedStructure structure, Logger logger) {
+			super(structure, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = AssociatedStructureService.this.structureRepository.save(this.entity);
+			getLogger().info("Saved associated structure: " + this.entity.toString()); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<AssociatedStructure> createDeletionContext() {
-			return AssociatedStructureService.this.startDeletion(Collections.singleton(this.entity));
+			return AssociatedStructureService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -415,14 +422,16 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
 		/** Constructor.
 		 *
 		 * @param structures the associated structures to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<AssociatedStructure> structures) {
-			super(structures);
+		protected DeletingContext(Set<AssociatedStructure> structures, Logger logger) {
+			super(structures, logger);
 		}
 
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			AssociatedStructureService.this.structureRepository.deleteAllById(identifiers);
+			getLogger().info("Deleted associated structures: " + identifiers.toString()); //$NON-NLS-1$
 		}
 
 	}

@@ -131,25 +131,47 @@ public class PersonTest {
 	}
 
 	@Test
-	public void getEmail() {
-		assertNull(this.test.getEmail());
+	public void getPrimaryEmail() {
+		assertNull(this.test.getSecondaryEmail());
 	}
 
 	@Test
-	public void setEmail() {
-		assertNull(this.test.getEmail());
+	public void getSecondaryEmail() {
+		assertNull(this.test.getSecondaryEmail());
+	}
 
-		this.test.setEmail("xyz");
-		assertEquals("xyz", this.test.getEmail());
+	@Test
+	public void setPrimaryEmail() {
+		assertNull(this.test.getPrimaryEmail());
 
-		this.test.setEmail(null);
-		assertNull(this.test.getEmail());
+		this.test.setPrimaryEmail("xyz");
+		assertEquals("xyz", this.test.getPrimaryEmail());
 
-		this.test.setEmail("xyz");
-		assertEquals("xyz", this.test.getEmail());
+		this.test.setPrimaryEmail(null);
+		assertNull(this.test.getPrimaryEmail());
 
-		this.test.setEmail("");
-		assertNull(this.test.getEmail());
+		this.test.setPrimaryEmail("xyz");
+		assertEquals("xyz", this.test.getPrimaryEmail());
+
+		this.test.setPrimaryEmail("");
+		assertNull(this.test.getPrimaryEmail());
+	}
+
+	@Test
+	public void setSecondaryEmail() {
+		assertNull(this.test.getSecondaryEmail());
+
+		this.test.setSecondaryEmail("xyz");
+		assertEquals("xyz", this.test.getSecondaryEmail());
+
+		this.test.setSecondaryEmail(null);
+		assertNull(this.test.getSecondaryEmail());
+
+		this.test.setSecondaryEmail("xyz");
+		assertEquals("xyz", this.test.getSecondaryEmail());
+
+		this.test.setSecondaryEmail("");
+		assertNull(this.test.getSecondaryEmail());
 	}
 
 	@Test

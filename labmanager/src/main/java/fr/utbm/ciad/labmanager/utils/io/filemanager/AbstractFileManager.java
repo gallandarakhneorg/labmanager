@@ -19,12 +19,10 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
+import java.io.File;
+
 import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /** Utilities for managing the downloadable files. This implementation is dedicated to the WordPress service
  * of the lab.
@@ -37,11 +35,11 @@ import java.io.File;
  */
 public abstract class AbstractFileManager implements FileManager {
 
+	private static final long serialVersionUID = -292074420511265866L;
+
 	/** Path to the upload folder.
 	 */
 	protected final File uploadFolder;
-
-	private Logger logger;
 
 	/** Constructor with the given stream factory.
 	 *
@@ -54,33 +52,6 @@ public abstract class AbstractFileManager implements FileManager {
 		} else {
 			this.uploadFolder = FileSystem.convertStringToFile(f0).getAbsoluteFile();
 		}
-	}
-
-	/** Replies the logger of this service.
-	 *
-	 * @return the logger.
-	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Change the logger of this controller.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the controller logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
 	}
 
 	@Override

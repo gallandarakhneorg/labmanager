@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.invitations.editors;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing an invitation editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface InvitationEditorFactory {
 	/** Replies the editing context for the given person invitation.
 	 *
 	 * @param invitation the invitation to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<PersonInvitation> createContextFor(PersonInvitation invitation);
+	EntityEditingContext<PersonInvitation> createContextFor(PersonInvitation invitation, Logger logger);
 
 	/** Create an editor that may be used for creating a new incoming invitation.
 	 * 
@@ -50,10 +52,11 @@ public interface InvitationEditorFactory {
 	/** Create an editor that may be used for creating a new incoming invitation.
 	 * 
 	 * @param invitation the invitation to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<PersonInvitation> createIncomingInvitationAdditionEditor(PersonInvitation invitation) {
-		final var context = createContextFor(invitation);
+	default AbstractEntityEditor<PersonInvitation> createIncomingInvitationAdditionEditor(PersonInvitation invitation, Logger logger) {
+		final var context = createContextFor(invitation, logger);
 		return createIncomingInvitationAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface InvitationEditorFactory {
 	/** Create an editor that may be used for updating an existing incoming invitation.
 	 * 
 	 * @param invitation the invitation to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<PersonInvitation> createIncomingInvitationUpdateEditor(PersonInvitation invitation) {
-		final var context = createContextFor(invitation);
+	default AbstractEntityEditor<PersonInvitation> createIncomingInvitationUpdateEditor(PersonInvitation invitation, Logger logger) {
+		final var context = createContextFor(invitation, logger);
 		return createIncomingInvitationUpdateEditor(context);
 	}
 
@@ -84,10 +88,11 @@ public interface InvitationEditorFactory {
 	/** Create an editor that may be used for creating a new outgoing invitation.
 	 * 
 	 * @param invitation the invitation to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<PersonInvitation> createOutgoingInvitationAdditionEditor(PersonInvitation invitation) {
-		final var context = createContextFor(invitation);
+	default AbstractEntityEditor<PersonInvitation> createOutgoingInvitationAdditionEditor(PersonInvitation invitation, Logger logger) {
+		final var context = createContextFor(invitation, logger);
 		return createOutgoingInvitationAdditionEditor(context);
 	}
 
@@ -101,10 +106,11 @@ public interface InvitationEditorFactory {
 	/** Create an editor that may be used for updating an existing outgoing invitation.
 	 * 
 	 * @param invitation the invitation to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<PersonInvitation> createOutgoingInvitationUpdateEditor(PersonInvitation invitation) {
-		final var context = createContextFor(invitation);
+	default AbstractEntityEditor<PersonInvitation> createOutgoingInvitationUpdateEditor(PersonInvitation invitation, Logger logger) {
+		final var context = createContextFor(invitation, logger);
 		return createOutgoingInvitationUpdateEditor(context);
 	}
 

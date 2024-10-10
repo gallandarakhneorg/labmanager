@@ -32,6 +32,7 @@ import fr.utbm.ciad.labmanager.utils.io.bibtex.AbstractBibTeX;
 import org.arakhne.afc.progress.Progression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 
 /** Tests for {@link AbstractBibtex}.
  * 
@@ -63,7 +64,7 @@ public class AbstractBibTeXTest {
 
 			@Override
 			public void exportPublications(Writer output, Collection<? extends Publication> publications,
-					ExporterConfigurator configurator, Progression progression) throws IOException {
+					ExporterConfigurator configurator, Progression progression, Logger logger) throws IOException {
 				throw new UnsupportedOperationException();
 			}
 		};

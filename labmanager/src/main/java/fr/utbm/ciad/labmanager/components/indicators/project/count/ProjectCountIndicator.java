@@ -41,6 +41,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectCountIndicator extends AbstractProjectCountIndicator {
 
+	private static final long serialVersionUID = -6924593065245868005L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

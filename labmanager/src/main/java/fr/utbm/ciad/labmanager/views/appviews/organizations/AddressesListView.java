@@ -25,11 +25,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors.AddressEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizationaddresses.views.StandardAddressListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -47,21 +46,21 @@ public class AddressesListView extends StandardAddressListView implements HasDyn
 
 	private static final long serialVersionUID = 7405006673440187284L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(StandardAddressListView.class);
-
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param addressService the service for accessing the addresses.
 	 * @param addressEditorFactory the factory for creating the address editors.
 	 */
 	public AddressesListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired OrganizationAddressService addressService,
 			@Autowired AddressEditorFactory addressEditorFactory) {
-		super(authenticatedUser, messages, addressService, addressEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, addressService, addressEditorFactory);
 	}
 
 	@Override

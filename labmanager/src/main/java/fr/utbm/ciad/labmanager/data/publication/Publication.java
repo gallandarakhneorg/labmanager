@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.data.publication;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -794,8 +794,8 @@ public abstract class Publication extends AbstractContextData implements Product
 	 */
 	public final URL getExtraURLObject() {
 		try {
-			return new URL(getExtraURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getExtraURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -838,8 +838,8 @@ public abstract class Publication extends AbstractContextData implements Product
 	 */
 	public final URL getVideoURLObject() {
 		try {
-			return new URL(getVideoURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getVideoURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -883,8 +883,8 @@ public abstract class Publication extends AbstractContextData implements Product
 	 */
 	public final URL getDblpURLObject() {
 		try {
-			return new URL(getDblpURL());
-		} catch (MalformedURLException ex) {
+			return new URI(getDblpURL()).toURL();
+		} catch (Throwable ex) {
 			return null;
 		}
 	}
@@ -1114,7 +1114,7 @@ public abstract class Publication extends AbstractContextData implements Product
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getTitle());
 	}
 
 }

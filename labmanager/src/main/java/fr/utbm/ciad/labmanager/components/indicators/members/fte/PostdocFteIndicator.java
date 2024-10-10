@@ -45,6 +45,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostdocFteIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = -642739848210413891L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

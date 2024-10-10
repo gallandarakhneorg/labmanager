@@ -82,7 +82,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.OrcidValidator;
 import fr.utbm.ciad.labmanager.views.components.addons.validators.UrlValidator;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a person.
@@ -116,7 +115,9 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 	protected DetailsWithErrorMark contactInformationDetails;
 
-	protected TextField email;
+	protected TextField primaryEmail;
+
+	protected TextField secondaryEmail;
 
 	protected PhoneNumberField officePhone;
 
@@ -192,16 +193,15 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	 *     be required if the editor is not closed after saving in order to obtain a correct editing of the entity.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractPersonEditor(
 			UserEditingContext userContext, EntityCreationStatusComputer<Person> personCreationStatusComputer,
 			PersonService personService, boolean relinkEntityWhenSaving,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
-		super(Person.class, authenticatedUser, messages, logger,
-				personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ConstructionPropertiesBuilder properties) {
+		super(Person.class, authenticatedUser, messages, personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.persons.administration_details") //$NON-NLS-1$
 				.map(PROP_ADMIN_VALIDATION_BOX, "views.persons.administration.validated_person")); //$NON-NLS-1$
@@ -441,10 +441,15 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	protected void createContactInformationComponents(VerticalLayout receiver) {
 		final var content = ComponentFactory.newColumnForm(1);
 
-		this.email = new TextField();
-		this.email.setPrefixComponent(VaadinIcon.AT.create());
-		this.email.setClearButtonVisible(true);
-		content.add(this.email, 2);
+		this.primaryEmail = new TextField();
+		this.primaryEmail.setPrefixComponent(VaadinIcon.AT.create());
+		this.primaryEmail.setClearButtonVisible(true);
+		content.add(this.primaryEmail, 2);
+
+		this.secondaryEmail = new TextField();
+		this.secondaryEmail.setPrefixComponent(VaadinIcon.AT.create());
+		this.secondaryEmail.setClearButtonVisible(true);
+		content.add(this.secondaryEmail, 2);
 
 		this.officePhone = new PhoneNumberField();
 		this.officePhone.setClearButtonVisible(true);
@@ -463,11 +468,16 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 
 		this.contactInformationDetails = createDetailsWithErrorMark(receiver, content, "contact"); //$NON-NLS-1$
 
-		getEntityDataBinder().forField(this.email)
+		getEntityDataBinder().forField(this.primaryEmail)
 			.withConverter(new StringTrimer())
 			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
-			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.email, this.contactInformationDetails))
-			.bind(Person::getEmail, Person::setEmail);
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.primaryEmail, this.contactInformationDetails))
+			.bind(Person::getPrimaryEmail, Person::setPrimaryEmail);
+		getEntityDataBinder().forField(this.secondaryEmail)
+			.withConverter(new StringTrimer())
+			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"), true)) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.secondaryEmail, this.contactInformationDetails))
+			.bind(Person::getSecondaryEmail, Person::setSecondaryEmail);
 		getEntityDataBinder().forField(this.officePhone)
 			.withValidator(this.officePhone.getDefaultValidator())
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.officePhone, this.contactInformationDetails))
@@ -758,8 +768,13 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		if(this.contactInformationDetails != null){
 			this.contactInformationDetails.setSummaryText(getTranslation("views.persons.contact_informations")); //$NON-NLS-1$
 		}
-		this.email.setLabel(getTranslation("views.persons.email")); //$NON-NLS-1$
-		this.email.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
+		this.primaryEmail.setLabel(getTranslation("views.persons.primary_email")); //$NON-NLS-1$
+		this.primaryEmail.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
+		this.primaryEmail.setHelperText(getTranslation("views.persons.primary_email.helper")); //$NON-NLS-1$
+		this.secondaryEmail.setLabel(getTranslation("views.persons.secondary_email")); //$NON-NLS-1$
+		this.secondaryEmail.setErrorMessage(getTranslation("views.persons.secondary_email.error")); //$NON-NLS-1$
+		this.secondaryEmail.setHelperText(getTranslation("views.persons.secondary_email.helper")); //$NON-NLS-1$
+
 		this.officePhone.setLabel(getTranslation("views.persons.officephone")); //$NON-NLS-1$
 		this.officePhone.setDynamicHelperText(helpPhone);
 		this.officePhone.setErrorMessage(errPhone);

@@ -33,6 +33,7 @@ import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a computed value that indicates a key element for an organization.
@@ -44,6 +45,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 2.2
  */
 public abstract class AbstractIndicator extends AbstractComponent implements Indicator {
+
+	private static final long serialVersionUID = 607277285581915549L;
 
 	private String key;
 	
@@ -148,11 +151,11 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	}
 
 	@Override
-	public Number getNumericValue(ResearchOrganization organization) {
+	public Number getNumericValue(ResearchOrganization organization, Logger logger) {
 		final var value = this.values.computeIfAbsent(Long.valueOf(organization.getId()), it -> {
-			getLogger().info("Computing indicator value for " + getKey()); //$NON-NLS-1$
+			logger.info("Computing indicator value for " + getKey()); //$NON-NLS-1$
 			final var v = computeValue(organization);
-			getLogger().info(getKey() + " = " + v); //$NON-NLS-1$
+			logger.info(getKey() + " = " + v); //$NON-NLS-1$
 			return v;
 		});
 		return value;

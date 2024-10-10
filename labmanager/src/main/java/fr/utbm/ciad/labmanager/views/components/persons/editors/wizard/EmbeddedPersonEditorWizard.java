@@ -25,9 +25,6 @@ import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /**
@@ -45,8 +42,6 @@ public final class EmbeddedPersonEditorWizard extends AbstractPersonEditorWizard
 
     private static final long serialVersionUID = 3928100811567654630L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPersonEditorWizard.class);
-
     /**
      * Constructor.
      *
@@ -57,8 +52,10 @@ public final class EmbeddedPersonEditorWizard extends AbstractPersonEditorWizard
      */
     public EmbeddedPersonEditorWizard(UserEditingContext userContext,
     		EntityCreationStatusComputer<Person> personCreationStatusComputer, AuthenticatedUser authenticatedUser,
-    		MessageSourceAccessor messages, @Autowired PersonService personService, Object x) {
-        super(userContext, personCreationStatusComputer, false, authenticatedUser, messages, LOGGER, personService, ConstructionPropertiesBuilder.create());
+    		MessageSourceAccessor messages,
+    		PersonService personService,
+    		Object x) {
+        super(userContext, personCreationStatusComputer, false, authenticatedUser, messages, personService, ConstructionPropertiesBuilder.create());
         createEditorContentAndLinkBeans();
     }
 

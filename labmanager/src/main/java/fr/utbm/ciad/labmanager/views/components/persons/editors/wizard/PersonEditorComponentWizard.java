@@ -1,5 +1,8 @@
 package fr.utbm.ciad.labmanager.views.components.persons.editors.wizard;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -7,12 +10,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Wizard for adding a person.
@@ -36,8 +38,10 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @param indexesComponents             the components for the indexes.
      * @param socialLinksComponents         the components for the social links.
      */
-    public PersonEditorComponentWizard(VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents) {
-        this(defaultWizardConfiguration(null, false),
+    public PersonEditorComponentWizard(ContextualLoggerFactory loggerFactory, VerticalLayout personalInformationComponents,
+    		VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents,
+    		VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents) {
+        this(defaultWizardConfiguration(null, false), loggerFactory,
                 new Person(), personalInformationComponents, contactInformationComponents, researcherIdsComponents, biographyComponents, indexesComponents, socialLinksComponents);
     }
 
@@ -52,8 +56,11 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @param socialLinksComponents         the components for the social links.
      * @param administrationComponents      the components for the administration.
      */
-    public PersonEditorComponentWizard(VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents, VerticalLayout administrationComponents) {
-        this(defaultWizardConfiguration(null, false),
+    public PersonEditorComponentWizard(ContextualLoggerFactory loggerFactory,
+    		VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents,
+    		VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents,
+    		VerticalLayout indexesComponents, VerticalLayout socialLinksComponents, VerticalLayout administrationComponents) {
+        this(defaultWizardConfiguration(null, false), loggerFactory,
                 new Person(), personalInformationComponents, contactInformationComponents, researcherIdsComponents, biographyComponents, indexesComponents, socialLinksComponents, administrationComponents);
     }
 
@@ -73,8 +80,9 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @param indexesComponents             the components for the indexes.
      * @param socialLinksComponents         the components for the social links.
      */
-    protected PersonEditorComponentWizard(WizardConfigurationProperties properties, Person context, VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents) {
-        super(properties, context, Arrays.asList(
+    protected PersonEditorComponentWizard(WizardConfigurationProperties properties, ContextualLoggerFactory loggerFactory,
+    		Person context, VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents) {
+        super(properties, loggerFactory, context, Arrays.asList(
                 new PersonalInformationComponents(context, personalInformationComponents),
                 new PersonContactInformation(context, contactInformationComponents),
                 new PersonResearcherIds(context, researcherIdsComponents),
@@ -96,8 +104,9 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @param socialLinksComponents         the components for the social links.
      * @param administrationComponents      the components for the administration.
      */
-    protected PersonEditorComponentWizard(WizardConfigurationProperties properties, Person context, VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents, VerticalLayout administrationComponents) {
-        super(properties, context, Arrays.asList(
+    protected PersonEditorComponentWizard(WizardConfigurationProperties properties, ContextualLoggerFactory loggerFactory,
+    		Person context, VerticalLayout personalInformationComponents, VerticalLayout contactInformationComponents, VerticalLayout researcherIdsComponents, VerticalLayout biographyComponents, VerticalLayout indexesComponents, VerticalLayout socialLinksComponents, VerticalLayout administrationComponents) {
+        super(properties, loggerFactory, context, Arrays.asList(
                 new PersonalInformationComponents(context, personalInformationComponents),
                 new PersonContactInformation(context, contactInformationComponents),
                 new PersonResearcherIds(context, researcherIdsComponents),
@@ -117,7 +126,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonalInformationComponents extends AbstractFormWizardStep<Person> {
+    protected static class PersonalInformationComponents extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 
@@ -179,7 +188,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonContactInformation extends AbstractFormWizardStep<Person> {
+    protected static class PersonContactInformation extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 
@@ -225,7 +234,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonResearcherIds extends AbstractFormWizardStep<Person> {
+    protected static class PersonResearcherIds extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 
@@ -268,7 +277,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonBiography extends AbstractFormWizardStep<Person> {
+    protected static class PersonBiography extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 
@@ -311,7 +320,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonIndexes extends AbstractFormWizardStep<Person> {
+    protected static class PersonIndexes extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 
@@ -354,7 +363,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonSocialLinks extends AbstractFormWizardStep<Person> {
+    protected static class PersonSocialLinks extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 
@@ -397,7 +406,7 @@ public class PersonEditorComponentWizard extends AbstractLabManagerWizard<Person
      * @mavenartifactid $ArtifactId$
      * @since 4.0
      */
-    protected static class PersonAdministration extends AbstractFormWizardStep<Person> {
+    protected static class PersonAdministration extends AbstractLabManagerFormWizardStep<Person> {
 
         private VerticalLayout content;
 

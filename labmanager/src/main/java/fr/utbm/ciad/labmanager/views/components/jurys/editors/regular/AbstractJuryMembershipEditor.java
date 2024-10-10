@@ -49,7 +49,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.validators.NotNullEnumera
 import fr.utbm.ciad.labmanager.views.components.persons.fields.MultiPersonNameField;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.SinglePersonNameField;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation for the editor of the information related to a jury.
@@ -100,15 +99,14 @@ public abstract class AbstractJuryMembershipEditor extends AbstractEntityEditor<
 	 * @param personFieldFactory the factory for creating the person fields.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param properties specification of properties that may be passed to the construction function {@code #create*}.
 	 * @since 4.0
 	 */
 	public AbstractJuryMembershipEditor(EntityEditingContext<JuryMembership> context,
 			EntityCreationStatusComputer<JuryMembership> juryCreationStatusComputer,
 			boolean relinkEntityWhenSaving, PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger, ConstructionPropertiesBuilder properties) {
-		super(JuryMembership.class, authenticatedUser, messages, logger, juryCreationStatusComputer, context, null, relinkEntityWhenSaving,
+			MessageSourceAccessor messages, ConstructionPropertiesBuilder properties) {
+		super(JuryMembership.class, authenticatedUser, messages, juryCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.mapToNull(PROP_ADMIN_SECTION)
 				.mapToNull(PROP_ADMIN_VALIDATION_BOX));

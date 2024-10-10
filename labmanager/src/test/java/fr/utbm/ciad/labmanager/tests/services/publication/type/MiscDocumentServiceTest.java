@@ -80,7 +80,8 @@ public class MiscDocumentServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(MiscDocumentRepository.class);
-		this.test = new MiscDocumentService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
+		this.test = new MiscDocumentService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository,
+				this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

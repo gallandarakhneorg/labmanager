@@ -56,11 +56,13 @@ import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.appviews.persons.PersonRankingUpdaterWizard.PersonRankingUpdate;
 import fr.utbm.ciad.labmanager.views.appviews.persons.PersonRankingUpdaterWizard.PersonRankingUpdate.PersonNewInformation;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerProgressionWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
-import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizardStep;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 import jakarta.annotation.security.RolesAllowed;
@@ -84,22 +86,28 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 
 	/** Constructor.
 	 *
+	 * @param loggerFactory the factory of the loggers.
 	 * @param personService the service for accessing the person entities.
 	 */
-	public PersonRankingUpdaterWizard(@Autowired PersonService personService) {
-		this(	personService,
+	public PersonRankingUpdaterWizard(
+			@Autowired ContextualLoggerFactory loggerFactory,
+			@Autowired PersonService personService) {
+		this(	loggerFactory, personService,
 				defaultWizardConfiguration(null, false),
 				new PersonRankingUpdate());
 	}
 
 	/** Constructor.
 	 *
+	 * @param loggerFactory the factory of the loggers.
 	 * @param personService the service for accessing the person entities.
 	 * @param properties the properties of the wizard.
 	 * @param context the data context.
 	 */
-	protected PersonRankingUpdaterWizard(PersonService personService,  WizardConfigurationProperties properties, PersonRankingUpdate context) {
-		this(properties, context, Arrays.asList(
+	protected PersonRankingUpdaterWizard(
+			ContextualLoggerFactory loggerFactory, PersonService personService, 
+			WizardConfigurationProperties properties, PersonRankingUpdate context) {
+		this(properties, loggerFactory, context, Arrays.asList(
 				new PersonInputWizardStep(context),
 				new PersonRankLoadingWizardStep(context, personService),
 				new PersonRankDownloadWizardStep(context, personService),
@@ -107,8 +115,9 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 				new PersonRankSavingWizardStep(context, personService)));
 	}
 
-	private PersonRankingUpdaterWizard(WizardConfigurationProperties properties, PersonRankingUpdate context, List<WizardStep<PersonRankingUpdate>> steps) {
-		super(properties, context, steps);
+	private PersonRankingUpdaterWizard(WizardConfigurationProperties properties, ContextualLoggerFactory loggerFactory,
+			PersonRankingUpdate context, List<WizardStep<PersonRankingUpdate>> steps) {
+		super(properties, loggerFactory, context, steps);
 	}
 
 	private static boolean isEnabled(ToggleButton button) {
@@ -125,7 +134,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class PersonInputWizardStep extends AbstractFormWizardStep<PersonRankingUpdate> {
+	protected static class PersonInputWizardStep extends AbstractLabManagerFormWizardStep<PersonRankingUpdate> {
 
 		private static final long serialVersionUID = 5165672963156038933L;
 
@@ -338,7 +347,9 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 					final var ewos = getContext().getWosEnable();
 					if (ewos) {
 						getContext().clearWosRankings();
-						this.personService.downloadPersonIndicatorsFromWoS(getContext().getPersons(), extendedProgression0,
+						this.personService.downloadPersonIndicatorsFromWoS(
+								getContext().getPersons(),
+								getLogger(), extendedProgression0,
 								(personId, oldHindex, newHindex, oldCitations, newCitations) -> {
 									getContext().addWosRanking(personId, oldHindex, newHindex, oldCitations, newCitations);
 								});
@@ -355,7 +366,9 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 					final var escopus = getContext().getScopusEnable();
 					if (escopus) {
 						getContext().clearScopusRankings();
-						this.personService.downloadPersonIndicatorsFromScopus(getContext().getPersons(), extendedProgression1,
+						this.personService.downloadPersonIndicatorsFromScopus(
+								getContext().getPersons(),
+								getLogger(), extendedProgression1,
 								(personId, oldHindex, newHindex, oldCitations, newCitations) -> {
 									getContext().addScopusRanking(personId, oldHindex, newHindex, oldCitations, newCitations);
 								});
@@ -372,7 +385,9 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 					final var egs = getContext().getGoogleScholarEnable();
 					if (egs) {
 						getContext().clearGoogleScholarRankings();
-						this.personService.downloadPersonIndicatorsFromGoogleScholar(getContext().getPersons(), extendedProgression2,
+						this.personService.downloadPersonIndicatorsFromGoogleScholar(
+								getContext().getPersons(),
+								getLogger(), extendedProgression2,
 								(personId, oldHindex, newHindex, oldCitations, newCitations) -> {
 									getContext().addGoogleScholarRanking(personId, oldHindex, newHindex, oldCitations, newCitations);
 								});
@@ -396,7 +411,7 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class PersonRankingSummaryWizardStep extends WizardStep<PersonRankingUpdate> {
+	protected static class PersonRankingSummaryWizardStep extends AbstractLabManagerWizardStep<PersonRankingUpdate> {
 
 		private static final long serialVersionUID = 7506569906063637966L;
 
@@ -585,7 +600,8 @@ public class PersonRankingUpdaterWizard extends AbstractLabManagerWizard<PersonR
 							return new PersonRankingUpdateInformation(person,
 									wosHindex, wosCitations, scopusHindex, scopusCitations, googleScholarHindex, googleScholarCitations);
 						}).toList(),
-						context.getWosEnable(), context.getScopusEnable(), context.getGoogleScholarEnable(), extendedProgression0);
+						context.getWosEnable(), context.getScopusEnable(), context.getGoogleScholarEnable(),
+						getLogger(), extendedProgression0);
 				return terminationMessage0;
 			};
 		}

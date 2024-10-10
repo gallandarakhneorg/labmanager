@@ -33,6 +33,7 @@ import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter.FileCallback;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ZipToDatabaseImporter extends AbstractComponent {
+
+	private static final long serialVersionUID = 5922689907053791939L;
 
 	private JsonToDatabaseImporter jsonImporter;
 
@@ -119,11 +122,12 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	/** Run the importer for ZIP data source only.
 	 *
 	 * @param url the URL of the ZIP file to read.
+	 * @param logger the logger to use for put a message in the log.
 	 * @throws Exception if there is problem for importing.
 	 */
-	public void importArchiveFileToDatabase(URL url) throws Exception {
+	public void importArchiveFileToDatabase(URL url, Logger logger) throws Exception {
 		cleanTargetFolders();
-		deleteTemporaryArea();
+		deleteTemporaryArea(logger);
 		//
 		try {
 			JsonNode content = null;
@@ -135,13 +139,13 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 						final var lower = filename.toLowerCase();
 						if (lower.equals(ZipDatabaseConstants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json")) { //$NON-NLS-1$
 							if (content == null) {
-								content = readJson(entryStream);
+								content = readJson(entryStream, logger);
 							} else {
 								throw new Exception("To many JSON file in the ZIP archive."); //$NON-NLS-1$
 							}
 						} else if (isAcceptedDataFile(lower)) {
 							// Copy the files onto the server.
-							copyAttachedFileToTemporaryArea(filename, entryStream);
+							copyAttachedFileToTemporaryArea(filename, entryStream, logger);
 						}
 					}
 					entry = zis.getNextEntry();
@@ -150,17 +154,17 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			// Inject the JSON content into the database; Change the uploaded files on the fly.
 			if (content != null) {
 				final var callback = new UploadedFileManager();
-				final var stats = this.jsonImporter.importJsonFileToDatabase(content, callback);
+				final var stats = this.jsonImporter.importJsonFileToDatabase(content, callback, logger);
 				if (stats != null) {
 					stats.setPublicationAssociatedFileCount(callback.getFileCount());
-					stats.logSummaryOn(getLogger());
+					stats.logSummaryOn(logger);
 				}
 			} else {
 				cleanTargetFolders();
-				getLogger().info("Nothing to be inserted from: " + url); //$NON-NLS-1$
+				logger.info("Nothing to be inserted from: " + url); //$NON-NLS-1$
 			}
 		} finally {
-			deleteTemporaryArea();
+			deleteTemporaryArea(logger);
 		}
 	}
 
@@ -174,14 +178,15 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	 *
 	 * @param filename the name of the file in the ZIP archive, i.e., in the original file system.
 	 * @param entryStream the stream of bytes for the file.
+	 * @param logger the logger to use for put a message in the log.
 	 * @throws Exception if the file cannot be copied to the temporary folder.
 	 */
-	protected void copyAttachedFileToTemporaryArea(String filename, InputStream entryStream) throws Exception {
+	protected void copyAttachedFileToTemporaryArea(String filename, InputStream entryStream, Logger logger) throws Exception {
 		var outputFile = FileSystem.convertStringToFile(filename);
 		if (!outputFile.isAbsolute()) {
 			outputFile = FileSystem.join(this.download.getTemporaryRootFile(), outputFile);
 			outputFile = this.download.normalizeForServerSide(outputFile);
-			getLogger().info("Copying attached file: " + filename + "; to: " + outputFile.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+			logger.info("Copying attached file: " + filename + "; to: " + outputFile.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			mkdirs(outputFile);
 			try (FileOutputStream fos = new FileOutputStream(outputFile)) {
 				// Size of "-1" means that the size of the copy buffer is decided according to the operating system
@@ -193,25 +198,29 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	}
 
 	/** Delete all the files in the temporary area.
+	 *
+	 * @param logger the logger to use for put a message in the log.
 	 */
-	protected void deleteTemporaryArea() {
+	protected void deleteTemporaryArea(Logger logger) {
 		var tempFile = this.download.getTemporaryRootFile();
 		tempFile = this.download.normalizeForServerSide(tempFile);
 		try {
 			FileSystem.delete(tempFile);
 		} catch (IOException ex) {
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			logger.error(ex.getLocalizedMessage(), ex);
 		}
 	}
 	
 	/** Read the JSON content from the given ZIP entry.
 	 *
 	 * @param entryStream the stream for the ZIP entry.
+	 * @param logger the logger to use for put a message in the log.
 	 * @return the content.
 	 * @throws IOException if the stream cannot be read.
 	 */
-	protected JsonNode readJson(InputStream entryStream) throws IOException {
-		getLogger().info("Reading JSON description"); //$NON-NLS-1$
+	@SuppressWarnings("static-method")
+	protected JsonNode readJson(InputStream entryStream, Logger logger) throws IOException {
+		logger.info("Reading JSON description"); //$NON-NLS-1$
 		// Read the JSON content
 		try (final var isr = new InputStreamReader(entryStream)) {
 			final var mapper = JsonUtils.createMapper();
@@ -249,77 +258,87 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		}
 
 		@Override
-		public String publicationPdfFile(long dbId, String filename) {
+		public String publicationPdfFile(long dbId, String filename, Logger logger) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makePdfFilename(dbId),
-					ZipToDatabaseImporter.this.download.makePdfPictureFilename(dbId));
+					ZipToDatabaseImporter.this.download.makePdfPictureFilename(dbId),
+					logger);
 		}
 
 		@Override
-		public String publicationAwardFile(long dbId, String filename) {
+		public String publicationAwardFile(long dbId, String filename, Logger logger) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeAwardFilename(dbId),
-					ZipToDatabaseImporter.this.download.makeAwardPictureFilename(dbId));
+					ZipToDatabaseImporter.this.download.makeAwardPictureFilename(dbId),
+					logger);
 		}
 
 		@Override
-		public String addressBackgroundImageFile(long dbId, String filename) {
+		public String addressBackgroundImageFile(long dbId, String filename, Logger logger) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
-					ZipToDatabaseImporter.this.download.makeAddressBackgroundImage(dbId, fileExtension));
+					ZipToDatabaseImporter.this.download.makeAddressBackgroundImage(dbId, fileExtension),
+					logger);
 		}
 
 		@Override
-		public String organizationLogoFile(long dbId, String filename) {
+		public String organizationLogoFile(long dbId, String filename, Logger logger) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
-					ZipToDatabaseImporter.this.download.makeOrganizationLogoFilename(dbId, fileExtension));
+					ZipToDatabaseImporter.this.download.makeOrganizationLogoFilename(dbId, fileExtension),
+					logger);
 		}
 
 		@Override
-		public String projectLogoFile(long dbId, String filename) {
+		public String projectLogoFile(long dbId, String filename, Logger logger) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
-					ZipToDatabaseImporter.this.download.makeProjectLogoFilename(dbId, fileExtension));
+					ZipToDatabaseImporter.this.download.makeProjectLogoFilename(dbId, fileExtension),
+					logger);
 		}
 
 		@Override
-		public String projectImageFile(long dbId, int index, String filename) {
+		public String projectImageFile(long dbId, int index, String filename, Logger logger) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
-					ZipToDatabaseImporter.this.download.makeProjectImageFilename(dbId, index, fileExtension));
+					ZipToDatabaseImporter.this.download.makeProjectImageFilename(dbId, index, fileExtension),
+					logger);
 		}
 
 		@Override
-		public String projectScientificRequirementsFile(long dbId, String filename) {
+		public String projectScientificRequirementsFile(long dbId, String filename, Logger logger) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsFilename(dbId),
-					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsPictureFilename(dbId));
+					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsPictureFilename(dbId),
+					logger);
 		}
 
 		@Override
-		public String projectPressDocumentFile(long dbId, String filename) {
+		public String projectPressDocumentFile(long dbId, String filename, Logger logger) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectPressDocumentFilename(dbId),
-					ZipToDatabaseImporter.this.download.makeProjectPressDocumentPictureFilename(dbId));
+					ZipToDatabaseImporter.this.download.makeProjectPressDocumentPictureFilename(dbId),
+					logger);
 		}
 
 		@Override
-		public String projectPowerpointFile(long dbId, String filename) {
+		public String projectPowerpointFile(long dbId, String filename, Logger logger) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectPowerpointFilename(dbId, fileExtension),
-					ZipToDatabaseImporter.this.download.makeProjectPowerpointPictureFilename(dbId));
+					ZipToDatabaseImporter.this.download.makeProjectPowerpointPictureFilename(dbId),
+					logger);
 		}
 
 		@Override
-		public String teachingActivitySlideFile(long dbId, String filename) {
+		public String teachingActivitySlideFile(long dbId, String filename, Logger logger) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeTeachingActivitySlidesFilename(dbId),
-					ZipToDatabaseImporter.this.download.makeTeachingActivitySlidesPictureFilename(dbId));
+					ZipToDatabaseImporter.this.download.makeTeachingActivitySlidesPictureFilename(dbId),
+					logger);
 		}
 
-		private String moveFile(String inFilename, long outId, File outFilename, File outPictureName) {
+		private String moveFile(String inFilename, long outId, File outFilename, File outPictureName, Logger logger) {
 			try {
 				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {
@@ -327,8 +346,9 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 					mkdirs(outFile);
 					FileSystem.copy(inFile, outFile);
 					FileSystem.delete(inFile);
-					ZipToDatabaseImporter.this.download.ensurePictureFile(outFilename, outPictureName);
+					ZipToDatabaseImporter.this.download.ensurePictureFile(outFilename, outPictureName, logger);
 					++this.fileCount;
+					logger.info("Renaming file from " + inFilename + " to " + outFilename); //$NON-NLS-1$ //$NON-NLS-2$
 					return outFilename.toString();
 				}
 				return null;
@@ -337,7 +357,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			}
 		}
 
-		private String moveFile(String inFilename, long outId, File outFilename) {
+		private String moveFile(String inFilename, long outId, File outFilename, Logger logger) {
 			try {
 				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {
@@ -346,6 +366,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 					FileSystem.copy(inFile, outFile);
 					FileSystem.delete(inFile);
 					++this.fileCount;
+					logger.info("Renaming file from " + inFilename + " to " + outFilename); //$NON-NLS-1$ //$NON-NLS-2$
 					return outFilename.toString();
 				}
 				return null;

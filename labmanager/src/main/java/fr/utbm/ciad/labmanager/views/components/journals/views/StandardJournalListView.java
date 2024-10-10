@@ -50,11 +50,11 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.journals.editors.JournalEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -97,14 +97,14 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param journalService the service for accessing the journals.
 	 * @param journalEditorFactory the factory for creating journal editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardJournalListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			JournalService journalService, JournalEditorFactory journalEditorFactory, Logger logger) {
-		super(Journal.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			JournalService journalService, JournalEditorFactory journalEditorFactory) {
+		super(Journal.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.journals.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.journals.delete.message") //$NON-NLS-1$
@@ -265,9 +265,9 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 	protected void openJournalEditor(Journal journal, String title, boolean isCreation) {
 		final AbstractEntityEditor<Journal> editor;
 		if (isCreation) {
-			editor = this.journalEditorFactory.createAdditionEditor(journal);
+			editor = this.journalEditorFactory.createAdditionEditor(journal, getLogger());
 		} else {
-			editor = this.journalEditorFactory.createUpdateEditor(journal);
+			editor = this.journalEditorFactory.createUpdateEditor(journal, getLogger());
 		}
 		openJournalEditor(editor, title);
 	}
@@ -303,7 +303,7 @@ public class StandardJournalListView extends AbstractEntityListView<Journal> {
 
 	@Override
 	protected EntityDeletingContext<Journal> createDeletionContextFor(Set<Journal> entities) {
-		return this.journalService.startDeletion(entities);
+		return this.journalService.startDeletion(entities, getLogger());
 	}
 
 	@Override

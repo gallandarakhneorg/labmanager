@@ -55,7 +55,6 @@ import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
 import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
-import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaperRepository;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;

@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.conference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.QualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -179,7 +180,7 @@ public class ConferenceQualityAnnualIndicators implements QualityAnnualIndicator
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this);
 	}
 
 	@Override

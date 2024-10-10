@@ -35,6 +35,8 @@ import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Provides tool for the implemenation of a service for a specific type of publication.
@@ -46,6 +48,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  */
 public abstract class AbstractPublicationTypeService extends AbstractPublicationService {
+
+	private static final long serialVersionUID = 3801348805818865484L;
 
 	private DownloadableFileManager downloadableFileManager;
 
@@ -76,6 +80,16 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		this.halTools = halTools;
 	}
 
+	@Override
+	public EntityEditingContext<Publication> startEditing(Publication entity, Logger logger) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public EntityDeletingContext<Publication> startDeletion(Set<Publication> entities, Logger logger) {
+		throw new UnsupportedOperationException();
+	}
+	
 	/** Update the book chapter with the given identifier.
 	 * This function do not save the publication into the database. You must call the saving function
 	 * explicitly.
@@ -109,16 +123,6 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, halId, isbn,
 				issn, dblpUrl.toExternalForm(), extraUrl.toExternalForm(), language, pdfContent, awardContent,
 				pathToVideo.toExternalForm());
-	}
-	
-	@Override
-	public EntityEditingContext<Publication> startEditing(Publication entity) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public EntityDeletingContext<Publication> startDeletion(Set<Publication> entities) {
-		throw new UnsupportedOperationException();
 	}
 
 	/** Check if the given publication instance correspons to the given type.
@@ -189,13 +193,15 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		publication.setMajorLanguage(language);
 		publication.setVideoURL(Strings.emptyToNull(pathToVideo));
 
+		final var logger = LoggerFactory.getLogger(getClass());
+		
 		if (Strings.isNullOrEmpty(pathToPdfFile)) {
 			publication.setPathToDownloadablePDF(null);
 			try {
 				// Force delete in case the file is still here
-				this.downloadableFileManager.deletePublicationPdfFile(publication.getId());
+				this.downloadableFileManager.deletePublicationPdfFile(publication.getId(), logger);
 			} catch (Exception ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
+				logger.error(ex.getLocalizedMessage(), ex);
 			}
 		} else {
 			publication.setPathToDownloadablePDF(pathToPdfFile);
@@ -205,9 +211,9 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 			publication.setPathToDownloadableAwardCertificate(null);
 			try {
 				// Force delete in case the file is still here
-				this.downloadableFileManager.deletePublicationAwardPdfFile(publication.getId());
+				this.downloadableFileManager.deletePublicationAwardPdfFile(publication.getId(), logger);
 			} catch (Exception ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
+				logger.error(ex.getLocalizedMessage(), ex);
 			}
 		} else {
 			publication.setPathToDownloadableAwardCertificate(pathToAwardCertificate);

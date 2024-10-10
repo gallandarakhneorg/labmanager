@@ -43,11 +43,7 @@ import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import fr.utbm.ciad.wprest.AbstractExternalView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriBuilder;
@@ -66,6 +62,8 @@ import org.springframework.web.util.UriComponents;
 //@RequestMapping("/api")
 //@CrossOrigin
 public class PersonExternalView extends AbstractExternalView {
+
+	private static final long serialVersionUID = -1477001255798590777L;
 
 	private PersonService personService;
 
@@ -202,7 +200,7 @@ public class PersonExternalView extends AbstractExternalView {
 		//
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		final Map<String, Object> obfuscatedValues = new HashMap<>();
-		addObfuscatedEmailFields(obfuscatedValues, personObj.getEmail(), null);
+		addObfuscatedEmailFields(obfuscatedValues, personObj.getPrimaryEmail(), null);
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getOfficePhone().toInternationalForm(), "o"); //$NON-NLS-1$
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getMobilePhone().toInternationalForm(), "m"); //$NON-NLS-1$
 		addObfuscatedValues(modelAndView, obfuscatedValues);

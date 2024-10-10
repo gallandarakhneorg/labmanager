@@ -51,6 +51,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = -8086100807016215293L;
+
 	private BookRepository repository;
 
 	/** Constructor for injector.

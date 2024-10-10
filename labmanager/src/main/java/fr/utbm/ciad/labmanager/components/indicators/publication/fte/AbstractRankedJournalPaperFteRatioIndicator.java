@@ -36,6 +36,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractRankedJournalPaperFteRatioIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = -1981195885267547423L;
+
 	private AbstractRankedJournalPaperCountIndicator paperCount;
 
 	private AbstractAnnualIndicator fteIndicator;

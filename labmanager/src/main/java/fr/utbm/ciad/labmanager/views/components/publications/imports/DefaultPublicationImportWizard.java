@@ -50,15 +50,17 @@ import fr.utbm.ciad.labmanager.utils.io.ris.RISConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.GenericUploadableFilesField;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.UploadBuffer;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerFormWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerProgressionWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
+import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizardStep;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.regular.PublicationCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.publications.imports.ImportData.QualifiedPublication;
-import io.overcoded.vaadin.wizard.AbstractFormWizardStep;
 import io.overcoded.vaadin.wizard.WizardStep;
 import io.overcoded.vaadin.wizard.config.WizardConfigurationProperties;
 import io.overcoded.vaadin.wizard.config.WizardContentConfigurationProperties;
@@ -86,9 +88,11 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 	 * @param editorFactory the factory for the publication editors.
 	 * @param statusComputer the computer of the publication status.
 	 * @param messages the accessor to the localized messages.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-	public DefaultPublicationImportWizard(PublicationService publicationService, PublicationEditorFactory editorFactory, PublicationCreationStatusComputer statusComputer, MessageSourceAccessor messages) {
-		this(	publicationService, editorFactory, statusComputer, messages,
+	public DefaultPublicationImportWizard(PublicationService publicationService, PublicationEditorFactory editorFactory,
+			PublicationCreationStatusComputer statusComputer, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory) {
+		this(	publicationService, editorFactory, statusComputer, messages, loggerFactory,
 				defaultWizardConfiguration(null, false),
 				new ImportData());
 	}
@@ -104,16 +108,17 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 	 */
 	protected DefaultPublicationImportWizard(PublicationService publicationService, PublicationEditorFactory editorFactory,
 			PublicationCreationStatusComputer statusComputer, MessageSourceAccessor messages,
-			WizardConfigurationProperties properties, ImportData context) {
-		this(properties, context, Arrays.asList(
+			ContextualLoggerFactory loggerFactory, WizardConfigurationProperties properties, ImportData context) {
+		this(properties, context, loggerFactory, Arrays.asList(
 				new FileUploadStep(context),
 				new FileReadingStep(context, publicationService, statusComputer),
 				new SummaryValidationStep(context, messages, editorFactory),
 				new PublicationSavingStep(context, publicationService)));
 	}
 
-	private DefaultPublicationImportWizard(WizardConfigurationProperties properties, ImportData context, List<WizardStep<ImportData>> steps) {
-		super(properties, context, steps);
+	private DefaultPublicationImportWizard(WizardConfigurationProperties properties, ImportData context,
+			ContextualLoggerFactory loggerFactory, List<WizardStep<ImportData>> steps) {
+		super(properties, loggerFactory, context, steps);
 	}
 
 	/**
@@ -126,7 +131,7 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class FileUploadStep extends AbstractFormWizardStep<ImportData> {
+	protected static class FileUploadStep extends AbstractLabManagerFormWizardStep<ImportData> {
 
 		private static final long serialVersionUID = -6523928192461900353L;
 
@@ -164,6 +169,7 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 		@Override
 		protected void createForm(FormLayout form) {
 			this.upload = new GenericUploadableFilesField(
+					() -> getLogger(),
 					BibTeXConstants.FILENAME_EXTENSION, RISConstants.FILENAME_EXTENSION);
 			this.upload.setLabel(ComponentFactory.getTranslation("views.publication.import.step1.label")); //$NON-NLS-1$
 			this.upload.addSucceededListener(it -> {
@@ -297,7 +303,7 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	protected static class SummaryValidationStep extends WizardStep<ImportData> {
+	protected static class SummaryValidationStep extends AbstractLabManagerWizardStep<ImportData> {
 
 		private static final long serialVersionUID = 1066158190823213276L;
 
@@ -324,6 +330,7 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 		 * @param context the data context.
 		 * @param messages the accessor to the localized messages.
 		 * @param editorFactory the factory for the publication editors.
+		 * @param logger the logger to be used in this step.
 		 */
 		public SummaryValidationStep(ImportData context, MessageSourceAccessor messages, PublicationEditorFactory editorFactory) {
 			this(context,
@@ -522,7 +529,8 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 					this.personFieldLabelKey,
 					this.personFieldHelperLabelKey,
 					this.personNullErrorKey,
-					this.personDuplicateErrorKey);
+					this.personDuplicateErrorKey,
+					getLogger());
 		}
 
 		private static PublicationType[] getSupportedPublicationTypeArray() {
@@ -545,12 +553,13 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 
 		private static final long serialVersionUID = -746055790359217141L;
 
-		private final PublicationService publicationService; 
+		private final PublicationService publicationService;
 
 		/** Constructor.
 		 *
 		 * @param context the wizard context.
 		 * @param publicationService the service for accessing the JPA entities of publications.
+		 * @param logger the logger to be used in this step.
 		 */
 		public PublicationSavingStep(ImportData context, PublicationService publicationService) {
 			super(context, ComponentFactory.getTranslation("views.publication.import.step4.title"), 4, 1, false, true); //$NON-NLS-1$
@@ -594,7 +603,7 @@ public class DefaultPublicationImportWizard extends AbstractLabManagerWizard<Imp
 					final var comment = toPublicationString(publication);
 					extendedProgression0.setComment(comment);
 					try {
-						final var savingContext = this.publicationService.startEditing(publication);
+						final var savingContext = this.publicationService.startEditing(publication, getLogger());
 						savingContext.save();
 					} catch (Throwable ex) {
 						throw new RuntimeException(comment, ex);

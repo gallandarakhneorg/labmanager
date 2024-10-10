@@ -31,6 +31,7 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import org.arakhne.afc.progress.Progression;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -63,10 +64,10 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 
 	@Override
 	public String exportPublicationsWithRootKeys(Collection<? extends Publication> publications, ExporterConfigurator configurator,
-			Progression progression, String... rootKeys) throws Exception {
+			Progression progression, Logger logger, String... rootKeys) throws Exception {
 		progression.setProperties(0, 0, publications.size() + 1, false);	
 		final var root = exportPublicationsAsTreeWithRootKeys(publications, configurator,
-				progression.subTask(publications.size()), null, rootKeys);
+				progression.subTask(publications.size()), logger, null, rootKeys);
 		final var mapper = JsonUtils.createMapper();
 		final var output = mapper.writer().writeValueAsString(root);
 		progression.end();
@@ -75,10 +76,10 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 
 	@Override
 	public JsonNode exportPublicationsAsTreeWithRootKeys(Collection<? extends Publication> publications, ExporterConfigurator configurator,
-			Progression progression, Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
+			Progression progression, Logger logger, Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
 		progression.setProperties(0, 0, publications.size() + (rootKeys == null ? 0 : rootKeys.length), false);		
 		final var mapper = JsonUtils.createMapper();
-		final var node = exportPublicationsAsTree(publications, configurator, progression.subTask(publications.size()),
+		final var node = exportPublicationsAsTree(publications, configurator, progression.subTask(publications.size()), logger,
 				callback, mapper, configurator.getLocaleOrLanguageLocale(null));
 		var root = node;
 		if (rootKeys != null) {
@@ -99,6 +100,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
 	 * @param progression the progression indicator.
+	 * @param logger the logger to be used.
 	 * @param callback a function that is invoked for each publication for giving the opportunity
 	 *     to fill up the Json node of the publication.
 	 * @param mapper the JSON object creator and mapper.
@@ -107,7 +109,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	 * @throws Exception if the publication cannot be converted.
 	 */
 	public JsonNode exportPublicationsAsTree(Collection<? extends Publication> publications, ExporterConfigurator configurator,
-			Progression progression, Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper, Locale locale) throws Exception {
+			Progression progression, Logger logger, Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper, Locale locale) throws Exception {
 		if (publications == null) {
 			progression.end();
 			return mapper.nullNode();
@@ -126,7 +128,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			}
 			// Make aliasing for the Scimago Quartiles
 			if (entryNode.has("scimagoQIndex") && publication instanceof JournalBasedPublication jbp) { //$NON-NLS-1$
-				final var url = configurator.getJournalService().getScimagoQuartileImageURLByJournal(jbp.getJournal());
+				final var url = configurator.getJournalService().getScimagoQuartileImageURLByJournal(jbp.getJournal(), logger);
 				if (url != null) {
 					entryNode.set("scimagoQIndex_imageUrl", entryNode.textNode(url.toExternalForm())); //$NON-NLS-1$
 				}

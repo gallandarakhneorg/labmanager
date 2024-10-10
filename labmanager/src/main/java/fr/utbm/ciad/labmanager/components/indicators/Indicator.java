@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.Unit;
+import org.slf4j.Logger;
 
 /** A computed value that indicates a key element for an organization.
  * 
@@ -87,9 +88,10 @@ public interface Indicator {
 	 * provided by {@link #getValueUnit()}.
 	 *
 	 * @param organization the organization for which the indicator should be computed.
+	 * @param logger the logger to use for put a message in the log.
 	 * @return the number value, or {@code null} if the indicator does not compute a numeric value.
 	 * @see #getValueUnit()
 	 */
-	Number getNumericValue(ResearchOrganization organization);
+	Number getNumericValue(ResearchOrganization organization, Logger logger);
 
 }

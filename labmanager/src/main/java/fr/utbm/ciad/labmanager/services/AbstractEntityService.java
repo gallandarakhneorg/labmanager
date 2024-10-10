@@ -34,6 +34,7 @@ import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.apache.commons.io.function.IOBiConsumer;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
  * @mavenartifactid $ArtifactId$
  */
 public abstract class AbstractEntityService<T extends IdentifiableEntity> extends AbstractService {
+
+	private static final long serialVersionUID = -7685425685906373059L;
 
 	/** Constructor.
 	 *
@@ -60,18 +63,22 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 	/** Start the editing of the given entity.
 	 *
 	 * @param entity the entity to save.
+	 * @param logger the logger to be used.
 	 * @return the editing context that enables to keep track of any information needed
 	 *      for saving the entity and its related resources.
+	 * @since 4.0
 	 */
-	public abstract EntityEditingContext<T> startEditing(T entity);
+	public abstract EntityEditingContext<T> startEditing(T entity, Logger logger);
 
 	/** Start the deletion of the given entities.
 	 *
 	 * @param entities the entities to delete.
+	 * @param logger the logger to be used.
 	 * @return the deletion context that enables to keep track of any information needed
 	 *      for deleting the entity and its related resources.
+	 * @since 4.0
 	 */
-	public abstract EntityDeletingContext<T> startDeletion(Set<T> entities);
+	public abstract EntityDeletingContext<T> startDeletion(Set<T> entities, Logger logger);
 
 	/** Context for editing an entity.
 	 *
@@ -138,6 +145,12 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		 */
 		EntityDeletingContext<T> createDeletionContext();
 
+		/** Replies the logger that is associated to the editing context.
+		 *
+		 * @return the logger.
+		 */
+		Logger getLogger();
+
 	}
 
 	/** Context for editing an entity.
@@ -153,21 +166,26 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 
 		private static final long serialVersionUID = -7350966100644929293L;
 
-		/** The edited entity.
-		 */
+		private final Logger logger;
+		
 		private final T originalEntity;
 
-		/** The edited entity.
-		 */
 		protected T entity;
 
 		/** Constructor.
 		 *
 		 * @param entity the entity to be edited.
+		 * @param logger the logger to use.
 		 */
-		protected AbstractEntityEditingContext(T entity) {
+		protected AbstractEntityEditingContext(T entity, Logger logger) {
+			this.logger = logger;
 			this.originalEntity = entity;
 			this.entity = entity;
+		}
+		
+		@Override
+		public Logger getLogger() {
+			return this.logger;
 		}
 
 		@Override
@@ -195,7 +213,7 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 			if (entity != null && entity.getId() != 0l) {
 				return createDeletionContext();
 			}
-			return new AbstractEntityDeletingContext<>(Collections.singleton(entity)) {
+			return new AbstractEntityDeletingContext<>(Collections.singleton(entity), getLogger()) {
 
 				private static final long serialVersionUID = 2393794876950796791L;
 
@@ -247,9 +265,11 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		/** Reset the path memory to keep track of changes.
 		 *
 		 * @param entity entity to read for reseting.
+		 * @param logger the logger to be used.
 		 */
-		public void resetPathMemory(T entity) {
+		public void resetPathMemory(T entity, Logger logger) {
 			this.savedPath = this.reader.apply(entity);
+			logger.info("Saved file for id " + entity.getId() + " and path: " + this.savedPath); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		/** Replies if the path to the file has changed since the last saving.
@@ -264,37 +284,42 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		/** Delete the associated file.
 		 *
 		 * @param entity entity to read for deletion.
+		 * @param logger the logger to be used.
 		 * @return {@code true} if the file is deleted, or {@code false} if no file is deleted.
 		 * @throws IOException is thrown when the associated file cannot be deleted.
 		 */
-		public boolean deleteFile(T entity) throws IOException {
+		public boolean deleteFile(T entity, Logger logger) throws IOException {
 			final var currentPath = this.reader.apply(entity);
 			if (Strings.isNullOrEmpty(currentPath)) {
 				if (this.deleter != null) {
 					this.deleter.accept(Long.valueOf(entity.getId()), this.savedPath);
+					logger.info("Deleted file for id " + entity.getId() + " and path: " + this.savedPath); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				return true;
 			}
 			return false;
 		}
 
-		/** Delete or rename the associated file to be consistznt with the
+		/** Delete or rename the associated file to be consistent with the
 		 * new identifier of the associated entity.
 		 *
 		 * @param oldId the previous value of the entity's identifier. It it is {@code 0} then the entity was never created in the database. 
 		 * @param entity the JPE entity to be tracked.
+		 * @param logger the logger to be used.
 		 * @throws IOException is thrown when the associated file cannot be deleted or renamed.
 		 */
-		public void deleteOrRenameFile(long oldId, T entity) throws IOException {
+		public void deleteOrRenameFile(long oldId, T entity, Logger logger) throws IOException {
 			assert oldId != entity.getId();
 			if (oldId != 0) {
 				final var currentPath = this.reader.apply(entity);
 				if (Strings.isNullOrEmpty(currentPath)) {
 					if (this.deleter != null) {
 						this.deleter.accept(Long.valueOf(oldId), this.savedPath);
+						logger.info("Deleted file for id " + oldId + " and path: " + this.savedPath); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				} else if (this.renamer != null) {
 					this.renamer.accept(Long.valueOf(oldId), Long.valueOf(entity.getId()));
+					logger.info("Renaming file for id " + oldId); //$NON-NLS-1$
 				}
 			}
 		}
@@ -339,9 +364,11 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		/** Reset the path memory to keep track of changes.
 		 *
 		 * @param entity entity to read for reseting.
+		 * @param logger the logger to be used.
 		 */
-		public void resetPathMemory(T entity) {
+		public void resetPathMemory(T entity, Logger logger) {
 			this.savedPaths = this.reader.apply(entity);
+			logger.info("Reset file paths: " + this.savedPaths); //$NON-NLS-1$
 		}
 
 		/** Replies if the path to the file has changed since the last saving.
@@ -356,14 +383,16 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		/** Delete the associated files.
 		 *
 		 * @param entity entity to read for deletion.
+		 * @param logger the logger to be used.
 		 * @return {@code true} if the files are deleted, or {@code false} if no file is deleted.
 		 * @throws IOException is thrown when an associated file cannot be deleted.
 		 */
-		public boolean deleteFiles(T entity) throws IOException {
+		public boolean deleteFiles(T entity, Logger logger) throws IOException {
 			final var currentPaths = this.reader.apply(entity);
 			if (currentPaths == null || currentPaths.isEmpty()) {
 				if (this.deleter != null) {
 					this.deleter.accept(Long.valueOf(entity.getId()), this.savedPaths);
+					logger.info("Deleted files for the entity with id " + entity.getId() + " and paths: " + this.savedPaths); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				return true;
 			}
@@ -375,18 +404,21 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		 *
 		 * @param oldId the previous value of the entity's identifier. It it is {@code 0} then the entity was never created in the database. 
 		 * @param entity the JPE entity to be tracked.
+		 * @param logger the logger to be used.
 		 * @throws IOException is thrown when an associated file cannot be deleted or renamed.
 		 */
-		public void deleteOrRenameFiles(long oldId, T entity) throws IOException {
+		public void deleteOrRenameFiles(long oldId, T entity, Logger logger) throws IOException {
 			assert oldId != entity.getId();
 			if (oldId != 0) {
 				final var currentPaths = this.reader.apply(entity);
 				if (currentPaths == null || currentPaths.isEmpty()) {
 					if (this.deleter != null) {
 						this.deleter.accept(Long.valueOf(oldId), this.savedPaths);
+						logger.info("Deleted files for entity with id " + entity.getId() + " and paths: " + this.savedPaths); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				} else if (this.renamer != null) {
 					this.renamer.accept(Long.valueOf(oldId), Long.valueOf(entity.getId()));
+					logger.info("Renamed files for entity with id " + entity.getId()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -411,9 +443,10 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		/** Constructor.
 		 *
 		 * @param entity the entity to be edited.
+		 * @param logger the logger to be used.
 		 */
-		protected AbstractEntityWithServerFilesEditingContext(T entity) {
-			super(entity);
+		protected AbstractEntityWithServerFilesEditingContext(T entity, Logger logger) {
+			super(entity, logger);
 			this.id = entity.getId();
 		}
 		
@@ -565,6 +598,12 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		@Transactional
 		void delete() throws Exception;
 
+		/** Replies the logger that is associated to the deletion context.
+		 *
+		 * @return the logger.
+		 */
+		Logger getLogger();
+
 	}
 
 	/** Context for deleting an entity.
@@ -580,6 +619,8 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 
 		private static final long serialVersionUID = -7909548992030372794L;
 
+		private final Logger logger;
+		
 		private Set<T> entities;
 
 		private DeletionStatus deletionStatus;
@@ -587,9 +628,16 @@ public abstract class AbstractEntityService<T extends IdentifiableEntity> extend
 		/** Constructor.
 		 *
 		 * @param entities the entities to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected AbstractEntityDeletingContext(Set<T> entities) {
+		protected AbstractEntityDeletingContext(Set<T> entities, Logger logger) {
+			this.logger = logger;
 			this.entities = entities;
+		}
+
+		@Override
+		public Logger getLogger() {
+			return this.logger;
 		}
 
 		@Override

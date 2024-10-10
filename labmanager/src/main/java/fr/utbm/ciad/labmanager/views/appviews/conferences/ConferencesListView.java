@@ -29,12 +29,11 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.conferences.editors.ConferenceEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.conferences.views.StandardConferenceListView;
 import jakarta.annotation.security.PermitAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -53,21 +52,23 @@ public class ConferencesListView extends StandardConferenceListView implements H
 
 	private static final long serialVersionUID = -241086324356642029L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConferencesListView.class);
-
 	private MenuItem updateRankingsButton;
 
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param conferenceService the service for accessing the conferences.
 	 * @param conferenceEditorFactory the factory for creating the conference editors.
 	 */
 	public ConferencesListView(
-			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages,
-			@Autowired ConferenceService conferenceService, @Autowired ConferenceEditorFactory conferenceEditorFactory) {
-		super(authenticatedUser, messages, conferenceService, conferenceEditorFactory, LOGGER);
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
+			@Autowired ConferenceService conferenceService,
+			@Autowired ConferenceEditorFactory conferenceEditorFactory) {
+		super(authenticatedUser, messages, loggerFactory, conferenceService, conferenceEditorFactory);
 	}
 
 	@Override

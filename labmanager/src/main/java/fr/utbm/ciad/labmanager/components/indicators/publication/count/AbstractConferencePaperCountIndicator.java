@@ -39,6 +39,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = -3026722865225605289L;
+
 	private ConferencePaperService conferencePaperService;
 
 	private final Predicate<? super ConferencePaper> filter;
@@ -51,8 +53,7 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 	 * @param filter the filter to apply on the paper collection.
 	 */
 	public AbstractConferencePaperCountIndicator(
-			MessageSourceAccessor messages,
-			ConfigurationConstants constants,
+			MessageSourceAccessor messages, ConfigurationConstants constants,
 			ConferencePaperService conferencePaperService,
 			Predicate<? super ConferencePaper> filter) {
 		this(messages, constants, AbstractAnnualIndicator::sum, conferencePaperService, filter);
@@ -68,8 +69,7 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 	 * @param filter the filter to apply on the paper collection.
 	 */
 	public AbstractConferencePaperCountIndicator(
-			MessageSourceAccessor messages,
-			ConfigurationConstants constants,
+			MessageSourceAccessor messages, ConfigurationConstants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
 			ConferencePaperService conferencePaperService,
 			Predicate<? super ConferencePaper> filter) {

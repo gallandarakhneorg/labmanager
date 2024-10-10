@@ -27,9 +27,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.shared.HasClearButton;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.server.AbstractStreamResource;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import org.slf4j.Logger;
 
 /** A field that enables to upload a file and show an image representation of the uploaded file.
  * This field does not assume that the field's data is of a specific type.
@@ -53,8 +55,12 @@ public abstract class AbstractUploadableFileImageViewerField<T> extends Abstract
 	private final Button clearButton;
 
 	/** Default constructor.
+	 *
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractUploadableFileImageViewerField() {
+	public AbstractUploadableFileImageViewerField(SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
+
 		this.image = new Image();
 		this.image.setVisible(true);
 		setImageSize(DEFAULT_IMAGE_SIZE, Unit.PIXELS);

@@ -19,6 +19,14 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
+import java.util.TreeSet;
+
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
@@ -39,8 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
 /** Service for the merging persons.
  * 
  * @author $Author: sgalland$
@@ -52,6 +58,8 @@ import java.util.*;
 @Deprecated(since = "4.0", forRemoval = true)
 @Service
 public class PersonMergingService extends AbstractService {
+
+	private static final long serialVersionUID = 0L;
 
 	private final PersonRepository personRepository;
 
@@ -216,7 +224,7 @@ public class PersonMergingService extends AbstractService {
 		boolean changed = false;
 		for (final var source : sources) {
 			if (source.getId() != target.getId()) {
-				getLogger().info("Reassign to " + target.getFullName() + " the elements of " + source.getFullName()); //$NON-NLS-1$ //$NON-NLS-2$
+				//getLogger().info("Reassign to " + target.getFullName() + " the elements of " + source.getFullName()); //$NON-NLS-1$ //$NON-NLS-2$
 				var lchange = reassignPublications(source, target);
 				lchange = reassignOrganizationMemberships(source, target) || lchange;
 				lchange = reassignJuryMemberships(source, target) || lchange;

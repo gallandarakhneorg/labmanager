@@ -67,7 +67,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -137,7 +136,6 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 * @param fileManager the manager of the file system at server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
-	 * @param logger the logger to be used by this view.
 	 * @param organizationService the service for accessing the organizations.
 	 * @param addressService the service for accessing the organization addresses.
 	 * @param organizationEditorFactory the factory of the organization editor.
@@ -148,11 +146,10 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	public AbstractOrganizationEditor(EntityEditingContext<ResearchOrganization> context,
 			EntityCreationStatusComputer<ResearchOrganization> organizationCreationStatusComputer, boolean relinkEntityWhenSaving,
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, Logger logger,
-			ResearchOrganizationService organizationService, OrganizationAddressService addressService,
+			MessageSourceAccessor messages, ResearchOrganizationService organizationService, OrganizationAddressService addressService,
 			OrganizationEditorFactory organizationEditorFactory, AddressEditorFactory addressEditorFactory,
 			ConstructionPropertiesBuilder properties) {
-		super(ResearchOrganization.class, authenticatedUser, messages, logger,
+		super(ResearchOrganization.class, authenticatedUser, messages,
 				organizationCreationStatusComputer, context, null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.organizations.administration_details") //$NON-NLS-1$
@@ -262,7 +259,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 */
 	protected void openAddressEditor(Consumer<OrganizationAddress> saver) {
 		final var newAddress = new OrganizationAddress();
-		final var editor = this.addressEditorFactory.createAdditionEditor(newAddress);
+		final var editor = this.addressEditorFactory.createAdditionEditor(newAddress, getEditingContext().getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_address"), //$NON-NLS-1$
 				editor, false,
@@ -330,7 +327,7 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 	 */
 	protected void openOrganizationEditor(Consumer<ResearchOrganization> saver) {
 		final var newOrganization = new ResearchOrganization();
-		final var editor = getOrganizationEditorFactory().createAdditionEditor(newOrganization);
+		final var editor = getOrganizationEditorFactory().createAdditionEditor(newOrganization, getEditingContext().getLogger());
 		ComponentFactory.openEditionModalDialog(
 				getTranslation("views.organizations.create_organization"), //$NON-NLS-1$
 				editor, false,
@@ -375,7 +372,8 @@ public abstract class AbstractOrganizationEditor extends AbstractEntityEditor<Re
 		content.add(this.description, 2);
 
 		this.logo = new ServerSideUploadableImageField(this.fileManager,
-				ext -> this.fileManager.makeOrganizationLogoFilename(getEditedEntity().getId(), ext));
+				ext -> this.fileManager.makeOrganizationLogoFilename(getEditedEntity().getId(), ext),
+				() -> getLogger());
 		this.logo.setClearButtonVisible(true);
 		content.add(this.logo, 2);
 

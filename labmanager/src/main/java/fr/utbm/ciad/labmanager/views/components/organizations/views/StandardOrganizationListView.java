@@ -51,13 +51,13 @@ import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.OrganizationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.organizations.editors.regular.AbstractOrganizationEditor;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -99,18 +99,17 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	 * @param fileManager the manager of the filenames for the uploaded files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param organizationService the service for accessing the organizations.
 	 * @param organizationEditorFactory the factory to be used for creating the organization editors.
-	 * @param logger the logger to use.
 	 * @sin e4.0
 	 */
 	public StandardOrganizationListView(
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			ResearchOrganizationService organizationService,
-			OrganizationEditorFactory organizationEditorFactory,
-			Logger logger) {
-		super(ResearchOrganization.class, authenticatedUser, messages, logger,
+			ContextualLoggerFactory loggerFactory, ResearchOrganizationService organizationService,
+			OrganizationEditorFactory organizationEditorFactory) {
+		super(ResearchOrganization.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.organizations.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.organizations.delete.message") //$NON-NLS-1$
@@ -247,9 +246,9 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 	protected void openOrganizationEditor(ResearchOrganization organization, String title, boolean isCreation) {
 		final AbstractEntityEditor<ResearchOrganization> editor;
 		if (isCreation) {
-			editor = this.organizationEditorFactory.createAdditionEditor(organization);
+			editor = this.organizationEditorFactory.createAdditionEditor(organization, getLogger());
 		} else {
-			editor = this.organizationEditorFactory.createUpdateEditor(organization);
+			editor = this.organizationEditorFactory.createUpdateEditor(organization, getLogger());
 		}
 		openOrganizationEditor(editor, title);
 	}
@@ -273,7 +272,7 @@ public class StandardOrganizationListView extends AbstractEntityListView<Researc
 
 	@Override
 	protected EntityDeletingContext<ResearchOrganization> createDeletionContextFor(Set<ResearchOrganization> entities) {
-		return this.organizationService.startDeletion(entities);
+		return this.organizationService.startDeletion(entities, getLogger());
 	}
 
 	@Override

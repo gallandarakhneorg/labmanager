@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator;
@@ -214,7 +215,7 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this);
 	}
 
 }

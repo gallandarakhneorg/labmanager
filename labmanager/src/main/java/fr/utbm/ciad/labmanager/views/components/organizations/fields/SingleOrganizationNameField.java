@@ -117,19 +117,18 @@ public class SingleOrganizationNameField extends AbstractSingleEntityNameField<R
 			AuthenticatedUser authenticatedUser, String creationTitle, Logger logger, Consumer<ResearchOrganization> entityInitializer) {
 		this(organizationService,
 				(newOrganization, saver) -> {
-					final var editor = organizationEditorFactory.createAdditionEditor(newOrganization);
+					final var editor = organizationEditorFactory.createAdditionEditor(newOrganization, logger);
 					ComponentFactory.openEditionModalDialog(creationTitle, editor, true,
 							(dialog, changedOrganization) -> saver.accept(changedOrganization),
 							null);
 				},
 				(newOrganization, saver) -> {
 					try {
-						final var creationContext = organizationService.startEditing(newOrganization);
+						final var creationContext = organizationService.startEditing(newOrganization, logger);
 						creationContext.save();
 						saver.accept(creationContext.getEntity());
 					} catch (Throwable ex) {
-						logger.warn("Error when creating an organization by " + AuthenticatedUser.getUserName(authenticatedUser) //$NON-NLS-1$
-							+ ": " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+						logger.warn("Error when creating an organization: " + ex.getLocalizedMessage() + "\n-> " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 						ComponentFactory.showErrorNotification(organizationService.getMessageSourceAccessor().getMessage("views.organizations.creation_error", new Object[] { ex.getLocalizedMessage() })); //$NON-NLS-1$
 					}
 				},

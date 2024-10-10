@@ -53,13 +53,13 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.editors.ProjectEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -109,15 +109,15 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	 * @param fileManager the manager of the filenames for the uploaded files.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param projectService the service for accessing the projects.
 	 * @param projectEditorFactory the factory for creating the project editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardProjectListView(
 			DownloadableFileManager fileManager, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages, ProjectService projectService,
-			ProjectEditorFactory projectEditorFactory, Logger logger) {
-		super(Project.class, authenticatedUser, messages, logger,
+			MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			ProjectService projectService, ProjectEditorFactory projectEditorFactory) {
+		super(Project.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.projects.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.projects.delete.message") //$NON-NLS-1$
@@ -318,9 +318,9 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 	protected void openProjectEditor(Project project, String title, boolean isCreation) {
 		final AbstractEntityEditor<Project> editor;
 		if (isCreation) {
-			editor = this.projectEditorFactory.createAdditionEditor(project);
+			editor = this.projectEditorFactory.createAdditionEditor(project, getLogger());
 		} else {
-			editor = this.projectEditorFactory.createUpdateEditor(project);
+			editor = this.projectEditorFactory.createUpdateEditor(project, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Project> refreshAll = (dialog, entity) -> {
@@ -347,7 +347,7 @@ public class StandardProjectListView extends AbstractEntityListView<Project> {
 
 	@Override
 	protected EntityDeletingContext<Project> createDeletionContextFor(Set<Project> entities) {
-		return this.projectService.startDeletion(entities);
+		return this.projectService.startDeletion(entities, getLogger());
 	}
 
 	@Override

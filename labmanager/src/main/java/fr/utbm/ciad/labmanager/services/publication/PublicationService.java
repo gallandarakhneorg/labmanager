@@ -102,6 +102,8 @@ import org.arakhne.afc.vmutil.FileSystem;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -120,6 +122,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class PublicationService extends AbstractPublicationService {
+
+	private static final long serialVersionUID = -5980313727825058248L;
 
 	private static final String MESSAGE_PREFIX = "publicationService."; //$NON-NLS-1$
 
@@ -537,9 +541,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * 
 	 * @param publicationId the identifier of the publication.
 	 * @return the authors.
-	 * @deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Person> getAuthorsFor(long publicationId) {
 		return this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(publicationId);
 	}
@@ -603,15 +605,17 @@ public class PublicationService extends AbstractPublicationService {
      * If this list contains authors with a rank greater than or equals to the given rank,
      * the ranks of these authors is incremented.
      *
-     * @param personId                   the identifier of the person.
-     * @param publicationId              the identifier of the publication.
-     * @param rank                       the position of the person in the list of authors. To be sure to add the authorship at the end,
-     *                                   pass {@link Integer#MAX_VALUE}.
+     * @param personId the identifier of the person.
+     * @param publicationId the identifier of the publication.
+     * @param rank the position of the person in the list of authors. To be sure to add the authorship at the end,
+     *     pass {@link Integer#MAX_VALUE}.
      * @param updateOtherAuthorshipRanks indicates if the authorships ranks are re-arranged in order to be consistent.
-     *                                   If it is {@code false}, the given rank as argument is put into the authorship without change.
+     *     If it is {@code false}, the given rank as argument is put into the authorship without change.
+     * @param logger the logger to be used.
      * @return the added authorship
      */
-    public Authorship addAuthorship(long personId, long publicationId, int rank, boolean updateOtherAuthorshipRanks) {
+    public Authorship addAuthorship(long personId, long publicationId, int rank, boolean updateOtherAuthorshipRanks, Logger logger) {
+		logger.info("Adding authorship for person " + personId + " and publication " + publicationId + " at rank " + rank); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final var optPerson = this.personRepository.findById(Long.valueOf(personId));
 		if (optPerson.isPresent()) {
 			final var optPub = this.publicationRepository.findById(Long.valueOf(publicationId));
@@ -639,6 +643,7 @@ public class PublicationService extends AbstractPublicationService {
 								if (orank >= rank) {
 									currentAuthor.setAuthorRank(orank + 1);
 									this.authorshipRepository.save(currentAuthor);
+									logger.info("Saved author: " + currentAuthor); //$NON-NLS-1$
 								}
 							}
 						}
@@ -649,8 +654,10 @@ public class PublicationService extends AbstractPublicationService {
 					currentAuthors.add(authorship);
 					publication.getAuthorshipsRaw().add(authorship);
 					this.authorshipRepository.save(authorship);
+					logger.info("Saved authorship: " + authorship); //$NON-NLS-1$
 					//this.personRepository.save(person);
 					this.publicationRepository.save(publication);
+					logger.info("Saved publication: " + publication); //$NON-NLS-1$
 					return authorship;
 				}
 			}
@@ -662,8 +669,10 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param identifier the identifier of the publication to remove.
 	 * @param removeAssociatedFiles indicates if the associated files (PDF, Award...) should be also deleted.
+	 * @param logger the logger to be used.
 	 */
-	public void removePublication(long identifier, boolean removeAssociatedFiles) {
+	public void removePublication(long identifier, boolean removeAssociatedFiles, Logger logger) {
+		logger.info("Deleting publication " + identifier); //$NON-NLS-1$
 		final var id = Long.valueOf(identifier);
 		final var optPublication = this.publicationRepository.findById(id);
 		if (optPublication.isPresent()) {
@@ -676,22 +685,25 @@ public class PublicationService extends AbstractPublicationService {
 					person.getAuthorships().remove(autship);
 					autship.setPerson(null);
 					this.personRepository.save(person);
+					logger.info("Saved old author: " + person); //$NON-NLS-1$
 				}
 				autship.setPublication(null);
 				iterator.remove();
 				this.authorshipRepository.save(autship);
+				logger.info("Removed authorship: " + autship); //$NON-NLS-1$
 			}
 			publication.getAuthorshipsRaw().clear();
 			publication.setScientificAxes(null);
 			this.publicationRepository.deleteById(id);
+			logger.info("Deleted publication from database: " + identifier); //$NON-NLS-1$
 			if (removeAssociatedFiles) {
 				try {
-					this.fileManager.deletePublicationPdfFile(identifier);
+					this.fileManager.deletePublicationPdfFile(identifier, logger);
 				} catch (Throwable ex) {
 					// Silent
 				}
 				try {
-					this.fileManager.deletePublicationAwardPdfFile(identifier);
+					this.fileManager.deletePublicationAwardPdfFile(identifier, logger);
 				} catch (Throwable ex) {
 					// Silent
 				}
@@ -711,6 +723,7 @@ public class PublicationService extends AbstractPublicationService {
 	public void removePublications(Collection<Long> identifiers, boolean removeAssociatedFiles) {
 		final var publications = this.publicationRepository.findAllByIdIn(identifiers);
 		if (!publications.isEmpty()) {
+			final var logger = LoggerFactory.getLogger(getClass());
 			for (final var publication : publications) {
 				final var id = publication.getId();
 				final var iterator = publication.getAuthorships().iterator();
@@ -731,12 +744,12 @@ public class PublicationService extends AbstractPublicationService {
 				this.publicationRepository.deleteById(Long.valueOf(id));
 				if (removeAssociatedFiles) {
 					try {
-						this.fileManager.deletePublicationPdfFile(id);
+						this.fileManager.deletePublicationPdfFile(id, logger);
 					} catch (Throwable ex) {
 						// Silent
 					}
 					try {
-						this.fileManager.deletePublicationAwardPdfFile(id);
+						this.fileManager.deletePublicationAwardPdfFile(id, logger);
 					} catch (Throwable ex) {
 						// Silent
 					}
@@ -750,11 +763,12 @@ public class PublicationService extends AbstractPublicationService {
 	 * explicitly created into the database.
 	 *
 	 * @param publications the list of publications to save in the database.
+	 * @param logger the logger that is associated to the publication.
 	 * @deprecated no replacement.
 	 */
 	@Deprecated(since = "4.0", forRemoval = true)
-	public void save(Publication... publications) {
-		save(Arrays.asList(publications));
+	public void save(Logger logger, Publication... publications) {
+		save(Arrays.asList(publications), logger);
 	}
 
 	/** Save the given publications into the database.
@@ -762,12 +776,13 @@ public class PublicationService extends AbstractPublicationService {
 	 * explicitly created into the database.
 	 *
 	 * @param publications the list of publications to save in the database.
+	 * @param logger the logger that is associated to the publication.
 	 * @deprecated no replacement.
 	 */
 	@Deprecated(since = "4.0", forRemoval = true)
-	public void save(List<? extends Publication> publications) {
+	public void save(List<? extends Publication> publications, Logger logger) {
 		for (final var publication : publications) {
-			save(publication);
+			save(publication, logger);
 		}
 	}
 
@@ -776,10 +791,11 @@ public class PublicationService extends AbstractPublicationService {
 	 * explicitly created into the database. However, this function does not manage the update of the author list.
 	 *
 	 * @param publication publication to save in the database.
+	 * @param logger the logger that is associated to the publication.
 	 * @return the instance of the publication after saving. It may differ from the instance that is provided as argument.
 	 * @since 4.0
 	 */
-	public Publication save(Publication publication) {
+	public Publication save(Publication publication, Logger logger) {
 		// Remove old authorships
 		final var authors = publication.getTemporaryAuthors();
 		publication.setTemporaryAuthors(null);
@@ -787,13 +803,13 @@ public class PublicationService extends AbstractPublicationService {
 		if (publication instanceof JournalBasedPublication jpublication) {
 			final var jour = jpublication.getJournal();
 			if (jour != null) {
-				final var savedJournal = this.journalService.saveOrCreateIfFake(jour);
+				final var savedJournal = this.journalService.saveOrCreateIfFake(jour, logger);
 				jpublication.setJournal(savedJournal);
 			}
 		} else if (publication instanceof ConferenceBasedPublication cpublication) {
 			final var conf = cpublication.getConference();
 			if (conf != null) {
-				final var savedConf = this.conferenceService.saveOrCreateIfFake(conf);
+				final var savedConf = this.conferenceService.saveOrCreateIfFake(conf, logger);
 				cpublication.setConference(savedConf);
 			}
 		}
@@ -804,7 +820,7 @@ public class PublicationService extends AbstractPublicationService {
 			var rank = 0;
 			for (final var author : authors) {
 				this.personRepository.save(author);
-				addAuthorship(author.getId(), publication.getId(), rank, false);
+				addAuthorship(author.getId(), publication.getId(), rank, false, logger);
 				++rank;
 			}
 		}
@@ -911,7 +927,7 @@ public class PublicationService extends AbstractPublicationService {
 		// The publications are not yet imported into the database.
 		final var importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
 				createMissedJournals, createMissedConferences, null);
-		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
+		return importPublications(importablePublications, importedEntriesWithExpectedType, locale, LoggerFactory.getLogger(getClass()));
 	}
 
 	/** Import publications from a RIS string. The format of the RIS is a standard that is briefly described
@@ -943,12 +959,12 @@ public class PublicationService extends AbstractPublicationService {
 		// The publications are not yet imported into the database.
 		final var importablePublications = readPublicationsFromRIS(ris, true, false, true,
 				createMissedJournals, createMissedConferences, locale, null);
-		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
+		return importPublications(importablePublications, importedEntriesWithExpectedType, locale, LoggerFactory.getLogger(getClass()));
 	}
 
 	private List<Long> importPublications(List<Publication> importablePublications,
 			Map<String, PublicationType> importedEntriesWithExpectedType,
-			Locale locale) throws Exception {
+			Locale locale, Logger logger) throws Exception {
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.
 		final var importedPublicationIdentifiers = new ArrayList<Long>();
 
@@ -957,6 +973,7 @@ public class PublicationService extends AbstractPublicationService {
 		final var forceImport = importedEntriesWithExpectedType == null || importedEntriesWithExpectedType.isEmpty();
 		for (final var publication : importablePublications) {
 			try {
+				logger.info("Importing publication: " + publication); //$NON-NLS-1$
 				// Test if this publication should be imported
 				final boolean isImport;
 				final PublicationType expectedType;
@@ -997,17 +1014,20 @@ public class PublicationService extends AbstractPublicationService {
 							final var journal = new Journal(jbpub.getJournal());
 							this.journalRepository.save(journal);
 							jbpub.setJournal(journal);
+							logger.info("Created journal: " + journal); //$NON-NLS-1$
 						}
 					} else if (publication instanceof ConferenceBasedPublication cbpub) {
 						if (cbpub.getConference() != null && cbpub.getConference().isFakeEntity()) {
 							final var conference = new Conference(cbpub.getConference());
 							this.conferenceRepository.save(conference);
 							cbpub.setConference(conference);
+							logger.info("Created conference: " + conference); //$NON-NLS-1$
 						}
 					}
 
 					// Add the publication to the database and get the new assigned identifier
 					this.publicationRepository.save(publication);
+					logger.info("Saved publication: " + publication.getId()); //$NON-NLS-1$
 					final var publicationId = publication.getId();
 					final var publicationIdObj = Long.valueOf(publicationId);
 
@@ -1029,10 +1049,12 @@ public class PublicationService extends AbstractPublicationService {
 							if (personId == 0) {
 								this.personRepository.save(author);
 								personId = author.getId();
+								logger.info("Created person that will becomes author: " + author); //$NON-NLS-1$
 							}
 							// Assigning authorship
-							addAuthorship(personId, publicationId, rank, false);
+							addAuthorship(personId, publicationId, rank, false, logger);
 							this.publicationRepository.save(publication);
+							logger.info("Saved publication: " + publication.getId()); //$NON-NLS-1$
 
 							// Check if the newly imported pub has at least one authorship.
 							// If not, it's a bad case and the pub have to be removed and marked as failed
@@ -1046,8 +1068,10 @@ public class PublicationService extends AbstractPublicationService {
 							importedPublicationIdentifiers.remove(publicationIdObj);
 							for (final var toRemove : this.authorshipRepository.findByPublicationId(publicationId)) {
 								this.authorshipRepository.deleteById(Long.valueOf(toRemove.getId()));
+								logger.info("Removed old authorship: " + toRemove); //$NON-NLS-1$
 							}
 							this.publicationRepository.deleteById(publicationIdObj);
+							logger.info("Deleted publication: " + publicationIdObj); //$NON-NLS-1$
 							throw ex;
 						}
 					}
@@ -1055,7 +1079,7 @@ public class PublicationService extends AbstractPublicationService {
 			} catch (Throwable ex) {
 				final var ex0 = new IllegalArgumentException("Unable to import the publication: " //$NON-NLS-1$
 						+ publication.getTitle() + ". " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$
-				getLogger().error(ex0.getLocalizedMessage(), ex0);
+				logger.error(ex0.getLocalizedMessage(), ex0);
 				errors.add(ex0);
 			}
 		}
@@ -1071,13 +1095,15 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @param progression the progression indicator to be used.
+	 * @param logger the logger to be used.
 	 * @return the BibTeX description of the publications with the given identifiers.
 	 */
-	public String exportBibTeX(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
+	public String exportBibTeX(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) {
 		if (publications == null) {
 			return null;
 		}
-		return this.bibtex.exportPublications(publications, configurator, progression);
+		logger.info("Exporting to BibTeX the publications: " + (publications.stream().map(it -> Long.valueOf(it.getId())).toList()).toString()); //$NON-NLS-1$
+		return this.bibtex.exportPublications(publications, configurator, progression, logger);
 	}
 
 	/**
@@ -1086,14 +1112,16 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @param progression the progression indicator to be used.
+	 * @param logger the logger to be used.
 	 * @return the RIS description of the publications with the given identifiers.
 	 * @since 3.7
 	 */
-	public String exportRIS(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) {
+	public String exportRIS(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) {
 		if (publications == null) {
 			return null;
 		}
-		return this.ris.exportPublications(publications, configurator, progression);
+		logger.info("Exporting to RIS the publications: " + (publications.stream().map(it -> Long.valueOf(it.getId())).toList()).toString()); //$NON-NLS-1$
+		return this.ris.exportPublications(publications, configurator, progression, logger);
 	}
 
 	/**
@@ -1102,14 +1130,16 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @param progression the progression indicator to be used.
+	 * @param logger the logger to be used.
 	 * @return the HTML description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the HTML for the publications.
 	 */
-	public String exportHtml(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
+	public String exportHtml(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.html.exportPublications(publications, configurator, progression);
+		logger.info("Exporting to HTML the publications: " + (publications.stream().map(it -> Long.valueOf(it.getId())).toList()).toString()); //$NON-NLS-1$
+		return this.html.exportPublications(publications, configurator, progression, logger);
 	}
 
 	/**
@@ -1118,14 +1148,16 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @param progression the progression indicator to be used.
+	 * @param logger the logger to be used.
 	 * @return the ODT description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the ODT for the publications.
 	 */
-	public byte[] exportOdt(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
+	public byte[] exportOdt(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression, Logger logger) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.odt.exportPublications(publications, configurator, progression);
+		logger.info("Exporting to ODT the publications: " + (publications.stream().map(it -> Long.valueOf(it.getId())).toList()).toString()); //$NON-NLS-1$
+		return this.odt.exportPublications(publications, configurator, progression, logger);
 	}
 
 	/**
@@ -1134,17 +1166,19 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @param progression the progression indicator to be used.
+	 * @param logger the logger to be used.
 	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
 	 *     output into the last created node with the {@code rootKeys}.
 	 * @return the JSON description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the JSON for the publications.
 	 */
 	public String exportJson(Collection<? extends Publication> publications, ExporterConfigurator configurator,
-			Progression progression, String... rootKeys) throws Exception {
+			Progression progression, Logger logger, String... rootKeys) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.json.exportPublicationsWithRootKeys(publications, configurator, progression, rootKeys);
+		logger.info("Exporting to JSON the publications: " + (publications.stream().map(it -> Long.valueOf(it.getId())).toList()).toString()); //$NON-NLS-1$
+		return this.json.exportPublicationsWithRootKeys(publications, configurator, progression, logger, rootKeys);
 	}
 
 	/**
@@ -1153,6 +1187,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @param progression the progression indicator to be used.
+	 * @param logger the logger to be used.
 	 * @param callback a function that is invoked for each publication for giving the opportunity
 	 *     to fill up the Json node of the publication.
 	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
@@ -1168,7 +1203,8 @@ public class PublicationService extends AbstractPublicationService {
 			progression.end();
 			return null;
 		}
-		return this.json.exportPublicationsAsTreeWithRootKeys(publications, configurator, progression, callback, rootKeys);
+		return this.json.exportPublicationsAsTreeWithRootKeys(publications, configurator, progression,
+				LoggerFactory.getLogger(getClass()), callback, rootKeys);
 	}
 
 	/** Get the journal instance that is corresponding to the identifier from the given map for an attribute with the given name.
@@ -1364,8 +1400,10 @@ public class PublicationService extends AbstractPublicationService {
 			throw new IllegalArgumentException("Unsupported publication type: " + typeEnum); //$NON-NLS-1$
 		}
 
+		final var logger = LoggerFactory.getLogger(getClass());
+		
 		// Fourth step: create the authors and link them to the publication
-		updateAuthorList(true, createdPublication, authors);
+		updateAuthorList(true, createdPublication, authors, logger);
 
 		// Fifth step: update the links to other JPA entities
 		updateScientificAxes(true, createdPublication, scientificAxes);
@@ -1373,7 +1411,7 @@ public class PublicationService extends AbstractPublicationService {
 		// Sixth step: update the associated PDF files
 		updateUploadedPDFs(createdPublication, attributes, downloadablePDF, downloadableAwardCertificate, true);
 
-		getLogger().info("Publication instance " + createdPublication.getId() + " created of type " + publicationClass.getSimpleName()); //$NON-NLS-1$ //$NON-NLS-2$
+		//getLogger().info("Publication instance " + createdPublication.getId() + " created of type " + publicationClass.getSimpleName()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return Optional.of(createdPublication);
 	}
@@ -1405,13 +1443,14 @@ public class PublicationService extends AbstractPublicationService {
 		final var publication = optPublication.get();
 		// Second step: check for any change of publication type
 		if (isInstanceTypeChangeNeeded(publication, typeEnum)) {
-			removePublication(id, false);
+			final var logger = LoggerFactory.getLogger(getClass());
+			removePublication(id, false, logger);
 			optPublication = createPublicationFromMap(validated, attributes, authors, downloadablePDF, downloadableAwardCertificate, scientificAxes);
 			if (optPublication.isPresent()) {
 				final var newPublication = optPublication.get();
 				final var newId = newPublication.getId();
 				final var associatedFilesChanged = new MutableBoolean(false);
-				this.fileManager.moveFiles(id, newId, (key, source, target) -> {
+				this.fileManager.moveFiles(id, newId, logger, (key, source, target) -> {
 					switch (key) {
 					case "pdf": //$NON-NLS-1$
 						if (downloadablePDF != null && downloadablePDF.isEmpty()) {
@@ -1434,7 +1473,7 @@ public class PublicationService extends AbstractPublicationService {
 					}
 				});
 				if (associatedFilesChanged.isTrue()) {
-					save(newPublication);
+					save(newPublication, LoggerFactory.getLogger(getClass()));
 				}
 			}
 			return optPublication;
@@ -1475,9 +1514,11 @@ public class PublicationService extends AbstractPublicationService {
 		// First step: Update the specific fields.
 		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
 		publication.setValidated(validated);
+		
+		final var logger = LoggerFactory.getLogger(getClass());
 
 		// Second step: Update the list of authors.
-		updateAuthorList(false, publication, authors);
+		updateAuthorList(false, publication, authors, logger);
 
 		// Third step: treat associated files
 		updateScientificAxes(false, publication, scientificAxes);
@@ -1727,7 +1768,7 @@ public class PublicationService extends AbstractPublicationService {
 			throw new IllegalArgumentException("Unsupported publication type: " + type); //$NON-NLS-1$
 		}
 
-		getLogger().info("Publication instance updated: " + publication.getId()); //$NON-NLS-1$
+		//getLogger().info("Publication instance updated: " + publication.getId()); //$NON-NLS-1$
 	}
 
 	/** Update the references to the downloadable files for the given publication based on the 
@@ -1751,9 +1792,10 @@ public class PublicationService extends AbstractPublicationService {
 		// Treat the uploaded files
 		var hasUploaded = false;
 		final var expliteRemove0 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadablePDF"); //$NON-NLS-1$
+		final var logger = LoggerFactory.getLogger(getClass());
 		if (expliteRemove0) {
 			try {
-				this.fileManager.deletePublicationPdfFile(publication.getId());
+				this.fileManager.deletePublicationPdfFile(publication.getId(), logger);
 			} catch (Throwable ex) {
 				// Silent
 			}
@@ -1763,15 +1805,15 @@ public class PublicationService extends AbstractPublicationService {
 		if (downloadablePDF != null && !downloadablePDF.isEmpty()) {
 			final var pdfFilename = this.fileManager.makePdfFilename(publication.getId());
 			final var jpgFilename = this.fileManager.makePdfPictureFilename(publication.getId());
-			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadablePDF);
+			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadablePDF, logger);
 			publication.setPathToDownloadablePDF(pdfFilename.getPath());
 			hasUploaded = true;
-			getLogger().info("PDF uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
+			//getLogger().info("PDF uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
 		}
 		final boolean expliteRemove1 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 		if (expliteRemove1) {
 			try {
-				this.fileManager.deletePublicationAwardPdfFile(publication.getId());
+				this.fileManager.deletePublicationAwardPdfFile(publication.getId(), logger);
 			} catch (Throwable ex) {
 				// Silent
 			}
@@ -1781,13 +1823,13 @@ public class PublicationService extends AbstractPublicationService {
 		if (downloadableAwardCertificate != null && !downloadableAwardCertificate.isEmpty()) {
 			final var pdfFilename = this.fileManager.makeAwardFilename(publication.getId());
 			final var jpgFilename = this.fileManager.makeAwardPictureFilename(publication.getId());
-			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadableAwardCertificate);
+			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadableAwardCertificate, logger);
 			publication.setPathToDownloadableAwardCertificate(pdfFilename.getPath());
 			hasUploaded = true;
-			getLogger().info("Award certificate uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
+			//getLogger().info("Award certificate uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
 		}
 		if (saveInDb && hasUploaded) {
-			save(publication);
+			save(publication, LoggerFactory.getLogger(getClass()));
 		}
 	}
 
@@ -1796,7 +1838,7 @@ public class PublicationService extends AbstractPublicationService {
 		this.publicationRepository.save(publication);
 	}
 
-	private void updateAuthorList(boolean creation, Publication publication, List<String> authors) {
+	private void updateAuthorList(boolean creation, Publication publication, List<String> authors, Logger logger) {
 		// First step: Update the list of authors.
 		final var oldAuthorships = creation ? Collections.<Authorship>emptyList() : getAuthorshipsFor(publication.getId());
 		Collector<Authorship, ?, Map<Long, Authorship>> col = Collectors.toMap(
@@ -1823,8 +1865,8 @@ public class PublicationService extends AbstractPublicationService {
 				authorId = this.personService.getPersonIdByName(firstName, lastName);
 				if (authorId == 0) {
 					// Now, it is sure that the person is unknown
-					person = this.personService.createPerson(firstName, lastName);
-					getLogger().info("New person \"" + author + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
+					person = this.personService.createPerson(logger, firstName, lastName);
+					logger.info("New person \"" + author + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
 					final var optPers = this.personRepository.findById(Long.valueOf(authorId));
 					if (optPers.isEmpty()) {
@@ -1852,13 +1894,13 @@ public class PublicationService extends AbstractPublicationService {
 				authorship.setPublication(publication);
 				this.authorshipRepository.save(authorship);
 				oldIds.remove(Long.valueOf(authorship.getId()));
-				getLogger().info("Author \"" + person.getFullName() //$NON-NLS-1$
+				logger.info("Author \"" + person.getFullName() //$NON-NLS-1$
 				+ "\" updated for the publication with id " //$NON-NLS-1$
 				+ publication.getId());
 			} else {
 				// Author was not associated yet
-				addAuthorship(person.getId(), publication.getId(), rank, false);
-				getLogger().info("Author \"" + person.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+				addAuthorship(person.getId(), publication.getId(), rank, false, logger);
+				logger.info("Author \"" + person.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			++rank;
 		}
@@ -2183,22 +2225,23 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param changedPublication the publication after changes that should be to be saved.
 	 * @param originalPublication the publication before change that could be removed it is no more needed.
+	 * @param logger the logger that must be used to output messages into the log.
 	 * @return the saved publication in the database.
 	 * @throws IOException error when it is impossible to save or rename the associated files.
 	 */
 	@Transactional
-	public Publication saveOrUpdatePublication(Publication changedPublication, Publication originalPublication) throws IOException {
+	public Publication saveOrUpdatePublication(Publication changedPublication, Publication originalPublication, Logger logger) throws IOException {
 		final var typeEnum = changedPublication.getType();
 		if (originalPublication != null && !typeEnum.isCompatibleWith(originalPublication.getType())) {
 			// Save the publication
-			final var savedPublication = save(changedPublication);
+			final var savedPublication = save(changedPublication, logger);
 			// Remove the publication without removing the associated files
 			final var oldId = originalPublication.getId();
-			removePublication(oldId, false);
+			removePublication(oldId, false, logger);
 			// Rename the associated files
 			final var newId = savedPublication.getId();
 			final var associatedFilesChanged = new MutableBoolean(false);
-			this.fileManager.moveFiles(oldId, newId, (key, source, target) -> {
+			this.fileManager.moveFiles(oldId, newId, logger, (key, source, target) -> {
 				switch (key) {
 				case "pdf": //$NON-NLS-1$
 					if (!Strings.isNullOrEmpty(originalPublication.getPathToDownloadablePDF())) {
@@ -2221,50 +2264,51 @@ public class PublicationService extends AbstractPublicationService {
 				}
 			});
 			if (associatedFilesChanged.isTrue()) {
-				save(savedPublication);
+				save(savedPublication, logger);
 			}
 			return savedPublication;
 		}
 
 		// Update associated entities
-		final var changedPublication0 = updateAssociatedPublicationEntities(changedPublication);
+		final var changedPublication0 = updateAssociatedPublicationEntities(changedPublication, logger);
 		
 		// Update the list of authors.
 		final var newAuthors = changedPublication0.getTemporaryAuthors();
 		changedPublication0.setTemporaryAuthors(null);
 		final Publication savedPublication;
 		if (newAuthors != null) {
-			savedPublication = updateAuthorListAndSave(changedPublication0, newAuthors);
+			savedPublication = updateAuthorListAndSave(changedPublication0, newAuthors, logger);
 		} else {
-			savedPublication = save(changedPublication0);
+			savedPublication = save(changedPublication0, logger);
 		}
 
-		getLogger().info("Publication instance updated: " + savedPublication.getId()); //$NON-NLS-1$
+		logger.info("Publication instance updated: " + savedPublication.getId()); //$NON-NLS-1$
 		
 		return savedPublication;
 	}
 
-	private Publication updateAssociatedPublicationEntities(Publication publication) {
+	private Publication updateAssociatedPublicationEntities(Publication publication, Logger logger) {
 		// Save associated entities and replace the fake entities
 		if (publication instanceof JournalBasedPublication jpublication) {
 			final var jour = jpublication.getJournal();
 			if (jour != null) {
-				final var savedJournal = this.journalService.saveOrCreateIfFake(jour);
+				final var savedJournal = this.journalService.saveOrCreateIfFake(jour, logger);
 				jpublication.setJournal(savedJournal);
 			}
 		} else if (publication instanceof ConferenceBasedPublication cpublication) {
 			final var conf = cpublication.getConference();
 			if (conf != null) {
-				final var savedConf = this.conferenceService.saveOrCreateIfFake(conf);
+				final var savedConf = this.conferenceService.saveOrCreateIfFake(conf, logger);
 				cpublication.setConference(savedConf);
 			}
 		}
 		return publication;
 	}
 
-	private Publication updateAuthorListAndSave(Publication publication, List<Person> authors) throws IOException {
+	private Publication updateAuthorListAndSave(Publication publication, List<Person> authors, Logger logger) throws IOException {
 		// Save the publication before changing the authors
 		var savedPublication = this.publicationRepository.save(publication);
+		logger.info("Saved publication: " + publication.getId()); //$NON-NLS-1$
 
 		// Update the list of authors.
 		final var oldIds = new HashMap<>(publication.getAuthorshipsRaw().stream().collect(Collectors.toMap(
@@ -2274,7 +2318,7 @@ public class PublicationService extends AbstractPublicationService {
 		for (final var author : authors) {
 			assert author != null;
 
-			ensurePersonInDatabase(author);
+			ensurePersonInDatabase(author, logger);
 			
 			oldIds.remove(Long.valueOf(author.getId()));
 			final var optAut = publication.getAuthorshipsRaw().stream().filter(it -> it.getPerson().getId() == author.getId()).findFirst();
@@ -2284,11 +2328,11 @@ public class PublicationService extends AbstractPublicationService {
 				authorship.setAuthorRank(rank);
 				this.authorshipRepository.save(authorship);
 				oldIds.remove(Long.valueOf(authorship.getId()));
-				getLogger().info("Author \"" + author.getFullName() + "\" updated for the publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.info("Author \"" + author.getFullName() + "\" updated for the publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				// Author was not associated yet
-				addAuthorship(author, publication, rank);
-				getLogger().info("Author \"" + author.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+				addAuthorship(author, publication, rank, logger);
+				logger.info("Author \"" + author.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			++rank;
 		}
@@ -2299,20 +2343,23 @@ public class PublicationService extends AbstractPublicationService {
 			final var oldAuthor = oldAutshp.getPerson();
 			oldAuthor.getAuthorships().remove(oldAutshp);
 			this.personRepository.save(oldAuthor);
+			logger.info("Saved old author: " + oldAuthor.getId()); //$NON-NLS-1$
 			savedPublication = this.publicationRepository.save(publication);
+			logger.info("Saved publication: " + publication.getId()); //$NON-NLS-1$
 			this.authorshipRepository.deleteById(Long.valueOf(oldAutshp.getId()));
+			logger.info("Deleted authorship: " + oldAutshp); //$NON-NLS-1$
 		}
 		
 		return savedPublication;
 	}
 
-	private Person ensurePersonInDatabase(Person person) throws IOException {
-		final var edit = this.personService.startEditing(person);
+	private Person ensurePersonInDatabase(Person person, Logger logger) throws IOException {
+		final var edit = this.personService.startEditing(person, logger);
 		edit.save();
 		return edit.getEntity();
 	}
 
-	private Authorship addAuthorship(Person person, Publication publication, int rank) {
+	private Authorship addAuthorship(Person person, Publication publication, int rank, Logger logger) {
 		// No need to add the authorship if the person is already linked to the publication
 		final var authorship = new Authorship();
 		authorship.setPerson(person);
@@ -2323,6 +2370,7 @@ public class PublicationService extends AbstractPublicationService {
 		person.getAuthorships().add(authorship);
 
 		this.authorshipRepository.save(authorship);
+		logger.info("Saved authorship: " + authorship); //$NON-NLS-1$
 		return authorship;
 	}
 
@@ -2331,25 +2379,30 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the list of publications
 	 * @param locale the locale to be used for the progress messages.
 	 * @param progress the progression indicator to be used during the process.
+	 * @param logger the logger to be used.
 	 * @throws IOException if some thumbnail cannot be generated
 	 */
-	public void generateThumbnails(List<Publication> publications, Locale locale, Progression progress) throws IOException {
+	public void generateThumbnails(List<Publication> publications, Locale locale, Logger logger, Progression progress) throws IOException {
 		final var progress0 = progress == null ? new DefaultProgression() : progress;
 		final var existingThumbnails = this.fileManager.getThumbailFiles();
 		progress0.setProperties(0, 0, existingThumbnails.totalSize() + publications.size() * 2, false);
 		while (existingThumbnails.hasNext()) {
 			final var thumbnail = existingThumbnails.next();
-			progress0.setComment(getMessage(locale, MESSAGE_PREFIX + "deleteThumbnail", thumbnail.getName())); //$NON-NLS-1$
+			final var logMessage = getMessage(locale, MESSAGE_PREFIX + "deleteThumbnail", thumbnail.getName()); //$NON-NLS-1$
+			logger.info(logMessage);
+			progress0.setComment(logMessage);
 			thumbnail.delete();
 			progress0.increment();
 		}
 		for (final var publication : publications) {
-			progress0.setComment(getMessage(locale, MESSAGE_PREFIX + "generateThumbnail", publication.getTitle())); //$NON-NLS-1$
+			final var logMessage = getMessage(locale, MESSAGE_PREFIX + "generateThumbnail", publication.getTitle()); //$NON-NLS-1$
+			logger.info(logMessage);
+			progress0.setComment(logMessage);
 			final var paperFile = publication.getPathToDownloadablePDF();
 			if (!Strings.isNullOrEmpty(paperFile)) {
 				final var file = FileSystem.convertStringToFile(paperFile);
 				if (file != null) {
-					this.fileManager.regenerateThumbnail(file);
+					this.fileManager.regenerateThumbnail(file, logger);
 				}
 			}
 			progress0.increment();
@@ -2357,7 +2410,7 @@ public class PublicationService extends AbstractPublicationService {
 			if (!Strings.isNullOrEmpty(awardFile)) {
 				final var file = FileSystem.convertStringToFile(awardFile);
 				if (file != null) {
-					this.fileManager.regenerateThumbnail(file);
+					this.fileManager.regenerateThumbnail(file, logger);
 				}
 			}
 			progress0.increment();
@@ -2366,8 +2419,9 @@ public class PublicationService extends AbstractPublicationService {
 	}
 
 	@Override
-	public EntityEditingContext<Publication> startEditing(Publication publication) {
+	public EntityEditingContext<Publication> startEditing(Publication publication, Logger logger) {
 		assert publication != null;
+		logger.info("Starting the edition of the publication: " + publication); //$NON-NLS-1$
 		// Force initialization of the internal properties that are needed for editing
 		if (publication.getId() != 0l) {
 			inSession(session -> {
@@ -2386,12 +2440,13 @@ public class PublicationService extends AbstractPublicationService {
 				});
 			});
 		}
-		return new EditingContext(publication);
+		return new EditingContext(publication, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Publication> startDeletion(Set<Publication> publications) {
+	public EntityDeletingContext<Publication> startDeletion(Set<Publication> publications, Logger logger) {
 		assert publications != null && !publications.isEmpty();
+		logger.info("Starting the deletion of the publications: " + publications); //$NON-NLS-1$
 		// Force loading of the linked entities
 		inSession(session -> {
 			for (final var publication : publications) {
@@ -2406,7 +2461,7 @@ public class PublicationService extends AbstractPublicationService {
 				}
 			}
 		});
-		return new DeletingContext(publications);
+		return new DeletingContext(publications, logger);
 	}
 
 	/** Context for editing a {@link Publication}.
@@ -2423,6 +2478,8 @@ public class PublicationService extends AbstractPublicationService {
 
 		private static final long serialVersionUID = 279291279949905796L;
 
+		private final Logger logger;
+		
 		private final UploadedFileTracker<Publication> pathToPdfFile;
 
 		private final UploadedFileTracker<Publication> pathToAwardFile;
@@ -2430,23 +2487,25 @@ public class PublicationService extends AbstractPublicationService {
 		/** Constructor.
 		 *
 		 * @param publication the edited publication.
+		 * @param logger the logger to be used.
 		 */
-		EditingContext(Publication publication) {
-			super(publication);
+		EditingContext(Publication publication, Logger logger) {
+			super(publication, logger);
+			this.logger = logger;
 			this.pathToPdfFile = newUploadedFileTracker(publication,
 					Publication::getPathToDownloadablePDF,
-					(id, savedPath) -> PublicationService.this.fileManager.deletePublicationPdfFile(id.longValue()),
-					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), null));
+					(id, savedPath) -> PublicationService.this.fileManager.deletePublicationPdfFile(id.longValue(), logger),
+					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), logger, null));
 			this.pathToAwardFile = newUploadedFileTracker(publication,
 					Publication::getPathToDownloadableAwardCertificate,
-					(id, savedPath) -> PublicationService.this.fileManager.deletePublicationAwardPdfFile(id.longValue()),
-					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), null));
+					(id, savedPath) -> PublicationService.this.fileManager.deletePublicationAwardPdfFile(id.longValue(), logger),
+					(oldId, newId) -> PublicationService.this.fileManager.moveFiles(oldId.longValue(), newId.longValue(), logger, null));
 		}
 
 		@Override
 		protected Publication writeInJPA(Publication entity, boolean initialSaving) {
 			try {
-				return PublicationService.this.saveOrUpdatePublication(entity, this.entity);
+				return PublicationService.this.saveOrUpdatePublication(entity, this.entity, this.logger);
 			} catch (IOException ex) {
 				throw new RuntimeException(ex);
 			}
@@ -2454,26 +2513,26 @@ public class PublicationService extends AbstractPublicationService {
 
 		@Override
 		protected void deleteOrRenameAssociatedFiles(long oldId) throws IOException {
-			this.pathToPdfFile.deleteOrRenameFile(oldId, this.entity);
-			this.pathToAwardFile.deleteOrRenameFile(oldId, this.entity);
+			this.pathToPdfFile.deleteOrRenameFile(oldId, this.entity, getLogger());
+			this.pathToAwardFile.deleteOrRenameFile(oldId, this.entity, getLogger());
 		}
 
 		@Override
 		protected boolean prepareAssociatedFileUpload() throws IOException {
-			final var doUpload1 = !this.pathToPdfFile.deleteFile(this.entity);
-			final var doUpload2 = !this.pathToAwardFile.deleteFile(this.entity);
+			final var doUpload1 = !this.pathToPdfFile.deleteFile(this.entity, getLogger());
+			final var doUpload2 = !this.pathToAwardFile.deleteFile(this.entity, getLogger());
 			return doUpload1 || doUpload2;
 		}
 
 		@Override
 		protected void postProcessAssociatedFiles() throws IOException {
-			this.pathToPdfFile.resetPathMemory(this.entity);
-			this.pathToAwardFile.resetPathMemory(this.entity);
+			this.pathToPdfFile.resetPathMemory(this.entity, getLogger());
+			this.pathToAwardFile.resetPathMemory(this.entity, getLogger());
 		}
 
 		@Override
 		public EntityDeletingContext<Publication> createDeletionContext() {
-			return PublicationService.this.startDeletion(Collections.singleton(this.entity));
+			return PublicationService.this.startDeletion(Collections.singleton(this.entity), this.logger);
 		}
 
 	}
@@ -2493,19 +2552,22 @@ public class PublicationService extends AbstractPublicationService {
 		/** Constructor.
 		 *
 		 * @param publications the publications to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Publication> publications) {
-			super(publications);
+		protected DeletingContext(Set<Publication> publications, Logger logger) {
+			super(publications, logger);
 		}
 		
 		@Override
 		protected void deleteEntities(Collection<Long> identifiers) throws Exception {
 			// Do the deletion
+			final var logger = getLogger();
 			for (final var publication : getEntities()) {
 				// Unlink the authorships and author related entities
 				final var id = publication.getId();
                 for (Authorship authorship : publication.getAuthorships()) {
                     PublicationService.this.authorshipRepository.deleteById(Long.valueOf(authorship.getId()));
+            		logger.info("Deleted authorship: " + authorship.getId()); //$NON-NLS-1$
                 }
 				publication.getAuthorshipsRaw().clear();
 				publication.setScientificAxes(null);
@@ -2515,8 +2577,8 @@ public class PublicationService extends AbstractPublicationService {
 				
 				// Delete file managers
 				final var pubid = publication.getId();
-				PublicationService.this.fileManager.deletePublicationPdfFile(pubid);
-				PublicationService.this.fileManager.deletePublicationAwardPdfFile(pubid);
+				PublicationService.this.fileManager.deletePublicationPdfFile(pubid, logger);
+				PublicationService.this.fileManager.deletePublicationAwardPdfFile(pubid, logger);
 			}
 		}
 

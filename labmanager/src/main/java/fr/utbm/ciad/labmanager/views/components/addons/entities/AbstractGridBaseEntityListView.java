@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.vaadin.componentfactory.ToggleButton;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.Uses;
@@ -54,11 +53,12 @@ import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.avatars.AvatarItem;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -77,7 +77,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Uses(Icon.class)
 @CssImport(value = "./themes/labmanager/components/grid-row-hover.css", themeFor = "vaadin-grid")
 public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntity, F extends IdentifiableEntity, G extends Grid<T>>
-		extends Composite<VerticalLayout> implements LocaleChangeObserver {
+		extends AbstractLoggerComposite<VerticalLayout> implements LocaleChangeObserver {
 
 	private static final long serialVersionUID = -602512272488076268L;
 
@@ -96,8 +96,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	/** Key for the property that is the error message for deletion.
 	 */
 	protected static final String PROP_DELETION_ERROR_MESSAGE = "deletionErrorMessageKey"; //$NON-NLS-1$
-
-	private final Logger logger;
 
 	private final MessageSourceAccessor messages;
 
@@ -122,16 +120,16 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @param entityType the type of the entities to be listed.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
-	 * @param logger the logger to be used by this view.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param properties specification of properties that may be passed to the construction function {@link #createFilters()},
 	 *     {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
 	 * @since 4.0
 	 */
 	public AbstractGridBaseEntityListView(Class<T> entityType,
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger,
-			ConstructionPropertiesBuilder properties) {
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ContextualLoggerFactory loggerFactory, ConstructionPropertiesBuilder properties) {
+		super(loggerFactory);
 		this.entityType = entityType;
-		this.logger = logger;
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
 		this.properties = properties.build();
@@ -313,14 +311,6 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	protected AbstractFilters<F> getFilters() {
 		return this.filters;
 	}
-	
-	/** Replies the logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger getLogger() {
-		return this.logger;
-	}
 
 	/** Add a new entity.
 	 */
@@ -407,11 +397,9 @@ public abstract class AbstractGridBaseEntityListView<T extends IdentifiableEntit
 	 * @see #notifyDeletionError(Throwable)
 	 */
 	protected void notifyDeletionError(Throwable error, String messageKey) {
-		final var msg = new StringBuilder("Error when deleting data for the entity by "); //$NON-NLS-1$
-		msg.append(AuthenticatedUser.getUserName(this.authenticatedUser));
-		msg.append(": "); //$NON-NLS-1$
+		final var msg = new StringBuilder("Error when deleting data for the entity: "); //$NON-NLS-1$
 		msg.append(error.getLocalizedMessage());
-		this.logger.warn(msg.toString(), error);
+		getLogger().warn(msg.toString(), error);
 		ComponentFactory.showErrorNotification(getTranslation(messageKey, error.getLocalizedMessage()));
 	}
 

@@ -41,6 +41,7 @@ import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -59,6 +60,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class ScientificAxisService extends AbstractEntityService<ScientificAxis> {
+
+	private static final long serialVersionUID = -873452182614369429L;
 
 	private final ScientificAxisRepository scientificAxisRepository;
 
@@ -173,7 +176,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 					// Silent
 				}
 			}
-			getLogger().error(ex.getLocalizedMessage(), ex);
+			//getLogger().error(ex.getLocalizedMessage(), ex);
 			throw ex;
 		}
 		return Optional.of(axis);
@@ -284,13 +287,13 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 	}
 
 	@Override
-	public EntityEditingContext<ScientificAxis> startEditing(ScientificAxis axis) {
+	public EntityEditingContext<ScientificAxis> startEditing(ScientificAxis axis, Logger logger) {
 		assert axis != null;
-		return new EditingContext(axis);
+		return new EditingContext(axis, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<ScientificAxis> startDeletion(Set<ScientificAxis> axes) {
+	public EntityDeletingContext<ScientificAxis> startDeletion(Set<ScientificAxis> axes, Logger logger) {
 		assert axes != null && !axes.isEmpty();
 		// Force loading of the linked entities
 		inSession(session -> {
@@ -303,7 +306,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 				}
 			}
 		});
-		return new DeletingContext(axes);
+		return new DeletingContext(axes, logger);
 	}
 
 	/** Context for editing a {@link ScientificAxis}.
@@ -323,9 +326,10 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 		/** Constructor.
 		 *
 		 * @param axis the edited scientific axis.
+		 * @param logger the logger to be used.
 		 */
-		EditingContext(ScientificAxis axis) {
-			super(axis);
+		EditingContext(ScientificAxis axis, Logger logger) {
+			super(axis, logger);
 		}
 
 		@Override
@@ -335,7 +339,7 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 
 		@Override
 		public EntityDeletingContext<ScientificAxis> createDeletionContext() {
-			return ScientificAxisService.this.startDeletion(Collections.singleton(this.entity));
+			return ScientificAxisService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -355,9 +359,10 @@ public class ScientificAxisService extends AbstractEntityService<ScientificAxis>
 		/** Constructor.
 		 *
 		 * @param axes the scientific axes to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<ScientificAxis> axes) {
-			super(axes);
+		protected DeletingContext(Set<ScientificAxis> axes, Logger logger) {
+			super(axes, logger);
 		}
 
 		@Override

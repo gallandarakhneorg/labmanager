@@ -28,8 +28,6 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationSt
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of membership information that may be embedded. This editor does not provide
@@ -45,8 +43,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 
 	private static final long serialVersionUID = 5271631470481314239L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedMembershipEditor.class);
 
 	/** Constructor.
 	 *
@@ -69,7 +65,8 @@ public final class EmbeddedMembershipEditor extends AbstractMembershipEditor {
 			MessageSourceAccessor messages) {
 		super(context, membershipCreationStatusComputer, editAssociatedPerson, false, personFieldFactory,
 				organizationFieldFactory, axisService, axisEditorFactory,
-				authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+				authenticatedUser, messages,
+				ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

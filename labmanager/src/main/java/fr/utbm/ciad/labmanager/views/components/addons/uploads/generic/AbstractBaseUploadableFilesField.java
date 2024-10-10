@@ -40,12 +40,14 @@ import com.vaadin.flow.component.upload.StartedEvent;
 import com.vaadin.flow.component.upload.SucceededEvent;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileData;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 import fr.utbm.ciad.labmanager.utils.Unit;
+import org.slf4j.Logger;
 
 /** Abstract implementation of a field that enables to upload a file.
  * This field does not assume the max number of filesthat the field's data is of a specific type.
@@ -73,12 +75,17 @@ public abstract class AbstractBaseUploadableFilesField<T> extends CustomField<T>
 	private final Span uploadDropLabel;
 
 	private final Button uploadButton;
+	
+	private final SerializableSupplier<Logger> loggerSupplier;
 
 	/** Default constructor.
 	 *
 	 * @param maxNumberOfFiles the maximum number of files to be uploaded.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractBaseUploadableFilesField(int maxNumberOfFiles) {
+	public AbstractBaseUploadableFilesField(int maxNumberOfFiles, SerializableSupplier<Logger> loggerSupplier) {
+		this.loggerSupplier = loggerSupplier;
+
 		this.uploadButton = new Button();
 		this.uploadDropLabel = new Span();
 
@@ -95,6 +102,14 @@ public abstract class AbstractBaseUploadableFilesField<T> extends CustomField<T>
 		this.content = new VerticalLayout();
 		this.content.add(this.upload);
 		add(this.content);
+	}
+
+	/** Replies the logger.
+	 *
+	 * @return the logger.
+	 */
+	protected Logger getLogger() {
+		return this.loggerSupplier.get();
 	}
 
 	/** Replies if a file was uploaded and ready to be used.

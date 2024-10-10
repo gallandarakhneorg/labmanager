@@ -36,6 +36,7 @@ import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.utils.SerializableExceptionProvider;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.progress.ProgressExtension;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerProgressionWizardStep;
 import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
@@ -63,9 +64,10 @@ public class ThumbnailGeneratorWizard extends AbstractLabManagerWizard<Thumbnail
 	/** Constructor.
 	 *
 	 * @param publicationService the service for accessing the publication entities.
+	 * @param loggerFactory the factory for creating the loggers.
 	 */
-	public ThumbnailGeneratorWizard(@Autowired PublicationService publicationService) {
-		this(	publicationService,
+	public ThumbnailGeneratorWizard(@Autowired PublicationService publicationService, @Autowired ContextualLoggerFactory loggerFactory) {
+		this(	publicationService, loggerFactory,
 				defaultWizardConfiguration(null, false),
 				new ThumbnailGeneratorData());
 	}
@@ -76,14 +78,16 @@ public class ThumbnailGeneratorWizard extends AbstractLabManagerWizard<Thumbnail
 	 * @param properties the properties of the wizard.
 	 * @param context the data context.
 	 */
-	protected ThumbnailGeneratorWizard(PublicationService publicationService,  WizardConfigurationProperties properties, ThumbnailGeneratorData context) {
-		this(properties, context, Arrays.asList(
+	protected ThumbnailGeneratorWizard(PublicationService publicationService, ContextualLoggerFactory loggerFactory,
+			WizardConfigurationProperties properties, ThumbnailGeneratorData context) {
+		this(properties, loggerFactory, context, Arrays.asList(
 				new PublicationLoadingWizardStep(context, publicationService),
 				new ThumbnailGenerationWizardStep(context, publicationService)));
 	}
 
-	private ThumbnailGeneratorWizard(WizardConfigurationProperties properties, ThumbnailGeneratorData context, List<WizardStep<ThumbnailGeneratorData>> steps) {
-		super(properties, context, steps);
+	private ThumbnailGeneratorWizard(WizardConfigurationProperties properties, ContextualLoggerFactory loggerFactory,
+			ThumbnailGeneratorData context, List<WizardStep<ThumbnailGeneratorData>> steps) {
+		super(properties, loggerFactory, context, steps);
 	}
 
 	/** Wizard step for loading the publications from the database.
@@ -200,7 +204,7 @@ public class ThumbnailGeneratorWizard extends AbstractLabManagerWizard<Thumbnail
 			return () -> {
 				final var context = getContext();
 				try {
-					this.publicationService.generateThumbnails(context.getPublications(), locale, extendedProgression0);
+					this.publicationService.generateThumbnails(context.getPublications(), locale, getLogger(), extendedProgression0);
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);
 				}

@@ -19,15 +19,14 @@
 
 package fr.utbm.ciad.labmanager.utils.io.hal;
 
+import java.net.URI;
+import java.net.URL;
+import java.util.regex.Pattern;
+
 import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.regex.Pattern;
 
 /** Default implementation for the utilities for HAL numbers.
  * 
@@ -49,8 +48,8 @@ public class DefaultHalTools implements HalTools {
 
 	static {
 		try {
-			HAL_BASE = new URL(HAL_URL_BASE);
-		} catch (MalformedURLException ex) {
+			HAL_BASE = new URI(HAL_URL_BASE).toURL();
+		} catch (Throwable ex) {
 			throw new Error(ex);
 		}
 		HAL_PATTERN = Pattern.compile(HAL_PATTERN_STR);

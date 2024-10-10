@@ -18,11 +18,12 @@ package fr.utbm.ciad.labmanager.tests.services.publication;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -39,7 +40,10 @@ import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link AbstractPublicationTypeService}.
@@ -207,7 +211,11 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 
-		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationPdfFile(123);
+		ArgumentCaptor<Long> id = ArgumentCaptor.forClass(Long.class);
+		ArgumentCaptor<Logger> logger = ArgumentCaptor.forClass(Logger.class);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationPdfFile(id.capture(), logger.capture());
+		assertEquals(123l, id.getValue());
+		assertNotNull(logger.getValue());
 	}
 
 	@Test
@@ -237,7 +245,11 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 
-		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationAwardPdfFile(123);
+		ArgumentCaptor<Long> id = ArgumentCaptor.forClass(Long.class);
+		ArgumentCaptor<Logger> logger = ArgumentCaptor.forClass(Logger.class);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationAwardPdfFile(id.capture(), logger.capture());
+		assertEquals(123l, id.getValue());
+		assertNotNull(logger.getValue());
 	}
 
 	@Test
@@ -375,7 +387,11 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 
-		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationPdfFile(123);
+		ArgumentCaptor<Long> id = ArgumentCaptor.forClass(Long.class);
+		ArgumentCaptor<Logger> logger = ArgumentCaptor.forClass(Logger.class);
+		verify(this.downloadableFileManager, only()).deletePublicationPdfFile(id.capture(), logger.capture());
+		assertEquals(123l, id.getValue());
+		assertNotNull(logger.getValue());
 	}
 
 	@Test
@@ -404,7 +420,11 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 
-		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationAwardPdfFile(123);
+		ArgumentCaptor<Long> id = ArgumentCaptor.forClass(Long.class);
+		ArgumentCaptor<Logger> logger = ArgumentCaptor.forClass(Logger.class);
+		verify(this.downloadableFileManager, atLeastOnce()).deletePublicationAwardPdfFile(id.capture(), logger.capture());
+		assertEquals(123l, id.getValue());
+		assertNotNull(logger.getValue());
 	}
 
 	/** Mock for {@link AbstractPublicationTypeService}.

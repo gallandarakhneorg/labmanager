@@ -55,6 +55,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JournalPaperService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = 7713709761848603121L;
+
 	private JournalPaperRepository repository;
 
 	private MembershipService membershipService;

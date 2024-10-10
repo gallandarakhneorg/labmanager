@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.projects.editors;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing a project editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface ProjectEditorFactory {
 	/** Replies the editing context for the given project.
 	 *
 	 * @param project the project to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<Project> createContextFor(Project project);
+	EntityEditingContext<Project> createContextFor(Project project, Logger logger);
 
 	/** Create an editor that may be used for creating a new project.
 	 * 
@@ -50,10 +52,11 @@ public interface ProjectEditorFactory {
 	/** Create an editor that may be used for creating a new project.
 	 * 
 	 * @param project the project to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Project> createAdditionEditor(Project project) {
-		final var context = createContextFor(project);
+	default AbstractEntityEditor<Project> createAdditionEditor(Project project, Logger logger) {
+		final var context = createContextFor(project, logger);
 		return this.createAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface ProjectEditorFactory {
 	/** Create an editor that may be used for updating an existing project.
 	 * 
 	 * @param project the project to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<Project> createUpdateEditor(Project project) {
-		final var context = createContextFor(project);
+	default AbstractEntityEditor<Project> createUpdateEditor(Project project, Logger logger) {
+		final var context = createContextFor(project, logger);
 		return this.createUpdateEditor(context);
 	}
 

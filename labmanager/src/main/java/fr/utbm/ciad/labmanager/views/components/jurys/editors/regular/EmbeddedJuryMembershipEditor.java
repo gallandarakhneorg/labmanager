@@ -25,8 +25,6 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatusComputer;
 import fr.utbm.ciad.labmanager.views.components.persons.fields.PersonFieldFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of jury membership information that may be embedded. This editor does not provide
@@ -43,8 +41,6 @@ public final class EmbeddedJuryMembershipEditor extends AbstractJuryMembershipEd
 
 	private static final long serialVersionUID = -7868251550659166877L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedJuryMembershipEditor.class);
-
 	/** Constructor.
 	 *
 	 * @param context the editing context for the scientific axis.
@@ -55,8 +51,9 @@ public final class EmbeddedJuryMembershipEditor extends AbstractJuryMembershipEd
 	 */
 	public EmbeddedJuryMembershipEditor(EntityEditingContext<JuryMembership> context,
 			EntityCreationStatusComputer<JuryMembership> juryCreationStatusComputer,
-			PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
-		super(context, juryCreationStatusComputer, false, personFieldFactory, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+			PersonFieldFactory personFieldFactory, AuthenticatedUser authenticatedUser,
+			MessageSourceAccessor messages) {
+		super(context, juryCreationStatusComputer, false, personFieldFactory, authenticatedUser, messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

@@ -83,7 +83,8 @@ public class KeyNoteServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(KeyNoteRepository.class);
-		this.test = new KeyNoteService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository, this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
+		this.test = new KeyNoteService(this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository,
+				this.messages, new ConfigurationConstants(), mock(SessionFactory.class));
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

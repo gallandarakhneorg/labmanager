@@ -32,6 +32,7 @@ import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextListElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
+import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
 import java.io.ByteArrayOutputStream;
@@ -86,7 +87,8 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 
 	@SuppressWarnings("resource")
 	@Override
-	public byte[] exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
+	public byte[] exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, Logger logger) throws Exception {
 		if (publications == null) {
 			progression.end();
 			return null;

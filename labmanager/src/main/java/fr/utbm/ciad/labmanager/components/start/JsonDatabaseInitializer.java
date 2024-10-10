@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.components.start;
 
+import java.io.Serializable;
 import java.net.URL;
 
 import com.google.common.base.Strings;
@@ -49,7 +50,9 @@ import org.springframework.stereotype.Component;
  * @since 2.0.0
  */
 @Component
-public class JsonDatabaseInitializer implements ApplicationRunner {
+public class JsonDatabaseInitializer implements ApplicationRunner, Serializable {
+
+	private static final long serialVersionUID = 564704530921099221L;
 
 	/** Basename of the data file that could be used for initialization.
 	 *
@@ -68,10 +71,6 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	 * @since 4.0
 	 */
 	public static final String INITIALIZATION_ZIP_DATA_FILENAME = INITIALIZATION_BASENAME + IoConstants.ZIP_FILENAME_EXTENSION;
-
-	/** Logger of the service. It is lazy loaded.
-	 */
-	private Logger logger;
 
 	private final JsonToDatabaseImporter jsonImporter;
 
@@ -97,33 +96,6 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 		this.zipImporter = zipImporter;
 		this.dataSourceFolder = dataSourceFolder;
 		this.enabled = enabled;
-	}
-
-	/** Replies the logger of this service.
-	 *
-	 * @return the logger.
-	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Change the logger of this service.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the service logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
 	}
 
 	/** Replies the URL to the data script to use in the current WAR.
@@ -227,15 +199,17 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 
 	/** Replies the importer code to be used for the given URL of the data source.
 	 *
-	 * @return the URL of the data source or {@code null} if none.
+	 * @param url the URL of the data source or {@code null} if none.
+	 * @param logger the logger to use for put a message in the log.
+	 * @return the importer.
 	 */
-	protected Importer detectImporter(URL url) {
+	protected Importer detectImporter(URL url, Logger logger) {
 		assert url != null;
 		if (FileSystem.hasExtension(url, ".zip")) { //$NON-NLS-1$
-			return it -> this.zipImporter.importArchiveFileToDatabase(it);
+			return it -> this.zipImporter.importArchiveFileToDatabase(it, logger);
 		}
 		if (FileSystem.hasExtension(url, ".json")) { //$NON-NLS-1$
-			return it -> this.jsonImporter.importDataFileToDatabase(it);
+			return it -> this.jsonImporter.importDataFileToDatabase(it, logger);
 		}
 		return null;
 	}
@@ -244,31 +218,34 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	 *
 	 * @param url the URL of data to be imported.
 	 * @param importer the callback function for doing the importation concretely.
+	 * @param logger the logger to use for put a message in the log.
 	 * @throws Exception if import process cannot be done.
 	 */
-	protected void doImport(URL url, Importer importer) throws Exception {
+	@SuppressWarnings("static-method")
+	protected void doImport(URL url, Importer importer, Logger logger) throws Exception {
 		assert url != null;
 		assert importer != null;
-		getLogger().info("Database initialization with: " + url.toExternalForm()); //$NON-NLS-1$
+		logger.info("Database initialization with: " + url.toExternalForm()); //$NON-NLS-1$
 		importer.importFrom(url);
 	}
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
+		final var logger = LoggerFactory.getLogger(getClass());
 		if (this.enabled) {
 			final var dataUrl = detectDataUrl();
 			if (dataUrl != null) {
-				final var importer = detectImporter(dataUrl);
+				final var importer = detectImporter(dataUrl, logger);
 				if (importer != null) {
-					doImport(dataUrl, importer);
+					doImport(dataUrl, importer, logger);
 				} else {
-					getLogger().warn("Database initialization is skipped because of lake of importer for " + dataUrl); //$NON-NLS-1$
+					logger.warn("Database initialization is skipped because of lake of importer for " + dataUrl); //$NON-NLS-1$
 				}
 			} else {
-				getLogger().info("Database initialization is skipped because of lake of data source"); //$NON-NLS-1$
+				logger.info("Database initialization is skipped because of lake of data source"); //$NON-NLS-1$
 			}
 		} else {
-			getLogger().info("Database initialization is disabled"); //$NON-NLS-1$
+			logger.info("Database initialization is disabled"); //$NON-NLS-1$
 		}
 	}
 

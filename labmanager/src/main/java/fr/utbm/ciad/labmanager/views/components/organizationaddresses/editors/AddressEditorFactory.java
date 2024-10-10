@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.organizationaddresses.editors;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing an address editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface AddressEditorFactory {
 	/** Replies the editing context for the given organization address.
 	 *
 	 * @param address the organization address to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<OrganizationAddress> createContextFor(OrganizationAddress address);
+	EntityEditingContext<OrganizationAddress> createContextFor(OrganizationAddress address, Logger logger);
 
 	/** Create an editor that may be used for creating a new organization address.
 	 * 
@@ -50,10 +52,11 @@ public interface AddressEditorFactory {
 	/** Create an editor that may be used for creating a new organization address.
 	 * 
 	 * @param address the organization address to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<OrganizationAddress> createAdditionEditor(OrganizationAddress address) {
-		final var context = createContextFor(address);
+	default AbstractEntityEditor<OrganizationAddress> createAdditionEditor(OrganizationAddress address, Logger logger) {
+		final var context = createContextFor(address, logger);
 		return createAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface AddressEditorFactory {
 	/** Create an editor that may be used for updating an existing organization address.
 	 * 
 	 * @param address the organization address to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<OrganizationAddress> createUpdateEditor(OrganizationAddress address) {
-		final var context = createContextFor(address);
+	default AbstractEntityEditor<OrganizationAddress> createUpdateEditor(OrganizationAddress address, Logger logger) {
+		final var context = createContextFor(address, logger);
 		return createUpdateEditor(context);
 	}
 

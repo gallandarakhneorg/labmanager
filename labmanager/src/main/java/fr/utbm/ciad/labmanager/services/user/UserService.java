@@ -33,6 +33,7 @@ import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingConte
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.DeletionStatus;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class UserService extends AbstractService {
+
+	private static final long serialVersionUID = 6246328171473876539L;
 
 	private final UserRepository userRepository;
 
@@ -142,6 +145,11 @@ public class UserService extends AbstractService {
 				}
 				// Delete persons
 				personContext.delete();
+			}
+
+			@Override
+			public Logger getLogger() {
+				return personContext.getLogger();
 			}
 			
 		};

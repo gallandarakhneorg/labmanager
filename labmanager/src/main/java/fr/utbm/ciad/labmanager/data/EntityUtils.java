@@ -46,6 +46,8 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Set;
 
+import com.google.common.base.Strings;
+
 /** Tools and configuration for the JPA entities.
  * 
  * @author $Author: sgalland$
@@ -675,6 +677,29 @@ public final class EntityUtils {
 
 	private static boolean hasPostdocMembership(Set<Membership> memberships, LocalDate d0, LocalDate d1) {
 		return memberships.stream().anyMatch(it -> it.getMemberStatus() == MemberStatus.POSTDOC && it.isActiveIn(d0, d1));
+	}
+
+	/** Replies a string representation of the given entity with the given parameters in the representation.
+	 *
+	 * @param entity the entity to output.
+	 * @param parameters the parameters to add in the returned representation. The parameters is a list of values to append to the string representation.
+	 * @return the string representation.
+	 * @since 4.0
+	 */
+	public static String toString(IdentifiableEntity entity, Object... parameters) {
+		final var buffer = new StringBuilder();
+		if (entity != null) {
+			buffer.append(entity.getClass().getSimpleName()).append("@ID=").append(entity.getId()); //$NON-NLS-1$
+			for (final var parameter : parameters) {
+				if (parameter != null) {
+					final var value = parameter.toString();
+					if (!Strings.isNullOrEmpty(value)) {
+						buffer.append("|").append(value); //$NON-NLS-1$
+					}
+				}
+			}
+		}
+		return buffer.toString();
 	}
 
 }

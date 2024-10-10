@@ -12,7 +12,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
@@ -25,6 +24,8 @@ import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractDefaultOrganizationDataFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerVerticalLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +41,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractPersonCardView extends VerticalLayout implements LocaleChangeObserver {
+public abstract class AbstractPersonCardView extends AbstractLoggerVerticalLayout implements LocaleChangeObserver {
 
 	private static final long serialVersionUID = -44931810191145637L;
 
@@ -74,6 +75,7 @@ public abstract class AbstractPersonCardView extends VerticalLayout implements L
 	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param cardFactory the factory for creating the person cards.
 	 * @param authenticatedUser the user who is connected to the application.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
 	public AbstractPersonCardView(
 			int cardsPerRow,
@@ -83,7 +85,9 @@ public abstract class AbstractPersonCardView extends VerticalLayout implements L
 			PersonService personService,
 			PersonEditorFactory personEditorFactory,
 			StandardPersonCardGridItemFactory cardFactory,
-			AuthenticatedUser authenticatedUser) {
+			AuthenticatedUser authenticatedUser,
+			ContextualLoggerFactory loggerFactory) {
+		super(loggerFactory);
 		assert cardsPerRow >= 1;
 		assert numberOfRows >= 1;
 		assert initialPageIndex >= 0;
@@ -237,7 +241,7 @@ public abstract class AbstractPersonCardView extends VerticalLayout implements L
 		}
 		this.imageContainer.removeAll();
 		for (Person person : persons) {
-			final var item = this.cardFactory.createCard(person, () -> refreshGrid());
+			final var item = this.cardFactory.createCard(person, getLogger(), () -> refreshGrid());
 			this.imageContainer.add(item);
 		}
 		this.paginationComponent.setTotalPages(numberOfPages);
@@ -269,9 +273,9 @@ public abstract class AbstractPersonCardView extends VerticalLayout implements L
 	protected void openPersonEditor(Person person, String title, boolean isCreation) {
 		final AbstractEntityEditor<Person> editor;
 		if (isCreation) {
-			editor = this.personEditorFactory.createAdditionEditor(person);
+			editor = this.personEditorFactory.createAdditionEditor(person, getLogger());
 		} else {
-			editor = this.personEditorFactory.createUpdateEditor(person);
+			editor = this.personEditorFactory.createUpdateEditor(person, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> refreshGrid();

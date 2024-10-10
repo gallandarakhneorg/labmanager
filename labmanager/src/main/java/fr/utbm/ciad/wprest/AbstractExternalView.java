@@ -40,6 +40,8 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public abstract class AbstractExternalView extends AbstractComponent {
 
+	private static final long serialVersionUID = 4004274491609719167L;
+
 	private static final String EMAIL_PATTERN_VALUE = "^([^@]+)@(.*?)\\.([^\\.]+)$"; //$NON-NLS-1$
 	
 	private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_PATTERN_VALUE);

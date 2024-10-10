@@ -35,6 +35,7 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 
 /** A field that enables to upload a binary file to the server and shows its graphical representation
  * named the thumbnail..
@@ -65,8 +66,11 @@ public abstract class AbstractServerSideUploadableFileThumbnailField<T> extends 
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadableFileThumbnailField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier) {
+	public AbstractServerSideUploadableFileThumbnailField(DownloadableFileManager fileManager,
+			SerializableSupplier<File> filenameSupplier, SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
 		this.fileManager = fileManager;
 		this.filenameSupplier = filenameSupplier;
 	}
@@ -76,8 +80,11 @@ public abstract class AbstractServerSideUploadableFileThumbnailField<T> extends 
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadableFileThumbnailField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
+	public AbstractServerSideUploadableFileThumbnailField(DownloadableFileManager fileManager,
+			SerializableFunction<String, File> filenameSupplier, SerializableSupplier<Logger> loggerSupplier) {
+		super(loggerSupplier);
 		this.fileManager = fileManager;
 		this.filenameSupplier = () -> {
 			final var file = getClientSideFilename();
@@ -119,7 +126,7 @@ public abstract class AbstractServerSideUploadableFileThumbnailField<T> extends 
 			final var thumbnailName = toClientSideThumbnailFile(filename);
 			try (final var thumbnailStream = new ByteArrayOutputStream()) {
 				try (final var fileStream = mm.getInputStream()) {
-					fm.generateThumbnail(filename.getName(), fileStream, thumbnailStream);
+					fm.generateThumbnail(filename.getName(), fileStream, thumbnailStream, getLogger());
 				}
 				//
 				thumbnailStream.flush();
@@ -195,7 +202,7 @@ public abstract class AbstractServerSideUploadableFileThumbnailField<T> extends 
 		} else {
 			final var fm = getFileManager();
 			if (fm != null) {
-				fm.regenerateThumbnail(output);
+				fm.regenerateThumbnail(output, getLogger());
 			}
 		}
 	}

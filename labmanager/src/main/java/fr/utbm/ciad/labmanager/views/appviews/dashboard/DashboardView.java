@@ -19,14 +19,17 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 
-import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** Dashboard for the lab manager application.
  * 
@@ -39,13 +42,23 @@ import jakarta.annotation.security.PermitAll;
 @Route(value = "", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class DashboardView extends Composite<VerticalLayout> implements HasDynamicTitle {
+public class DashboardView extends AbstractLoggerComposite<VerticalLayout> implements HasDynamicTitle {
 
     private static final long serialVersionUID = -1583805930880620625L;
 
-    /** Constructor.
-     */
-	public DashboardView() {
+	/** Constructor.
+	 *
+	 * @param loggerFactory the factory to be used for the composite logger.
+	 */
+	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
+		super(loggerFactory);
+		
+		final var bt = new Button();
+		bt.setText("Show log");
+		bt.addClickListener(event -> {
+			getLogger().info("Test logger / User name should appear");
+		});
+		getContent().add(bt);
 	}
 
 	@Override

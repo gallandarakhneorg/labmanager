@@ -41,6 +41,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractProjectBudgetIndicator extends AbstractAnnualIndicator {
 
+	private static final long serialVersionUID = 5446414411941334790L;
+
 	private ProjectService projectService;
 
 	/** Constructor.

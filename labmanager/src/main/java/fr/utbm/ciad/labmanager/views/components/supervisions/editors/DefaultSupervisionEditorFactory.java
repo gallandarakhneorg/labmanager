@@ -27,6 +27,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEd
 import fr.utbm.ciad.labmanager.views.components.memberships.fields.MembershipFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.supervisions.editors.regular.EmbeddedSupervisionEditor;
 import fr.utbm.ciad.labmanager.views.components.supervisions.fields.SupervisionFieldFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
@@ -77,8 +78,8 @@ public class DefaultSupervisionEditorFactory implements SupervisionEditorFactory
 	}
 	
 	@Override
-	public EntityEditingContext<Supervision> createContextFor(Supervision supervision) {
-		return this.supervisionService.startEditing(supervision);
+	public EntityEditingContext<Supervision> createContextFor(Supervision supervision, Logger logger) {
+		return this.supervisionService.startEditing(supervision, logger);
 	}
 
 	@Override

@@ -6,6 +6,8 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerVerticalLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
@@ -29,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @Route(value = "charts", layout = MainLayout.class)
 @PermitAll
-public class ChartsView extends VerticalLayout {
+public class ChartsView extends AbstractLoggerVerticalLayout {
 
     private TabSheet tabSheet;
 
@@ -43,9 +45,12 @@ public class ChartsView extends VerticalLayout {
      * Constructor.
      *
      * @param publicationService the service for accessing the scientific publications.
+	 * @param loggerFactory the factory to be used for the composite logger.
      */
-    public ChartsView(@Autowired PublicationService publicationService) {
-
+    public ChartsView(@Autowired PublicationService publicationService,
+    		@Autowired ContextualLoggerFactory loggerFactory) {
+    	super(loggerFactory);
+   
         barChartFactory = new PublicationCategoryBarChartFactory();
         pieChartFactory = new PublicationCategoryPieChartFactory();
         nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();

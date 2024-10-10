@@ -32,8 +32,6 @@ import fr.utbm.ciad.labmanager.views.components.organizations.editors.Organizati
 import fr.utbm.ciad.labmanager.views.components.organizations.fields.OrganizationFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.projects.fields.ProjectFieldFactory;
 import fr.utbm.ciad.labmanager.views.components.scientificaxes.editors.ScientificAxisEditorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Editor of project information that may be embedded. This editor does not provide
@@ -49,8 +47,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 
 	private static final long serialVersionUID = 1553551688880862732L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedProjectEditor.class);
 
 	/** Constructor.
 	 *
@@ -80,7 +76,7 @@ public final class EmbeddedProjectEditor extends AbstractProjectEditor {
 			MessageSourceAccessor messages) {
 		super(context, projectCreationStatusComputer, false, projectFieldFactory, organizationService, addressService,
 				axisService, axisEditorFactory, organizationEditorFactory, organizationFieldFactory,
-				fileManager, authenticatedUser, messages, LOGGER, ConstructionPropertiesBuilder.create());
+				fileManager, authenticatedUser, messages, ConstructionPropertiesBuilder.create());
 		createEditorContentAndLinkBeans();
 	}
 

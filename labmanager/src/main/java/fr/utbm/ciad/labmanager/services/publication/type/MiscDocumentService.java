@@ -50,6 +50,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MiscDocumentService extends AbstractPublicationTypeService {
 
+	private static final long serialVersionUID = -630445185254685517L;
+
 	private MiscDocumentRepository repository;
 
 	/** Constructor for injector.

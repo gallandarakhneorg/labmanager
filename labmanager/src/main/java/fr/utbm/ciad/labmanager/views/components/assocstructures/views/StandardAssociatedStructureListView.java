@@ -48,12 +48,12 @@ import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.assocstructures.editors.AssociatedStructureEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,14 +86,14 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param structureService the service for accessing the associated structures.
 	 * @param associatedStructureEditorFactory the factory for creating the associated-structure editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardAssociatedStructureListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			AssociatedStructureService structureService, AssociatedStructureEditorFactory associatedStructureEditorFactory, Logger logger) {
-		super(AssociatedStructure.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			AssociatedStructureService structureService, AssociatedStructureEditorFactory associatedStructureEditorFactory) {
+		super(AssociatedStructure.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.associated_structure.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.associated_structure.delete.message") //$NON-NLS-1$
@@ -184,9 +184,9 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 	protected void openStructureEditor(AssociatedStructure structure, String title, boolean isCreation) {
 		final AbstractEntityEditor<AssociatedStructure> editor;
 		if (isCreation) {
-			editor = this.associatedStructureEditorFactory.createAdditionEditor(structure);
+			editor = this.associatedStructureEditorFactory.createAdditionEditor(structure, getLogger());
 		} else {
-			editor = this.associatedStructureEditorFactory.createUpdateEditor(structure);
+			editor = this.associatedStructureEditorFactory.createUpdateEditor(structure, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, AssociatedStructure> refreshAll = (dialog, entity) -> refreshGrid();
@@ -199,7 +199,7 @@ public class StandardAssociatedStructureListView extends AbstractEntityListView<
 
 	@Override
 	protected EntityDeletingContext<AssociatedStructure> createDeletionContextFor(Set<AssociatedStructure> entities) {
-		return this.structureService.startDeletion(entities);
+		return this.structureService.startDeletion(entities, getLogger());
 	}
 
 	@Override

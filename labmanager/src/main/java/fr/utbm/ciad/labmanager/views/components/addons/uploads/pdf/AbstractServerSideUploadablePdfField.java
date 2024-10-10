@@ -25,6 +25,7 @@ import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.AbstractServerSideUploadableFileThumbnailField;
+import org.slf4j.Logger;
 
 /** A field that enables to upload a PDF file to the server.
  * This field does not assume that the field's data is of a specific type.
@@ -55,9 +56,11 @@ public abstract class AbstractServerSideUploadablePdfField<T> extends AbstractSe
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier) {
-		super(fileManager, filenameSupplier);
+	public AbstractServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier,
+			SerializableSupplier<Logger> loggerSupplier) {
+		super(fileManager, filenameSupplier, loggerSupplier);
 		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
 	}
 
@@ -66,9 +69,11 @@ public abstract class AbstractServerSideUploadablePdfField<T> extends AbstractSe
 	 * @param fileManager the manager of the server-side files.
 	 * @param filenameSupplier provides the client-side name that should be considered as
 	 *     the field's value for the uploaded file.
+	 * @param loggerSupplier the dynamic supplier of the loggers.
 	 */
-	public AbstractServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
-		super(fileManager, filenameSupplier);
+	public AbstractServerSideUploadablePdfField(DownloadableFileManager fileManager,
+			SerializableFunction<String, File> filenameSupplier, SerializableSupplier<Logger> loggerSupplier) {
+		super(fileManager, filenameSupplier, loggerSupplier);
 		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
 	}
 

@@ -19,18 +19,19 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
+import java.util.Collection;
+
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.arakhne.afc.progress.Progression;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
-
-import java.util.Collection;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
  * 
@@ -57,7 +58,8 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	}
 
 	@Override
-	public String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator, Progression progression) throws Exception {
+	public String exportPublications(Collection<? extends Publication> publications, ExporterConfigurator configurator,
+			Progression progression, Logger logger) throws Exception {
 		assert configurator != null;
 		if (publications == null) {
 			return null;

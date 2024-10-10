@@ -41,6 +41,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectBudgetIndicator extends AbstractProjectBudgetIndicator {
 
+	private static final long serialVersionUID = -5894611345193385043L;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.

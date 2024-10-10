@@ -50,13 +50,13 @@ import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.invitations.editors.InvitationEditorFactory;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.Hibernate;
-import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -93,14 +93,14 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	 *
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param invitationService the service for accessing the incoming invitations.
 	 * @param invitationEditorFactory the factory for creating the invitation editors.
-	 * @param logger the logger to use.
 	 */
 	public StandardIncomingInvitationListView(
-			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
-			PersonInvitationService invitationService, InvitationEditorFactory invitationEditorFactory, Logger logger) {
-		super(PersonInvitation.class, authenticatedUser, messages, logger,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
+			PersonInvitationService invitationService, InvitationEditorFactory invitationEditorFactory) {
+		super(PersonInvitation.class, authenticatedUser, messages, loggerFactory,
 				ConstructionPropertiesBuilder.create()
 				.map(PROP_DELETION_TITLE_MESSAGE, "views.incoming_invitation.delete.title") //$NON-NLS-1$
 				.map(PROP_DELETION_MESSAGE, "views.incoming_invitation.delete.message") //$NON-NLS-1$
@@ -241,9 +241,9 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 	protected void openInvitationEditor(PersonInvitation invitation, String title, boolean isCreation) {
 		final AbstractEntityEditor<PersonInvitation> editor;
 		if (isCreation) {
-			editor = this.invitationEditorFactory.createIncomingInvitationAdditionEditor(invitation);
+			editor = this.invitationEditorFactory.createIncomingInvitationAdditionEditor(invitation, getLogger());
 		} else {
-			editor = this.invitationEditorFactory.createIncomingInvitationUpdateEditor(invitation);
+			editor = this.invitationEditorFactory.createIncomingInvitationUpdateEditor(invitation, getLogger());
 		}
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, PersonInvitation> refreshAll = (dialog, entity) -> {
@@ -270,7 +270,7 @@ public class StandardIncomingInvitationListView extends AbstractEntityListView<P
 
 	@Override
 	protected EntityDeletingContext<PersonInvitation> createDeletionContextFor(Set<PersonInvitation> entities) {
-		return this.invitationService.startDeletion(entities);
+		return this.invitationService.startDeletion(entities, getLogger());
 	}
 
 	@Override

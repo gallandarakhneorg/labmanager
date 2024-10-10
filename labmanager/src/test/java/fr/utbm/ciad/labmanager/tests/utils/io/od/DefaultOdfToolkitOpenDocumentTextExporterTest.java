@@ -47,6 +47,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link DefaultOdfToolkitOpenDocumentTextExporter}.
@@ -78,7 +79,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US), new DefaultProgression()));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US), new DefaultProgression(), LoggerFactory.getLogger(getClass())));
 	}
 
 	@Test
@@ -169,7 +170,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 		ExporterConfigurator configurator = new ExporterConfigurator(null, Locale.US);
 
-		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator, new DefaultProgression());
+		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator, new DefaultProgression(), LoggerFactory.getLogger(getClass()));
 
 		assertNotNull(content);
 

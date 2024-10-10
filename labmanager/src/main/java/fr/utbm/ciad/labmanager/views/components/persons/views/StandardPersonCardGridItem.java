@@ -7,6 +7,7 @@ import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.PersonCardDataProvider;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
+import org.slf4j.Logger;
 
 /** Vaadin item for showing person's information in a virtual card that could be included in a grid of cards.
  *  
@@ -25,6 +26,8 @@ public class StandardPersonCardGridItem extends AbstractPersonCardItem<Person> {
 	
 	private final boolean isAdmin;
 
+	private final Logger logger;
+
 	private final Runnable updaterCallback;
 
 	/** Constructor.
@@ -32,13 +35,15 @@ public class StandardPersonCardGridItem extends AbstractPersonCardItem<Person> {
 	 * @param dataProvider the provider of data.
 	 * @param personEditorFactory the factory for creating the person editors.
 	 * @param authenticatedUser the connected user.
+	 * @param logger the logger to be used by the card item.
 	 * @param updaterCallback the functional function that is invoked for refreshing the container of this item.
 	 */
 	public StandardPersonCardGridItem(PersonCardDataProvider<Person> dataProvider, PersonEditorFactory personEditorFactory,
-			AuthenticatedUser authenticatedUser, Runnable updaterCallback) {
+			AuthenticatedUser authenticatedUser, Logger logger, Runnable updaterCallback) {
 		super(dataProvider, true, true, true, true);
 		this.personEditorFactory = personEditorFactory;
 		this.isAdmin = authenticatedUser != null && authenticatedUser.get().isPresent() && authenticatedUser.get().get().getRole().hasBaseAdministrationRights();
+		this.logger = logger;
 		this.updaterCallback = updaterCallback;
 	}
 
@@ -64,7 +69,7 @@ public class StandardPersonCardGridItem extends AbstractPersonCardItem<Person> {
 	 * @param isCreation indicates if the editor is for creating or updating the entity.
 	 */
 	protected void openPersonEditor(Person person, String title, boolean isCreation) {
-		final var editor = this.personEditorFactory.createUpdateEditor(person);
+		final var editor = this.personEditorFactory.createUpdateEditor(person, this.logger);
 		final var newEntity = editor.isNewEntity();
 		final SerializableBiConsumer<Dialog, Person> refreshAll = (dialog, entity) -> {
 			if (this.updaterCallback != null) {

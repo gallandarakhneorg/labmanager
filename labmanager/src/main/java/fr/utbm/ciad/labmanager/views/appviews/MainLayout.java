@@ -107,6 +107,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private final MessageSourceAccessor messages;
 
+	private final boolean disableCasLogin;
+
 	private Anchor loginLink;
 
 	private MenuItem logoutLink;
@@ -205,11 +207,14 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 * @param accessChecker the access checker.
 	 * @param messages the accessor to the localized messages in the Spring framework.
 	 * @param applicationName name of the application.
+	 * @param disableCasLogin indicates if the CAS login is disabled in the global configuration.
 	 */
 	public MainLayout(@Autowired AuthenticatedUser authenticatedUser, @Autowired AccessAnnotationChecker accessChecker,
-			@Autowired MessageSourceAccessor messages, @Value("${labmanager.application-name}") String applicationName) {
+			@Autowired MessageSourceAccessor messages, @Value("${labmanager.application-name}") String applicationName,
+			@Value("${labmanager.disable-cas-login}") boolean disableCasLogin) {
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
+		this.disableCasLogin = disableCasLogin;
 		this.accessChecker = accessChecker;
 		this.applicationName = applicationName;
 		setPrimarySection(Section.DRAWER);
@@ -618,7 +623,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		// Logout
 		//
 		this.logoutLink = mainMenu.addItem("", e -> { //$NON-NLS-1$
-			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8443/LabManager/logout'");
+			logout();
 		});
 	}
 
@@ -664,6 +669,15 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 				this.username.setText(fullname);
 			}
 			updateUserRoleInMenu(user.getRole());
+		}
+	}
+	
+	private void logout() {
+		if (this.authenticatedUser != null && this.disableCasLogin) {
+			this.authenticatedUser.logout();
+		} else {
+			//TODO Move to AuthenticatedUser class?
+			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8443/LabManager/logout'");
 		}
 	}
 

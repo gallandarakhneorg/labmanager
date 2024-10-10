@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.appviews.database;
 import java.io.InputStream;
 import java.util.Locale;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
@@ -41,10 +40,10 @@ import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.download.DownloadBigButton;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.annotation.security.RolesAllowed;
 import org.arakhne.afc.progress.Progression;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** Enable to manage the database.
@@ -58,11 +57,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Route(value = "databaseio", layout = MainLayout.class)
 @RolesAllowed({UserRole.ADMIN_GRANT})
 @Uses(Icon.class)
-public class DatabaseInputOutputView extends Composite<FlexLayout> implements HasDynamicTitle, LocaleChangeObserver {
+public class DatabaseInputOutputView extends AbstractLoggerComposite<FlexLayout> implements HasDynamicTitle, LocaleChangeObserver {
 
 	private static final long serialVersionUID = -4957957381615358038L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseInputOutputView.class);
 
 	private final DatabaseService databaseService;
 	
@@ -73,8 +70,11 @@ public class DatabaseInputOutputView extends Composite<FlexLayout> implements Ha
 	/** Constructor.
 	 *
 	 * @param databaseService the service for accessing the database tools.
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-    public DatabaseInputOutputView(@Autowired DatabaseService databaseService) {
+    public DatabaseInputOutputView(@Autowired DatabaseService databaseService, @Autowired ContextualLoggerFactory loggerFactory) {
+    	super(loggerFactory);
+
     	this.databaseService = databaseService;
     	
     	this.exportJson = DownloadBigButton.newButtonWithComponent(
@@ -113,7 +113,7 @@ public class DatabaseInputOutputView extends Composite<FlexLayout> implements Ha
 		final var ui = getUI().orElseThrow();
 		ui.access(() -> {
 			final var message = getTranslation("views.databases.io.export_error", error.getLocalizedMessage()); //$NON-NLS-1$
-			LOGGER.error(message, error);
+			getLogger().error(message, error);
 			ComponentFactory.showErrorNotification(message);
 		});
 	}
@@ -133,7 +133,7 @@ public class DatabaseInputOutputView extends Composite<FlexLayout> implements Ha
 	 * @throws Exception the export error.
 	 */
 	protected InputStream exportJson(Progression progression) throws Exception {
-		return this.databaseService.exportJson(getLocaleSafe(), progression);
+		return this.databaseService.exportJson(getLocaleSafe(), getLogger(), progression);
 	}
 
 	/** Export database content to Zip.
@@ -143,7 +143,7 @@ public class DatabaseInputOutputView extends Composite<FlexLayout> implements Ha
 	 * @throws Exception the export error.
 	 */
 	protected InputStream exportZip(Progression progression) throws Exception {
-		return this.databaseService.exportZip(getLocaleSafe(), progression);
+		return this.databaseService.exportZip(getLocaleSafe(), getLogger(), progression);
 	}
 
 	@Override

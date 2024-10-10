@@ -25,11 +25,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.invitations.editors.InvitationEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.invitations.views.StandardIncomingInvitationListView;
 import jakarta.annotation.security.RolesAllowed;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -47,21 +46,21 @@ public class IncomingInvitationsListView extends StandardIncomingInvitationListV
 
 	private static final long serialVersionUID = -1559785696011648510L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(IncomingInvitationsListView.class);
-
 	/** Constructor.
 	 * 
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param invitationService the service for accessing the incoming invitations.
 	 * @param invitationEditorFactory the factory for creating the invitation editors.
 	 */
 	public IncomingInvitationsListView(
 			@Autowired AuthenticatedUser authenticatedUser,
 			@Autowired MessageSourceAccessor messages,
+			@Autowired ContextualLoggerFactory loggerFactory,
 			@Autowired PersonInvitationService invitationService,
 			@Autowired InvitationEditorFactory invitationEditorFactory) {
-		super(authenticatedUser, messages, invitationService, invitationEditorFactory, LOGGER);
+		super(authenticatedUser, messages, loggerFactory, invitationService, invitationEditorFactory);
 	}
 
 	@Override

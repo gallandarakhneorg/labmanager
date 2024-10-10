@@ -58,6 +58,8 @@ import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -76,6 +78,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class JournalService extends AbstractEntityService<Journal> {
+
+	private static final long serialVersionUID = 5916321412069394043L;
 
 	private static final String NOT_RANKED_STR = "--"; //$NON-NLS-1$
 
@@ -131,17 +135,19 @@ public class JournalService extends AbstractEntityService<Journal> {
 	/** Save the given journal or create a JPA entity if the given object is a fake.
 	 *
 	 * @param journal the journal entity to save.
+	 * @param logger the logger to be used.
 	 * @return the saved entity.
 	 * @see IdentifiableEntity#isFakeEntity()
 	 * @since 4.0
 	 */
-	public Journal saveOrCreateIfFake(Journal journal) {
+	public Journal saveOrCreateIfFake(Journal journal, Logger logger) {
 		var sjournal = journal;
 		if (sjournal != null) {
 			if (sjournal.isFakeEntity()) {
 				sjournal = new Journal(sjournal);
 			}
 			this.journalRepository.save(sjournal);
+			logger.info("Saved journal: " + journal); //$NON-NLS-1$
 		}
 		return sjournal;
 	}
@@ -478,13 +484,15 @@ public class JournalService extends AbstractEntityService<Journal> {
 	/** Replies the URL of the image that shows up the scimago quartile.
 	 *
 	 * @param journal the journal for which the quartile should be replied.
+	 * @param logger the logger to use for put a message in the log.
 	 * @return the URL of the image.
 	 */
-	public URL getScimagoQuartileImageURLByJournal(Journal journal) {
+	public URL getScimagoQuartileImageURLByJournal(Journal journal, Logger logger) {
 		try {
+			logger.info("Downloading the journal's ranking bitmap for " + journal); //$NON-NLS-1$
 			return this.scimago.getJournalPictureUrl(journal.getScimagoId());
 		} catch (Throwable ex) {
-			getLogger().warn(ex.getLocalizedMessage(), ex);
+			logger.warn(ex.getLocalizedMessage(), ex);
 			return null;
 		}
 	}
@@ -500,7 +508,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 		try {
 			return this.scimago.getJournalUrl(id);
 		} catch (Throwable ex) {
-			getLogger().warn(ex.getLocalizedMessage(), ex);
+			//getLogger().warn(ex.getLocalizedMessage(), ex);
 			return null;
 		}
 	}
@@ -519,8 +527,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 			if (journal != null) {
 				final var scimagoId = journal.getScimagoId();
 				if (!Strings.isNullOrEmpty(scimagoId)) {
+					final var logger = LoggerFactory.getLogger(getClass());
 					try {
-						final var url = getScimagoQuartileImageURLByJournal(journal);
+						final var url = getScimagoQuartileImageURLByJournal(journal, logger);
 						if (url != null) {
 							progression.increment();
 							final var image = this.netConnection.getImageFromURL(url);
@@ -541,7 +550,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 							}
 						}
 					} catch (Throwable ex) {
-						getLogger().warn(ex.getLocalizedMessage(), ex);
+						logger.warn(ex.getLocalizedMessage(), ex);
 					}
 				}
 			}
@@ -593,16 +602,20 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param referenceYear the reference year.
 	 * @param journals the list of journals for which the indicators should be downloaded.
+	 * @param logger the logger to be used.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the journal ranking information.
 	 * @throws Exception if the journal information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadJournalIndicatorsFromScimago(int referenceYear, List<Journal> journals, Progression progress, JournalRankingConsumer consumer) throws Exception {
+	public void downloadJournalIndicatorsFromScimago(int referenceYear, List<Journal> journals, Logger logger,
+			Progression progress, JournalRankingConsumer consumer) throws Exception {
+		logger.info("Downloading the journals' ranking indicators from Scimago for year " + referenceYear); //$NON-NLS-1$
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, journals.size() * 2, false);
 		for (final var journal : journals) {
+			logger.info("Downloading the Scimago indicators for journal " + journal.getJournalName()); //$NON-NLS-1$
 			progress0.setComment(journal.getJournalName());
 			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
 				final var scientificField = ScimagoPlatform.formatCategory(journal.getScimagoCategory());
@@ -636,18 +649,22 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param referenceYear the reference year.
 	 * @param journals the list of journals for which the indicators should be downloaded.
+	 * @param logger the logger to be used.
 	 * @param progress the progression monitor.
 	 * @param consumer the consumer of the journal ranking information.
 	 * @throws Exception if the journal information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional(readOnly = true)
-	public void downloadJournalIndicatorsFromWoS(int referenceYear, List<Journal> journals, Progression progress, JournalRankingConsumer2 consumer) throws Exception {
+	public void downloadJournalIndicatorsFromWoS(int referenceYear, List<Journal> journals, Logger logger,
+			Progression progress, JournalRankingConsumer2 consumer) throws Exception {
+		logger.info("Downloading the journals' ranking indicators from Web-of-Science for year " + referenceYear); //$NON-NLS-1$
 		final var progress0 = progress == null ? new DefaultProgression() : progress; 
 		progress0.setProperties(0, 0, journals.size() * 2, false);
 		for (final var journal : journals) {
 			progress0.setComment(journal.getJournalName());
 			if (!Strings.isNullOrEmpty(journal.getWosId())) {
+				logger.info("Downloading the WoS indicators for journal " + journal.getJournalName()); //$NON-NLS-1$
 				final var scientificField = WebOfSciencePlatform.formatCategory(journal.getWosCategory());
 				final var lastWosQuartile = journal.getWosQIndexByYear(referenceYear);
 				final var lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
@@ -680,19 +697,22 @@ public class JournalService extends AbstractEntityService<Journal> {
 	 *
 	 * @param referenceYear the reference year.
 	 * @param journalUpdates the streams that describes the updates.
-	 * @param progress the progression monitor.
 	 * @param updateScimago indicates if the Scimago indicators are updated.
 	 * @param updateWos indicates if the Web-of-Science indicators are updated.
 	 * @param updateImpactFactor indicates if the impact factors are updated.
+	 * @param logger the logger to be used.
+	 * @param progress the progression monitor.
 	 * @throws Exception if the journal information cannot be downloaded.
 	 * @since 4.0
 	 */
 	@Transactional
-	public void updateJournalIndicators(int referenceYear, Collection<JournalRankingUpdateInformation> journalUpdates, boolean updateScimago, boolean updateWos, boolean updateImpactFactor, Progression progress) {
+	public void updateJournalIndicators(int referenceYear, Collection<JournalRankingUpdateInformation> journalUpdates,
+			boolean updateScimago, boolean updateWos, boolean updateImpactFactor, Logger logger, Progression progress) {
 		progress.setProperties(0, 0, journalUpdates.size() + 1, false);
 		final var journals = new ArrayList<Journal>();
 		journalUpdates.forEach(info -> {
 			final var journal = info.journal();
+			logger.info("Updating the ranking indicators in the database for journal: " + journal); //$NON-NLS-1$
 			progress.setComment(journal.getJournalName());
 			if (updateScimago && info.scimago() != null) {
 				journal.setScimagoQIndexByYear(referenceYear, info.scimago());
@@ -917,8 +937,9 @@ public class JournalService extends AbstractEntityService<Journal> {
 	}
 
 	@Override
-	public EntityEditingContext<Journal> startEditing(Journal journal) {
+	public EntityEditingContext<Journal> startEditing(Journal journal, Logger logger) {
 		assert journal != null;
+		logger.info("Starting the edition of the journal: " + journal); //$NON-NLS-1$
 		// Force loading of the quality indicators that may be edited at the same time as the rest of the journal properties
 		inSession(session -> {
 			if (journal.getId() != 0l) {
@@ -926,12 +947,13 @@ public class JournalService extends AbstractEntityService<Journal> {
 				Hibernate.initialize(journal.getQualityIndicators());
 			}
 		});
-		return new EditingContext(journal);
+		return new EditingContext(journal, logger);
 	}
 
 	@Override
-	public EntityDeletingContext<Journal> startDeletion(Set<Journal> journals) {
+	public EntityDeletingContext<Journal> startDeletion(Set<Journal> journals, Logger logger) {
 		assert journals != null && !journals.isEmpty();
+		logger.info("Starting the deletion of the journals: " + journals); //$NON-NLS-1$
 		// Force loading of the memberships and authorships
 		inSession(session -> {
 			for (final var journal : journals) {
@@ -942,7 +964,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 				}
 			}
 		});
-		return new DeletingContext(journals);
+		return new DeletingContext(journals, logger);
 	}
 
 	/** Context for editing a {@link Journal}.
@@ -962,19 +984,21 @@ public class JournalService extends AbstractEntityService<Journal> {
 		/** Constructor.
 		 *
 		 * @param journal the edited journal.
+		 * @param logger the logger to be used.
 		 */
-		protected EditingContext(Journal journal) {
-			super(journal);
+		protected EditingContext(Journal journal, Logger logger) {
+			super(journal, logger);
 		}
 
 		@Override
 		public void save(HasAsynchronousUploadService... components) throws IOException {
 			this.entity = JournalService.this.journalRepository.save(this.entity);
+			getLogger().info("Saved journal: " + this.entity); //$NON-NLS-1$
 		}
 
 		@Override
 		public EntityDeletingContext<Journal> createDeletionContext() {
-			return JournalService.this.startDeletion(Collections.singleton(this.entity));
+			return JournalService.this.startDeletion(Collections.singleton(this.entity), getLogger());
 		}
 
 	}
@@ -994,9 +1018,10 @@ public class JournalService extends AbstractEntityService<Journal> {
 		/** Constructor.
 		 *
 		 * @param journals the journals to delete.
+		 * @param logger the logger to be used.
 		 */
-		protected DeletingContext(Set<Journal> journals) {
-			super(journals);
+		protected DeletingContext(Set<Journal> journals, Logger logger) {
+			super(journals, logger);
 		}
 
 		@Override
@@ -1024,6 +1049,7 @@ public class JournalService extends AbstractEntityService<Journal> {
 			}
 			//
 			JournalService.this.journalRepository.deleteAllById(identifiers);
+			getLogger().info("Deleted journals: " + identifiers); //$NON-NLS-1$
 		}
 
 	}

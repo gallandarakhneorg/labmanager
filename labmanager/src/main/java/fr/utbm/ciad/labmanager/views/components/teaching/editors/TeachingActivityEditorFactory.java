@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.views.components.teaching.editors;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService.EntityEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import org.slf4j.Logger;
 
 /** Factory that is providing a teaching activity editor according to the editing context.
  * 
@@ -36,9 +37,10 @@ public interface TeachingActivityEditorFactory {
 	/** Replies the editing context for the given teaching activity.
 	 *
 	 * @param activity the teaching activity to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editing context.
 	 */
-	EntityEditingContext<TeachingActivity> createContextFor(TeachingActivity activity);
+	EntityEditingContext<TeachingActivity> createContextFor(TeachingActivity activity, Logger logger);
 
 	/** Create an editor that may be used for creating a new teaching activity.
 	 * 
@@ -50,10 +52,11 @@ public interface TeachingActivityEditorFactory {
 	/** Create an editor that may be used for creating a new teaching activity.
 	 * 
 	 * @param activity the teaching activity to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<TeachingActivity> createAdditionEditor(TeachingActivity activity) {
-		final var context = createContextFor(activity);
+	default AbstractEntityEditor<TeachingActivity> createAdditionEditor(TeachingActivity activity, Logger logger) {
+		final var context = createContextFor(activity, logger);
 		return createAdditionEditor(context);
 	}
 
@@ -67,10 +70,11 @@ public interface TeachingActivityEditorFactory {
 	/** Create an editor that may be used for updating an existing teaching activity.
 	 * 
 	 * @param activity the teaching activity to be edited.
+	 * @param logger the logger to be associated to the context.
 	 * @return the editor, never {@code null}.
 	 */
-	default AbstractEntityEditor<TeachingActivity> createUpdateEditor(TeachingActivity activity) {
-		final var context = createContextFor(activity);
+	default AbstractEntityEditor<TeachingActivity> createUpdateEditor(TeachingActivity activity, Logger logger) {
+		final var context = createContextFor(activity, logger);
 		return createUpdateEditor(context);
 	}
 

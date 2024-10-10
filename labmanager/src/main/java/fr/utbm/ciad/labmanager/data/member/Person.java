@@ -208,10 +208,19 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
-	/** Email of the person.
+	/** Primary email of the person.
+	 *
+	 * @since 4.0
 	 */
 	@Column
-	private String email;
+	private String primaryEmail;
+
+	/** Secondary email of the person.
+	 *
+	 * @since 4.0
+	 */
+	@Column
+	private String secondaryEmail;
 
 	/** Naming convention for the webpage of the person.
 	 */
@@ -427,11 +436,13 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @param gender the gender of the person.
-	 * @param email the email of the person.
+	 * @param primaryEmail the email of the person.
+	 * @param secondaryEmail the email of the person.
 	 * @param orcid the ORCID identifier of the person.
+	 * @since 4.0
 	 */
 	public Person(int id, Set<Authorship> publications, Set<Membership> orgas, String firstName, String lastName,
-			Gender gender, String email, String orcid) {
+			Gender gender, String primaryEmail, String secondaryEmail, String orcid) {
 		this.id = id;
 		this.authorships = publications;
 		this.memberships = orgas;
@@ -442,7 +453,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		}else {
 			this.gender = gender;
 		}
-		this.email = email;
+		this.primaryEmail = primaryEmail;
+		this.secondaryEmail = secondaryEmail;
 		this.orcid = orcid;
 	}
 
@@ -461,7 +473,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		h = HashCodeUtils.add(h, this.lastName);
 		h = HashCodeUtils.add(h, this.firstName);
 		h = HashCodeUtils.add(h, this.orcid);
-		h = HashCodeUtils.add(h, this.email);
+		h = HashCodeUtils.add(h, this.primaryEmail);
+		h = HashCodeUtils.add(h, this.secondaryEmail);
 		return h;
 	}
 
@@ -483,7 +496,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		return Objects.equals(this.lastName, other.lastName)
 				&& Objects.equals(this.firstName, other.firstName)
 				&& Objects.equals(this.orcid, other.orcid)
-				&& Objects.equals(this.email, other.email);
+				&& Objects.equals(this.primaryEmail, other.primaryEmail)
+				&& Objects.equals(this.secondaryEmail, other.secondaryEmail);
 	}
 
 	@Override
@@ -505,8 +519,11 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		if (!Strings.isNullOrEmpty(getDblpURL())) {
 			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getEmail())) {
-			consumer.accept("email", getEmail()); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getPrimaryEmail())) {
+			consumer.accept("primaryEmail", getPrimaryEmail()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getSecondaryEmail())) {
+			consumer.accept("secondaryEmail", getSecondaryEmail()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			consumer.accept("facebookId", getFacebookId()); //$NON-NLS-1$
@@ -734,20 +751,62 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		return getLastName() + " " + getFirstName(); //$NON-NLS-1$
 	}
 
-	/** Replies the email of the person.
+	/** Replies the primary or secondary email of the person.
+	 * If the primary email is not set, the secondary email is replied.
+	 * Otherwise, the primary email is replied.
 	 *
 	 * @return the email.
+	 * @see #getPrimaryEmail()
+	 * @see #getSecondaryEmail()
 	 */
-	public String getEmail() {
-		return this.email;
+	public final String getEmail() {
+		if (Strings.isNullOrEmpty(this.primaryEmail)) {
+			return this.secondaryEmail;
+		}
+		return this.primaryEmail;
 	}
 
-	/** Change the email of the person.
+	/** Replies the primary email of the person.
+	 *
+	 * @return the primary email.
+	 * @since 4.0
+	 * @see #getSecondaryEmail()
+	 * @see #getEmail()
+	 */
+	public String getPrimaryEmail() {
+		return this.primaryEmail;
+	}
+
+	/** Change the primary email of the person.
 	 *
 	 * @param email the email.
+	 * @since 4.0
+	 * @see #setSecondaryEmail(String)
 	 */
-	public void setEmail(String email) {
-		this.email = Strings.emptyToNull(email);
+	public void setPrimaryEmail(String email) {
+		this.primaryEmail = Strings.emptyToNull(email);
+		resetWebPageId();
+	}
+
+	/** Replies the secondary email of the person.
+	 *
+	 * @return the secondary email.
+	 * @since 4.0
+	 * @see #getPrimaryEmail()
+	 * @see #getEmail()
+	 */
+	public String getSecondaryEmail() {
+		return this.secondaryEmail;
+	}
+
+	/** Change the primary email of the person.
+	 *
+	 * @param email the email.
+	 * @since 4.0
+	 * @see #setPrimaryEmail(String)
+	 */
+	public void setSecondaryEmail(String email) {
+		this.secondaryEmail = Strings.emptyToNull(email);
 		resetWebPageId();
 	}
 
@@ -874,7 +933,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getOrcidURL() {
 		if (!Strings.isNullOrEmpty(getORCID())) {
 			try {
-				return new URL(ORCID_BASE_URL + getORCID());
+				return new URI(ORCID_BASE_URL + getORCID()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1246,7 +1305,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getAcademiaURLObject() {
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			try {
-				return new URL(getAcademiaURL());
+				return new URI(getAcademiaURL()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1277,7 +1336,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getCordisURLObject() {
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			try {
-				return new URL(getCordisURL());
+				return new URI(getCordisURL()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1308,7 +1367,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getDblpURLObject() {
 		if (!Strings.isNullOrEmpty(getDblpURL())) {
 			try {
-				return new URL(getDblpURL());
+				return new URI(getDblpURL()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1339,7 +1398,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getFacebookURL() {
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			try {
-				return new URL(FACEBOOK_BASE_URL + getFacebookId());
+				return new URI(FACEBOOK_BASE_URL + getFacebookId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1371,7 +1430,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGithubURL() {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
-				return new URL(GITHUB_BASE_URL + getGithubId());
+				return new URI(GITHUB_BASE_URL + getGithubId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1389,7 +1448,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
 
-				return new URL(GITHUB_AVATAR_URL + getGithubId());
+				return new URI(GITHUB_AVATAR_URL + getGithubId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1407,7 +1466,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGithubAvatarURL(int size) {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
-				return new URL(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)).toURL(); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -1438,7 +1497,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getLinkedInURL() {
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			try {
-				return new URL(LINKEDIN_URL + getLinkedInId());
+				return new URI(LINKEDIN_URL + getLinkedInId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1469,7 +1528,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getResearcherIdURL() {
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			try {
-				return new URL(WOS_URL + getResearcherId());
+				return new URI(WOS_URL + getResearcherId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1502,7 +1561,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getScopusURL() {
 		if (!Strings.isNullOrEmpty(getScopusId())) {
 			try {
-				return new URL(SCOPUS_URL + getScopusId());
+				return new URI(SCOPUS_URL + getScopusId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1534,7 +1593,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGoogleScholarURL() {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLESCHOLAR_URL + getGoogleScholarId());
+				return new URI(GOOGLESCHOLAR_URL + getGoogleScholarId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1551,7 +1610,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGoogleScholarAvatarURL() {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId());
+				return new URI(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1569,7 +1628,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getGoogleScholarAvatarURL(int size) {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)).toURL(); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -1601,7 +1660,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getHalURL() {
 		if (!Strings.isNullOrEmpty(getIdhal())) {
 			try {
-				return new URL(HAL_URL + getIdhal());
+				return new URI(HAL_URL + getIdhal()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1632,7 +1691,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	public final URL getResearchGateURL() {
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			try {
-				return new URL(RESEARCHGATE_URL + getResearchGateId());
+				return new URI(RESEARCHGATE_URL + getResearchGateId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1869,7 +1928,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		final String id = getGravatarId();
 		if (!Strings.isNullOrEmpty(id)) {
 			try {
-				return new URL(GRAVATAR_URL + id);
+				return new URI(GRAVATAR_URL + id).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -1887,7 +1946,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		final var id = getGravatarId();
 		if (size > 0 && !Strings.isNullOrEmpty(id)) {
 			try {
-				return new URL(GRAVATAR_URL + id + "?" + GRAVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+				return new URI(GRAVATAR_URL + id + "?" + GRAVATAR_SIZE_PARAM + "=" + Integer.toString(size)).toURL(); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -2148,7 +2207,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		if (!Strings.isNullOrEmpty(getAdScientificIndexId())) {
 			try {
 
-				return new URL(ADSCIENTIFICINDEX_URL + getAdScientificIndexId());
+				return new URI(ADSCIENTIFICINDEX_URL + getAdScientificIndexId()).toURL();
 			} catch (Throwable ex) {
 				//
 			}
@@ -2166,7 +2225,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 
 	@Override
 	public String toString() {
-		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+		return EntityUtils.toString(this, getFullNameWithLastNameFirst());
 	}
 
 	/** Replies the list of projects in which the person is involved.
