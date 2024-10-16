@@ -20,11 +20,14 @@
 * Back-end services for front-end components:
   * Person's card for the public page
   * Person biography (if public biography)
+* Front-end components:
+  * ~~Person's card for the public page~~
+  * ~~Person biography (if public biography)~~
+  * ~~Person Publication Viewer~~
+  * ~~Person invitations Viewer~~
+  * ~~Person Jury memberships Viewer~~
+  * ~~Person Supervisions Viewer~~
   * Lab Publication Viewer
-  * Person Publication Viewer
-  * Person invitations Viewer
-  * Person Jury memberships Viewer
-  * Person Supervisions Viewer
   * Member list Viewer
   * Organization address Viewer
   * Public component for showing the global indicators
