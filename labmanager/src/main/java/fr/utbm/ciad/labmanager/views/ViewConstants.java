@@ -350,6 +350,8 @@ public final class ViewConstants {
 	 */
 	public static final String AUTHENTICATED_USER_FILTER_ROOT = PREFERENCE_ROOT + "authenticated_user_filter."; //$NON-NLS-1$
 
+	public static final String MISSING_DOI_FILTER_ROOT = PREFERENCE_ROOT + "missing_doi_filter."; //$NON-NLS-1$
+
 	/** Root attribute name for the filter checkbox for the default organization.
 	 * @since 4.0
 	 */

@@ -677,7 +677,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			this.authenticatedUser.logout();
 		} else {
 			//TODO Move to AuthenticatedUser class?
-			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8443/LabManager/logout'");
+			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8080/LabManager/logout'");
 		}
 	}
 

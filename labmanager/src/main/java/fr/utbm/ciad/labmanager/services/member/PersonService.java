@@ -1042,6 +1042,10 @@ public class PersonService extends AbstractEntityService<Person> {
 		}
 	}
 
+	public boolean hasOrcid(Person person) {
+		return !Strings.isNullOrEmpty(person.getORCID());
+	}
+
 	@Override
 	public EntityEditingContext<Person> startEditing(Person person, Logger logger) {
 		assert person != null;
