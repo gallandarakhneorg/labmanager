@@ -114,10 +114,39 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	// Helper to create a draggable component
 	private Component createDraggableComponent(Component component) {
 		makeComponentDraggable(component); // Make the component draggable initially
+		addContextMenuToComponent(component);
 		return component;
 	}
 
 	// Make a component draggable
+	/** Adds a context menu to a given component with options to delete or store it.
+	 *
+	 * @param component The component to which the context menu is added.
+	 */
+	private void addContextMenuToComponent(Component component) {
+		ContextMenu contextMenu = new ContextMenu();
+		contextMenu.setTarget(component);
+		contextMenu.addItem("Delete", event -> removeComponent(component));
+		contextMenu.addItem("Store", event -> storeComponent(component));
+	}
+
+	/** Removes a component from its parent.
+	 *
+	 * @param component The component to be removed.
+	 */
+	private void removeComponent(Component component) {
+		component.getParent().ifPresent(parent -> ((HasComponents) parent).remove(component));
+	}
+
+	/** Stores a component in the drop zone as a label.
+	 *
+	 * @param component The component to be stored.
+	 */
+	private void storeComponent(Component component) {
+		removeComponent(component);
+		dropZone.add(createLabelForComponent(component));
+		makeComponentDraggable(component);
+	}
 	private void makeComponentDraggable(Component component) {
 		DragSource<Component> dragSource = DragSource.create(component);
 		dragSource.setDraggable(true);
