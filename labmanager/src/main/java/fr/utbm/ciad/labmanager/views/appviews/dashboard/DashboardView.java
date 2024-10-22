@@ -42,11 +42,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.dnd.DropEvent;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -55,6 +57,8 @@ import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComp
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import java.util.Optional;
 
 @Route(value = "", layout = MainLayout.class)
 @PermitAll
@@ -63,62 +67,76 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 	private static final long serialVersionUID = -1583805930880620625L;
 
-	private VerticalLayout dropZone;
+	private final HorizontalLayout dropZone = new HorizontalLayout();
+
+	private final FlexLayout gridLayout = new FlexLayout();
 
 	/** Constructor.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
+    public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
 		super(loggerFactory);
-
-		// Creation of the dropZone
-		dropZone = new VerticalLayout();
-		dropZone.setWidth("100%");
-		dropZone.getStyle().set("border", "2px dashed #FF0000");
-		dropZone.getStyle().set("margin-bottom", "20px");
-		dropZone.getStyle().set("text-align", "center");
-
-		// Create a Flex layout for the grid
-		FlexLayout gridLayout = new FlexLayout();
-		gridLayout.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
-		gridLayout.setWidth("100%");
-		gridLayout.setHeight("100%");
-		gridLayout.getStyle().set("display", "grid");
-		gridLayout.getStyle().set("grid-template-columns", "repeat(4, 1fr)");
-		gridLayout.getStyle().set("grid-template-rows", "repeat(4, 1fr)");
-		gridLayout.getStyle().set("gap", "10px");
-
-		// Create and add components to the drop zone
-		createAndAddComponents();
-
-		// Add drop zone to the layout
-		getContent().add(dropZone);
-
-		// Add grid cells that accept drops
-		for (int i = 0; i < 16; i++) { // 4x4 Grid
-			gridLayout.add(createGridCell());
-		}
-
-		// Add grid to the layout
-		getContent().add(gridLayout);
-
-		final var bt = new Button();
-		bt.setText("Show log");
-		bt.addClickListener(event -> {
-			getLogger().info("Test logger / User name should appear");
-		});
-		getContent().add(bt);
+		configureDropZone(); // Set up the drop zone layout and styles
+		configureGridLayout(); // Set up the grid layout and styles
+		createAndAddComponents(); // Create and add initial components to the drop zone
+		getContent().add(dropZone, gridLayout, createShowLogButton()); // Add components to the main content
 	}
 
-	// Helper to create a draggable component
+	/** Configures the drop zone layout and styling.
+	 *
+	 */
+	private void configureDropZone() {
+		dropZone.setWidth("100%");
+		dropZone.setHeight("auto");
+		dropZone.getStyle()
+				.set("border", "2px dashed #FF0000")
+				.set("margin-bottom", "20px")
+				.set("padding", "10px !important")
+				.set("text-align", "center");
+	}
+
+	/** Configures the grid layout, defining the number of columns and rows.
+	 *
+	 */
+	private void configureGridLayout() {
+		gridLayout.setFlexDirection(FlexLayout.FlexDirection.ROW);
+		gridLayout.setWidth("100%");
+        int columns = 2;
+        int rows = 3;
+        gridLayout.getStyle()
+				.set("height", "100vh")
+				.set("display", "grid")
+				.set("grid-template-columns", "repeat(" + columns + ", 1fr)")
+				.set("grid-template-rows", "repeat(" + rows + ", 1fr)");
+
+		for (int i = 0; i < columns * rows; i++) {
+			gridLayout.add(createGridCell());
+		}
+	}
+
+	/** Creates a button to show logs and adds a click listener to log a message.
+	 *
+	 * @return the button for showing logs.
+	 */
+	private Button createShowLogButton() {
+		Button bt = new Button("Show log");
+		bt.addClickListener(event -> getLogger().info("Test logger / User name should appear"));
+		return bt;
+	}
+
+	/** Creates a draggable component and applies necessary configurations.
+	 *
+	 * @param component The component to be made draggable.
+	 * @return The draggable component.
+	 */
 	private Component createDraggableComponent(Component component) {
-		makeComponentDraggable(component); // Make the component draggable initially
+		makeComponentDraggable(component);
 		addContextMenuToComponent(component);
+		addHoverEffectToComponent(component);
 		return component;
 	}
 
-	// Make a component draggable
 	/** Adds a context menu to a given component with options to delete or store it.
 	 *
 	 * @param component The component to which the context menu is added.
@@ -147,72 +165,125 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		dropZone.add(createLabelForComponent(component));
 		makeComponentDraggable(component);
 	}
+
+	/** Creates a label for a component to represent it in the drop zone.
+	 *
+	 * @param component The component to create a label for.
+	 * @return The created label.
+	 */
+	private Component createLabelForComponent(Component component) {
+		String labelText = component instanceof Button ? ((Button) component).getText() : ((Span) component).getText();
+		Span label = new Span(labelText);
+		label.getStyle().set("cursor", "pointer");
+		label.addClickListener(event -> restoreComponent(component, label));
+		return label;
+	}
+
+	/** Restores a component from the drop zone back to an empty cell in the grid.
+	 *
+	 * @param component The component to be restored.
+	 * @param label The label associated with the component to be removed.
+	 */
+	private void restoreComponent(Component component, Span label) {
+		Optional<VerticalLayout> emptyCell = findFirstEmptyCell();
+		emptyCell.ifPresent(cell -> {
+			dropZone.remove(label);
+			cell.add(component);
+			makeComponentDraggable(component);
+		});
+	}
+
+	/** Finds the first empty cell in the grid layout.
+	 *
+	 * @return An optional containing the first empty cell, if found.
+	 */
+	private Optional<VerticalLayout> findFirstEmptyCell() {
+		return gridLayout.getChildren()
+				.filter(cell -> cell instanceof VerticalLayout && cell.getChildren().findAny().isEmpty())
+				.findFirst()
+				.map(cell -> (VerticalLayout) cell);
+	}
+
+	/** Makes a component draggable.
+	 *
+	 * @param component The component to be made draggable.
+	 */
 	private void makeComponentDraggable(Component component) {
-		DragSource<Component> dragSource = DragSource.create(component);
-		dragSource.setDraggable(true);
+		DragSource.create(component).setDraggable(true);
 	}
 
-	// Example of creating various components
+	/** Creates and adds initial components to the drop zone.
+	 *
+	 */
 	private void createAndAddComponents() {
-		Button button1 = (Button) createDraggableComponent(new Button("Button 1"));
-		Span label1 = (Span) createDraggableComponent(new Span("Label 1"));
-		Button button2 = (Button) createDraggableComponent(new Button("Button ABC"));
-
-		// Add components to the drop zone
-		dropZone.add(button1, label1, button2);
+		dropZone.add(createLabelForComponent(createDraggableComponent(new Button("Button 1"))),
+				createLabelForComponent(createDraggableComponent(new Span("Label 1"))),
+				createLabelForComponent(createDraggableComponent(new Button("Button ABC"))));
 	}
 
-	// Helper to create grid cells that accept drops
+	/** Creates a cell in the grid layout.
+	 *
+	 * @return The created vertical layout cell.
+	 */
 	private VerticalLayout createGridCell() {
 		VerticalLayout cell = new VerticalLayout();
 		cell.setWidth("100%");
+		cell.setHeight("50vh");
 		cell.getStyle().set("border", "1px solid #9E9E9E");
-		cell.getStyle().set("min-height", "100px");
 		cell.getStyle().set("display", "flex");
 		cell.getStyle().set("align-items", "center");
 		cell.getStyle().set("justify-content", "center");
 
-		// Make the cell a drop target
 		DropTarget<VerticalLayout> dropTarget = DropTarget.create(cell);
-		dropTarget.addDropListener(event -> {
-			event.getDragSourceComponent().ifPresent(draggedComponent -> {
-				// Check if the cell already contains a component
-				if (cell.getChildren().findAny().isPresent()) {
-					// If yes, move this component back to the dropZone
-					Component existingComponent = cell.getChildren().findFirst().get();
-					cell.remove(existingComponent);
-					dropZone.add(existingComponent);
-					makeComponentDraggable(existingComponent);
-					getLogger().info("Existing component moved back to the drop zone.");
-				}
-
-				// Remove the dragged component from its current parent
-				if (draggedComponent.getParent().isPresent()) {
-					((HasComponents) draggedComponent.getParent().get()).remove(draggedComponent);
-				}
-
-				// Add the new component to the cell
-				cell.add(draggedComponent);
-				updateDropZoneSize();
-				makeComponentDraggable(draggedComponent);
-				getLogger().info("Component dropped in the grid cell.");
-			});
-		});
+		dropTarget.addDropListener(event -> handleDrop(event, cell));
 		return cell;
 	}
 
-	private void updateDropZoneSize() {
-		dropZone.setHeight(null); // Reset height to auto
-		dropZone.getChildren().forEach(component -> {
-			if (component instanceof Component) {
-				dropZone.setHeight("auto"); // Set height to auto to adjust based on content
-			}
+	/** Handles the drop event when a component is dropped into a grid cell.
+	 *
+	 * @param event The drop event containing information about the dragged component.
+	 * @param cell The cell where the component is dropped.
+	 */
+	private void handleDrop(DropEvent<VerticalLayout> event, VerticalLayout cell) {
+		event.getDragSourceComponent().ifPresent(draggedComponent -> {
+			// Remove any existing component from the cell and store it in the drop zone
+			cell.getChildren().findAny().ifPresent(existingComponent -> {
+				cell.remove(existingComponent);
+				dropZone.add(createLabelForComponent(existingComponent));
+				makeComponentDraggable(existingComponent);
+			});
+
+			// Remove the dragged component from its parent and add it to the cell
+			draggedComponent.getParent().ifPresent(parent -> ((HasComponents) parent).remove(draggedComponent));
+			cell.add(draggedComponent);
+			updateDropZoneSize();
+			makeComponentDraggable(draggedComponent);
 		});
 	}
 
+	/** Adds hover effect to a component to change its border on mouse events.
+	 *
+	 * @param component The component to which the hover effect is applied.
+	 */
+	private void addHoverEffectToComponent(Component component) {
+		component.getElement().addEventListener("mouseover", event -> component.getStyle().set("border", "2px solid blue"));
+		component.getElement().addEventListener("mouseout", event -> component.getStyle().set("border", "none"));
+	}
+
+	/** Updates the size of the drop zone based on its children.
+	 *
+	 */
+	private void updateDropZoneSize() {
+		dropZone.setHeight(null);
+		dropZone.getChildren().forEach(component -> dropZone.setHeight("auto"));
+	}
+
+	/** Returns the title of the page for the dashboard view.
+	 *
+	 * @return The page title.
+	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("views.dashboard.title"); //$NON-NLS-1$
+		return getTranslation("views.dashboard.title");
 	}
 }
-
