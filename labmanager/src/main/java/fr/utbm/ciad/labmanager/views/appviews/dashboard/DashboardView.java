@@ -48,8 +48,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
@@ -58,6 +58,9 @@ import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFa
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Route(value = "", layout = MainLayout.class)
@@ -67,44 +70,59 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 	private static final long serialVersionUID = -1583805930880620625L;
 
-	private final HorizontalLayout dropZone = new HorizontalLayout();
-
+	private final Select<String> componentSelect = new Select<>();
 	private final FlexLayout gridLayout = new FlexLayout();
 
-	/** Constructor.
+	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Label 1", "Button ABC"));
+
+	/** Constructor for DashboardView.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-    public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
+	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
 		super(loggerFactory);
-		configureDropZone(); // Set up the drop zone layout and styles
-		configureGridLayout(); // Set up the grid layout and styles
-		createAndAddComponents(); // Create and add initial components to the drop zone
-		getContent().add(dropZone, gridLayout, createShowLogButton()); // Add components to the main content
+		configureSelect();
+		configureGridLayout();
+		createAndAddComponents();
+		getContent().add(componentSelect, gridLayout, createShowLogButton());
 	}
 
-	/** Configures the drop zone layout and styling.
-	 *
+	/** Configures the Select component for component selection.
 	 */
-	private void configureDropZone() {
-		dropZone.setWidth("100%");
-		dropZone.setHeight("auto");
-		dropZone.getStyle()
-				.set("border", "2px dashed #FF0000")
-				.set("margin-bottom", "20px")
-				.set("padding", "10px !important")
-				.set("text-align", "center");
+	private void configureSelect() {
+		componentSelect.setLabel("Select Component");
+		componentSelect.setItems(availableComponents);
+		componentSelect.addValueChangeListener(event -> {
+			String selectedItem = event.getValue();
+			if (selectedItem != null) {
+				Component component = createComponent(selectedItem);
+				Optional<VerticalLayout> emptyCell = findFirstEmptyCell();
+				emptyCell.ifPresent(cell -> {
+					cell.add(component);
+					makeComponentDraggable(component);
+					availableComponents.remove(selectedItem);
+					updateSelectItems();
+				});
+				componentSelect.clear();
+			}
+		});
+	}
+
+	/** Updates the Select items and enables/disables the Select based on the item count.
+	 */
+	private void updateSelectItems() {
+		componentSelect.setItems(availableComponents);
+		componentSelect.setEnabled(!availableComponents.isEmpty());
 	}
 
 	/** Configures the grid layout, defining the number of columns and rows.
-	 *
 	 */
 	private void configureGridLayout() {
 		gridLayout.setFlexDirection(FlexLayout.FlexDirection.ROW);
 		gridLayout.setWidth("100%");
-        int columns = 2;
-        int rows = 3;
-        gridLayout.getStyle()
+		int columns = 2;
+		int rows = 3;
+		gridLayout.getStyle()
 				.set("height", "100vh")
 				.set("display", "grid")
 				.set("grid-template-columns", "repeat(" + columns + ", 1fr)")
@@ -115,20 +133,42 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		}
 	}
 
+	/** Initializes and adds components to the Select.
+	 *
+	 */
+	private void createAndAddComponents() {
+		componentSelect.setItems(availableComponents);
+		updateSelectItems();
+	}
+
 	/** Creates a button to show logs and adds a click listener to log a message.
 	 *
 	 * @return the button for showing logs.
 	 */
 	private Button createShowLogButton() {
-		Button bt = new Button("Show log");
-		bt.addClickListener(event -> getLogger().info("Test logger / User name should appear"));
-		return bt;
+		Button button = new Button("Show log");
+		button.addClickListener(event -> getLogger().info("Test logger / User name should appear"));
+		return button;
+	}
+
+	/** Creates a component based on the selected name.
+	 *
+	 * @param name The name of the component to create.
+	 * @return The created component.
+	 */
+	private Component createComponent(String name) {
+        return switch (name) {
+            case "Button 1" -> createDraggableComponent(new Button("Button 1"));
+            case "Label 1" -> createDraggableComponent(new Span("Label 1"));
+            case "Button ABC" -> createDraggableComponent(new Button("Button ABC"));
+            default -> null;
+        };
 	}
 
 	/** Creates a draggable component and applies necessary configurations.
 	 *
 	 * @param component The component to be made draggable.
-	 * @return The draggable component.
+	 * @return The configured draggable component.
 	 */
 	private Component createDraggableComponent(Component component) {
 		makeComponentDraggable(component);
@@ -137,7 +177,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		return component;
 	}
 
-	/** Adds a context menu to a given component with options to delete or store it.
+	/** Adds a context menu to a given component with options to delete it.
 	 *
 	 * @param component The component to which the context menu is added.
 	 */
@@ -145,52 +185,37 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		ContextMenu contextMenu = new ContextMenu();
 		contextMenu.setTarget(component);
 		contextMenu.addItem("Delete", event -> removeComponent(component));
-		contextMenu.addItem("Store", event -> storeComponent(component));
 	}
 
-	/** Removes a component from its parent.
+	/** Removes a component from its parent layout.
 	 *
 	 * @param component The component to be removed.
 	 */
 	private void removeComponent(Component component) {
-		component.getParent().ifPresent(parent -> ((HasComponents) parent).remove(component));
-	}
-
-	/** Stores a component in the drop zone as a label.
-	 *
-	 * @param component The component to be stored.
-	 */
-	private void storeComponent(Component component) {
-		removeComponent(component);
-		dropZone.add(createLabelForComponent(component));
-		makeComponentDraggable(component);
-	}
-
-	/** Creates a label for a component to represent it in the drop zone.
-	 *
-	 * @param component The component to create a label for.
-	 * @return The created label.
-	 */
-	private Component createLabelForComponent(Component component) {
-		String labelText = component instanceof Button ? ((Button) component).getText() : ((Span) component).getText();
-		Span label = new Span(labelText);
-		label.getStyle().set("cursor", "pointer");
-		label.addClickListener(event -> restoreComponent(component, label));
-		return label;
-	}
-
-	/** Restores a component from the drop zone back to an empty cell in the grid.
-	 *
-	 * @param component The component to be restored.
-	 * @param label The label associated with the component to be removed.
-	 */
-	private void restoreComponent(Component component, Span label) {
-		Optional<VerticalLayout> emptyCell = findFirstEmptyCell();
-		emptyCell.ifPresent(cell -> {
-			dropZone.remove(label);
-			cell.add(component);
-			makeComponentDraggable(component);
+		component.getParent().ifPresent(parent -> {
+			((HasComponents) parent).remove(component);
+			String componentName = component.getElement().getText();
+			availableComponents.add(componentName);
+			updateSelectItems();
 		});
+	}
+
+	/** Creates a cell in the grid layout.
+	 *
+	 * @return The created vertical layout cell.
+	 */
+	private VerticalLayout createGridCell() {
+		VerticalLayout cell = new VerticalLayout();
+		cell.setWidth("100%");
+		cell.setHeight("50vh");
+		cell.getStyle().set("border", "1px solid #9E9E9E");
+		cell.getStyle().set("display", "flex");
+		cell.getStyle().set("align-items", "center");
+		cell.getStyle().set("justify-content", "center");
+
+		DropTarget<VerticalLayout> dropTarget = DropTarget.create(cell);
+		dropTarget.addDropListener(event -> handleDrop(event, cell));
+		return cell;
 	}
 
 	/** Finds the first empty cell in the grid layout.
@@ -212,33 +237,6 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		DragSource.create(component).setDraggable(true);
 	}
 
-	/** Creates and adds initial components to the drop zone.
-	 *
-	 */
-	private void createAndAddComponents() {
-		dropZone.add(createLabelForComponent(createDraggableComponent(new Button("Button 1"))),
-				createLabelForComponent(createDraggableComponent(new Span("Label 1"))),
-				createLabelForComponent(createDraggableComponent(new Button("Button ABC"))));
-	}
-
-	/** Creates a cell in the grid layout.
-	 *
-	 * @return The created vertical layout cell.
-	 */
-	private VerticalLayout createGridCell() {
-		VerticalLayout cell = new VerticalLayout();
-		cell.setWidth("100%");
-		cell.setHeight("50vh");
-		cell.getStyle().set("border", "1px solid #9E9E9E");
-		cell.getStyle().set("display", "flex");
-		cell.getStyle().set("align-items", "center");
-		cell.getStyle().set("justify-content", "center");
-
-		DropTarget<VerticalLayout> dropTarget = DropTarget.create(cell);
-		dropTarget.addDropListener(event -> handleDrop(event, cell));
-		return cell;
-	}
-
 	/** Handles the drop event when a component is dropped into a grid cell.
 	 *
 	 * @param event The drop event containing information about the dragged component.
@@ -246,36 +244,26 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 */
 	private void handleDrop(DropEvent<VerticalLayout> event, VerticalLayout cell) {
 		event.getDragSourceComponent().ifPresent(draggedComponent -> {
-			// Remove any existing component from the cell and store it in the drop zone
 			cell.getChildren().findAny().ifPresent(existingComponent -> {
 				cell.remove(existingComponent);
-				dropZone.add(createLabelForComponent(existingComponent));
-				makeComponentDraggable(existingComponent);
+				String componentName = existingComponent.getElement().getText();
+				availableComponents.add(componentName);
+				updateSelectItems();
 			});
 
-			// Remove the dragged component from its parent and add it to the cell
 			draggedComponent.getParent().ifPresent(parent -> ((HasComponents) parent).remove(draggedComponent));
 			cell.add(draggedComponent);
-			updateDropZoneSize();
 			makeComponentDraggable(draggedComponent);
 		});
 	}
 
-	/** Adds hover effect to a component to change its border on mouse events.
+	/** Adds a hover effect to a component to change its border on mouse events.
 	 *
 	 * @param component The component to which the hover effect is applied.
 	 */
 	private void addHoverEffectToComponent(Component component) {
 		component.getElement().addEventListener("mouseover", event -> component.getStyle().set("border", "2px solid blue"));
 		component.getElement().addEventListener("mouseout", event -> component.getStyle().set("border", "none"));
-	}
-
-	/** Updates the size of the drop zone based on its children.
-	 *
-	 */
-	private void updateDropZoneSize() {
-		dropZone.setHeight(null);
-		dropZone.getChildren().forEach(component -> dropZone.setHeight("auto"));
 	}
 
 	/** Returns the title of the page for the dashboard view.
