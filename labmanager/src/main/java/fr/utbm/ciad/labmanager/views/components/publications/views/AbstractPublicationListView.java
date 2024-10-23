@@ -214,6 +214,27 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		this.publicationEditorFactory = publicationEditorFactory;
 		this.journalService = journalService;
 		this.organizationService = organizationService;
+
+		final var session = VaadinService.getCurrentRequest().getWrappedSession();
+		final String key = new StringBuilder().append(ViewConstants.EDIT_DOI_FILTER).toString();
+		final var attr = session.getAttribute(key);
+		if (attr != null) {
+			int publicationId = -1;
+			if (attr instanceof Integer ivalue) {
+				publicationId = ivalue.intValue();
+			} else if (attr instanceof Long lvalue) {
+				publicationId = lvalue.intValue();
+			} else if (attr instanceof String svalue) {
+				publicationId = Integer.parseInt(svalue);
+			}
+			session.removeAttribute(key);
+			if (publicationId >= 0) {
+				final var publication = this.publicationService.getPublicationById(publicationId);
+				if (publication != null) {
+					edit(publication); //$NON-NLS-1$
+				}
+			}
+		}
 	}
 
 	/** Create the instance of the publication exporter.
@@ -640,7 +661,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		}
 
 		private String buildPreferenceSectionKeyForMissingDOIFiltering() {
-			return new StringBuilder().append(ViewConstants.MISSING_DOI_FILTER_ROOT).toString();
+			return new StringBuilder().append(ViewConstants.MISSING_DOI_FILTER).toString();
 		}
 
 		/** Invoked when the filtering on the authenticated person has changed.
