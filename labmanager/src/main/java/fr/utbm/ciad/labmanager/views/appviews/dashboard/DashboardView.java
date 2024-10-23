@@ -52,47 +52,23 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
     private static final long serialVersionUID = -1583805930880620625L;
 
-
-	private final PersonService personService;
-	private final AuthorshipRepository authorshipRepository;
-	private final AuthenticatedUser authenticatedUser;
-
 	/** Constructor.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-	public DashboardView(@Autowired PersonService personService,
-						 @Autowired AuthorshipRepository authorshipRepository,
-						 @Autowired AuthenticatedUser authenticatedUser,
-						 @Autowired ContextualLoggerFactory loggerFactory) {
+	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
 		super(loggerFactory);
-		this.personService = personService;
-		this.authorshipRepository = authorshipRepository;
-		this.authenticatedUser = authenticatedUser;
 
-
-		getContent().setAlignItems(FlexComponent.Alignment.END);
-		getContent().setFlexGrow(1.0);
 		final var bt = new Button();
 		bt.setText("Show log");
 		bt.addClickListener(event -> {
 			getLogger().info("Test logger / User name should appear");
 		});
 		getContent().add(bt);
-		addComponent();
 	}
 
 	@Override
 	public String getPageTitle() {
 		return getTranslation("views.dashboard.title"); //$NON-NLS-1$
-	}
-
-	public void addComponent() {
-		getContent().add(new Reporting(personService, authorshipRepository, authenticatedUser));
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.add(new Button("Button 1"));
-		layout.add(new Button("Button 2"));
-		layout.setAlignItems(FlexComponent.Alignment.END);
-		getContent().add(layout);
 	}
 }

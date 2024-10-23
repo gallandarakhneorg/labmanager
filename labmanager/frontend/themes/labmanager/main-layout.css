@@ -18,3 +18,15 @@ vaadin-side-nav-item vaadin-icon {
 [slot="drawer"]:is(header, footer):is(:empty) {
   display: none;
 }
+
+::slotted(div.tagged) {
+  position:relative;
+}
+::slotted(div.tagged)::before {
+  content: attr(notifications);
+  background: red;
+  border-radius: 3px;
+  position:absolute;
+  top:0;
+  right: 0;
+}

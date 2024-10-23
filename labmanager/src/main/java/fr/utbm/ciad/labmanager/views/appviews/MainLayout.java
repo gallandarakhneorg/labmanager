@@ -41,8 +41,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
@@ -75,6 +77,7 @@ import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesListVie
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingPublicationsListView;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.dashboard.Reporting;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +105,10 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	private H2 viewTitle;
 
 	private final AuthenticatedUser authenticatedUser;
+
+	private final PersonService personService;
+
+	private final AuthorshipRepository authorshipRepository;
 
 	private final AccessAnnotationChecker accessChecker;
 
@@ -211,12 +218,16 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 */
 	public MainLayout(@Autowired AuthenticatedUser authenticatedUser, @Autowired AccessAnnotationChecker accessChecker,
 			@Autowired MessageSourceAccessor messages, @Value("${labmanager.application-name}") String applicationName,
-			@Value("${labmanager.disable-cas-login}") boolean disableCasLogin) {
+			@Value("${labmanager.disable-cas-login}") boolean disableCasLogin,
+					  @Autowired PersonService personService,
+					  @Autowired AuthorshipRepository authorshipRepository) {
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
 		this.disableCasLogin = disableCasLogin;
 		this.accessChecker = accessChecker;
 		this.applicationName = applicationName;
+		this.personService = personService;
+		this.authorshipRepository = authorshipRepository;
 		setPrimarySection(Section.DRAWER);
 		addNavigationPanel();
 		addViewHeader();
@@ -228,8 +239,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		final var toggle = new DrawerToggle();
 		toggle.setAriaLabel(getTranslation("views.menu_toggle")); //$NON-NLS-1$
 		this.viewTitle = new H2();
-		this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-		addToNavbar(true, toggle, this.viewTitle);
+		this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Whitespace.NOWRAP);
+		addToNavbar(true, toggle, this.viewTitle, new  Reporting(personService, authorshipRepository, authenticatedUser));
 	}
 
 	/** Add the navigation panel, with the application header, the menus, and the navigation footer.
