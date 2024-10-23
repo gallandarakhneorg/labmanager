@@ -120,15 +120,17 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	private void configureGridLayout() {
 		gridLayout.setFlexDirection(FlexLayout.FlexDirection.ROW);
 		gridLayout.setWidth("100%");
-		int columns = 2;
-		int rows = 3;
 		gridLayout.getStyle()
 				.set("height", "100vh")
 				.set("display", "grid")
-				.set("grid-template-columns", "repeat(" + columns + ", 1fr)")
-				.set("grid-template-rows", "repeat(" + rows + ", 1fr)");
+				.set("grid-template-columns", "repeat(auto-fit, minmax(50px, 1fr))")  // Dynamic number of columns
+				.set("grid-auto-rows", "50px")  // Each row has a fixed height of 50px
+				.set("gap", "0px")  // Remove any gaps between cells
+				.set("background-color", "rgba(255, 255, 255, 0.5)"); // Background color for visibility
 
-		for (int i = 0; i < columns * rows; i++) {
+		// Add a fixed number of cells for demonstration (this can be increased if needed)
+		int cellCount = 600;  // This ensures there are enough cells to cover most grid sizes
+		for (int i = 0; i < cellCount; i++) {
 			gridLayout.add(createGridCell());
 		}
 	}
@@ -157,12 +159,17 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 * @return The created component.
 	 */
 	private Component createComponent(String name) {
-        return switch (name) {
-            case "Button 1" -> createDraggableComponent(new Button("Button 1"));
-            case "Label 1" -> createDraggableComponent(new Span("Label 1"));
-            case "Button ABC" -> createDraggableComponent(new Button("Button ABC"));
-            default -> null;
-        };
+		return switch (name) {
+			case "Button 1" -> {
+				Button button = new Button("Button 1");
+				button.setWidth("40vh");  // Set width to 40vh
+				button.setHeight("20vh"); // Set height to 20vh
+				yield createDraggableComponent(button);
+			}
+			case "Label 1" -> createDraggableComponent(new Span("Label 1"));
+			case "Button ABC" -> createDraggableComponent(new Button("Button ABC"));
+			default -> null;
+		};
 	}
 
 	/** Creates a draggable component and applies necessary configurations.
@@ -177,7 +184,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		return component;
 	}
 
-	/** Adds a context menu to a given component with options to delete it.
+	/** Adds a context menu to a component with an option to delete it.
 	 *
 	 * @param component The component to which the context menu is added.
 	 */
@@ -206,35 +213,17 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 */
 	private VerticalLayout createGridCell() {
 		VerticalLayout cell = new VerticalLayout();
-		cell.setWidth("100%");
-		cell.setHeight("50vh");
-		cell.getStyle().set("border", "1px solid #9E9E9E");
+		cell.setWidth("100%");  // Make the cell take up full width of its grid space
+		cell.setHeight("100%"); // Make the cell take up full height of its grid space
+		cell.getStyle().set("border", "1px solid transparent"); // Transparent border by default
 		cell.getStyle().set("display", "flex");
-		cell.getStyle().set("align-items", "center");
-		cell.getStyle().set("justify-content", "center");
+		cell.getStyle().set("align-items", "flex-start");
+		cell.getStyle().set("justify-content", "flex-start");
+		cell.getStyle().set("position", "relative"); // Ensures proper positioning
 
 		DropTarget<VerticalLayout> dropTarget = DropTarget.create(cell);
 		dropTarget.addDropListener(event -> handleDrop(event, cell));
 		return cell;
-	}
-
-	/** Finds the first empty cell in the grid layout.
-	 *
-	 * @return An optional containing the first empty cell, if found.
-	 */
-	private Optional<VerticalLayout> findFirstEmptyCell() {
-		return gridLayout.getChildren()
-				.filter(cell -> cell instanceof VerticalLayout && cell.getChildren().findAny().isEmpty())
-				.findFirst()
-				.map(cell -> (VerticalLayout) cell);
-	}
-
-	/** Makes a component draggable.
-	 *
-	 * @param component The component to be made draggable.
-	 */
-	private void makeComponentDraggable(Component component) {
-		DragSource.create(component).setDraggable(true);
 	}
 
 	/** Handles the drop event when a component is dropped into a grid cell.
@@ -254,7 +243,38 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			draggedComponent.getParent().ifPresent(parent -> ((HasComponents) parent).remove(draggedComponent));
 			cell.add(draggedComponent);
 			makeComponentDraggable(draggedComponent);
+
+			cell.getStyle().set("position", "relative");
+			draggedComponent.getElement().getStyle().set("position", "absolute");
+			draggedComponent.getElement().getStyle().set("top", "0");
+			draggedComponent.getElement().getStyle().set("left", "0");
 		});
+	}
+
+	/** Finds the first empty grid cell.
+	 *
+	 * @return An Optional containing the first empty cell, if available.
+	 */
+	private Optional<VerticalLayout> findFirstEmptyCell() {
+		return gridLayout.getChildren()
+				.filter(cell -> cell instanceof VerticalLayout && cell.getChildren().findAny().isEmpty())
+				.findFirst()
+				.map(cell -> (VerticalLayout) cell);
+	}
+
+	/** Makes a component draggable.
+	 *
+	 * @param component The component to be made draggable.
+	 */
+	private void makeComponentDraggable(Component component) {
+		DragSource<Component> dragSource = DragSource.create(component);
+		dragSource.setDraggable(true);
+
+		// Add the dashed borders when drag starts
+		dragSource.addDragStartListener(event -> showGridBorders());
+
+		// Remove the dashed borders when drag ends
+		dragSource.addDragEndListener(event -> hideGridBorders());
 	}
 
 	/** Adds a hover effect to a component to change its border on mouse events.
@@ -264,6 +284,26 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	private void addHoverEffectToComponent(Component component) {
 		component.getElement().addEventListener("mouseover", event -> component.getStyle().set("border", "2px solid blue"));
 		component.getElement().addEventListener("mouseout", event -> component.getStyle().set("border", "none"));
+	}
+
+	/** Shows grid and cell borders during drag-and-drop. */
+	private void showGridBorders() {
+		gridLayout.getStyle().set("border", "1px dashed #bfbfbf"); // Show dashed border on grid
+		gridLayout.getChildren().forEach(cell -> {
+			if (cell instanceof VerticalLayout) {
+				cell.getElement().getStyle().set("border", "1px dashed #bfbfbf"); // Show dashed border on cells
+			}
+		});
+	}
+
+	/** Hides grid and cell borders after drag-and-drop is complete. */
+	private void hideGridBorders() {
+		gridLayout.getStyle().set("border", "none"); // Remove border from grid
+		gridLayout.getChildren().forEach(cell -> {
+			if (cell instanceof VerticalLayout) {
+				cell.getElement().getStyle().set("border", "1px solid transparent"); // Set cell borders back to transparent
+			}
+		});
 	}
 
 	/** Returns the title of the page for the dashboard view.
