@@ -85,10 +85,16 @@ public class DropGrid extends FlexLayout {
      */
     private void handleDrop(DropEvent<VerticalLayout> event, VerticalLayout cell) {
         event.getDragSourceComponent().ifPresent(draggedComponent -> {
-            cell.getChildren().findAny().ifPresent(cell::remove);
-            draggedComponent.getParent().ifPresent(parent -> ((HasComponents) parent).remove(draggedComponent));
-            cell.add(draggedComponent);
-            new DraggableComponent(draggedComponent, this);
+            if (cell.getChildren().findAny().isEmpty()) {
+                draggedComponent.getParent().ifPresent(parent -> {
+                    if (parent instanceof VerticalLayout) {
+                        ((HasComponents) parent).remove(draggedComponent);
+                    }
+                });
+                System.out.println("DropGrid");
+                System.out.print(draggedComponent);
+                cell.add(draggedComponent);
+            }
         });
     }
 

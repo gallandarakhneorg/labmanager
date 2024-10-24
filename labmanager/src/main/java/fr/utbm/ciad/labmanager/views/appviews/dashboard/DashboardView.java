@@ -64,7 +64,11 @@ import fr.utbm.ciad.labmanager.utils.dragdrop.DraggableComponent;
 import fr.utbm.ciad.labmanager.utils.dragdrop.DropGrid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
+import org.jetbrains.annotations.NotNull;
 
 @Route(value = "", layout = MainLayout.class)
 @PermitAll
@@ -97,6 +101,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		getContent().add(componentSelect, dropGrid, createShowLogButton());
 	}
 
+	//TODO Make sure that the dropdown isn't transparent...
+
 	/** Configures the Select component for component selection.
 	 * Sets the label and items for the selection dropdown and
 	 * defines the behavior when a component is selected.
@@ -109,19 +115,71 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		componentSelect.addValueChangeListener(event -> {
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
-				Component component = createComponent(publicationService, selectedItem);
-				assert component != null;
-				component.getStyle().set("z-index", "1000");
+
+				DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
+
+				draggableComponent.getStyle().set("z-index", "999");
+				draggableComponent.getStyle().set("resize","both");
+				draggableComponent.getStyle().set("overflow","hidden");
+				draggableComponent.getStyle().set("position","absolute");
+				draggableComponent.getElement().setAttribute("data-custom-id", selectedItem);
+
+				addContextMenuToComponent(draggableComponent);
+
 				Optional<VerticalLayout> emptyCell = dropGrid.findFirstEmptyCell();
 				emptyCell.ifPresent(cell -> {
-					cell.add(component);
-					new DraggableComponent(component, dropGrid);
+					cell.add(draggableComponent);
 					availableComponents.remove(selectedItem);
 					updateSelectItems();
 				});
 				componentSelect.clear();
 			}
 		});
+	}
+
+	/**
+	 * Returns a draggable UI component based on the selected item.
+	 *
+	 * @param publicationService the service for accessing publication data.
+	 * @param selectedItem the type of component to create.
+	 * @return a DraggableComponent or null if the item is not recognized.
+	 */
+	@NotNull
+	private DraggableComponent getDraggableComponent(PublicationService publicationService, String selectedItem) {
+		String width = "";
+		String height = "";
+
+		Component component = switch (selectedItem) {
+			case "Button 1" -> {
+				Button button = new Button("Button 1");
+				width = "40vh";
+				height = "20vh";
+				yield button;
+			}
+			case "Label 1" -> new Span("Label 1");
+			case "Button ABC" -> new Button("Button ABC");
+			case "Horizontal Layout" -> {
+				HorizontalLayout horizontalLayout = new HorizontalLayout();
+				Button innerButton = new Button("Inner Button");
+				horizontalLayout.add(innerButton);
+				yield horizontalLayout;
+			}
+			case "Graph" -> {
+				PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
+				width = "70vh";
+				height = "50vh";
+				yield new Div(barChart);
+			}
+			default -> null;
+		};
+		if(component == null){
+			return new DraggableComponent(new Div(), dropGrid);
+		}else{
+			DraggableComponent draggableComponent = new DraggableComponent(component, dropGrid);
+			draggableComponent.getStyle().setHeight(height).setWidth(width);
+
+			return draggableComponent;
+		}
 	}
 
 	/** Updates the Select items and enables/disables the Select
@@ -144,38 +202,30 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		return button;
 	}
 
-	/** Creates a component based on the selected name.
-	 * This method instantiates different types of components
-	 * based on the user's selection from the dropdown.
+	/** Adds a context menu to a component with an option to delete it.
 	 *
-	 * @param name The name of the component to create.
-	 * @return The created component.
+	 * @param component The component to which the context menu is added.
 	 */
-	private Component createComponent(PublicationService publicationService, String name) {
-		return switch (name) {
-			case "Button 1" -> {
-				Button button = new Button("Button 1");
-				button.setWidth("40vh");
-				button.setHeight("20vh");
-				yield button;
-			}
-			case "Label 1" -> new Span("Label 1");
-			case "Button ABC" -> new Button("Button ABC");
-			case "Horizontal Layout" -> {
-				HorizontalLayout horizontalLayout = new HorizontalLayout();
-				Button innerButton = new Button("Inner Button");
-				horizontalLayout.add(innerButton);
-				yield horizontalLayout;
-			}
-			case "Graph" -> {
-				PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
-				barChart.setWidth("70vh");
-				barChart.setHeight("50vh");
-				yield new Div(barChart);
-			}
-			default -> null;
-		};
+	private void addContextMenuToComponent(DraggableComponent component) {
+		ContextMenu contextMenu = new ContextMenu();
+		contextMenu.setTarget(component);
+		contextMenu.addItem("Delete", event -> removeComponent(component));
 	}
+
+	/** Removes a component from its parent layout.
+	 *
+	 * @param component The component to be removed.
+	 */
+	private void removeComponent(DraggableComponent component) {
+		component.getParent().ifPresent(parent -> {
+			((HasComponents) parent).remove(component);
+			String componentId = component.getElement().getAttribute("data-custom-id");
+            availableComponents.add(Objects.requireNonNullElse(componentId, "Unknown Component"));
+
+			updateSelectItems();
+		});
+	}
+
 
 	/** Returns the title of the page for the dashboard view.
 	 *
@@ -183,6 +233,6 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 */
 	@Override
 	public String getPageTitle() {
-		return getTranslation("views.dashboard.title");
+		return getTranslation("views.dashboard.title"); //$NON-NLS-1$
 	}
 }

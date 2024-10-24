@@ -2,8 +2,12 @@ package fr.utbm.ciad.labmanager.utils.dragdrop;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dnd.DragSource;
+import com.vaadin.flow.component.html.Div;
 
-public class DraggableComponent {
+
+public class DraggableComponent extends Div {
+
+    private final Component component;
 
     /**
      * Constructor for DraggableComponent.
@@ -14,7 +18,11 @@ public class DraggableComponent {
      * @param dropGrid the DropGrid that will handle the drag-and-drop functionality.
      */
     public DraggableComponent(Component component, DropGrid dropGrid) {
-        DragSource<Component> dragSource = DragSource.create(component);
+        this.component = component;
+        this.component.getStyle().set("width","100%");
+        this.component.getStyle().set("height","100%");
+
+        DragSource<Component> dragSource = DragSource.create(this);
         dragSource.setDraggable(true);
 
         // Listener for when dragging starts
@@ -29,21 +37,21 @@ public class DraggableComponent {
             dropGrid.hideGridBorders();
         });
 
-        addHoverEffectToComponent(component);
+        component.getElement().addEventListener("mouseenter", event ->
+                getStyle().set("border", "2px solid blue"));
+
+        component.getElement().addEventListener("mouseleave", event ->
+                getStyle().set("border", "none"));
+
+        add(component);
     }
 
     /**
-     * Adds a hover effect to the given component.
-     * This method sets up mouseover and mouseout event listeners
-     * to change the border style of the component when hovered over.
+     * Retrieves the current UI component.
      *
-     * @param component the component to which the hover effect will be added.
+     * @return the current Component.
      */
-    private void addHoverEffectToComponent(Component component) {
-        component.getElement().addEventListener("mouseover", event ->
-                component.getStyle().set("border", "2px solid blue"));
-
-        component.getElement().addEventListener("mouseout", event ->
-                component.getStyle().set("border", "none"));
+    public Component getComponent() {
+        return component;
     }
 }
