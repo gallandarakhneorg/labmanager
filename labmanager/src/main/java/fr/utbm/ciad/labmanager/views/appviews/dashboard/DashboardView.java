@@ -43,18 +43,25 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dnd.DropEvent;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
+import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
+import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
+import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryBarChart;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -73,17 +80,23 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	private final Select<String> componentSelect = new Select<>();
 	private final FlexLayout gridLayout = new FlexLayout();
 
-	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Label 1", "Button ABC"));
+	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Label 1", "Button ABC", "Horizontal Layout", "Graph"));
 
 	private boolean isDragging = false;
+
+	private PublicationCategoryChartFactory<PublicationCategoryBarChart> barChartFactory;
 
 	/** Constructor for DashboardView.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
+	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory,
+						 @Autowired PublicationService publicationService) {
 		super(loggerFactory);
-		configureSelect();
+		barChartFactory = new PublicationCategoryBarChartFactory();
+		PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
+
+		configureSelect(publicationService);
 		configureGridLayout();
 		createAndAddComponents();
 		getContent().add(componentSelect, gridLayout, createShowLogButton());
@@ -91,13 +104,13 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 	/** Configures the Select component for component selection.
 	 */
-	private void configureSelect() {
+	private void configureSelect(PublicationService publicationService) {
 		componentSelect.setLabel("Select Component");
 		componentSelect.setItems(availableComponents);
 		componentSelect.addValueChangeListener(event -> {
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
-				Component component = createComponent(selectedItem);
+				Component component = createComponent(publicationService, selectedItem);
 				component.getStyle().set("z-index", "1000");
 				Optional<VerticalLayout> emptyCell = findFirstEmptyCell();
 				emptyCell.ifPresent(cell -> {
@@ -161,16 +174,30 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 * @param name The name of the component to create.
 	 * @return The created component.
 	 */
-	private Component createComponent(String name) {
+	private Component createComponent(PublicationService publicationService, String name) {
 		return switch (name) {
 			case "Button 1" -> {
 				Button button = new Button("Button 1");
-				button.setWidth("40vh");  // Set width to 40vh
-				button.setHeight("20vh"); // Set height to 20vh
+				button.setWidth("40vh");
+				button.setHeight("20vh");
 				yield createDraggableComponent(button);
 			}
 			case "Label 1" -> createDraggableComponent(new Span("Label 1"));
 			case "Button ABC" -> createDraggableComponent(new Button("Button ABC"));
+			// New case for Horizontal Layout with Button
+			case "Horizontal Layout" -> {
+				HorizontalLayout horizontalLayout = new HorizontalLayout();
+				Button innerButton = new Button("Inner Button");
+				horizontalLayout.add(innerButton);
+				yield createDraggableComponent(horizontalLayout);
+			}
+			case "Graph" -> {
+				PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
+
+				barChart.setWidth("70vh");
+				barChart.setHeight("50vh");
+				yield createDraggableComponent(new Div(barChart));
+			}
 			default -> null;
 		};
 	}
