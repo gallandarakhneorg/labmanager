@@ -75,6 +75,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Label 1", "Button ABC"));
 
+	private boolean isDragging = false;
+
 	/** Constructor for DashboardView.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
@@ -96,6 +98,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
 				Component component = createComponent(selectedItem);
+				component.getStyle().set("z-index", "1000");
 				Optional<VerticalLayout> emptyCell = findFirstEmptyCell();
 				emptyCell.ifPresent(cell -> {
 					cell.add(component);
@@ -223,6 +226,22 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 		DropTarget<VerticalLayout> dropTarget = DropTarget.create(cell);
 		dropTarget.addDropListener(event -> handleDrop(event, cell));
+
+		// Add hover effect when a drag is active
+		cell.getElement().addEventListener("dragenter", event -> {
+			// Check if an item is being dragged
+			if (isDragging) {
+				cell.getStyle().set("border", "2px solid blue");
+			}
+		});
+
+		cell.getElement().addEventListener("dragleave", event -> {
+			// Reset the border only if the cell is empty and drag is active
+			if (isDragging && cell.getChildren().findAny().isEmpty()) {
+				cell.getStyle().set("border", "1px dashed #bfbfbf");
+			}
+		});
+
 		return cell;
 	}
 
@@ -271,10 +290,16 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		dragSource.setDraggable(true);
 
 		// Add the dashed borders when drag starts
-		dragSource.addDragStartListener(event -> showGridBorders());
+		dragSource.addDragStartListener(event -> {
+			isDragging = true;
+			showGridBorders();
+		});
 
 		// Remove the dashed borders when drag ends
-		dragSource.addDragEndListener(event -> hideGridBorders());
+		dragSource.addDragEndListener(event -> {
+			isDragging = false;
+			hideGridBorders();
+		});
 	}
 
 	/** Adds a hover effect to a component to change its border on mouse events.
