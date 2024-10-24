@@ -136,7 +136,12 @@ public class Reporting extends HorizontalLayout {
     }
 
     private void initPopupContent() {
-        popup.add(orcidLayout, publicationLayout);
+        if (orcidLayout != null) {
+            popup.add(orcidLayout);
+        }
+        if (publicationLayout != null) {
+            popup.add(publicationLayout);
+        }
     }
 
     private void redirectDoi(Publication publication) {
