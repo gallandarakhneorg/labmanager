@@ -41,7 +41,6 @@ import fr.utbm.ciad.labmanager.utils.country.CountryCode;
  * @mavenartifactid $ArtifactId$
  * @see "https://github.com/mvysny/country-flag"
  */
-// TODO: Use this to display the number of notification over the bell
 @StyleSheet("themes/labmanager/addons/countryflag/css/flag-icon.css")
 public class CountryFlag extends Span {
 

@@ -4,13 +4,16 @@ import com.vaadin.componentfactory.Popup;
 import com.vaadin.componentfactory.PopupVariant;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
@@ -18,11 +21,11 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
-import org.springframework.scheduling.annotation.Async;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@StyleSheet("themes/labmanager/addons/badge/css/notify-badge.css")
 public class Reporting extends HorizontalLayout {
 
     private static final long serialVersionUID = 1L;
@@ -36,8 +39,12 @@ public class Reporting extends HorizontalLayout {
     VerticalLayout orcidLayout = null;
     VerticalLayout publicationLayout = null;
 
-    private final Icon icon = new Icon(VaadinIcon.BELL);
+    private final Div orcidDiv = new Div();
+    private final Span badge = new Span();
+    private final Icon icon = new Icon(LumoIcon.BELL.create().getIcon());
     private final Popup popup = new Popup();
+
+    private int notificationCount = 0;
 
     public Reporting(PersonService personService,
                      AuthorshipRepository authorshipRepository,
@@ -56,21 +63,32 @@ public class Reporting extends HorizontalLayout {
                 LumoUtility.Margin.Right.SMALL, LumoUtility.Height.MEDIUM,
                 LumoUtility.Width.FULL);
 
-        add(icon);
+
+        add(orcidDiv);
         add(popup);
     }
 
     private void configureIconAndPopup() {
-        icon.setId(TEST_TARGET_ELEMENT_ID);
-        icon.addClickListener(event -> {
-            popup.setOpened(!popup.isOpened());
-        });
         popup.setFor(TEST_TARGET_ELEMENT_ID);
         popup.setCloseOnScroll(true);
         popup.setModeless(true);
         popup.setIgnoreTargetClick(true);
         popup.addThemeVariants(PopupVariant.LUMO_POINTER_ARROW);
         popup.setCloseOnClick(true);
+
+        icon.getStyle().setScale("1.5");
+
+        orcidDiv.addClassNames("item");
+        orcidDiv.setId(TEST_TARGET_ELEMENT_ID);
+        orcidDiv.addClickListener(event -> {
+            popup.setOpened(!popup.isOpened());
+        });
+
+        badge.setText(String.valueOf(notificationCount));
+        badge.addClassNames("notify-badge");
+
+        orcidDiv.add(icon);
+        orcidDiv.add(badge);
     }
 
     private void initOrcidLayout() {
@@ -81,7 +99,10 @@ public class Reporting extends HorizontalLayout {
                 redirectOrcid();
             });
             orcidLayout = new VerticalLayout();
-            this.orcidLayout.add(orcidText, orcidButton);
+            orcidLayout.add(orcidText, orcidButton);
+            orcidLayout.setClassName(LumoUtility.Padding.Left.MEDIUM);
+            orcidLayout.setClassName(LumoUtility.Padding.SMALL);
+            notificationCount++;
         }
     }
 
@@ -89,6 +110,7 @@ public class Reporting extends HorizontalLayout {
         List<Publication> publicationsWithoutDoi = checkPublicationWithoutDoi();
 
         if (publicationsWithoutDoi != null && !publicationsWithoutDoi.isEmpty()) {
+            notificationCount += publicationsWithoutDoi.size();
             Grid<String> publicationGrid = new Grid<>();
             int remainingPublications = publicationsWithoutDoi.size() - 4;
 
@@ -126,6 +148,8 @@ public class Reporting extends HorizontalLayout {
             publicationLayout.setSpacing(true);
             publicationLayout.setPadding(true);
             publicationLayout.setWidthFull();
+            publicationLayout.setClassName(LumoUtility.Padding.Left.MEDIUM);
+            publicationLayout.setClassName(LumoUtility.Padding.SMALL);
         }
     }
 
@@ -152,22 +176,19 @@ public class Reporting extends HorizontalLayout {
         }
     }
 
-    @Async
-    protected void redirectDoiALl() {
+    private void redirectDoiALl() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
         session.setAttribute(new StringBuilder().append(ViewConstants.MISSING_DOI_FILTER).toString(), true);
         getUI().ifPresent(ui -> ui.navigate("publications"));
     }
 
-    @Async
-    protected void redirectDoiSingle(Publication publication) {
+    private void redirectDoiSingle(Publication publication) {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
         session.setAttribute(new StringBuilder().append(ViewConstants.EDIT_DOI_FILTER).toString(), publication.getId());
         redirectDoiALl();
     }
 
-    @Async
-    protected void redirectOrcid() {
+    private void redirectOrcid() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
         session.setAttribute(new StringBuilder().append(ViewConstants.EDIT_ORCID_FILTER).toString(), true);
         getUI().ifPresent(ui -> ui.navigate("myprofile"));
@@ -190,4 +211,6 @@ public class Reporting extends HorizontalLayout {
             return null;
         }
     }
+
+
 }
