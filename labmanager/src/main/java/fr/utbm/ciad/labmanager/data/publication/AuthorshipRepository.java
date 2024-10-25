@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA repository for the authorship relations.
  * 
@@ -52,7 +53,8 @@ public interface AuthorshipRepository extends JpaRepository<Authorship, Long>, J
 	 */
 	List<Authorship> findByPublicationId(long publicationId);
 
-	List<Authorship> findAuthorshipsByPersonIdOrderByPublicationDesc(long personId);
+	@Query("SELECT a.publication FROM Authorship a where a.person.id = :personId and a.publication.doi is null")
+	List<Publication> findPublicationIdsByPersonIdAndPublicationDoiIsNull(long personId);
 
 	/** Count the number of authorships for the person with the given id.
 	 *

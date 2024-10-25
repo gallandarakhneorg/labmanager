@@ -2,8 +2,6 @@ package fr.utbm.ciad.labmanager.views.components.dashboard;
 
 import com.vaadin.componentfactory.Popup;
 import com.vaadin.componentfactory.PopupVariant;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -15,12 +13,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ public class Reporting extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
     public static final String TEST_TARGET_ELEMENT_ID = "show-notification-popup";
+    private static final Logger log = LoggerFactory.getLogger(Reporting.class);
 
     private final PersonService personService;
     private final AuthorshipRepository authorshipRepository;
@@ -56,13 +56,11 @@ public class Reporting extends HorizontalLayout {
         initOrcidLayout();
         initPublicationLayout();
         initPopupContent();
-
         configureIconAndPopup();
 
         addClassNames(LumoUtility.JustifyContent.END,
                 LumoUtility.Margin.Right.SMALL, LumoUtility.Height.MEDIUM,
                 LumoUtility.Width.FULL);
-
 
         add(orcidDiv);
         add(popup);
@@ -93,16 +91,28 @@ public class Reporting extends HorizontalLayout {
 
     private void initOrcidLayout() {
         if (!checkOrcid()) {
-            Text orcidText = new Text("• You have not set your ORCID identifier.");
-            Button orcidButton = new Button("Set ORCID", event -> {
+            notificationCount++;
+
+            Grid<String> orcidGrid = new Grid<>();
+
+            orcidGrid.setItems("Set ORCID");
+            orcidGrid.addColumn(String::toString).setSortable(false);
+            orcidGrid.addItemDoubleClickListener(event -> {
                 closedPopup();
                 redirectOrcid();
             });
+
+            orcidGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+            orcidGrid.getStyle().set("width", "300px").set("height", "35px")
+                    .set("align-self", "unset");
+
             orcidLayout = new VerticalLayout();
-            orcidLayout.add(orcidText, orcidButton);
-            orcidLayout.setClassName(LumoUtility.Padding.Left.MEDIUM);
-            orcidLayout.setClassName(LumoUtility.Padding.SMALL);
-            notificationCount++;
+
+            orcidLayout = new VerticalLayout();
+            orcidLayout.add("• You have not set your ORCID identifier.");
+            orcidLayout.add(orcidGrid);
+
+            applyThemeOnLayout(orcidLayout);
         }
     }
 
@@ -111,6 +121,7 @@ public class Reporting extends HorizontalLayout {
 
         if (publicationsWithoutDoi != null && !publicationsWithoutDoi.isEmpty()) {
             notificationCount += publicationsWithoutDoi.size();
+
             Grid<String> publicationGrid = new Grid<>();
             int remainingPublications = publicationsWithoutDoi.size() - 4;
 
@@ -138,19 +149,21 @@ public class Reporting extends HorizontalLayout {
 
             publicationGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
             publicationGrid.getStyle().set("width", "300px").set("height", "180px")
-                    .set("margin-left", "0.5rem").set("margin-top", "0.5rem")
                     .set("align-self", "unset");
 
             publicationLayout = new VerticalLayout();
             publicationLayout.add("• You have publications without DOI.");
             publicationLayout.add(publicationGrid);
 
-            publicationLayout.setSpacing(true);
-            publicationLayout.setPadding(true);
-            publicationLayout.setWidthFull();
-            publicationLayout.setClassName(LumoUtility.Padding.Left.MEDIUM);
-            publicationLayout.setClassName(LumoUtility.Padding.SMALL);
+            applyThemeOnLayout(publicationLayout);
         }
+    }
+
+    private void applyThemeOnLayout(VerticalLayout layout) {
+        layout.setPadding(true);
+        layout.setSpacing(false);
+        layout.setWidthFull();
+        layout.setClassName(LumoUtility.Padding.SMALL);
     }
 
     private void closedPopup() {
@@ -191,12 +204,16 @@ public class Reporting extends HorizontalLayout {
     private void redirectOrcid() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
         session.setAttribute(new StringBuilder().append(ViewConstants.EDIT_ORCID_FILTER).toString(), true);
-        getUI().ifPresent(ui -> ui.navigate("myprofile"));
+
+        getUI().ifPresent(ui -> {
+
+            ui.navigate("myprofile");
+        });
     }
 
     private Boolean checkOrcid() {
         if (authenticatedUser.get().isPresent()) {
-            return personService.hasOrcid(authenticatedUser.get().get().getPerson());
+            return authenticatedUser.get().get().getPerson().getORCID() != null && !authenticatedUser.get().get().getPerson().getORCID().isEmpty();
         } else {
             return true;
         }
@@ -204,13 +221,9 @@ public class Reporting extends HorizontalLayout {
 
     private List<Publication> checkPublicationWithoutDoi() {
         if (authenticatedUser.get().isPresent()) {
-            List<Authorship> authorships = authorshipRepository.findAuthorshipsByPersonIdOrderByPublicationDesc(authenticatedUser.get().get().getPerson().getId());
-            List<Publication> publications = authorships.stream().map(Authorship::getPublication).toList();
-            return publications.stream().filter(publication -> publication.getDOI() == null).toList();
+            return authorshipRepository.findPublicationIdsByPersonIdAndPublicationDoiIsNull(authenticatedUser.get().get().getPerson().getId());
         } else {
             return null;
         }
     }
-
-
 }
