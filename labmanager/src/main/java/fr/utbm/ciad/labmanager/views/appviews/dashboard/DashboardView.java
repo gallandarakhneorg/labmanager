@@ -38,7 +38,9 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Div;
@@ -65,7 +67,6 @@ import fr.utbm.ciad.labmanager.utils.dragdrop.DropGrid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +78,9 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 	private static final long serialVersionUID = -1583805930880620625L;
 
+	private boolean editionMode = false;
 	private final Select<String> componentSelect = new Select<>();
+	private final Button editButton = createButton("Edit", event -> editModeButtonPress());
 	private final DropGrid dropGrid = new DropGrid();
 
 	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Label 1", "Button ABC", "Horizontal Layout", "Graph"));
@@ -92,20 +95,24 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory, @Autowired PublicationService publicationService) {
 		super(loggerFactory);
 		barChartFactory = new PublicationCategoryBarChartFactory();
-
-		configureSelect(publicationService);
-
+		editButton.getStyle().set("width", "20vh");
 		componentSelect.setItems(availableComponents);
 		updateSelectItems();
+		Button showLogButton = createButton("Show Log", event -> getLogger().info("Test logger / User name should appear"));
 
-		getContent().add(componentSelect, dropGrid, createShowLogButton());
+		configureSelect(publicationService);
+		HorizontalLayout buttonsHolder = new HorizontalLayout();
+		buttonsHolder.add(componentSelect, editButton);
+
+		if (dropGrid.isEmpty()) {
+			editButton.setEnabled(false);
+		}
+
+		getContent().add(buttonsHolder, dropGrid, showLogButton);
 	}
 
-	//TODO Make sure that the dropdown isn't transparent...
-
-	/** Configures the Select component for component selection.
-	 * Sets the label and items for the selection dropdown and
-	 * defines the behavior when a component is selected.
+	/** Configures the Select component used for selecting components.
+	 * Sets the label, populates items, and defines behavior on component selection.
 	 *
 	 * @param publicationService the service used to manage publications.
 	 */
@@ -115,45 +122,35 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		componentSelect.addValueChangeListener(event -> {
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
-
+				editButton.setEnabled(true);
+				this.setEditionMode(true);
 				DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
-
-				draggableComponent.getStyle().set("z-index", "999");
-				draggableComponent.getStyle().set("resize","both");
-				draggableComponent.getStyle().set("overflow","hidden");
-				draggableComponent.getStyle().set("position","absolute");
-				draggableComponent.getElement().setAttribute("data-custom-id", selectedItem);
-
 				addContextMenuToComponent(draggableComponent);
 
-				Optional<VerticalLayout> emptyCell = dropGrid.findFirstEmptyCell();
-				emptyCell.ifPresent(cell -> {
-					cell.add(draggableComponent);
-					availableComponents.remove(selectedItem);
-					updateSelectItems();
-				});
+				draggableComponent.getElement().setAttribute("data-custom-id", selectedItem);
+
+				dropGrid.addComponentInFirstEmptyCell(draggableComponent);
+
+				availableComponents.remove(selectedItem);
+				updateSelectItems();
 				componentSelect.clear();
 			}
 		});
 	}
 
-	/**
-	 * Returns a draggable UI component based on the selected item.
+	/** Creates and returns a draggable UI component based on the selected item.
 	 *
 	 * @param publicationService the service for accessing publication data.
 	 * @param selectedItem the type of component to create.
-	 * @return a DraggableComponent or null if the item is not recognized.
+	 * @return a DraggableComponent based on the selected item.
 	 */
 	@NotNull
 	private DraggableComponent getDraggableComponent(PublicationService publicationService, String selectedItem) {
-		String width = "";
-		String height = "";
-
 		Component component = switch (selectedItem) {
 			case "Button 1" -> {
 				Button button = new Button("Button 1");
-				width = "40vh";
-				height = "20vh";
+				button.setWidth("40vh");
+				button.setHeight("20vh");
 				yield button;
 			}
 			case "Label 1" -> new Span("Label 1");
@@ -166,68 +163,84 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			}
 			case "Graph" -> {
 				PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
-				width = "70vh";
-				height = "50vh";
+				barChart.setWidth("70vh");
+				barChart.setHeight("50vh");
 				yield new Div(barChart);
 			}
 			default -> null;
 		};
-		if(component == null){
-			return new DraggableComponent(new Div(), dropGrid);
-		}else{
-			DraggableComponent draggableComponent = new DraggableComponent(component, dropGrid);
-			draggableComponent.getStyle().setHeight(height).setWidth(width);
-
-			return draggableComponent;
-		}
+		return new DraggableComponent(Objects.requireNonNullElseGet(component, Div::new), dropGrid);
 	}
 
-	/** Updates the Select items and enables/disables the Select
-	 * based on the current count of available components.
-	 * This method ensures that the dropdown reflects the
-	 * current state of available components.
+	/** Updates the items in the component select dropdown.
+	 * Enables or disables the dropdown based on the availability of components.
 	 */
 	private void updateSelectItems() {
 		componentSelect.setItems(availableComponents);
 		componentSelect.setEnabled(!availableComponents.isEmpty());
 	}
 
-	/** Creates a button to show logs and adds a click listener to log a message.
+	/** Toggles the editing mode and updates the UI accordingly. */
+	private void editModeButtonPress() {
+		setEditionMode(!editionMode);
+	}
+
+	/** Sets the editing mode and updates the UI to reflect the change.
 	 *
-	 * @return the button for showing logs.
+	 * @param editionMode the new editing mode state.
 	 */
-	private Button createShowLogButton() {
-		Button button = new Button("Show log");
-		button.addClickListener(event -> getLogger().info("Test logger / User name should appear"));
+	private void setEditionMode(boolean editionMode) {
+		if (this.editionMode != editionMode) {
+			this.editionMode = editionMode;
+			dropGrid.changeEditionMode();
+		}
+		if (editionMode) {
+			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChildren().findFirst().ifPresent(this::addContextMenuToComponent));
+			editButton.setText("Stop Editing");
+		} else {
+			editButton.setText("Edit");
+		}
+	}
+
+	/** Creates a button with a specified name and action.
+	 *
+	 * @param name the name displayed on the button.
+	 * @param clickAction the action executed on button click.
+	 * @return the created Button component.
+	 */
+	private Button createButton(String name, ComponentEventListener<ClickEvent<Button>> clickAction) {
+		Button button = new Button(name);
+		button.addClickListener(clickAction);
 		return button;
 	}
 
-	/** Adds a context menu to a component with an option to delete it.
+	/** Adds a context menu to a component to provide options like deletion.
 	 *
 	 * @param component The component to which the context menu is added.
 	 */
-	private void addContextMenuToComponent(DraggableComponent component) {
+	private void addContextMenuToComponent(Component component) {
 		ContextMenu contextMenu = new ContextMenu();
 		contextMenu.setTarget(component);
 		contextMenu.addItem("Delete", event -> removeComponent(component));
 	}
 
-	/** Removes a component from its parent layout.
+	/** Removes a specified component from the parent layout and updates the dropdown.
 	 *
 	 * @param component The component to be removed.
 	 */
-	private void removeComponent(DraggableComponent component) {
+	private void removeComponent(Component component) {
 		component.getParent().ifPresent(parent -> {
 			((HasComponents) parent).remove(component);
 			String componentId = component.getElement().getAttribute("data-custom-id");
-            availableComponents.add(Objects.requireNonNullElse(componentId, "Unknown Component"));
-
+			availableComponents.add(Objects.requireNonNullElse(componentId, "Unknown Component"));
+			if (dropGrid.isEmpty()) {
+				editButton.setEnabled(false);
+			}
 			updateSelectItems();
 		});
 	}
 
-
-	/** Returns the title of the page for the dashboard view.
+	/** Returns the page title for the dashboard view.
 	 *
 	 * @return The page title.
 	 */

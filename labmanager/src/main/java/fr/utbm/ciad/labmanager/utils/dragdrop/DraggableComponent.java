@@ -9,18 +9,23 @@ public class DraggableComponent extends Div {
 
     private final Component component;
 
-    /**
-     * Constructor for DraggableComponent.
-     * Initializes the draggable behavior for the given component
-     * within the specified DropGrid.
+    /** Constructor for DraggableComponent.
      *
      * @param component the component to make draggable.
      * @param dropGrid the DropGrid that will handle the drag-and-drop functionality.
      */
     public DraggableComponent(Component component, DropGrid dropGrid) {
         this.component = component;
-        this.component.getStyle().set("width","100%");
-        this.component.getStyle().set("height","100%");
+
+        getStyle().setWidth(component.getStyle().get("width")).setHeight(component.getStyle().get("height"));
+
+        this.component.getStyle().set("width", "100%");
+        this.component.getStyle().set("height", "100%");
+        this.component.getStyle().set("z-index", "0");
+        getStyle().set("z-index", "999");
+        getStyle().set("resize", "both");
+        getStyle().set("overflow", "hidden");
+        getStyle().set("position", "absolute");
 
         DragSource<Component> dragSource = DragSource.create(this);
         dragSource.setDraggable(true);
@@ -46,12 +51,16 @@ public class DraggableComponent extends Div {
         add(component);
     }
 
-    /**
-     * Retrieves the current UI component.
+    /** Retrieves the current UI component.
+     * This method resets certain style properties before returning
+     * the component, ensuring it has the correct dimensions and layering.
      *
      * @return the current Component.
      */
     public Component getComponent() {
+        component.getStyle().remove("z-index");
+        component.getStyle().set("width", getStyle().get("width"));
+        component.getStyle().set("height", getStyle().get("height"));
         return component;
     }
 }
