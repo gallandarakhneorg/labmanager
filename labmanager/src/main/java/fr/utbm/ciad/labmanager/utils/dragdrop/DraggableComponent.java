@@ -7,7 +7,7 @@ import com.vaadin.flow.component.html.Div;
 
 public class DraggableComponent extends Div {
 
-    private final Component component;
+    private Component component;
 
     /** Constructor for DraggableComponent.
      *
@@ -15,13 +15,7 @@ public class DraggableComponent extends Div {
      * @param dropGrid the DropGrid that will handle the drag-and-drop functionality.
      */
     public DraggableComponent(Component component, DropGrid dropGrid) {
-        this.component = component;
-
-        getStyle().setWidth(component.getStyle().get("width")).setHeight(component.getStyle().get("height"));
-
-        this.component.getStyle().set("width", "100%");
-        this.component.getStyle().set("height", "100%");
-        this.component.getStyle().set("z-index", "0");
+        setComponent(component);
         getStyle().set("z-index", "999");
         getStyle().set("resize", "both");
         getStyle().set("overflow", "hidden");
@@ -33,13 +27,13 @@ public class DraggableComponent extends Div {
         // Listener for when dragging starts
         dragSource.addDragStartListener(event -> {
             dropGrid.setDragging(true);
-            dropGrid.showGridBorders();
+            dropGrid.showBorders();
         });
 
         // Listener for when dragging ends
         dragSource.addDragEndListener(event -> {
             dropGrid.setDragging(false);
-            dropGrid.hideGridBorders();
+            dropGrid.hideBorders();
         });
 
         component.getElement().addEventListener("mouseenter", event ->
@@ -47,8 +41,6 @@ public class DraggableComponent extends Div {
 
         component.getElement().addEventListener("mouseleave", event ->
                 getStyle().set("border", "none"));
-
-        add(component);
     }
 
     /** Retrieves the current UI component.
@@ -58,9 +50,25 @@ public class DraggableComponent extends Div {
      * @return the current Component.
      */
     public Component getComponent() {
+        Component component = this.component;
         component.getStyle().remove("z-index");
         component.getStyle().set("width", getStyle().get("width"));
         component.getStyle().set("height", getStyle().get("height"));
+        component.getElement().setAttribute("data-custom-id", getElement().getAttribute("data-custom-id"));
         return component;
+    }
+
+    private void setComponent(Component component){
+        if(this.component == null){
+            if(component.getElement().getAttribute("data-custom-id") != null){
+                getElement().setAttribute("data-custom-id", component.getElement().getAttribute("data-custom-id"));
+            }
+            getStyle().setWidth(component.getStyle().get("width")).setHeight(component.getStyle().get("height"));
+            component.getStyle().set("width", "100%");
+            component.getStyle().set("height", "100%");
+            component.getStyle().set("z-index", "0");
+            this.component = component;
+            add(this.component);
+        }
     }
 }

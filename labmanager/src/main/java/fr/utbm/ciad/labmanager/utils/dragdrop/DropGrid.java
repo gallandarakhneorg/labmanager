@@ -1,21 +1,21 @@
 package fr.utbm.ciad.labmanager.utils.dragdrop;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasComponents;
-import com.vaadin.flow.component.dnd.DropEvent;
-import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DropGrid extends FlexLayout {
 
+    private static final int CELL_SIZE = 50;
+    List<DropCell> cells = new ArrayList<>();
+
     private boolean isDragging = false; // State of the dragging operation
 
-    /** Constructor for DropGrid.
+    /**
+     * Constructor for DropGrid.
      */
     public DropGrid() {
         setFlexDirection(FlexDirection.ROW);
@@ -23,72 +23,36 @@ public class DropGrid extends FlexLayout {
         getStyle().set("height", "100vh")
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(auto-fit, minmax(50px, 1fr))")
-                .set("grid-auto-rows", "50px")
+                .set("grid-auto-rows", CELL_SIZE + "px")
                 .set("gap", "0px")
                 .set("background-color", "rgba(255, 255, 255, 0.5)");
 
-        int cellCount = 600;
+        createCells();
+    }
+
+    /**
+     * Create the cells of the grid based on the grid size
+     */
+    private void createCells() {
+        int cellCount = 600; // Static cell count for demonstration purposes
+
         for (int i = 0; i < cellCount; i++) {
-            add(createGridCell());
+            addCell(new DropCell(this, i));
         }
     }
 
-    /** Creates a single grid cell.
-     * Configures the properties of the cell and sets up drop target functionality.
+    /**
+     * Adds a cell to the grid and updates the internal list of cells.
      *
-     * @return a VerticalLayout representing a single grid cell.
+     * @param cell the DropCell instance to add to the grid layout.
      */
-    private VerticalLayout createGridCell() {
-        VerticalLayout cell = new VerticalLayout();
-        cell.setWidth("100%");
-        cell.setHeight("100%");
-        cell.getStyle().set("border", "1px solid transparent")
-                .set("display", "flex")
-                .set("align-items", "flex-start")
-                .set("justify-content", "flex-start")
-                .set("position", "relative");
-
-        DropTarget<VerticalLayout> dropTarget = DropTarget.create(cell);
-        dropTarget.addDropListener(event -> handleDrop(event, cell));
-
-        // Event listener for when a draggable component enters the cell
-        cell.getElement().addEventListener("dragenter", event -> {
-            if (isDragging) {
-                cell.getStyle().set("border", "2px solid blue");
-            }
-        });
-
-        // Event listener for when a draggable component leaves the cell
-        cell.getElement().addEventListener("dragleave", event -> {
-            if (isDragging && cell.getChildren().findAny().isEmpty()) {
-                cell.getStyle().set("border", "1px dashed #bfbfbf");
-            }
-        });
-
-        return cell;
+    private void addCell(DropCell cell) {
+        add(cell);
+        cells.add(cell);
     }
 
-    /** Handles the drop event when a component is dropped into the cell.
-     * Removes any existing component in the cell and adds the newly dropped component.
-     *
-     * @param event the drop event containing the dragged component.
-     * @param cell the target cell where the component is dropped.
-     */
-    private void handleDrop(DropEvent<VerticalLayout> event, VerticalLayout cell) {
-        event.getDragSourceComponent().ifPresent(draggedComponent -> {
-            if (cell.getChildren().findAny().isEmpty()) {
-                draggedComponent.getParent().ifPresent(parent -> {
-                    if (parent instanceof VerticalLayout) {
-                        ((HasComponents) parent).remove(draggedComponent);
-                    }
-                });
-                cell.add(draggedComponent);
-            }
-        });
-    }
-
-    /** Sets the dragging state of the grid.
-     * This method is used to enable or disable the dragging mode.
+    /**
+     * Sets the dragging state of the grid.
      *
      * @param dragging true to enable dragging, false to disable.
      */
@@ -96,31 +60,32 @@ public class DropGrid extends FlexLayout {
         this.isDragging = dragging;
     }
 
-    /** Displays the grid borders when drag mode is active.
-     * This method visually indicates that the grid is ready to receive a dragged component.
+    /**
+     * Displays the grid borders
      */
-    public void showGridBorders() {
+    public void showBorders() {
         getStyle().set("border", "1px dashed #bfbfbf");
-        getChildren().forEach(cell -> {
-            if (cell instanceof VerticalLayout) {
-                cell.getElement().getStyle().set("border", "1px dashed #bfbfbf");
+        cells.forEach(cell -> {
+            if (cell != null) {
+                cell.showBorders();
             }
         });
     }
 
-    /** Hides the grid borders when drag mode is inactive.
-     * This method resets the visual appearance of the grid after dragging is done.
+    /**
+     * Hides the grid borders
      */
-    public void hideGridBorders() {
+    public void hideBorders() {
         getStyle().set("border", "none");
-        getChildren().forEach(cell -> {
-            if (cell instanceof VerticalLayout) {
-                cell.getElement().getStyle().set("border", "1px solid transparent");
+        cells.forEach(cell -> {
+            if (cell != null) {
+                cell.hideBorders();
             }
         });
     }
 
-    /** Checks if the grid is empty.
+    /**
+     * Checks if the grid is empty.
      * The grid is considered empty if none of its cells contain components.
      *
      * @return true if the grid is empty, false otherwise.
@@ -131,63 +96,57 @@ public class DropGrid extends FlexLayout {
                 .allMatch(cell -> cell.getChildren().findAny().isEmpty());
     }
 
-    /** Finds the first empty cell in the grid.
-     * This method identifies a cell that does not currently contain any components.
+    /**
+     * Finds the first empty cell in the grid.
+     * This method identifies the first cell that does not currently contain any components.
      *
-     * @return an Optional containing the first empty cell if found, otherwise empty.
+     * @return a DropCell representing the first empty cell, or null if no empty cells are found.
      */
-    public Optional<VerticalLayout> findFirstEmptyCell() {
-        return getChildren().filter(cell -> cell instanceof VerticalLayout && cell.getChildren().findAny().isEmpty())
-                .findFirst()
-                .map(cell -> (VerticalLayout) cell);
+    public DropCell findFirstEmptyCell() {
+        for (DropCell cell : cells) {
+            if (cell.isEmpty()) {
+                return cell;
+            }
+        }
+        return null;
     }
 
-    /** Adds a component to the first empty cell in the grid.
+    /**
+     * Adds a component to the first empty cell in the grid.
      *
      * @param component the component to be added to an empty cell.
      */
     public void addComponentInFirstEmptyCell(Component component) {
-        findFirstEmptyCell().ifPresent(cell -> cell.add(component));
+        DropCell cell = findFirstEmptyCell();
+        if (cell != null) {
+            cell.addComponent(component);
+        }
     }
 
-    /** Retrieves a list of cells that contain at least one component.
+    /**
+     * Retrieves a list of cells that contain at least one component.
      *
-     * @return a list of cells (VerticalLayout) containing components.
+     * @return a list of DropCell objects containing components.
      */
-    public List<VerticalLayout> getCellsContainingComponents() {
-        return getChildren()
-                .filter(cell -> cell instanceof VerticalLayout && cell.getChildren().findAny().isPresent())
-                .map(cell -> (VerticalLayout) cell)
-                .collect(Collectors.toList());
+    public List<DropCell> getCellsContainingComponents() {
+        List<DropCell> cellsList = new ArrayList<>();
+        for (DropCell cell : cells) {
+            if (!cell.isEmpty()) {
+                cellsList.add(cell);
+            }
+        }
+        return cellsList;
     }
 
-    /** Toggles the edition mode in each cell containing components.
-     * Each component is replaced by a new draggable component.
+    /**
+     * Toggles the edition mode
      */
     public void changeEditionMode() {
-        getCellsContainingComponents().forEach(cell -> cell.getChildren().findFirst().ifPresent(component -> {
-            cell.removeAll();
-            Component newComponent = getNewComponent(component);
-            cell.add(newComponent);
-        }));
+        getCellsContainingComponents().forEach(DropCell::changeEditionMode);
     }
 
-    /** Returns a new draggable component based on the given component.
-     *
-     * @param component the existing component to be wrapped or returned.
-     * @return the new draggable component.
-     */
-    private Component getNewComponent(Component component) {
-        Component newComponent;
-        if (component instanceof DraggableComponent) {
-            newComponent = ((DraggableComponent) component).getComponent();
-        } else {
-            newComponent = new DraggableComponent(component, this);
-        }
-        return newComponent;
-    }
-
-    /** Gets the current dragging state.
+    /**
+     * Gets the current dragging state.
      *
      * @return true if dragging is active, false otherwise.
      */
@@ -195,3 +154,4 @@ public class DropGrid extends FlexLayout {
         return isDragging;
     }
 }
+

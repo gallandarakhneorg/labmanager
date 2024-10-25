@@ -44,8 +44,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -56,8 +56,12 @@ import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComp
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
+import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
+import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryPieChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryBarChart;
+import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryNightingaleRoseChart;
+import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryPieChart;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -83,11 +87,14 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	private final Button editButton = createButton("Edit", event -> editModeButtonPress());
 	private final DropGrid dropGrid = new DropGrid();
 
-	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Label 1", "Button ABC", "Horizontal Layout", "Graph"));
+	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Horizontal Layout", "BarChart","PieChart","NightingaleRoseChart"));
 
 	private final PublicationCategoryChartFactory<PublicationCategoryBarChart> barChartFactory;
+	private final PublicationCategoryChartFactory<PublicationCategoryPieChart> pieChartFactory;
+	private final PublicationCategoryChartFactory<PublicationCategoryNightingaleRoseChart> nightingaleChartFactory;
 
-	/** Constructor for DashboardView.
+	/**
+	 * Constructor for DashboardView.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 * @param publicationService the service used to manage publications.
@@ -95,35 +102,53 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory, @Autowired PublicationService publicationService) {
 		super(loggerFactory);
 		barChartFactory = new PublicationCategoryBarChartFactory();
-		editButton.getStyle().set("width", "20vh");
-		componentSelect.setItems(availableComponents);
+		pieChartFactory = new PublicationCategoryPieChartFactory();
+		nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
+
 		updateSelectItems();
 		Button showLogButton = createButton("Show Log", event -> getLogger().info("Test logger / User name should appear"));
 
-		configureSelect(publicationService);
-		HorizontalLayout buttonsHolder = new HorizontalLayout();
-		buttonsHolder.add(componentSelect, editButton);
+		createSelect(publicationService);
 
+		getContent().add(createHeader(), dropGrid, showLogButton);
+	}
+
+	/**
+	 * Creates and configures the header layout for the dashboard.
+	 * Sets up layout style and alignment, and adds UI components
+	 *
+	 * @return HorizontalLayout the configured header layout.
+	 */
+	private HorizontalLayout createHeader(){
+		HorizontalLayout header = new HorizontalLayout();
+		header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+		header.getStyle().set("width", "100%");
+
+		editButton.getStyle().set("width", "20vh");
 		if (dropGrid.isEmpty()) {
 			editButton.setEnabled(false);
 		}
 
-		getContent().add(buttonsHolder, dropGrid, showLogButton);
+		header.add(componentSelect, editButton);
+		return header;
 	}
 
-	/** Configures the Select component used for selecting components.
+	/**
+	 * Create the Select component used for selecting components.
 	 * Sets the label, populates items, and defines behavior on component selection.
 	 *
 	 * @param publicationService the service used to manage publications.
 	 */
-	private void configureSelect(PublicationService publicationService) {
+	private void createSelect(PublicationService publicationService) {
 		componentSelect.setLabel("Select Component");
 		componentSelect.setItems(availableComponents);
+
 		componentSelect.addValueChangeListener(event -> {
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
 				editButton.setEnabled(true);
 				this.setEditionMode(true);
+
 				DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
 				addContextMenuToComponent(draggableComponent);
 
@@ -138,11 +163,12 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		});
 	}
 
-	/** Creates and returns a draggable UI component based on the selected item.
+	/**
+	 * Creates and returns a draggable UI component based on the selected item.
 	 *
 	 * @param publicationService the service for accessing publication data.
 	 * @param selectedItem the type of component to create.
-	 * @return a DraggableComponent based on the selected item.
+	 * @return DraggableComponent a draggable component based on the selected item.
 	 */
 	@NotNull
 	private DraggableComponent getDraggableComponent(PublicationService publicationService, String selectedItem) {
@@ -153,26 +179,37 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 				button.setHeight("20vh");
 				yield button;
 			}
-			case "Label 1" -> new Span("Label 1");
-			case "Button ABC" -> new Button("Button ABC");
 			case "Horizontal Layout" -> {
 				HorizontalLayout horizontalLayout = new HorizontalLayout();
 				Button innerButton = new Button("Inner Button");
 				horizontalLayout.add(innerButton);
 				yield horizontalLayout;
 			}
-			case "Graph" -> {
+			case "BarChart" -> {
 				PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
 				barChart.setWidth("70vh");
 				barChart.setHeight("50vh");
 				yield new Div(barChart);
+			}
+			case "PieChart" -> {
+				PublicationCategoryLayout<PublicationCategoryPieChart> pieChart = new PublicationCategoryLayout<>(publicationService, pieChartFactory);
+				pieChart.setWidth("70vh");
+				pieChart.setHeight("50vh");
+				yield new Div(pieChart);
+			}
+			case "NightingaleRoseChart" -> {
+				PublicationCategoryLayout<PublicationCategoryNightingaleRoseChart> nightingaleRoseChart = new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory);
+				nightingaleRoseChart.setWidth("70vh");
+				nightingaleRoseChart.setHeight("50vh");
+				yield new Div(nightingaleRoseChart);
 			}
 			default -> null;
 		};
 		return new DraggableComponent(Objects.requireNonNullElseGet(component, Div::new), dropGrid);
 	}
 
-	/** Updates the items in the component select dropdown.
+	/**
+	 * Updates the items in the component select dropdown.
 	 * Enables or disables the dropdown based on the availability of components.
 	 */
 	private void updateSelectItems() {
@@ -180,12 +217,15 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		componentSelect.setEnabled(!availableComponents.isEmpty());
 	}
 
-	/** Toggles the editing mode and updates the UI accordingly. */
+	/**
+	 * Toggles the editing mode
+	 */
 	private void editModeButtonPress() {
 		setEditionMode(!editionMode);
 	}
 
-	/** Sets the editing mode and updates the UI to reflect the change.
+	/**
+	 * Sets the editing mode and updates the UI to reflect the change.
 	 *
 	 * @param editionMode the new editing mode state.
 	 */
@@ -195,18 +235,19 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			dropGrid.changeEditionMode();
 		}
 		if (editionMode) {
-			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChildren().findFirst().ifPresent(this::addContextMenuToComponent));
+			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChild().ifPresent(this::addContextMenuToComponent));
 			editButton.setText("Stop Editing");
 		} else {
 			editButton.setText("Edit");
 		}
 	}
 
-	/** Creates a button with a specified name and action.
+	/**
+	 * Creates a button with a specified name and action.
 	 *
 	 * @param name the name displayed on the button.
 	 * @param clickAction the action executed on button click.
-	 * @return the created Button component.
+	 * @return Button the created Button component.
 	 */
 	private Button createButton(String name, ComponentEventListener<ClickEvent<Button>> clickAction) {
 		Button button = new Button(name);
@@ -214,7 +255,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		return button;
 	}
 
-	/** Adds a context menu to a component to provide options like deletion.
+	/**
+	 * Adds a context menu to a component to deletion option.
 	 *
 	 * @param component The component to which the context menu is added.
 	 */
@@ -224,7 +266,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		contextMenu.addItem("Delete", event -> removeComponent(component));
 	}
 
-	/** Removes a specified component from the parent layout and updates the dropdown.
+	/**
+	 * Removes a specified component from the parent layout and updates the dropdown.
 	 *
 	 * @param component The component to be removed.
 	 */
@@ -240,9 +283,10 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		});
 	}
 
-	/** Returns the page title for the dashboard view.
+	/**
+	 * Returns the page title for the dashboard view.
 	 *
-	 * @return The page title.
+	 * @return String the page title.
 	 */
 	@Override
 	public String getPageTitle() {
