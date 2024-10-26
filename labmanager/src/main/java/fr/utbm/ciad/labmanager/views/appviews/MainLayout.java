@@ -104,9 +104,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private H2 viewTitle;
 
-	private final AuthenticatedUser authenticatedUser;
+	private Reporting reporting;
 
-	private final PersonService personService;
+	private final AuthenticatedUser authenticatedUser;
 
 	private final AuthorshipRepository authorshipRepository;
 
@@ -219,14 +219,12 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	public MainLayout(@Autowired AuthenticatedUser authenticatedUser, @Autowired AccessAnnotationChecker accessChecker,
 			@Autowired MessageSourceAccessor messages, @Value("${labmanager.application-name}") String applicationName,
 			@Value("${labmanager.disable-cas-login}") boolean disableCasLogin,
-					  @Autowired PersonService personService,
 					  @Autowired AuthorshipRepository authorshipRepository) {
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
 		this.disableCasLogin = disableCasLogin;
 		this.accessChecker = accessChecker;
 		this.applicationName = applicationName;
-		this.personService = personService;
 		this.authorshipRepository = authorshipRepository;
 		setPrimarySection(Section.DRAWER);
 		addNavigationPanel();
@@ -240,7 +238,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		toggle.setAriaLabel(getTranslation("views.menu_toggle")); //$NON-NLS-1$
 		this.viewTitle = new H2();
 		this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Whitespace.NOWRAP);
-		addToNavbar(true, toggle, this.viewTitle, new  Reporting(personService, authorshipRepository, authenticatedUser));
+		reporting = new Reporting(authorshipRepository, authenticatedUser);
+		addToNavbar(true, toggle, this.viewTitle, reporting);
 	}
 
 	/** Add the navigation panel, with the application header, the menus, and the navigation footer.
@@ -680,6 +679,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 				this.username.setText(fullname);
 			}
 			updateUserRoleInMenu(user.getRole());
+			this.reporting.refresh();
 		}
 	}
 	
@@ -720,6 +720,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 		
 		this.viewTitle.setText(getCurrentPageTitle());
+		this.reporting.setText(getTranslation("views.dashboard.reporting.doi"), getTranslation("views.dashboard.reporting.orcid")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (this.positionSection != null) {
 			this.positionSection.setLabel(getTranslation("views.navitem.positionSection")); //$NON-NLS-1$

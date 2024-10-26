@@ -2,6 +2,7 @@ package fr.utbm.ciad.labmanager.views.components.dashboard;
 
 import com.vaadin.componentfactory.Popup;
 import com.vaadin.componentfactory.PopupVariant;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -16,10 +17,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,9 +28,7 @@ public class Reporting extends HorizontalLayout {
     private static final long serialVersionUID = 1L;
 
     public static final String TEST_TARGET_ELEMENT_ID = "show-notification-popup";
-    private static final Logger log = LoggerFactory.getLogger(Reporting.class);
 
-    private final PersonService personService;
     private final AuthorshipRepository authorshipRepository;
     private final AuthenticatedUser authenticatedUser;
 
@@ -44,12 +40,14 @@ public class Reporting extends HorizontalLayout {
     private final Icon icon = new Icon(LumoIcon.BELL.create().getIcon());
     private final Popup popup = new Popup();
 
+    private Text orcidText;
+    private Text doiText;
+
+
     private int notificationCount = 0;
 
-    public Reporting(PersonService personService,
-                     AuthorshipRepository authorshipRepository,
+    public Reporting(AuthorshipRepository authorshipRepository,
                      AuthenticatedUser authenticatedUser) {
-        this.personService = personService;
         this.authorshipRepository = authorshipRepository;
         this.authenticatedUser = authenticatedUser;
 
@@ -106,10 +104,12 @@ public class Reporting extends HorizontalLayout {
             orcidGrid.getStyle().set("width", "300px").set("height", "35px")
                     .set("align-self", "unset");
 
+            orcidText = new Text("• " + getTranslation("views.dashboard.reporting.orcid"));
+
             orcidLayout = new VerticalLayout();
 
             orcidLayout = new VerticalLayout();
-            orcidLayout.add("• You have not set your ORCID identifier.");
+            orcidLayout.add(this.orcidText);
             orcidLayout.add(orcidGrid);
 
             applyThemeOnLayout(orcidLayout);
@@ -151,8 +151,10 @@ public class Reporting extends HorizontalLayout {
             publicationGrid.getStyle().set("width", "300px").set("height", "180px")
                     .set("align-self", "unset");
 
+            doiText = new Text("• " + getTranslation("views.dashboard.reporting.doi"));
+
             publicationLayout = new VerticalLayout();
-            publicationLayout.add("• You have publications without DOI.");
+            publicationLayout.add(this.doiText);
             publicationLayout.add(publicationGrid);
 
             applyThemeOnLayout(publicationLayout);
@@ -225,5 +227,27 @@ public class Reporting extends HorizontalLayout {
         } else {
             return null;
         }
+    }
+
+    public void setText(String doiText, String orcidText) {
+        if (this.doiText != null) {
+            this.doiText.setText(doiText);
+        }
+        if (this.orcidText != null) {
+            this.orcidText.setText(orcidText);
+        }
+    }
+
+    public void refresh() {
+        notificationCount = 0;
+        orcidLayout = null;
+        publicationLayout = null;
+        orcidDiv.removeAll();
+        popup.removeAll();
+        initOrcidLayout();
+        initPublicationLayout();
+        initPopupContent();
+        configureIconAndPopup();
+        badge.setText(String.valueOf(notificationCount));
     }
 }
