@@ -5,6 +5,7 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.dnd.DropEvent;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import fr.utbm.ciad.labmanager.views.components.charts.layout.AbstractChartLayout;
 
 import java.util.Optional;
 
@@ -108,6 +109,13 @@ public class DropCell extends VerticalLayout {
     public void addComponent(Component component) {
         if (isEmpty) {
             add(component);
+            if (component instanceof AbstractChartLayout) {
+                ((AbstractChartLayout) component).refreshChart();
+            } else if (component instanceof DraggableComponent) {
+                if (((DraggableComponent) component).getComponent() instanceof AbstractChartLayout) {
+                    ((AbstractChartLayout) ((DraggableComponent) component).getComponent()).refreshChart();
+                }
+            }
             isEmpty = false;
         }
     }

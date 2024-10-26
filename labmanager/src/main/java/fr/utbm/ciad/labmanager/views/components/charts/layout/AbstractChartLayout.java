@@ -23,4 +23,5 @@ public abstract class AbstractChartLayout extends VerticalLayout implements Char
         setHeight(1000, Unit.PIXELS);
     }
 
+    public abstract void refreshChart();
 }

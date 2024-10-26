@@ -205,7 +205,10 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			}
 			default -> null;
 		};
-		return new DraggableComponent(Objects.requireNonNullElseGet(component, Div::new), dropGrid);
+		if (component == null) {
+			throw new IllegalArgumentException("Unknown component type: " + selectedItem);
+		}
+		return new DraggableComponent(component, dropGrid);
 	}
 
 	/**

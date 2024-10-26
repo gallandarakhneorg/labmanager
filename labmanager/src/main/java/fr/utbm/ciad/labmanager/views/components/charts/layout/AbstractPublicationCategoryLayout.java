@@ -1,5 +1,6 @@
 package fr.utbm.ciad.labmanager.views.components.charts.layout;
 
+import com.storedobject.chart.SOChart;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -36,11 +37,13 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
 
     private T chart;
 
-    private final HorizontalLayout horizontalLayout1;
+    private final HorizontalLayout chartHorizontalLayout;
 
-    private final HorizontalLayout horizontalLayout2;
+    private final HorizontalLayout validationHorizontalLayout;
 
     private final YearRange yearRange;
+
+    private SOChart soChart;
 
     /**
      * Constructor.
@@ -56,11 +59,11 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
 
         chart = this.factory.create(this.publicationService);
 
-        horizontalLayout1 = new HorizontalLayout();
-        horizontalLayout1.setWidthFull();
+        chartHorizontalLayout = new HorizontalLayout();
+        chartHorizontalLayout.setWidthFull();
 
-        horizontalLayout2 = new HorizontalLayout();
-        horizontalLayout2.setWidthFull();
+        validationHorizontalLayout = new HorizontalLayout();
+        validationHorizontalLayout.setWidthFull();
 
         yearRange = new YearRange(this.publicationService);
 
@@ -107,34 +110,22 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
                     this.chart.addData(item);
                 }
 
-                horizontalLayout1.add(this.chart.createChart());
+                soChart = this.chart.createChart();
+                chartHorizontalLayout.add(soChart);
                 validateButton.setText(getTranslation("views.charts.refresh"));
 
             } else if (Objects.equals(validateButton.getText(), getTranslation("views.charts.refresh"))) {
-                horizontalLayout1.remove(this.chart.createChart());
-                this.chart = factory.create(this.publicationService);
-
-                if (yearRange.getEnd().isEmpty()) {
-                    chart.setYear(yearRange.getChosenStartValue());
-                } else {
-                    chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
-                }
-
-                Set<String> items = multiSelectComboBox.getSelectedItems();
-                for (String item : items) {
-                    this.chart.addData(item);
-                }
-                horizontalLayout1.add(this.chart.createChart());
+                refreshChart();
             }
 
         });
 
-        horizontalLayout2.add(multiSelectComboBox);
-        horizontalLayout2.add(validateButton);
+        validationHorizontalLayout.add(multiSelectComboBox);
+        validationHorizontalLayout.add(validateButton);
 
-        add(horizontalLayout1);
+        add(chartHorizontalLayout);
         add(yearRange);
-        add(horizontalLayout2);
+        add(validationHorizontalLayout);
 
     }
 
@@ -145,5 +136,29 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
      */
     public PublicationCategoryChartFactory getPublicationCategoryChartFactory() {
         return factory;
+    }
+
+    @Override
+    public void refreshChart() {
+        chartHorizontalLayout.remove(soChart);
+        this.chart = factory.create(this.publicationService);
+
+        if (yearRange.getEnd().isEmpty()) {
+            chart.setYear(yearRange.getChosenStartValue());
+        } else {
+            chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
+        }
+
+        Set<String> items = multiSelectComboBox.getSelectedItems();
+        for (String item : items) {
+            this.chart.addData(item);
+        }
+        soChart.clear();
+        soChart = this.chart.createChart();
+        chartHorizontalLayout.add(soChart);
+    }
+
+    public void setSize(String width, String height) {
+        soChart.setSize(width, height);
     }
 }
