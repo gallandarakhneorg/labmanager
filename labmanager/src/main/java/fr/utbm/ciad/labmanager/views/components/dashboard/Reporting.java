@@ -194,7 +194,13 @@ public class Reporting extends HorizontalLayout {
     private void redirectDoiALl() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
         session.setAttribute(new StringBuilder().append(ViewConstants.MISSING_DOI_FILTER).toString(), true);
-        getUI().ifPresent(ui -> ui.navigate("publications"));
+        getUI().ifPresent(ui -> {
+            if (!ui.getInternals().getActiveViewLocation().getPath().equals("publications")) {
+                ui.navigate("publications");
+            } else {
+                ui.getPage().reload();
+            }
+        });
     }
 
     private void redirectDoiSingle(Publication publication) {
@@ -209,7 +215,6 @@ public class Reporting extends HorizontalLayout {
         session.setAttribute(new StringBuilder().append(ViewConstants.OPEN_DEFAULT_ORCID_DETAILS).toString(), true);
 
         getUI().ifPresent(ui -> {
-
             ui.navigate("myprofile");
         });
     }
