@@ -19,12 +19,14 @@ import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 
+import java.io.Serial;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 @StyleSheet("themes/labmanager/addons/badge/css/notify-badge.css")
 public class Reporting extends HorizontalLayout {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public static final String TEST_TARGET_ELEMENT_ID = "show-notification-popup";
@@ -76,9 +78,7 @@ public class Reporting extends HorizontalLayout {
 
         orcidDiv.addClassNames("item");
         orcidDiv.setId(TEST_TARGET_ELEMENT_ID);
-        orcidDiv.addClickListener(event -> {
-            popup.setOpened(!popup.isOpened());
-        });
+        orcidDiv.addClickListener(event -> popup.setOpened(!popup.isOpened()));
 
         badge.setText(String.valueOf(notificationCount));
         badge.addClassNames("notify-badge");
@@ -193,7 +193,7 @@ public class Reporting extends HorizontalLayout {
 
     private void redirectDoiALl() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
-        session.setAttribute(new StringBuilder().append(ViewConstants.MISSING_DOI_FILTER).toString(), true);
+        session.setAttribute(ViewConstants.MISSING_DOI_FILTER, true);
         getUI().ifPresent(ui -> {
             if (!ui.getInternals().getActiveViewLocation().getPath().equals("publications")) {
                 ui.navigate("publications");
@@ -205,18 +205,16 @@ public class Reporting extends HorizontalLayout {
 
     private void redirectDoiSingle(Publication publication) {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
-        session.setAttribute(new StringBuilder().append(ViewConstants.PUBLICATION_ID_TO_EDIT).toString(), publication.getId());
-        session.setAttribute(new StringBuilder().append(ViewConstants.OPEN_DEFAULT_DOI_DETAILS).toString(), true);
+        session.setAttribute(ViewConstants.PUBLICATION_ID_TO_EDIT, publication.getId());
+        session.setAttribute(ViewConstants.OPEN_DEFAULT_DOI_DETAILS, true);
         redirectDoiALl();
     }
 
     private void redirectOrcid() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
-        session.setAttribute(new StringBuilder().append(ViewConstants.OPEN_DEFAULT_ORCID_DETAILS).toString(), true);
+        session.setAttribute(ViewConstants.OPEN_DEFAULT_ORCID_DETAILS, true);
 
-        getUI().ifPresent(ui -> {
-            ui.navigate("myprofile");
-        });
+        getUI().ifPresent(ui -> ui.navigate("myprofile"));
     }
 
     private Boolean checkOrcid() {
