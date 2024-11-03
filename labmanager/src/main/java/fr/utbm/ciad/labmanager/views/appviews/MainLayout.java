@@ -19,9 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.appviews;
 
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -44,7 +42,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
@@ -104,7 +101,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private H2 viewTitle;
 
-	private Reporting reporting;
+	private static Reporting reporting;
 
 	private final AuthenticatedUser authenticatedUser;
 
@@ -679,8 +676,11 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 				this.username.setText(fullname);
 			}
 			updateUserRoleInMenu(user.getRole());
-			this.reporting.refresh();
 		}
+	}
+
+	public static void refreshReporting() {
+		reporting.refresh();
 	}
 	
 	private void logout() {
