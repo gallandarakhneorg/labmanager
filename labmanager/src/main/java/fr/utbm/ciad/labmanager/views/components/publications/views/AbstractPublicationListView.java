@@ -216,7 +216,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		this.organizationService = organizationService;
 
 		final var session = VaadinService.getCurrentRequest().getWrappedSession();
-		final String key = new StringBuilder().append(ViewConstants.EDIT_DOI_FILTER).toString();
+		final String key = new StringBuilder().append(ViewConstants.PUBLICATION_ID_TO_EDIT).toString();
 		final var attr = session.getAttribute(key);
 		if (attr != null) {
 			int publicationId = -1;

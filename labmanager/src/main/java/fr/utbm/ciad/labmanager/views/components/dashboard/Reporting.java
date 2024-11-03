@@ -199,13 +199,14 @@ public class Reporting extends HorizontalLayout {
 
     private void redirectDoiSingle(Publication publication) {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
-        session.setAttribute(new StringBuilder().append(ViewConstants.EDIT_DOI_FILTER).toString(), publication.getId());
+        session.setAttribute(new StringBuilder().append(ViewConstants.PUBLICATION_ID_TO_EDIT).toString(), publication.getId());
+        session.setAttribute(new StringBuilder().append(ViewConstants.OPEN_DEFAULT_DOI_DETAILS).toString(), true);
         redirectDoiALl();
     }
 
     private void redirectOrcid() {
         final var session = VaadinService.getCurrentRequest().getWrappedSession();
-        session.setAttribute(new StringBuilder().append(ViewConstants.EDIT_ORCID_FILTER).toString(), true);
+        session.setAttribute(new StringBuilder().append(ViewConstants.OPEN_DEFAULT_ORCID_DETAILS).toString(), true);
 
         getUI().ifPresent(ui -> {
 

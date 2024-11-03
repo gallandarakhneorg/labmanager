@@ -212,7 +212,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.userContext = userContext;
 		this.personService = personService;
 		final var session = VaadinService.getCurrentRequest().getWrappedSession();
-		final String key = new StringBuilder().append(ViewConstants.EDIT_ORCID_FILTER).toString();
+		final String key = new StringBuilder().append(ViewConstants.OPEN_DEFAULT_ORCID_DETAILS).toString();
 		final var attr = session.getAttribute(key);
 		editOrcid1 = false;
 		if (attr != null) {
