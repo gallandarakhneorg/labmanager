@@ -70,6 +70,7 @@ import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeXConstants;
 import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentConstants;
 import fr.utbm.ciad.labmanager.utils.io.ris.RISConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -523,7 +524,10 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param isCreation indicates if the editor is opened for creating an entity or updating an exisitng entity.
 	 */
 	protected void openPublicationEditor(Publication publication, String title, boolean saveInDatabase, boolean isCreation) {
-		openPublicationEditor(publication, title, saveInDatabase, isCreation, (dialog, entity) -> refreshGrid());
+		openPublicationEditor(publication, title, saveInDatabase, isCreation, (dialog, entity) -> {
+			refreshGrid();
+			MainLayout.refreshReporting();
+		});
 	}
 
 	/**
