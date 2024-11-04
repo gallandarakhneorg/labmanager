@@ -31,7 +31,7 @@ public class GroupingUtils {
             Function<T, K1> keyMapper1) {
 
         return dtos.stream()
-                .collect(Collectors.groupingBy(keyMapper1)); // Regroupement par un seul champ
+                .collect(Collectors.groupingBy(keyMapper1));
     }
 
 
