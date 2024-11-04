@@ -125,9 +125,6 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		header.getStyle().set("width", "100%");
 
 		editButton.getStyle().set("width", "20vh");
-		if (dropGrid.isEmpty()) {
-			editButton.setEnabled(false);
-		}
 
 		header.add(componentSelect, editButton);
 		return header;
@@ -146,7 +143,6 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		componentSelect.addValueChangeListener(event -> {
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
-				editButton.setEnabled(true);
 				this.setEditionMode(true);
 
 				DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
@@ -161,6 +157,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 				componentSelect.clear();
 			}
 		});
+
+        componentSelect.setVisible(!dropGrid.isEmpty());
 	}
 
 	/**
@@ -243,8 +241,10 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		if (editionMode) {
 			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChild().ifPresent(this::addContextMenuToComponent));
 			editButton.setText("Stop Editing");
+			componentSelect.setVisible(true);
 		} else {
 			editButton.setText("Edit");
+			componentSelect.setVisible(false);
 		}
 	}
 
@@ -283,7 +283,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			String componentId = component.getElement().getAttribute("data-custom-id");
 			availableComponents.add(Objects.requireNonNullElse(componentId, "Unknown Component"));
 			if (dropGrid.isEmpty()) {
-				editButton.setEnabled(false);
+				setEditionMode(false);
 			}
 			updateSelectItems();
 		});
