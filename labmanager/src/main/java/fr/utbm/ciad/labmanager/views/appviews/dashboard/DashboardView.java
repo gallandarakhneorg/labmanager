@@ -38,9 +38,7 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.Div;
@@ -71,9 +69,10 @@ import fr.utbm.ciad.labmanager.utils.dragdrop.DropGrid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import com.vaadin.flow.component.HasComponents;
+
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import org.jetbrains.annotations.NotNull;
+import org.vaadin.addons.idle.Idle;
 
 @Route(value = "", layout = MainLayout.class)
 @PermitAll
@@ -86,6 +85,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	private final Select<String> componentSelect = new Select<>();
 	private final Button editButton = createButton("Edit", event -> editModeButtonPress());
 	private final DropGrid dropGrid = new DropGrid();
+	private Idle idle;
 
 	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Horizontal Layout", "BarChart","PieChart","NightingaleRoseChart"));
 
@@ -104,7 +104,19 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		barChartFactory = new PublicationCategoryBarChartFactory();
 		pieChartFactory = new PublicationCategoryPieChartFactory();
 		nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
+		idle = Idle.track(UI.getCurrent(), 30000);
 
+		idle.addUserActiveListener(event -> {
+			if (!editionMode) {
+				setEditionMode(true);
+			}
+		});
+
+		idle.addUserInactiveListener(event -> {
+			if (editionMode) {
+				setEditionMode(false);
+			}
+		});
 		updateSelectItems();
 		Button showLogButton = createButton("Show Log", event -> getLogger().info("Test logger / User name should appear"));
 
