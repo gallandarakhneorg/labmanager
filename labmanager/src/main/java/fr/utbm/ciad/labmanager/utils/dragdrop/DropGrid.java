@@ -61,25 +61,37 @@ public class DropGrid extends FlexLayout {
     }
 
     /**
-     * Displays the grid borders
+     * Displays the grid borders depending on the event calling the method (triggering edit mode or dragging a component)
+     *
+     * @param dragging true if the event is dragging, false otherwise
      */
-    public void showBorders() {
-        getStyle().set("border", "1px dashed #bfbfbf");
+    public void showBorders(boolean dragging) {
+        if(dragging){
+            getStyle().set("border", "1px dashed #bfbfbf");
+        }else{
+            getStyle().set("border", "1px dashed #f2f2f2");
+        }
         cells.forEach(cell -> {
             if (cell != null) {
-                cell.showBorders();
+                cell.showBorders(dragging);
             }
         });
     }
 
     /**
-     * Hides the grid borders
+     * Hide the cell borders depending on the event calling the method (triggering edit mode or dragging a component)
+     *
+     * @param dragging true if the event is dragging, false otherwise
      */
-    public void hideBorders() {
-        getStyle().set("border", "none");
+    public void hideBorders(boolean dragging) {
+        if(dragging){
+            getStyle().set("border", "1px dashed #f2f2f2");
+        }else{
+            getStyle().set("border", "none");
+        }
         cells.forEach(cell -> {
             if (cell != null) {
-                cell.hideBorders();
+                cell.hideBorders(dragging);
             }
         });
     }
@@ -140,9 +152,16 @@ public class DropGrid extends FlexLayout {
 
     /**
      * Toggles the edition mode
+     *
+     * @param editionMode the new edition mode
      */
-    public void changeEditionMode() {
-        getCellsContainingComponents().forEach(DropCell::changeEditionMode);
+    public void changeEditionMode(boolean editionMode) {
+        if(editionMode){
+            showBorders(false);
+        }else{
+            hideBorders(false);
+        }
+        getCellsContainingComponents().forEach(cell -> cell.changeEditionMode(editionMode));
     }
 
     /**

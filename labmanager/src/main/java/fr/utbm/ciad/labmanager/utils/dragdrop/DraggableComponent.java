@@ -29,13 +29,13 @@ public class DraggableComponent extends Div {
         // Listener for when dragging starts
         dragSource.addDragStartListener(event -> {
             dropGrid.setDragging(true);
-            dropGrid.showBorders();
+            dropGrid.showBorders(true);
         });
 
         // Listener for when dragging ends
         dragSource.addDragEndListener(event -> {
             dropGrid.setDragging(false);
-            dropGrid.hideBorders();
+            dropGrid.hideBorders(true);
         });
 
         component.getElement().addEventListener("mouseenter", event ->

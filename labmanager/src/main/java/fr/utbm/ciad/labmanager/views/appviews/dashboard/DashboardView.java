@@ -208,6 +208,9 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		if (component == null) {
 			throw new IllegalArgumentException("Unknown component type: " + selectedItem);
 		}
+		component.getStyle().setBackgroundColor("#f2f2f2");
+		component.getStyle().setBorder("#bfbfbf");
+
 		return new DraggableComponent(component, dropGrid);
 	}
 
@@ -235,7 +238,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	private void setEditionMode(boolean editionMode) {
 		if (this.editionMode != editionMode) {
 			this.editionMode = editionMode;
-			dropGrid.changeEditionMode();
+			dropGrid.changeEditionMode(editionMode);
 		}
 		if (editionMode) {
 			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChild().ifPresent(this::addContextMenuToComponent));

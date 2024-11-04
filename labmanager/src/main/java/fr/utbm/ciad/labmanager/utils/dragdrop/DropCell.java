@@ -79,17 +79,29 @@ public class DropCell extends VerticalLayout {
     }
 
     /**
-     * Displays the cell borders
+     * Displays the cell borders depending on the event calling the method (triggering edit mode or dragging a component)
+     *
+     * @param dragging true if the event is dragging, false otherwise
      */
-    public void showBorders() {
-        getStyle().set("border", "1px dashed #bfbfbf");
+    public void showBorders(boolean dragging) {
+        if(dragging){
+            getStyle().set("border", "1px dashed #bfbfbf");
+        }else{
+            getStyle().set("border", "1px dashed #f2f2f2");
+        }
     }
 
     /**
-     * Hides the cell borders.
+     * Hide the cell borders depending on the event calling the method (triggering edit mode or dragging a component)
+     *
+     * @param dragging true if the event is dragging, false otherwise
      */
-    public void hideBorders() {
-        getStyle().set("border", "none");
+    public void hideBorders(boolean dragging) {
+        if(dragging){
+            getStyle().set("border", "1px dashed #f2f2f2");
+        }else{
+            getStyle().set("border", "none");
+        }
     }
 
     /**
@@ -133,13 +145,15 @@ public class DropCell extends VerticalLayout {
     /**
      * Toggle the cell to edition mode.
      */
-    public void changeEditionMode() {
+    public void changeEditionMode(boolean editionMode) {
         getChild().ifPresent(component -> {
             emptyCell();
-            if (component instanceof DraggableComponent) {
-                addComponent(((DraggableComponent) component).getComponent());
-            } else {
+            if (editionMode) {
+                showBorders(false);
                 addComponent(new DraggableComponent(component, dropGrid));
+            } else {
+                hideBorders(false);
+                addComponent(((DraggableComponent) component).getComponent());
             }
         });
     }
