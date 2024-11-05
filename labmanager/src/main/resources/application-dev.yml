@@ -96,7 +96,6 @@ vaadin:
   allowed-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application,com.storedobject
 
 labmanager:
-  disable-cas-login: false
   cas-servers:
     utbm:
       key: "13792c4f-5188-46da-922d-3f1cee3f85c8"

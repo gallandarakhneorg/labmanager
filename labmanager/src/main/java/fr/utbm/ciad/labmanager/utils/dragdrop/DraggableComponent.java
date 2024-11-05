@@ -3,6 +3,7 @@ package fr.utbm.ciad.labmanager.utils.dragdrop;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.html.Div;
+import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 public class DraggableComponent extends Div {
 
@@ -70,13 +71,17 @@ public class DraggableComponent extends Div {
      */
     private void adaptComponentSize() {
         getElement().executeJs("return this.offsetWidth;")
-                .then(width -> {
-                    component.getStyle()
-                            .set("width", width.asString() + "px");
-                    getElement().executeJs("return this.offsetHeight;")
-                            .then(height -> component.getStyle()
-                                    .set("height", height.asString() + "px"));
-                });
+                .then(width -> getElement().executeJs("return this.offsetHeight;")
+                        .then(height -> {
+                            component.getStyle()
+                                    .set("height", height.asString() + "px")
+                                    .set("width", width.asString() + "px");
+                            if(isChart()){
+                                ((PublicationCategoryLayout<?>) component).setSize(
+                                        Math.round(width.asNumber()*0.9) + "px",
+                                        Math.round(height.asNumber()*0.75) + "px");
+                            }
+                        }));
     }
 
     /**
@@ -86,7 +91,6 @@ public class DraggableComponent extends Div {
      */
     public Component getComponent() {
         Component component = this.component;
-
         component.getElement().setAttribute("data-custom-id", getElement().getAttribute("data-custom-id"));
         return component;
     }
@@ -111,6 +115,15 @@ public class DraggableComponent extends Div {
             this.component = component;
             add(this.component);
         }
+    }
+
+    /**
+     * Checks if the current component is an instance of PublicationCategoryLayout.
+     *
+     * @return true if the component is a chart layout; false otherwise.
+     */
+    public boolean isChart(){
+        return component instanceof PublicationCategoryLayout<?>;
     }
 }
 

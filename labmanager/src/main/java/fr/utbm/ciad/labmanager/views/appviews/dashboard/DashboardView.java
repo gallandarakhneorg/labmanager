@@ -41,7 +41,6 @@ package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -68,7 +67,6 @@ import fr.utbm.ciad.labmanager.utils.dragdrop.DraggableComponent;
 import fr.utbm.ciad.labmanager.utils.dragdrop.DropGrid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import org.jetbrains.annotations.NotNull;
@@ -83,9 +81,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 	private boolean editionMode = false;
 	private final Select<String> componentSelect = new Select<>();
-	private final Button editButton = createButton("Edit", event -> editModeButtonPress());
+	private final Button editButton = createButton(getTranslation("views.edit"), event -> editModeButtonPress());
 	private final DropGrid dropGrid = new DropGrid();
-	private Idle idle;
 
 	private final List<String> availableComponents = new ArrayList<>(List.of("Button 1", "Horizontal Layout", "BarChart","PieChart","NightingaleRoseChart"));
 
@@ -104,13 +101,13 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 		barChartFactory = new PublicationCategoryBarChartFactory();
 		pieChartFactory = new PublicationCategoryPieChartFactory();
 		nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
-		idle = Idle.track(UI.getCurrent(), 30000);
+        Idle idle = Idle.track(UI.getCurrent(), 30000);
 
-		idle.addUserActiveListener(event -> {
+		/*idle.addUserActiveListener(event -> {
 			if (!editionMode) {
 				setEditionMode(true);
 			}
-		});
+		});*/
 
 		idle.addUserInactiveListener(event -> {
 			if (editionMode) {
@@ -149,13 +146,13 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 * @param publicationService the service used to manage publications.
 	 */
 	private void createSelect(PublicationService publicationService) {
-		componentSelect.setLabel("Select Component");
+		componentSelect.setLabel(getTranslation("views.select_component"));
 		componentSelect.setItems(availableComponents);
 
 		componentSelect.addValueChangeListener(event -> {
 			String selectedItem = event.getValue();
 			if (selectedItem != null) {
-				this.setEditionMode(true);
+				setEditionMode(true);
 
 				DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
 				addContextMenuToComponent(draggableComponent);
@@ -195,28 +192,19 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 				horizontalLayout.add(innerButton);
 				yield horizontalLayout;
 			}
-			case "BarChart" -> {
-				PublicationCategoryLayout<PublicationCategoryBarChart> barChart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
-				barChart.setWidth("70vh");
-				barChart.setHeight("50vh");
-				yield new Div(barChart);
-			}
-			case "PieChart" -> {
-				PublicationCategoryLayout<PublicationCategoryPieChart> pieChart = new PublicationCategoryLayout<>(publicationService, pieChartFactory);
-				pieChart.setWidth("70vh");
-				pieChart.setHeight("50vh");
-				yield new Div(pieChart);
-			}
-			case "NightingaleRoseChart" -> {
-				PublicationCategoryLayout<PublicationCategoryNightingaleRoseChart> nightingaleRoseChart = new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory);
-				nightingaleRoseChart.setWidth("70vh");
-				nightingaleRoseChart.setHeight("50vh");
-				yield new Div(nightingaleRoseChart);
-			}
+			case "BarChart" -> new PublicationCategoryLayout<>(publicationService, barChartFactory);
+			case "PieChart" -> new PublicationCategoryLayout<>(publicationService, pieChartFactory);
+			case "NightingaleRoseChart" -> new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory);
 			default -> null;
 		};
 		if (component == null) {
 			throw new IllegalArgumentException("Unknown component type: " + selectedItem);
+		}
+		if(component instanceof PublicationCategoryLayout<?>){
+			((PublicationCategoryLayout<?>) component).setWidth("70vh");
+			((PublicationCategoryLayout<?>) component).setHeight("50vh");
+			((PublicationCategoryLayout<?>) component).setSize("63vh", "38vh");
+			((PublicationCategoryLayout<?>) component).setFormHidden(true);
 		}
 		component.getStyle().setBackgroundColor("#f2f2f2");
 		component.getStyle().setBorder("#bfbfbf");
@@ -251,11 +239,11 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 			dropGrid.changeEditionMode(editionMode);
 		}
 		if (editionMode) {
-			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChild().ifPresent(this::addContextMenuToComponent));
-			editButton.setText("Stop Editing");
+			dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChild().ifPresent(component -> addContextMenuToComponent((DraggableComponent) component)));
+			editButton.setText(getTranslation("views.stop_edit"));
 			componentSelect.setVisible(true);
 		} else {
-			editButton.setText("Edit");
+			editButton.setText(getTranslation("views.edit"));
 			componentSelect.setVisible(false);
 		}
 	}
@@ -274,14 +262,17 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	}
 
 	/**
-	 * Adds a context menu to a component to deletion option.
+	 * Adds a context menu to a component with the deletion option, and the edit chart one when needed.
 	 *
 	 * @param component The component to which the context menu is added.
 	 */
-	private void addContextMenuToComponent(Component component) {
+	private void addContextMenuToComponent(DraggableComponent component) {
 		ContextMenu contextMenu = new ContextMenu();
 		contextMenu.setTarget(component);
-		contextMenu.addItem("Delete", event -> removeComponent(component));
+		contextMenu.addItem(getTranslation("views.delete"), event -> removeComponent(component));
+		if(component.isChart()){
+			contextMenu.addItem(getTranslation("views.charts.edit"), event -> editChart(component));
+		}
 	}
 
 	/**
@@ -289,16 +280,24 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 *
 	 * @param component The component to be removed.
 	 */
-	private void removeComponent(Component component) {
+	private void removeComponent(DraggableComponent component) {
 		component.getParent().ifPresent(parent -> {
 			((HasComponents) parent).remove(component);
 			String componentId = component.getElement().getAttribute("data-custom-id");
-			availableComponents.add(Objects.requireNonNullElse(componentId, "Unknown Component"));
-			if (dropGrid.isEmpty()) {
-				setEditionMode(false);
+			if(componentId != null) {
+				availableComponents.add(componentId);
 			}
 			updateSelectItems();
 		});
+	}
+
+	/**
+	 * Initiates the editing process for the specified chart component.
+	 *
+	 * @param component the draggable component containing the chart to be edited.
+	 */
+	private void editChart(DraggableComponent component){
+		((PublicationCategoryLayout<?>) component.getComponent()).removeChart();
 	}
 
 	/**

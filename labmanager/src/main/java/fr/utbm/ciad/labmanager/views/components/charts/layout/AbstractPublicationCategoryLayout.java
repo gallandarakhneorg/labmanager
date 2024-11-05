@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.addons.value.YearRange;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
@@ -44,6 +45,12 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
     private final YearRange yearRange;
 
     private SOChart soChart;
+
+    private String width;
+
+    private String height;
+
+    private boolean isFormHidden = false;
 
     /**
      * Constructor.
@@ -94,7 +101,6 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
 
         });
 
-
         validateButton = new Button(getTranslation("views.charts.create"));
         validateButton.setEnabled(false);
         validateButton.addClickListener(e -> {
@@ -111,11 +117,19 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
                 }
 
                 soChart = this.chart.createChart();
+                soChart.setSize(width, height);
                 chartHorizontalLayout.add(soChart);
+                if(isFormHidden){
+                    yearRange.setVisible(false);
+                    multiSelectComboBox.setVisible(false);
+                }
                 validateButton.setText(getTranslation("views.charts.refresh"));
 
-            } else if (Objects.equals(validateButton.getText(), getTranslation("views.charts.refresh"))) {
+            } else {
                 refreshChart();
+                if(Objects.equals(validateButton.getText(), getTranslation("views.charts.edit"))){
+                    validateButton.setText(getTranslation("views.charts.refresh"));
+                }
             }
 
         });
@@ -124,8 +138,9 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         validationHorizontalLayout.add(validateButton);
 
         add(chartHorizontalLayout);
-        add(yearRange);
-        add(validationHorizontalLayout);
+        VerticalLayout form = new VerticalLayout(yearRange, validationHorizontalLayout);
+        form.setPadding(false);
+        add(form);
 
     }
 
@@ -140,25 +155,64 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
 
     @Override
     public void refreshChart() {
-        chartHorizontalLayout.remove(soChart);
-        this.chart = factory.create(this.publicationService);
+        if(soChart != null) {
+            chartHorizontalLayout.remove(soChart);
 
-        if (yearRange.getEnd().isEmpty()) {
-            chart.setYear(yearRange.getChosenStartValue());
-        } else {
-            chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
-        }
+            this.chart = factory.create(this.publicationService);
 
-        Set<String> items = multiSelectComboBox.getSelectedItems();
-        for (String item : items) {
-            this.chart.addData(item);
+            if (yearRange.getEnd().isEmpty()) {
+                chart.setYear(yearRange.getChosenStartValue());
+            } else {
+                chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
+            }
+
+            Set<String> items = multiSelectComboBox.getSelectedItems();
+            for (String item : items) {
+                this.chart.addData(item);
+            }
+            soChart.clear();
+            soChart = this.chart.createChart();
+            soChart.setSize(width, height);
+            chartHorizontalLayout.add(soChart);
+            if(isFormHidden){
+                yearRange.setVisible(false);
+                multiSelectComboBox.setVisible(false);
+            }
         }
-        soChart.clear();
-        soChart = this.chart.createChart();
-        chartHorizontalLayout.add(soChart);
     }
 
+    /**
+     * Sets the size of the chart
+     *
+     * @param width  the width to set for the chart.
+     * @param height the height to set for the chart.
+     */
     public void setSize(String width, String height) {
-        soChart.setSize(width, height);
+        this.height = height;
+        this.width = width;
+        if(soChart != null){
+            soChart.setSize(width, height);
+        }
+    }
+
+    /**
+     * Toggles the visibility of the form that contains the year range and category selection.
+     *
+     * @param formHidden true to hide the form, false to show it.
+     */
+    public void setFormHidden(boolean formHidden) {
+        this.isFormHidden = formHidden;
+    }
+
+    /**
+     * Removes the current chart from the layout and resets the visibility
+     * of the year range and multi-select combo box. Also resets the button text
+     * to indicate the edit mode.
+     */
+    public void removeChart(){
+        chartHorizontalLayout.remove(soChart);
+        yearRange.setVisible(true);
+        multiSelectComboBox.setVisible(true);
+        validateButton.setText(getTranslation("views.charts.edit"));
     }
 }

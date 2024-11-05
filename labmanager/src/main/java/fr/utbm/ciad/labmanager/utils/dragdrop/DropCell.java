@@ -1,11 +1,10 @@
 package fr.utbm.ciad.labmanager.utils.dragdrop;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.dnd.DropEvent;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import fr.utbm.ciad.labmanager.views.components.charts.layout.AbstractChartLayout;
+import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 import java.util.Optional;
 
@@ -31,7 +30,8 @@ public class DropCell extends VerticalLayout {
                 .set("display", "flex")
                 .set("align-items", "flex-start")
                 .set("justify-content", "flex-start")
-                .set("position", "relative");
+                .set("position", "relative")
+                .setPadding("0");
 
         DropTarget<VerticalLayout> dropTarget = DropTarget.create(this);
         dropTarget.addDropListener(this::handleDrop);
@@ -60,8 +60,8 @@ public class DropCell extends VerticalLayout {
         event.getDragSourceComponent().ifPresent(draggedComponent -> {
             if (isEmpty) {
                 draggedComponent.getParent().ifPresent(parent -> {
-                    if (parent instanceof VerticalLayout) {
-                        ((HasComponents) parent).remove(draggedComponent);
+                    if (parent instanceof DropCell) {
+                        ((DropCell) parent).emptyCell();
                     }
                 });
                 addComponent(draggedComponent);
@@ -121,11 +121,11 @@ public class DropCell extends VerticalLayout {
     public void addComponent(Component component) {
         if (isEmpty) {
             add(component);
-            if (component instanceof AbstractChartLayout) {
-                ((AbstractChartLayout) component).refreshChart();
+            if (component instanceof PublicationCategoryLayout) {
+                ((PublicationCategoryLayout<?>) component).refreshChart();
             } else if (component instanceof DraggableComponent) {
-                if (((DraggableComponent) component).getComponent() instanceof AbstractChartLayout) {
-                    ((AbstractChartLayout) ((DraggableComponent) component).getComponent()).refreshChart();
+                if (((DraggableComponent) component).getComponent() instanceof PublicationCategoryLayout) {
+                    ((PublicationCategoryLayout<?>) ((DraggableComponent) component).getComponent()).refreshChart();
                 }
             }
             isEmpty = false;
