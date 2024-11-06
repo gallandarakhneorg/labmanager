@@ -159,7 +159,8 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
 				draggableComponent.getElement().setAttribute("data-custom-id", selectedItem);
 
-				dropGrid.addComponentInFirstEmptyCell(draggableComponent);
+				//dropGrid.addComponentInFirstEmptyCell(draggableComponent);
+				dropGrid.addComponentWidthInitialSize(draggableComponent);
 
 				availableComponents.remove(selectedItem);
 				updateSelectItems();

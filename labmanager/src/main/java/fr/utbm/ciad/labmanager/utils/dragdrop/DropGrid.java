@@ -1,11 +1,16 @@
 package fr.utbm.ciad.labmanager.utils.dragdrop;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import elemental.json.JsonArray;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DropGrid extends FlexLayout {
 
@@ -13,6 +18,12 @@ public class DropGrid extends FlexLayout {
     List<DropCell> cells = new ArrayList<>();
 
     private boolean isDragging = false; // State of the dragging operation
+    private final Map<Component, double[]> componentSizes = new HashMap<>();
+    private double screenWidth = 0;
+    private double screenHeight = 0;
+    private double previousWidth = 0;
+    private double previousHeight = 0;
+
 
     /**
      * Constructor for DropGrid.
@@ -27,18 +38,106 @@ public class DropGrid extends FlexLayout {
                 .set("gap", "0px")
                 .set("background-color", "rgba(255, 255, 255, 0.5)");
 
+        UI.getCurrent().getPage().executeJs("return window.innerWidth;")
+                .then(width -> {
+                    UI.getCurrent().getPage().executeJs("return window.innerHeight;").then(height -> {
+                        previousHeight = height.asNumber();
+                        previousWidth = width.asNumber();
+                    });
+                });
+
         createCells();
+
+        UI.getCurrent().getPage().executeJs(
+                "window.addEventListener('resize', function() {" +
+                        "$0.server.onResize();" +
+                        "});", getElement()
+        );
     }
 
+    @ClientCallable
+    public void onResize() {
+        UI.getCurrent().getPage().executeJs("return window.innerWidth;")
+                        .then(width -> {
+                            UI.getCurrent().getPage().executeJs("return window.innerHeight;").then(height -> {
+                                double currentWidth = width.asNumber();
+                                double currentHeight = height.asNumber();
+
+                                double widthRatio = currentWidth / previousWidth;
+                                double heightRatio = currentHeight / previousHeight;
+
+                                resizeAndRepositionComponent(widthRatio, heightRatio);
+
+                                previousHeight = currentHeight;
+                                previousWidth = currentWidth;
+                            });
+                        });
+    }
+
+    private void resizeAndRepositionComponent(double widthRatio, double heightRatio) {
+        componentSizes.forEach((component, size) -> {
+            double originalWidth = size[0];
+            double originalHeight = size[1];
+
+            double newWidth = originalWidth * widthRatio;
+            double newHeight = originalHeight * heightRatio;
+
+            String currentLeftStr = component.getElement().getStyle().get("left");
+            String currentTopStr = component.getElement().getStyle().get("top");
+
+            double currentLeft = (currentLeftStr != null && !currentLeftStr.isEmpty()) ?
+                    Double.parseDouble(currentLeftStr.replace("px", "")) : 0;
+            double currentTop = (currentTopStr != null && !currentTopStr.isEmpty()) ?
+                    Double.parseDouble(currentTopStr.replace("px", "")) : 0;
+
+            double newLeft = currentLeft * widthRatio;
+            double newTop = currentTop * heightRatio;
+
+            component.getElement().getStyle().set("width", newWidth + "px");
+            component.getElement().getStyle().set("height", newHeight + "px");
+            component.getElement().getStyle().set("left", newLeft + "px");
+            component.getElement().getStyle().set("top", newTop + "px");
+        });
+    }
     /**
      * Create the cells of the grid based on the grid size
      */
     private void createCells() {
-        int cellCount = 600; // Static cell count for demonstration purposes
+        UI.getCurrent().getPage().executeJs("return window.innerWidth;").then(width -> {
+            UI.getCurrent().getPage().executeJs("return window.innerHeight;").then(height -> {
+                screenWidth = width.asNumber();
+                screenHeight = height.asNumber();
 
-        for (int i = 0; i < cellCount; i++) {
-            addCell(new DropCell(this, i));
-        }
+                int columns = Math.max(1, (int) (screenWidth / CELL_SIZE));
+                int rows = Math.max(1, (int) (screenHeight / CELL_SIZE));
+                int cellCount = columns * rows;
+
+                cells.clear();
+                removeAll();
+
+                for (int i = 0; i < cellCount; i++) {
+                    DropCell cell = new DropCell(this, i);
+                    addCell(cell);
+                }
+
+                getStyle().set("grid-template-columns", "repeat(" + columns + ", 1fr");
+            });
+        });
+    }
+
+    public void addComponentWidthInitialSize(Component component) {
+        add(component);
+
+        component.getElement().executeJs(
+                "const rect = this.getBoundingClientRect(); return rect.width;"
+        ).then(width -> {
+            component.getElement().executeJs("const rect = this.getBoundingClientRect(); return rect.height;")
+                    .then(height -> {
+                       double a = width.asNumber();
+                       double b = height.asNumber();
+                       componentSizes.put(component, new double[]{a, b});
+                    });
+        });
     }
 
     /**
