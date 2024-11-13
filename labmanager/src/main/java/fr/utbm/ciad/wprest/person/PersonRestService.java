@@ -10,14 +10,10 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
-import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
-import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisorType;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import fr.utbm.ciad.wprest.data.DateRange;
@@ -31,23 +27,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing person-related operations.
  *
  * <p>This controller provides endpoints for accessing and manipulating
  * person-related data, including retrieving information about persons,
- * managing their publications, and handling invitations.</p>
+ * and handling invitations.</p>
  *
- * <p>Base URL: /api/v{majorVersion}/person</p>
+ * <p>Base URL: /api/v{majorVersion}/persons</p>
  *
- * <p>Use the person ID to request data for a person.</p>
+ * <p>Use the person ID or webpageId to request data for a person.</p>
  *
  * <p>This class is annotated with {@link RestController} and handles
- * HTTP requests mapped to the /api/v{majorVersion}/person endpoint.
+ * HTTP requests mapped to the /api/v{majorVersion}/persons endpoint.
  * The version of the API is determined by the constant
  * {@link Constants#MANAGER_MAJOR_VERSION}.</p>
  */
@@ -56,15 +50,12 @@ import java.util.stream.Collectors;
 public class PersonRestService {
 
     private final PersonService personService;
-    private final PublicationService publicationService;
     private final SupervisionService supervisionService;
 
     public PersonRestService(
             @Autowired PersonService personService,
-            @Autowired PublicationService publicationService,
             @Autowired SupervisionService supervisionService) {
         this.personService = personService;
-        this.publicationService = publicationService;
         this.supervisionService = supervisionService;
     }
 
@@ -72,17 +63,17 @@ public class PersonRestService {
      * Retrieves the JSON data for a user's information card based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the card data if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/card")
     @Transactional
     public ResponseEntity<PersonCardDTO> getPersonCard(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -113,17 +104,17 @@ public class PersonRestService {
      * Retrieves the JSON data for a user's biography based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the biography of the user if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/biography")
     @Transactional
     public ResponseEntity<PersonBiographyDTO> getPersonBiography(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -139,123 +130,21 @@ public class PersonRestService {
         return ResponseEntity.ok(biography);
     }
 
-
-    /**
-     * Retrieves a list of publications for a specified person, allowing for optional filtering by year, language, and keywords.
-     *
-     * <p>This endpoint allows clients to filter the publications based on the specified parameters. If the optional parameters
-     * are not provided, all publications for the specified person will be returned.</p>
-     *
-     * @param id the ID of the user or either
-     * @param pageId the webpage_id of the user
-     * @param year     (optional) the year of publication to filter results. If not provided, all years will be included
-     * @param language (optional) the language of publication to filter results. If not provided, all languages will be included
-     * @param keywords (optional) a comma-separated list of keywords to filter results. If not provided, all keywords will be included
-     * @return a ResponseEntity containing a list of PublicationsDTO objects that match the specified filters, or an appropriate error response
-     * if the person is not found or no publications match the criteria.
-     */
-    @GetMapping("/publications")
-    @Transactional
-    public ResponseEntity<List<PublicationsDTO>> getPersonPublications(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId,
-            @RequestParam(required = false) Optional<Long> year,
-            @RequestParam(required = false) Optional<String> language,
-            @RequestParam(required = false) Optional<String> keywords
-    ) {
-        if (id.isPresent() == pageId.isPresent()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        List<PublicationsDTO> publications = new ArrayList<>();
-
-        List<Publication> publicationList = new ArrayList<>(publicationService.getPublicationsByPersonId(p.getId()));
-        for (Publication publication : publicationList) {
-
-            //filter by year
-            if (year.isPresent()) {
-                if (publication.getPublicationDate() == null || year.get().intValue() != publication.getPublicationYear()) {
-                    continue;
-                }
-            }
-
-            //filter by language spoken
-            PublicationLanguage spokenLanguage = publication.getMajorLanguage();
-            if (language.isPresent()) {
-                if (spokenLanguage != PublicationLanguage.valueOfCaseInsensitive(language.get(), PublicationLanguage.OTHER)) {
-                    continue;
-                }
-            }
-
-            //filter by keywords (OR operator)
-            String containedKeywords = publication.getKeywords();
-
-            if (keywords.isPresent()) {
-                if (containedKeywords == null) {
-                    continue;
-                }
-
-                String[] split = keywords.get().split("[ ,;]");
-                boolean found = false;
-                for (String keyword : split) {
-                    if (containedKeywords.toUpperCase(Locale.ROOT).contains(keyword.toUpperCase(Locale.ROOT))) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    continue;
-                }
-            }
-
-            List<String> containedKeywordsList = new ArrayList<>();
-            if (publication.getKeywords() != null) {
-                String[] split = containedKeywords.split("[,;]");
-                containedKeywordsList = Arrays.asList(split);
-            }
-
-            String title = publication.getTitle();
-            LocalDate publicationDate = publication.getPublicationDate();
-
-            PublicationType publicationType = publication.getType();
-
-            List<PersonOnWebsite> authors = new ArrayList<>();
-            publication.getAuthors().forEach(author -> authors.add(new PersonOnWebsite(author.getFullName(), author.getWebPageId())));
-
-            String abstractText = publication.getAbstractText();
-            String pdfUrl = publication.getPathToDownloadablePDF();
-
-            String doi = publication.getDOI();
-            String issn = publication.getISSN();
-
-            publications.add(new PublicationsDTO(title, doi, issn, publicationDate, publicationType, authors, abstractText, pdfUrl, spokenLanguage, containedKeywordsList));
-        }
-
-        return ResponseEntity.ok(publications);
-    }
-
-
     /**
      * Retrieves the invitations when the user is a guest based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the list of invitations if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/guestInvitations")
     @Transactional
     public ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> getPersonGuestInvitations(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -274,17 +163,17 @@ public class PersonRestService {
      * Retrieves the invitations when the user is the inviter. based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the list of invitations if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/inviterInvitations")
     @Transactional
     public ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> getPersonInviterInvitations(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -302,17 +191,17 @@ public class PersonRestService {
      * Retrieves all invitations concerning the user based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the list of invitations if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/invitations")
     @Transactional
     public ResponseEntity<PersonInvitationsDTO> getAllPersonInvitations(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -333,17 +222,17 @@ public class PersonRestService {
      * Retrieves all jurys concerning the user based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the list of jurys if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/jurys")
     @Transactional
     public ResponseEntity<Set<PersonJuryMembershipDTO>> getPersonJuryMemberships(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -368,12 +257,12 @@ public class PersonRestService {
 
             List<Person> promotersOrDirectors = new ArrayList<>(jury.getPromoters());
 
-            promotersOrDirectors.forEach(person -> {
+            for (Person person : promotersOrDirectors) {
                 String name = person.getFullName();
                 String webpageId = person.getWebPageId();
 
                 promotersOrDirectorsNames.add(new PersonOnWebsite(name, webpageId));
-            });
+            }
 
             String universityName = jury.getUniversity();
             String universityCountry = jury.getCountryDisplayName();
@@ -393,17 +282,17 @@ public class PersonRestService {
      * Retrieves all supervisions <u>supervised</u> based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return the list of jurys if found, or a {@code 404 error} if no user is found.
      */
     @GetMapping("/supervisions")
     @Transactional
     public ResponseEntity<List<SupervisionsDTO>> getPersonSupervisions(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId
     ) {
-        if (id.isPresent() == pageId.isPresent()) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -415,33 +304,20 @@ public class PersonRestService {
         List<SupervisionsDTO> supervisions = new ArrayList<>();
 
         List<Supervision> supervised = supervisionService.getSupervisionsForSupervisor(p.getId());
-        supervised.forEach(supervision -> {
+        for (Supervision supervision : supervised) {
             String title = supervision.getTitle();
+            int year = supervision.getYear();
 
             String supervisedPersonName = supervision.getSupervisedPerson().getPerson().getFullName();
             String supervisedPersonWebPageId = supervision.getSupervisedPerson().getPerson().getWebPageId();
-
             PersonOnWebsite supervisedPerson = new PersonOnWebsite(supervisedPersonName, supervisedPersonWebPageId);
-
-            int year = supervision.getYear();
 
             PersonOrganizationData organisation = getOrganizationDataForSupervision(supervision);
 
-            //get all supervisors name and type
             List<Supervisor> supervisors = new ArrayList<>(supervision.getSupervisors());
-            List<SupervisedPersonSupervisorData> supervisorsData = new ArrayList<>();
+            List<SupervisedPersonSupervisorData> supervisorsData = getSupervisorsDataFrom(supervisors);
 
-            supervisors.forEach(supervisor -> {
-                String name = supervisor.getSupervisor().getFullName();
-                String webpageId = supervisor.getSupervisor().getWebPageId();
-                SupervisorType type = supervisor.getType();
-
-                PersonOnWebsite person = new PersonOnWebsite(name, webpageId);
-
-                supervisorsData.add(new SupervisedPersonSupervisorData(person, type));
-            });
-
-            //filter to get the type of supervision for the requested person
+            //filter with streams to get the type of supervision for the requested person
             Optional<SupervisedPersonSupervisorData> personSupervisorData = supervisorsData.stream()
                     .filter(data -> data.person.name().equals(p.getFullName()))
                     .findFirst();
@@ -452,7 +328,8 @@ public class PersonRestService {
             }
 
             supervisions.add(new SupervisionsDTO(title, supervisedPerson, year, supervisionType, organisation, supervisorsData));
-        });
+
+        }
 
         return ResponseEntity.ok(supervisions);
     }
@@ -462,16 +339,17 @@ public class PersonRestService {
      * Retrieves a set of person memberships based on the given ID or page ID.
      * Returns a bad request if both or neither are provided.
      *
-     * @param id the ID of the user or either
+     * @param id     the ID of the user or either
      * @param pageId the webpage_id of the user
      * @return a response entity containing a set of PersonMembershipDTO or an error status
      */
     @GetMapping("/memberships")
     @Transactional
     public ResponseEntity<Set<PersonMembershipDTO>> getMemberships(
-            @RequestParam(required = false) Optional<Long> id,
-            @RequestParam(required = false) Optional<String> pageId) {
-        if (id.isPresent() == pageId.isPresent()) {
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String pageId) {
+
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -484,14 +362,14 @@ public class PersonRestService {
 
         Set<PersonMembershipDTO> personMembershipDTOS = new HashSet<>();
 
-        memberships.forEach(membership -> {
+        for (Membership membership : memberships) {
             MemberStatus status = membership.getMemberStatus();
 
             ResearchOrganization organization = membership.getDirectResearchOrganization();
             OrganizationData organizationData = getOrganisationData(organization);
 
             personMembershipDTOS.add(new PersonMembershipDTO(status, organizationData));
-        });
+        }
 
         return ResponseEntity.ok(personMembershipDTOS);
     }
@@ -507,26 +385,26 @@ public class PersonRestService {
     public Map<PersonInvitationType, Set<PersonInvitationData>> getInvitationsDTOEntity(Set<PersonInvitation> invitations) {
         Map<PersonInvitationType, Set<PersonInvitationData>> personInvitations = new HashMap<>();
 
-        invitations.forEach(it -> {
-
-            PersonInvitationType type = it.getType();
-            DateRange dates = new DateRange(it.getStartDate(), it.getEndDate());
+        for (PersonInvitation invitation : invitations) {
+            PersonInvitationType type = invitation.getType();
+            DateRange dates = new DateRange(invitation.getStartDate(), invitation.getEndDate());
 
             personInvitations.computeIfAbsent(type, k -> new HashSet<>());
 
-            String guestName = it.getGuest().getFullName();
-            String guestWebpageId = it.getGuest().getWebPageId();
+            String guestName = invitation.getGuest().getFullName();
+            String guestWebpageId = invitation.getGuest().getWebPageId();
 
             PersonOnWebsite guestData = new PersonOnWebsite(guestName, guestWebpageId);
 
-            String universityName = it.getUniversity();
-            String universityCountry = it.getCountryDisplayName();
-            boolean inFrance = (it.getCountryDisplayName().equalsIgnoreCase("France"));
+            String universityName = invitation.getUniversity();
+            String universityCountry = invitation.getCountryDisplayName();
+            boolean inFrance = (invitation.getCountryDisplayName().equalsIgnoreCase("France"));
 
             UniversityData university = new UniversityData(universityName, universityCountry, inFrance);
 
-            personInvitations.get(type).add(new PersonInvitationData(it.getTitle(), guestData, university, dates));
-        });
+            personInvitations.get(type).add(new PersonInvitationData(invitation.getTitle(), guestData, university, dates));
+
+        }
 
         return personInvitations;
     }
@@ -561,9 +439,14 @@ public class PersonRestService {
      * @param pageId an optional parameter for the person's web page ID
      * @return the Person entity or null if not found
      */
-    public Person getPersonFromRequest(Optional<Long> id, Optional<String> pageId) {
-        return id.map(personService::getPersonById)
-                .orElseGet(() -> pageId.map(personService::getPersonByWebPageId).orElse(null));
+    public Person getPersonFromRequest(Long id, String pageId) {
+        if (id != null) {
+            return personService.getPersonById(id);
+        } else if (pageId != null) {
+            return personService.getPersonByWebPageId(pageId);
+        }
+
+        return null;
     }
 
     /**
@@ -576,9 +459,11 @@ public class PersonRestService {
     public OrganizationData getOrganisationData(ResearchOrganization researchOrganization) {
         if (researchOrganization != null) {
             Set<OrganizationAddress> organizationAddresses = new HashSet<>(researchOrganization.getAddresses());
-            Set<String> organizationAddressesName = organizationAddresses.stream()
-                    .map(OrganizationAddress::getFullAddress)
-                    .collect(Collectors.toSet());
+
+            Set<String> organizationAddressesName = new HashSet<>();
+            for (OrganizationAddress address : organizationAddresses) {
+                organizationAddressesName.add(address.getFullAddress());
+            }
 
             String organizationName = researchOrganization.getName();
             String organizationCountry = researchOrganization.getCountry().getDisplayCountry();
@@ -588,6 +473,30 @@ public class PersonRestService {
         }
 
         return null;
+    }
+
+
+    /**
+     * Extracts the supervisor data including the name, webpageId, and supervisor type
+     * based on the provided list of supervisors.
+     *
+     * @param supervisors the list of supervisors
+     * @return the list of sata associated to the supervisors
+     */
+    public List<SupervisedPersonSupervisorData> getSupervisorsDataFrom(List<Supervisor> supervisors) {
+        List<SupervisedPersonSupervisorData> supervisorsData = new ArrayList<>();
+
+        for (Supervisor supervisor : supervisors) {
+            String name = supervisor.getSupervisor().getFullName();
+            String webpageId = supervisor.getSupervisor().getWebPageId();
+            SupervisorType type = supervisor.getType();
+
+            PersonOnWebsite person = new PersonOnWebsite(name, webpageId);
+
+            supervisorsData.add(new SupervisedPersonSupervisorData(person, type));
+        }
+
+        return supervisorsData;
     }
 
 
@@ -637,32 +546,6 @@ public class PersonRestService {
     }
 
     /**
-     * Data Transfer Object (DTO) representing a publication's information.
-     *
-     * @param title           the title of the publication
-     * @param doi             the doi of the publication
-     * @param issn            the issn of the publication
-     * @param publicationDate the date the publication was released
-     * @param publicationType the type of the publication (e.g., journal article, book, etc.)
-     * @param persons         a list of names of persons associated with the publication
-     * @param abstractText    a brief summary of the publication's content
-     * @param pdfUrl          the URL link to the PDF version of the publication
-     * @param language        the language in which the publication is written
-     * @param keywords        a list of keywords related to the publication
-     */
-    public record PublicationsDTO(String title,
-                                  String doi,
-                                  String issn,
-                                  LocalDate publicationDate,
-                                  PublicationType publicationType,
-                                  List<PersonOnWebsite> persons,
-                                  String abstractText,
-                                  String pdfUrl,
-                                  PublicationLanguage language,
-                                  List<String> keywords) {
-    }
-
-    /**
      * Data Transfer Object (DTO) representing supervision information for a research project.
      *
      * @param name                 the name and webpageId of the supervision
@@ -701,10 +584,11 @@ public class PersonRestService {
     /**
      * Data Transfer Object (DTO) representing a person's membership in an organization.
      *
-     * @param status the status of the person in the organization
+     * @param status       the status of the person in the organization
      * @param organization the data of the organization
      */
-    public record PersonMembershipDTO(MemberStatus status, OrganizationData organization) {
+    public record PersonMembershipDTO(MemberStatus status,
+                                      OrganizationData organization) {
     }
 
     /**
@@ -723,11 +607,14 @@ public class PersonRestService {
 
     /**
      * Describe basic information about a university
-     * @param name the name of the university
-     * @param country the country of the university
+     *
+     * @param name     the name of the university
+     * @param country  the country of the university
      * @param inFrance whether the university is in France or not
      */
-    public record UniversityData(String name, String country, boolean inFrance) {
+    public record UniversityData(String name,
+                                 String country,
+                                 boolean inFrance) {
     }
 
     /**
@@ -742,12 +629,15 @@ public class PersonRestService {
 
     /**
      * Describes basic information about an organization.
-     * @param name the name of the organization
-     * @param url the website of the organization
+     *
+     * @param name      the name of the organization
+     * @param url       the website of the organization
      * @param addresses the different addresses of the organization
-     * @param country the country of the organization
+     * @param country   the country of the organization
      */
-    public record OrganizationData(String name, String url, Set<String> addresses, String country) {
+    public record OrganizationData(String name, String url,
+                                   Set<String> addresses,
+                                   String country) {
     }
 
     /**
