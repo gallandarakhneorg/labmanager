@@ -104,34 +104,25 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         validateButton = new Button(getTranslation("views.charts.create"));
         validateButton.setEnabled(false);
         validateButton.addClickListener(e -> {
-            if (Objects.equals(validateButton.getText(), getTranslation("views.charts.create"))) {
-                if (yearRange.getEnd().isEmpty()) {
-                    chart.setYear(yearRange.getChosenStartValue());
-                } else {
-                    chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
-                }
-
-                Set<String> items = multiSelectComboBox.getSelectedItems();
-                for (String item : items) {
-                    this.chart.addData(item);
-                }
-
-                soChart = this.chart.createChart();
-                soChart.setSize(width, height);
-                chartHorizontalLayout.add(soChart);
-                if(isFormHidden){
-                    yearRange.setVisible(false);
-                    multiSelectComboBox.setVisible(false);
-                }
-                validateButton.setText(getTranslation("views.charts.refresh"));
-
+            if (yearRange.getEnd().isEmpty()) {
+                chart.setYear(yearRange.getChosenStartValue());
             } else {
-                refreshChart();
-                if(Objects.equals(validateButton.getText(), getTranslation("views.charts.edit"))){
-                    validateButton.setText(getTranslation("views.charts.refresh"));
-                }
+                chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
             }
 
+            Set<String> items = multiSelectComboBox.getSelectedItems();
+            for (String item : items) {
+                this.chart.addData(item);
+            }
+
+            soChart = this.chart.createChart();
+            soChart.setSize(width, height);
+            chartHorizontalLayout.add(soChart);
+            if(isFormHidden){
+                yearRange.setVisible(false);
+                multiSelectComboBox.setVisible(false);
+            }
+            validateButton.setVisible(false);
         });
 
         validationHorizontalLayout.add(multiSelectComboBox);
@@ -210,9 +201,11 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
      * to indicate the edit mode.
      */
     public void removeChart(){
-        chartHorizontalLayout.remove(soChart);
+        if(soChart != null){
+            chartHorizontalLayout.remove(soChart);
+        }
         yearRange.setVisible(true);
         multiSelectComboBox.setVisible(true);
-        validateButton.setText(getTranslation("views.charts.edit"));
+        validateButton.setVisible(true);
     }
 }
