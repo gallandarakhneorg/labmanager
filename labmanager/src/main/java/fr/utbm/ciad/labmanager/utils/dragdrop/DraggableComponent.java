@@ -14,12 +14,13 @@ public class DraggableComponent extends Div {
      * Constructor for DraggableComponent.
      *
      * @param component the component to make draggable.
-     * @param dropGrid the DropGrid that will handle the drag-and-drop functionality.
      */
-    public DraggableComponent(Component component, DropGrid dropGrid) {
+    public DraggableComponent(Component component) {
         setComponent(component);
         getStyle().set("z-index", "2");
         getStyle().set("resize", "both");
+        getStyle().setBoxShadow("0 4px 8px #00000033");
+        getStyle().setBorderRadius("8px");
         getStyle().set("overflow", "hidden");
         getStyle().set("position", "absolute");
 
@@ -38,17 +39,18 @@ public class DraggableComponent extends Div {
      * This method retrieves the current width and height of the component and updates
      * the dimensions of the wrapped component accordingly.
      */
-    private void adaptComponentSize() {
+    public void adaptComponentSize(Runnable callback) {
         getElement().executeJs("return this.offsetWidth;")
                 .then(width -> getElement().executeJs("return this.offsetHeight;")
                         .then(height -> {
-                            component.getStyle()
-                                    .set("height", height.asString() + "px")
-                                    .set("width", width.asString() + "px");
-                            if(isChart()){
+                            setComponentSize(width.asNumber(), height.asNumber());
+                            if (isChart()) {
                                 ((PublicationCategoryLayout<?>) component).setSize(
-                                        Math.round(width.asNumber()*0.9) + "px",
-                                        Math.round(height.asNumber()*0.75) + "px");
+                                        Math.round(width.asNumber() * 0.9) + "px",
+                                        Math.round(height.asNumber() * 0.9) + "px");
+                            }
+                            if (callback != null) {
+                                callback.run();
                             }
                         }));
     }
@@ -61,6 +63,8 @@ public class DraggableComponent extends Div {
     public Component getComponent() {
         Component component = this.component;
         component.getElement().setAttribute("data-custom-id", getElement().getAttribute("data-custom-id"));
+        component.getStyle().setBoxShadow("0 4px 8px #00000033");
+        component.getStyle().setBorderRadius("8px");
         return component;
     }
 
@@ -71,11 +75,11 @@ public class DraggableComponent extends Div {
      *
      * @param component the component to set.
      */
-    private void setComponent(Component component){
-        if(this.component == null){
+    private void setComponent(Component component) {
+        if (this.component == null) {
             component.getStyle().set("z-index", "1");
             String componentName = component.getElement().getAttribute("data-custom-id");
-            if(componentName != null){
+            if (componentName != null) {
                 getElement().setAttribute("data-custom-id", componentName);
             }
             getStyle().setWidth(component.getStyle().get("width"))
@@ -83,6 +87,10 @@ public class DraggableComponent extends Div {
 
             this.component = component;
             add(this.component);
+            if (isChart()) {
+                getStyle().setMinHeight("100px");
+                getStyle().setMinWidth("200px");
+            }
         }
     }
 
@@ -91,7 +99,7 @@ public class DraggableComponent extends Div {
      *
      * @return true if the component is a chart layout; false otherwise.
      */
-    public boolean isChart(){
+    public boolean isChart() {
         return component instanceof PublicationCategoryLayout<?>;
     }
 
@@ -103,6 +111,17 @@ public class DraggableComponent extends Div {
     public DragSource<Component> getDragSource() {
         return dragSource;
     }
+
+    /**
+     * Sets the size of the component by specifying its width and height.
+     *
+     * @param width the new width of the component.
+     * @param height the new height of the component.
+     */
+    public void setComponentSize(double width, double height) {
+        component.getStyle()
+                .setWidth(Math.round(width) + "px")
+                .setHeight(Math.round(height) + "px");
     }
 }
 
