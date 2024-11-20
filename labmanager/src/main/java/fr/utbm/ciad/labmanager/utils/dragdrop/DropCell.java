@@ -133,22 +133,6 @@ public class DropCell extends VerticalLayout {
     }
 
     /**
-     * Toggle the cell to edition mode.
-     */
-    public void changeEditionMode(boolean editionMode) {
-        getChild().ifPresent(component -> {
-            emptyCell();
-            if (editionMode) {
-                showBorders(false);
-                addComponent(new DraggableComponent(component, dropGrid));
-            } else {
-                hideBorders(false);
-                addComponent(((DraggableComponent) component).getComponent());
-            }
-        });
-    }
-
-    /**
      * Retrieves the unique index of the cell within the grid.
      *
      * @return the cell's index as an Integer.
