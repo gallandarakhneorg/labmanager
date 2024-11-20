@@ -14,6 +14,20 @@ public class DropCell extends VerticalLayout {
     private final Integer index;
     private final DropGrid dropGrid;
     private boolean isEmpty = true;
+    private Component component;
+    private final DropTarget<VerticalLayout> dropTarget;
+    private final String borderColor;
+    private final String borderColorWhenDrag;
+    private final String backgroundColorWhenEmpty;
+    private final String backgroundColorWhenFull;
+
+    public DropCell() {
+        this(0);
+    }
+
+    public DropCell(Integer index) {
+        this(index, "#f2f2f2", "#bfbfbf", "#d2ffc4", "#ffc4c4");
+    }
 
     /**
      * Constructor for DropCell with specified index.
@@ -33,40 +47,16 @@ public class DropCell extends VerticalLayout {
                 .set("position", "relative")
                 .setPadding("0");
 
-        DropTarget<VerticalLayout> dropTarget = DropTarget.create(this);
-        dropTarget.addDropListener(this::handleDrop);
-
-        // Event listener for when a draggable component enters the cell
-        getElement().addEventListener("dragenter", event -> {
-            if (dropGrid.isDragging()) {
-                getStyle().set("border", "2px solid blue");
-            }
-        });
-
-        // Event listener for when a draggable component leaves the cell
-        getElement().addEventListener("dragleave", event -> {
-            if (dropGrid.isDragging() && getChildren().findAny().isEmpty()) {
-                getStyle().set("border", "1px dashed #bfbfbf");
-            }
-        });
+        dropTarget = DropTarget.create(this);
     }
 
     /**
-     * Handles the drop event when a component is dropped into the cell.
+     * Retrieves the drop target associated with this cell.
      *
-     * @param event the drop event containing the dragged component.
+     * @return the DropTarget for the cell.
      */
-    private void handleDrop(DropEvent<VerticalLayout> event) {
-        event.getDragSourceComponent().ifPresent(draggedComponent -> {
-            if (isEmpty) {
-                draggedComponent.getParent().ifPresent(parent -> {
-                    if (parent instanceof DropCell) {
-                        ((DropCell) parent).emptyCell();
-                    }
-                });
-                addComponent(draggedComponent);
-            }
-        });
+    DropTarget<VerticalLayout> getDropTarget() {
+        return dropTarget;
     }
 
     /**
