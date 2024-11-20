@@ -8,6 +8,7 @@ import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategor
 public class DraggableComponent extends Div {
 
     private Component component;
+    private final DragSource<Component> dragSource;
 
     /**
      * Constructor for DraggableComponent.
@@ -22,46 +23,14 @@ public class DraggableComponent extends Div {
         getStyle().set("overflow", "hidden");
         getStyle().set("position", "absolute");
 
-        DragSource<Component> dragSource = DragSource.create(this);
+        dragSource = DragSource.create(this);
         dragSource.setDraggable(true);
 
-        addResizeListener();
+        getElement().addEventListener("mouseenter", event ->
+                component.getStyle().set("border", "2px solid #c4c5ff"));
 
-        // Listener for when dragging starts
-        dragSource.addDragStartListener(event -> {
-            dropGrid.setDragging(true);
-            dropGrid.showBorders(true);
-        });
-
-        // Listener for when dragging ends
-        dragSource.addDragEndListener(event -> {
-            dropGrid.setDragging(false);
-            dropGrid.hideBorders(true);
-        });
-
-        component.getElement().addEventListener("mouseenter", event ->
-                getStyle().set("border", "2px solid blue"));
-
-        component.getElement().addEventListener("mouseleave", event ->
-                getStyle().set("border", "none"));
-    }
-
-    /**
-     * Adds a resize listener to the component that dispatches a custom resize event
-     * whenever the size of the component changes.
-     */
-    private void addResizeListener(){
-        String jsCode =
-                "const resizeObserver = new ResizeObserver(entries => {" +
-                        "   for (let entry of entries) {" +
-                        "       this.dispatchEvent(new Event('custom-resize')); " +
-                        "   }" +
-                        "});" +
-                        "resizeObserver.observe(this);";
-
-        getElement().executeJs(jsCode);
-
-        getElement().addEventListener("custom-resize", event -> adaptComponentSize());
+        getElement().addEventListener("mouseleave", event ->
+                component.getStyle().set("border", "none"));
     }
 
     /**
@@ -124,6 +93,16 @@ public class DraggableComponent extends Div {
      */
     public boolean isChart(){
         return component instanceof PublicationCategoryLayout<?>;
+    }
+
+    /**
+     * Retrieves the drag source associated with the component.
+     *
+     * @return the drag source for the component.
+     */
+    public DragSource<Component> getDragSource() {
+        return dragSource;
+    }
     }
 }
 
