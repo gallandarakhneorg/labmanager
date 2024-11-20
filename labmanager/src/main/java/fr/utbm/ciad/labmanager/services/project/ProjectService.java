@@ -210,7 +210,6 @@ public class ProjectService extends AbstractEntityService<Project> {
 	 * @return the project or {@code null} if there is no project with the given id.
 	 * @Deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public Project getProjectById(long id) {
 		final var projectOpt = this.projectRepository.findById(Long.valueOf(id));
 		if (projectOpt.isPresent()) {
@@ -266,6 +265,22 @@ public class ProjectService extends AbstractEntityService<Project> {
 	public List<Project> getPublicProjectsByPersonId(long id) {
 		return this.projectRepository.findDistinctPersonProjects(
 				Boolean.FALSE, ProjectStatus.ACCEPTED, Long.valueOf(id));
+	}
+
+	/**
+	 * Replies all public projects that have a logo.
+	 * @return the list of projects with a logo.
+	 */
+	public List<Project> getProjectsWithLogo() {
+		return this.projectRepository.findByPathToLogoIsNotNull();
+	}
+
+	/**
+	 * Replies all the project that have a valid webpage id.
+	 * @return the list of projects with a webpage id.
+	 */
+	public List<Project> getProjectsWithWebpageId() {
+		return this.projectRepository.findByWebPageNamingIsNotNull();
 	}
 
 	/** Update a project with the given information.
