@@ -17,24 +17,35 @@
 	* No DOI for publications
   * Access rights to pages
     * Review the access rights to the Vaadin pages according to the role of the authenticated user
+
 * Back-end services for front-end components:
   * Person's card for the public page
   * Person biography (if public biography)
 * Front-end components:
+
+* Rest API to get data in JSON format:
   * ~~Person's card for the public page~~
   * ~~Person biography (if public biography)~~
   * ~~Person Publication Viewer~~
   * ~~Person invitations Viewer~~
   * ~~Person Jury memberships Viewer~~
+  * ~~Person memberships Viewer~~
   * ~~Person Supervisions Viewer~~
-  * Lab Publication Viewer
-  * Member list Viewer
-  * Organization address Viewer
-  * Public component for showing the global indicators
-  * Projects (banner)
-  * Projects (public description - page)
-  * Projects (partners banner)
+  * ~~Lab Publication Viewer~~
+  * ~~Member list Viewer~~
+  * ~~Organization address Viewer~~
+  * ~~Public component for showing the global indicators~~
+  * ~~Projects (public description - page)~~
   * Projects (gallery)
+  * Projects (partners banner)
+  * Projects (banner)
+  
+* Front-end
+  * Create a front-end. Either stay on Vaadin on the lab manager project or create public views on another project
+with the help of a modern web framework. Use the Rest API and create components.
+  * Generate rest API documentation with swagger/OpenAPI + code generation with openAPI generator.
+
+
 * Admin tools:
   * Listing/Edition/Deletion of memberships
   * Private component for selecting the public global indicators
