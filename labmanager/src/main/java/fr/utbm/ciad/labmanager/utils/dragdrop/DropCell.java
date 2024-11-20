@@ -1,18 +1,15 @@
 package fr.utbm.ciad.labmanager.utils.dragdrop;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.dnd.DropEvent;
 import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 import java.util.Optional;
 
-//TODO check the remove component functionality that doesn't work as intended
 public class DropCell extends VerticalLayout {
 
     private final Integer index;
-    private final DropGrid dropGrid;
     private boolean isEmpty = true;
     private Component component;
     private final DropTarget<VerticalLayout> dropTarget;
@@ -32,11 +29,19 @@ public class DropCell extends VerticalLayout {
     /**
      * Constructor for DropCell with specified index.
      *
-     * @param dropGrid the parent DropGrid that contains this cell.
      * @param index the unique index of the cell within the grid.
      */
-    public DropCell(DropGrid dropGrid, Integer index) {
-        this.dropGrid = dropGrid;
+    public DropCell(Integer index,
+                    String borderColor,
+                    String borderColorWhenDrag,
+                    String backgroundColorWhenEmpty,
+                    String backgroundColorWhenFull) {
+        this.component = null;
+        this.borderColor = borderColor;
+        this.borderColorWhenDrag = borderColorWhenDrag;
+        this.backgroundColorWhenEmpty = backgroundColorWhenEmpty;
+        this.backgroundColorWhenFull = backgroundColorWhenFull;
+
         this.index = index;
         setWidth("100%");
         setHeight("100%");
@@ -60,7 +65,7 @@ public class DropCell extends VerticalLayout {
     }
 
     /**
-     * Checks if the cell is currently empty (does not contain any component).
+     * Checks if the cell is currently empty (does not contain any component or is not covered by any component).
      *
      * @return true if the cell has no components, false otherwise.
      */
@@ -74,10 +79,10 @@ public class DropCell extends VerticalLayout {
      * @param dragging true if the event is dragging, false otherwise
      */
     public void showBorders(boolean dragging) {
-        if(dragging){
-            getStyle().set("border", "1px dashed #bfbfbf");
-        }else{
-            getStyle().set("border", "1px dashed #f2f2f2");
+        if (dragging) {
+            changeToBorderColorWhenDrag();
+        } else {
+            changeToBorderColor();
         }
     }
 
@@ -87,9 +92,9 @@ public class DropCell extends VerticalLayout {
      * @param dragging true if the event is dragging, false otherwise
      */
     public void hideBorders(boolean dragging) {
-        if(dragging){
-            getStyle().set("border", "1px dashed #f2f2f2");
-        }else{
+        if (dragging) {
+            changeToBorderColorWhenDrag();
+        } else {
             getStyle().set("border", "none");
         }
     }
@@ -109,16 +114,13 @@ public class DropCell extends VerticalLayout {
      * @param component the component to add to the cell.
      */
     public void addComponent(Component component) {
-        if (isEmpty) {
-            add(component);
-            if (component instanceof PublicationCategoryLayout) {
-                ((PublicationCategoryLayout<?>) component).refreshChart();
-            } else if (component instanceof DraggableComponent) {
-                if (((DraggableComponent) component).getComponent() instanceof PublicationCategoryLayout) {
-                    ((PublicationCategoryLayout<?>) ((DraggableComponent) component).getComponent()).refreshChart();
-                }
-            }
-            isEmpty = false;
+        add(component);
+        this.component = component;
+        if (component instanceof PublicationCategoryLayout) {
+            ((PublicationCategoryLayout<?>) component).refreshChart();
+        } else if (component instanceof DraggableComponent &&
+                ((DraggableComponent) component).getComponent() instanceof PublicationCategoryLayout) {
+            ((PublicationCategoryLayout<?>) ((DraggableComponent) component).getComponent()).refreshChart();
         }
     }
 
@@ -129,6 +131,7 @@ public class DropCell extends VerticalLayout {
         if (!isEmpty) {
             removeAll();
             isEmpty = true;
+            component = null;
         }
     }
 
@@ -137,7 +140,118 @@ public class DropCell extends VerticalLayout {
      *
      * @return the cell's index as an Integer.
      */
-    public Integer getIndex() {
+    public int getIndex() {
         return index;
+    }
+
+    /**
+     * Resizes the component in the cell according to the specified side.
+     *
+     * @param side the given side.
+     */
+    public void resizeComponent(double side) {
+        if (!isEmpty) {
+            getChild().ifPresent(component -> {
+                long newWidth = Math.round(getComponentSide(component, "width") * side / getCellSide());
+                long newHeight = Math.round(getComponentSide(component, "height") * side / getCellSide());
+
+                component.getElement().getStyle().setWidth(newWidth + "px");
+                component.getElement().getStyle().setHeight(newHeight + "px");
+            });
+        }
+    }
+
+    /**
+     * Retrieves the size of a specific side of the component (either width or height).
+     *
+     * @param component the component whose side size is to be retrieved.
+     * @param side the side of the component ("width" or "height").
+     * @return the size of the specified side of the component as an integer.
+     */
+    private int getComponentSide(Component component, String side) {
+        return Integer.parseInt(component.getStyle().get(side).replace("px", ""));
+    }
+
+    /**
+     * Retrieves the size of the cell's width.
+     *
+     * @return the width of the cell as an integer.
+     */
+    private int getCellSide() {
+        return getComponentSide(this, "width");
+    }
+
+    /**
+     * Sets the emptiness state of the cell.
+     *
+     * @param empty true if the cell should be marked as empty, false otherwise.
+     */
+    public void setEmpty(boolean empty) {
+        isEmpty = empty;
+    }
+
+    /**
+     * Colors the cell depending on the provided conditions.
+     *
+     * @param color true to color the cell, false to reset its background.
+     * @param error true if an error state should be applied, false otherwise.
+     */
+    public void colorCell(boolean color, boolean error) {
+        if (color) {
+            if (isEmpty && !error) {
+                changeToBackgroundColorWhenEmpty();
+            } else {
+                changeToBackgroundColorWhenFull();
+            }
+        } else {
+            getStyle().setBackgroundColor("transparent");
+        }
+    }
+
+    /**
+     * Changes the border color of the cell to its default color.
+     */
+    private void changeToBorderColor() {
+        getStyle().set("border", "1px dashed " + borderColor);
+    }
+
+    /**
+     * Changes the border color of the cell to the color when a drag event is active.
+     */
+    private void changeToBorderColorWhenDrag() {
+        getStyle().set("border", "1px dashed " + borderColorWhenDrag);
+    }
+
+    /**
+     * Changes the border color of the empty cell to the corresponding color when a component is dragged on it
+     */
+    private void changeToBackgroundColorWhenEmpty() {
+        getStyle().setBackgroundColor(backgroundColorWhenEmpty);
+    }
+
+    /**
+     * Changes the border color of the full cell to the corresponding color when a component is dragged on it
+     */
+    private void changeToBackgroundColorWhenFull() {
+        getStyle().setBackgroundColor(backgroundColorWhenFull);
+    }
+
+    /**
+     * Checks if the specified component is the same as the component in the cell.
+     *
+     * @param component the component to check.
+     * @return true if the cell contains the specified component, false otherwise.
+     */
+    public boolean contains(Component component) {
+        return this.component != null && this.component.equals(component);
+    }
+
+    /**
+     * Checks if the cell contains a component.
+     *
+     * @return true if the cell contains a component, false otherwise.
+     */
+    public boolean containsComponent() {
+        return !(this.component == null);
     }
 }
