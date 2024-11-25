@@ -12,6 +12,9 @@ import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.wprest.data.PersonOnWebsite;
+import fr.utbm.ciad.wprest.organization.data.OrganizationMemberData;
+import fr.utbm.ciad.wprest.organization.data.dto.OrganizationAddressDTO;
+import fr.utbm.ciad.wprest.organization.data.dto.OrganizationMembersDTO;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -224,50 +227,5 @@ public class OrganizationRestService {
             return researchOrganizationService.getResearchOrganizationByAcronym(acronym);
         }
         return Optional.empty();
-    }
-
-    /**
-     * Desctibes information about the members of an organization
-     *
-     * @param name                - the name of the organization
-     * @param acronym             - the acronym of the organization
-     * @param organizationWebsite - the webstie of the organization
-     * @param members             - the list of members of the organization
-     */
-    public record OrganizationMembersDTO(String name,
-                                         String acronym,
-                                         String organizationWebsite,
-                                         List<OrganizationMemberData> members) {
-    }
-
-
-    /**
-     * Describes the address of an organization
-     *
-     * @param name          - the name of the lab
-     * @param campusName    - the name of the organization
-     * @param street        - the street
-     * @param zipCode       - the zipCode
-     * @param city          - the city name
-     * @param googleMapsUrl - the Google Maps URL of the organization
-     */
-    public record OrganizationAddressDTO(String name,
-                                         String campusName,
-                                         String street,
-                                         String zipCode,
-                                         String city,
-                                         String googleMapsUrl) {
-    }
-
-    /**
-     * Describe the data associated to a person in an organization
-     *
-     * @param person         - The name and website if of the person
-     * @param status         - The status of the person in the organization
-     * @param responsibility - The responsibility of the person in the organization
-     */
-    public record OrganizationMemberData(PersonOnWebsite person,
-                                         MemberStatus status,
-                                         Responsibility responsibility) {
     }
 }

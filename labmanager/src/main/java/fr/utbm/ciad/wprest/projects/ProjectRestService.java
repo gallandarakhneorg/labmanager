@@ -5,10 +5,13 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
-import fr.utbm.ciad.labmanager.data.project.Role;
 import fr.utbm.ciad.labmanager.services.project.ProjectService;
 import fr.utbm.ciad.wprest.data.DateRange;
 import fr.utbm.ciad.wprest.data.PersonOnWebsite;
+import fr.utbm.ciad.wprest.projects.data.dto.ProjectDataDto;
+import fr.utbm.ciad.wprest.projects.data.ProjectLinksData;
+import fr.utbm.ciad.wprest.projects.data.ProjectOrganizationData;
+import fr.utbm.ciad.wprest.projects.data.ProjectParticipantData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,63 +169,4 @@ public class ProjectRestService {
 
         return new ProjectDataDto(acronym, title, description, date, organizationData, participantsData, images, logo, links, webpageId, openSource, isDone);
     }
-
-    /**
-     * Describes the information related to the page of a project
-     * @param acronym - the acronym of the project
-     * @param title - the title of the project
-     * @param description - the description of the project
-     * @param date - the date of the project (start and end)
-     * @param organizations - the organizations of the project
-     * @param participants - the participants of the project
-     * @param images - the images URIs of the project
-     * @param logo - the logo URI
-     * @param links - the links of the project
-     * @param webpageId - the webpageId (webpage URL)
-     * @param openSource - true if the project is open source
-     * @param isDone - true if the project is done
-     */
-    public record ProjectDataDto(String acronym,
-                                 String title,
-                                 String description,
-                                 DateRange date,
-                                 ProjectOrganizationData organizations,
-                                 List<ProjectParticipantData> participants,
-                                 List<String> images,
-                                 String logo,
-                                 ProjectLinksData links,
-                                 String webpageId,
-                                 boolean openSource,
-                                 boolean isDone) {}
-
-
-    /**
-     * Describes the links associated to a project
-     * @param projectUrl - the project url on the website
-     * @param videoLinks - the list of videos linked to the project
-     * @param partnersLinks - a map which maps each partner name to its url
-     */
-    public record ProjectLinksData(String projectUrl,
-                                   List<String> videoLinks,
-                                   Map<String, String> partnersLinks) {}
-
-    /**
-     * Describes the organization of a project
-     * @param superOrganization - the super organization name
-     * @param learOrganization - the lear organization name
-     * @param localOrganization - the local organization name
-     * @param partners - the list of partners names
-     */
-    public record ProjectOrganizationData(String superOrganization,
-                                          String learOrganization,
-                                          String localOrganization,
-                                          List<String> partners) {}
-
-    /**
-     * Describes a participant of a project
-     * @param person - the person
-     * @param role - the role of the person in the project
-     */
-    public record ProjectParticipantData(PersonOnWebsite person,
-                                         Role role) {}
 }

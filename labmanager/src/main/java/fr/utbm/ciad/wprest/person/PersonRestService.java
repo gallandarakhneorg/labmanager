@@ -18,6 +18,12 @@ import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import fr.utbm.ciad.wprest.data.DateRange;
 import fr.utbm.ciad.wprest.data.PersonOnWebsite;
+import fr.utbm.ciad.wprest.organization.data.OrganizationData;
+import fr.utbm.ciad.wprest.person.data.PersonInvitationData;
+import fr.utbm.ciad.wprest.person.data.PersonOrganizationData;
+import fr.utbm.ciad.wprest.person.data.SupervisedPersonSupervisorData;
+import fr.utbm.ciad.wprest.person.data.UniversityData;
+import fr.utbm.ciad.wprest.person.data.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -319,7 +325,7 @@ public class PersonRestService {
 
             //filter with streams to get the type of supervision for the requested person
             Optional<SupervisedPersonSupervisorData> personSupervisorData = supervisorsData.stream()
-                    .filter(data -> data.person.name().equals(p.getFullName()))
+                    .filter(data -> data.person().name().equals(p.getFullName()))
                     .findFirst();
 
             SupervisorType supervisionType = null;
@@ -497,156 +503,5 @@ public class PersonRestService {
         }
 
         return supervisorsData;
-    }
-
-
-    /**
-     * Data Transfer Object (DTO) representing a person's card containing their personal and contact information.
-     *
-     * @param firstName   the first name of the person
-     * @param lastName    the last name of the person
-     * @param email       the email address of the person
-     * @param mobilePhone the mobile phone number of the person
-     * @param officePhone the office phone number of the person
-     * @param room        the office room number or location of the person
-     * @param ranking     the ranking information of the person
-     * @param links       the links related to the person's profile
-     * @param webpageId   the id of the webpage related to the person's profile if any
-     */
-    public record PersonCardDTO(String firstName,
-                                String lastName,
-                                String email,
-                                URL photo,
-                                PhoneNumber mobilePhone,
-                                PhoneNumber officePhone,
-                                String room,
-                                PersonService.PersonRankingUpdateInformation ranking,
-                                PersonService.PersonLinks links,
-                                String webpageId) {
-    }
-
-    /**
-     * Data Transfer Object (DTO) representing a person's biography.
-     *
-     * @param isPrivate        indicates if the biography is private
-     * @param biographyContent the content of the biography if the biography is not private
-     */
-    public record PersonBiographyDTO(boolean isPrivate,
-                                     String biographyContent) {
-    }
-
-    /**
-     * Data Transfer Object (DTO) representing invitations related to a person, including both guest and inviter invitations data.
-     *
-     * @param guestInvitations   a map of guest invitations categorized by invitation type
-     * @param inviterInvitations a map of invitations where the person is the inviter, categorized by invitation type
-     */
-    public record PersonInvitationsDTO(Map<PersonInvitationType, Set<PersonInvitationData>> guestInvitations,
-                                       Map<PersonInvitationType, Set<PersonInvitationData>> inviterInvitations) {
-    }
-
-    /**
-     * Data Transfer Object (DTO) representing supervision information for a research project.
-     *
-     * @param name                 the name and webpageId of the supervision
-     * @param supervisedPerson     the person being supervised
-     * @param year                 the year of supervision
-     * @param supervisionType      the type of supervision
-     * @param researchOrganization the research organization involved
-     * @param supervisors          a list of supervisors for the supervised person
-     */
-    public record SupervisionsDTO(String name,
-                                  PersonOnWebsite supervisedPerson,
-                                  int year,
-                                  SupervisorType supervisionType,
-                                  PersonOrganizationData researchOrganization,
-                                  List<SupervisedPersonSupervisorData> supervisors) {
-    }
-
-    /**
-     * Data Transfer Object (DTO) representing a person's membership in a jury.
-     *
-     * @param title      the title of the jury membership
-     * @param year       the year of the jury membership
-     * @param candidate  the name and webpageId of the candidate being evaluated
-     * @param directors  a list of directors involved in the jury
-     * @param university the university associated with the jury
-     * @param type       the type of jury
-     */
-    public record PersonJuryMembershipDTO(String title,
-                                          int year,
-                                          PersonOnWebsite candidate,
-                                          List<PersonOnWebsite> directors,
-                                          JuryType type,
-                                          UniversityData university) {
-    }
-
-    /**
-     * Data Transfer Object (DTO) representing a person's membership in an organization.
-     *
-     * @param status       the status of the person in the organization
-     * @param organization the data of the organization
-     */
-    public record PersonMembershipDTO(MemberStatus status,
-                                      OrganizationData organization) {
-    }
-
-    /**
-     * Describes an invitation for a person.
-     *
-     * @param title      the title of the invitation
-     * @param guest      the name and webpageId of the supervisor
-     * @param university the university associated with the invitation
-     * @param dates      the date range for the invitation
-     */
-    public record PersonInvitationData(String title,
-                                       PersonOnWebsite guest,
-                                       UniversityData university,
-                                       DateRange dates) {
-    }
-
-    /**
-     * Describe basic information about a university
-     *
-     * @param name     the name of the university
-     * @param country  the country of the university
-     * @param inFrance whether the university is in France or not
-     */
-    public record UniversityData(String name,
-                                 String country,
-                                 boolean inFrance) {
-    }
-
-    /**
-     * Describes information about a person's organization.
-     *
-     * @param directResearchOrganization the person's direct research organization
-     * @param superResearchOrganization  the person's supervising research organization
-     */
-    public record PersonOrganizationData(OrganizationData directResearchOrganization,
-                                         OrganizationData superResearchOrganization) {
-    }
-
-    /**
-     * Describes basic information about an organization.
-     *
-     * @param name      the name of the organization
-     * @param url       the website of the organization
-     * @param addresses the different addresses of the organization
-     * @param country   the country of the organization
-     */
-    public record OrganizationData(String name, String url,
-                                   Set<String> addresses,
-                                   String country) {
-    }
-
-    /**
-     * Describes information about a person's supervisor.
-     *
-     * @param person the name and webpageId of the supervisor
-     * @param type   the type of supervision (e.g., primary, co-supervisor)
-     */
-    public record SupervisedPersonSupervisorData(PersonOnWebsite person,
-                                                 SupervisorType type) {
     }
 }
