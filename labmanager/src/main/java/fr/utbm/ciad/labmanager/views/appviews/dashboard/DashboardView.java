@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,17 +22,23 @@ package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
+import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.dashboard.Reporting;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /** Dashboard for the lab manager application.
- * 
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -52,7 +58,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 */
 	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
 		super(loggerFactory);
-		
+
 		final var bt = new Button();
 		bt.setText("Show log");
 		bt.addClickListener(event -> {
