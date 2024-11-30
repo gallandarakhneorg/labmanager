@@ -12,6 +12,11 @@ import fr.utbm.ciad.wprest.projects.data.dto.ProjectDataDto;
 import fr.utbm.ciad.wprest.projects.data.ProjectLinksData;
 import fr.utbm.ciad.wprest.projects.data.ProjectOrganizationData;
 import fr.utbm.ciad.wprest.projects.data.ProjectParticipantData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,9 +51,18 @@ public class ProjectRestService {
 
     /**
      * Get the project with the given id
-     * @param id - the id of the project
-     * @return - the data project data
+     *
+     * @param id the id of the project
+     * @return the data project data
      */
+    @Operation(summary = "Get a project by its id",
+            description = "Get the project with the given id",
+            tags = {"Project API"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The project data",
+                            content = @Content(schema = @Schema(implementation = ProjectDataDto.class))),
+                    @ApiResponse(responseCode = "404", description = "The project does not exist"),
+            })
     @GetMapping
     @Transactional
     public ResponseEntity<ProjectDataDto> getProject(
@@ -62,7 +76,7 @@ public class ProjectRestService {
 
         // cannot fetch a project if it is not public.
         if (p.isConfidential() || p.getStatus() != ProjectStatus.ACCEPTED) {
-            return ResponseEntity.ok(null);
+            return ResponseEntity.noContent().build();
         }
 
         return ResponseEntity.ok(getProjectData(p));
@@ -72,6 +86,14 @@ public class ProjectRestService {
      * Get all public projects
      * @return the whole list of projects
      */
+    @Operation(summary = "Get all public projects",
+            description = "Get the whole list of public projects",
+            tags = {"Project API"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "The list of public projects",
+                            content = @Content(schema = @Schema(implementation = ProjectDataDto.class), array = @ArraySchema(schema = @Schema(implementation = ProjectDataDto.class)))),
+                    @ApiResponse(responseCode = "404", description = "No project found"),
+            })
     @Transactional
     @GetMapping("/all")
     public ResponseEntity<List<ProjectDataDto>> getAllProjects(

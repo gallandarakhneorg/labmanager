@@ -11,6 +11,11 @@ import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.wprest.data.PersonOnWebsite;
 import fr.utbm.ciad.wprest.publications.data.dto.PublicationsDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +73,18 @@ public class PublicationRestService {
      * @param keywords (optional) a comma-separated list of keywords to filter results. If not provided, all keywords will be included
      * @return a ResponseEntity containing a list of PublicationsDTO objects that match the specified filters, or an appropriate error response
      * if the person is not found or no publications match the criteria.
+     *
+     * @see Publication
+     * @see PublicationLanguage
+     * @see PublicationType
+     * @see Person
      */
+    @Operation(summary = "Gets the publications of the person", description = "Gets the publications of the person, either public or private", tags = {"Publication API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The publications of the person", content = @Content(schema = @Schema(implementation = PublicationsDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no person is found with the provided ID or pageId.")
+    })
     @GetMapping("/persons")
     @Transactional
     public ResponseEntity<List<PublicationsDTO>> getPersonPublications(
@@ -106,14 +122,20 @@ public class PublicationRestService {
      * <p>This endpoint allows clients to filter the publications based on the specified parameters. If the optional parameters
      * are not provided, all publications for the specified organization will be returned.</p>
      *
-     * @param id the ID of the user or either
-     * @param acronym the acronym of the organization
-     * @param year     (optional) the year of publication to filter results. If not provided, all years will be included
+     * @param id the ID of the organization (optional)
+     * @param acronym the acronym of the organization (optional)
+     * @param year (optional) the year of publication to filter results. If not provided, all years will be included
      * @param language (optional) the language of publication to filter results. If not provided, all languages will be included
      * @param keywords (optional) a comma-separated list of keywords to filter results. If not provided, all keywords will be included
      * @return a ResponseEntity containing a list of PublicationsDTO objects that match the specified filters, or an appropriate error response
      * if the organization is not found or no publications match the criteria.
      */
+    @Operation(summary = "Gets the publications of the organization", description = "Gets the publications of the organization, either public or private", tags = {"Publication API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The publications of the organization", content = @Content(schema = @Schema(implementation = PublicationsDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and acronym are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no organization is found with the provided ID or acronym.")
+    })
     @GetMapping("/organizations")
     @Transactional
     public ResponseEntity<List<PublicationsDTO>> getOrganizationsPublications(
@@ -202,7 +224,7 @@ public class PublicationRestService {
             }
 
             // get keywords as list
-            List<String> containedKeywordsList = new ArrayList<>();;
+            List<String> containedKeywordsList = new ArrayList<>();
             if (publication.getKeywords() != null) {
                 containedKeywordsList = Arrays.asList(publication.getKeywords().split("[,;]"));
             }

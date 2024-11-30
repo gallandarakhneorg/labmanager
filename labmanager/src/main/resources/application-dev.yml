@@ -57,6 +57,15 @@ spring:
     serialization:
       indent-output: true
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/api-docs
+  swagger-ui:
+    enabled: true
+    path: /api/swagger-ui
+  packages-to-scan: fr.utbm.ciad.wprest
+
 server:
   port: ${labmanager.application-port}
   ssl:
@@ -94,6 +103,8 @@ vaadin:
   # To improve the performance during development.
   # For more information https://vaadin.com/docs/flow/spring/tutorial-spring-configuration.html#special-configuration-parameters
   allowed-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application,com.storedobject
+  exclude-urls:
+    - /api/**/*
 
 labmanager:
   cas-servers:

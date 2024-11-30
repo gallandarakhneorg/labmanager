@@ -15,6 +15,12 @@ import fr.utbm.ciad.wprest.data.PersonOnWebsite;
 import fr.utbm.ciad.wprest.organization.data.OrganizationMemberData;
 import fr.utbm.ciad.wprest.organization.data.dto.OrganizationAddressDTO;
 import fr.utbm.ciad.wprest.organization.data.dto.OrganizationMembersDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +71,11 @@ public class OrganizationRestService {
      *
      * @return a list of {@link OrganizationMembersDTO} containing all organization members
      */
+    @Operation(summary = "Retrieves all organization members", description = "Fetches all members from every organization.", tags = {"Organization API"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved all organization members", content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrganizationMembersDTO.class)))),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @Transactional
     @GetMapping("/members/all")
     public ResponseEntity<List<OrganizationMembersDTO>> getAllMembers() {
@@ -83,6 +94,12 @@ public class OrganizationRestService {
      * @param acronym the acronym of the organization (optional)
      * @return a response containing the organization members or HTTP 400 / 404 errors
      */
+    @Operation(summary = "Retrieves members of a specific organization", description = "Fetches all members from a specific organization.", tags = {"Organization API"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved organization members", content = @Content(schema = @Schema(implementation = OrganizationMembersDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and acronym are provided"),
+        @ApiResponse(responseCode = "404", description = "Not Found if no organization is found with the provided ID or acronym.")
+    })
     @Transactional
     @GetMapping("/members")
     public ResponseEntity<OrganizationMembersDTO> getOrganizationMembers(
@@ -107,11 +124,17 @@ public class OrganizationRestService {
     /**
      * Retrieves the indicators of a specific organization by either its ID or acronym.
      *
-     * @param id      the ID of the organization or either
-     * @param acronym the acronym of the organization
+     * @param id      the ID of the organization (optional)
+     * @param acronym the acronym of the organization (optional)
      * @param useCache whether to get indicators from cache memory or not (default = false)
-     * @return a response containing the indicators of the organization  or HTTP 400 / 404 errors
+     * @return a response containing the indicators of the organization or HTTP 400 / 404 errors
      */
+    @Operation(summary = "Retrieves organization indicators", description = "Fetches indicators for a specific organization, identified by ID or acronym.", tags = {"Organization API"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved organization indicators", content = @Content(schema = @Schema(implementation = Map.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and acronym are provided"),
+        @ApiResponse(responseCode = "404", description = "Not Found if no organization is found with the provided ID or acronym.")
+    })
     @GetMapping("/indicators")
     @Transactional
     public ResponseEntity<Map<String, Number>> getIndicators(
@@ -147,6 +170,11 @@ public class OrganizationRestService {
      *
      * @return a list of {@link OrganizationAddressDTO} containing all organization addresses
      */
+    @Operation(summary = "Retrieves all organization addresses", description = "Fetches all addresses from every organization.", tags = {"Organization API"})
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved all organization addresses", content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrganizationAddressDTO.class)))),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @Transactional
     @GetMapping("/addresses")
     public ResponseEntity<List<OrganizationAddressDTO>> getAddresses() {

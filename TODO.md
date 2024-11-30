@@ -36,9 +36,13 @@
   * ~~Organization address Viewer~~
   * ~~Public component for showing the global indicators~~
   * ~~Projects (public description - page)~~
+
+The following points must be discussed:
   * Projects (gallery)
   * Projects (partners banner)
   * Projects (banner)
+
+The full list of endpoints available can be found at the URL: <contextPath>/api/swagger-ui/index.html
   
 * Front-end
   * Create a front-end. Either stay on Vaadin on the lab manager project or create public views on another project

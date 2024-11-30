@@ -24,6 +24,9 @@ import fr.utbm.ciad.wprest.person.data.PersonOrganizationData;
 import fr.utbm.ciad.wprest.person.data.SupervisedPersonSupervisorData;
 import fr.utbm.ciad.wprest.person.data.UniversityData;
 import fr.utbm.ciad.wprest.person.data.dto.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,14 +68,12 @@ public class PersonRestService {
         this.supervisionService = supervisionService;
     }
 
-    /**
-     * Retrieves the JSON data for a user's information card based on the given ID or page ID.
-     * Returns a bad request if both or neither are provided.
-     *
-     * @param id     the ID of the user or either
-     * @param pageId the webpage_id of the user
-     * @return the card data if found, or a {@code 404 error} if no user is found.
-     */
+    @Operation(summary = "Gets the card of the user", description = "Gets the information of the user that can be displayed in a card", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The information of the user"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/card")
     @Transactional
     public ResponseEntity<PersonCardDTO> getPersonCard(
@@ -114,6 +115,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return the biography of the user if found, or a {@code 404 error} if no user is found.
      */
+    @Operation(summary = "Gets the biography of the user", description = "Gets the biography of the user, either public or private", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The biography of the user"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/biography")
     @Transactional
     public ResponseEntity<PersonBiographyDTO> getPersonBiography(
@@ -144,6 +151,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return the list of invitations if found, or a {@code 404 error} if no user is found.
      */
+    @Operation(summary = "Gets the invitations of the user as guest", description = "Gets the invitations of the user as guest, either public or private", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The invitations of the user as guest"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/guestInvitations")
     @Transactional
     public ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> getPersonGuestInvitations(
@@ -173,6 +186,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return the list of invitations if found, or a {@code 404 error} if no user is found.
      */
+    @Operation(summary = "Gets the invitations of the user as inviter", description = "Gets the invitations of the user as inviter, either public or private", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The invitations of the user as inviter"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/inviterInvitations")
     @Transactional
     public ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> getPersonInviterInvitations(
@@ -201,6 +220,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return the list of invitations if found, or a {@code 404 error} if no user is found.
      */
+    @Operation(summary = "Gets all the invitations of the user", description = "Gets all the invitations of the user, either as guest or inviter", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The invitations of the user"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/invitations")
     @Transactional
     public ResponseEntity<PersonInvitationsDTO> getAllPersonInvitations(
@@ -232,6 +257,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return the list of jurys if found, or a {@code 404 error} if no user is found.
      */
+    @Operation(summary = "Gets the jurys of the user", description = "Gets the jurys of the user", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The jurys of the user"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/jurys")
     @Transactional
     public ResponseEntity<Set<PersonJuryMembershipDTO>> getPersonJuryMemberships(
@@ -292,6 +323,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return the list of jurys if found, or a {@code 404 error} if no user is found.
      */
+    @Operation(summary = "Gets all supervisions supervised by the user", description = "Gets all supervisions supervised by the user, either public or private", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The supervisions of the user"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/supervisions")
     @Transactional
     public ResponseEntity<List<SupervisionsDTO>> getPersonSupervisions(
@@ -349,6 +386,12 @@ public class PersonRestService {
      * @param pageId the webpage_id of the user
      * @return a response entity containing a set of PersonMembershipDTO or an error status
      */
+    @Operation(summary = "Gets the memberships of the user", description = "Gets the memberships of the user", tags = {"Person API"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The memberships of the user"),
+            @ApiResponse(responseCode = "400", description = "Bad request if both or neither id and pageId are provided"),
+            @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
+    })
     @GetMapping("/memberships")
     @Transactional
     public ResponseEntity<Set<PersonMembershipDTO>> getMemberships(
@@ -387,6 +430,13 @@ public class PersonRestService {
      * @param invitations a set of PersonInvitation entities
      * @return a map where keys are PersonInvitationType and values are sets of PersonInvitationData
      */
+    @Operation(summary = "Convert PersonInvitation entities to a map of PersonInvitationType",
+               description = "Transforms a set of PersonInvitation entities into a map categorized by PersonInvitationType, each containing sets of PersonInvitationData.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully transformed invitations"),
+        @ApiResponse(responseCode = "400", description = "Invalid input provided"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @Transactional
     public Map<PersonInvitationType, Set<PersonInvitationData>> getInvitationsDTOEntity(Set<PersonInvitation> invitations) {
         Map<PersonInvitationType, Set<PersonInvitationData>> personInvitations = new HashMap<>();
@@ -422,6 +472,13 @@ public class PersonRestService {
      * @param supervision the supervision entity
      * @return a PersonOrganizationData object containing organization details for the supervision
      */
+    @Operation(summary = "Get organization data for a given supervision",
+               description = "Retrieves organization data for a given supervision, including both direct and super organizations if available.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved organization data"),
+        @ApiResponse(responseCode = "400", description = "Invalid input provided"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     private PersonOrganizationData getOrganizationDataForSupervision(Supervision supervision) {
         OrganizationData directOrganization = null;
         OrganizationData superOrganization = null;
@@ -444,6 +501,8 @@ public class PersonRestService {
      * @param id     an optional parameter for the person ID
      * @param pageId an optional parameter for the person's web page ID
      * @return the Person entity or null if not found
+     *
+     * @see Person
      */
     public Person getPersonFromRequest(Long id, String pageId) {
         if (id != null) {
