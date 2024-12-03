@@ -104,6 +104,8 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         validateButton = new Button(getTranslation("views.charts.create"));
         validateButton.setEnabled(false);
         validateButton.addClickListener(e -> {
+            this.chart = factory.create(this.publicationService);
+
             if (yearRange.getEnd().isEmpty()) {
                 chart.setYear(yearRange.getChosenStartValue());
             } else {
@@ -203,9 +205,19 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
     public void removeChart(){
         if(soChart != null){
             chartHorizontalLayout.remove(soChart);
+            soChart = null;
         }
         yearRange.setVisible(true);
         multiSelectComboBox.setVisible(true);
         validateButton.setVisible(true);
+    }
+
+    /**
+     * Checks if a chart has been generated
+     *
+     * @return true if a chart has been generated, false otherwise
+     */
+    public boolean isChartGenerated(){
+        return soChart != null;
     }
 }

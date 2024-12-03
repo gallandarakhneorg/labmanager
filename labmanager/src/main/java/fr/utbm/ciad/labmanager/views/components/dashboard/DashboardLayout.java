@@ -1,16 +1,14 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.utils.dragdrop.DraggableComponent;
-import fr.utbm.ciad.labmanager.utils.dragdrop.DropCell;
-import fr.utbm.ciad.labmanager.utils.dragdrop.DropGrid;
-import fr.utbm.ciad.labmanager.utils.dragdrop.ToggleButton;
+import fr.utbm.ciad.labmanager.utils.container.DraggableComponent;
+import fr.utbm.ciad.labmanager.utils.grid.DropGrid;
+import fr.utbm.ciad.labmanager.utils.button.ToggleButton;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
@@ -21,14 +19,13 @@ import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.Publi
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryPieChart;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.addons.idle.Idle;
 
 import java.util.*;
 
 public class DashboardLayout extends VerticalLayout {
 
     private final Select<String> componentSelect = new Select<>();
-    private final ToggleButton editionButton = new ToggleButton(this::setEditionMode, this::removeEditionMode);
+    private final ToggleButton editionButton;
     private final DropGrid dropGrid = new DropGrid();
     private final List<String> availableComponents = new ArrayList<>(List.of("BarChart", "PieChart", "NightingaleRoseChart"));
     private final PublicationCategoryChartFactory<PublicationCategoryBarChart> barChartFactory;
@@ -42,18 +39,25 @@ public class DashboardLayout extends VerticalLayout {
      */
     public DashboardLayout(@Autowired PublicationService publicationService) {
         super();
+        editionButton = new ToggleButton(
+                getTranslation("views.edit"),
+                this::setEditionMode,
+                getTranslation("views.stop_edit"),
+                this::removeEditionMode
+        );
+
+
         barChartFactory = new PublicationCategoryBarChartFactory();
         pieChartFactory = new PublicationCategoryPieChartFactory();
         nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
-        Idle idle = Idle.track(UI.getCurrent(), 30000);
+        /*Idle idle = Idle.track(UI.getCurrent(), 30000);
 
         // Listener to handle user inactivity and exit edition mode if necessary.
         idle.addUserInactiveListener(event -> {
             if (editionButton.isInTrueMode()) {
                 removeEditionMode();
             }
-        });
-        updateSelectItems();
+        });*/
 
         // Initializes the select dropdown with components.
         createSelect(publicationService);
@@ -98,14 +102,10 @@ public class DashboardLayout extends VerticalLayout {
             if (selectedItem != null) {
 
                 DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
-                addContextMenuToComponent(draggableComponent);
-
-                draggableComponent.getElement().setAttribute("data-custom-id", selectedItem);
+                addContextMenuToDraggableComponent(draggableComponent);
 
                 dropGrid.addComponentInFirstEmptyCell(draggableComponent);
 
-                availableComponents.remove(selectedItem);
-                updateSelectItems();
                 componentSelect.clear();
             }
         });
@@ -115,7 +115,6 @@ public class DashboardLayout extends VerticalLayout {
         componentSelect.getStyle().setMarginRight("auto");
     }
 
-    //TODO the cases have to be the same as in the availableComponents list
     /**
      * Creates and returns a draggable UI component based on the selected item.
      *
@@ -125,6 +124,21 @@ public class DashboardLayout extends VerticalLayout {
      */
     @NotNull
     private DraggableComponent getDraggableComponent(PublicationService publicationService, String selectedItem) {
+        Component component = getComponent(publicationService, selectedItem);
+        if (component instanceof PublicationCategoryLayout<?>) {
+            ((PublicationCategoryLayout<?>) component).setWidth("500px");
+            ((PublicationCategoryLayout<?>) component).setHeight("200px");
+            ((PublicationCategoryLayout<?>) component).setSize("450px", "180px");
+            ((PublicationCategoryLayout<?>) component).setFormHidden(true);
+        }
+        component.getStyle().setBackgroundColor("#f2f2f2");
+        component.getStyle().setBorder("#bfbfbf");
+        return new DraggableComponent(component);
+    }
+
+    //TODO the cases have to be the same as in the availableComponents list
+    @NotNull
+    private Component getComponent(PublicationService publicationService, String selectedItem) {
         Component component = switch (selectedItem) {
             case "BarChart" -> new PublicationCategoryLayout<>(publicationService, barChartFactory);
             case "PieChart" -> new PublicationCategoryLayout<>(publicationService, pieChartFactory);
@@ -134,42 +148,26 @@ public class DashboardLayout extends VerticalLayout {
         if (component == null) {
             throw new IllegalArgumentException("Unknown component type: " + selectedItem);
         }
-        if (component instanceof PublicationCategoryLayout<?>) {
-            ((PublicationCategoryLayout<?>) component).setWidth("500px");
-            ((PublicationCategoryLayout<?>) component).setHeight("200px");
-            ((PublicationCategoryLayout<?>) component).setSize("450px", "180px");
-            ((PublicationCategoryLayout<?>) component).setFormHidden(true);
-        }
-        component.getStyle().setBackgroundColor("#f2f2f2");
-        component.getStyle().setBorder("#bfbfbf");
-
-        return new DraggableComponent(component);
-    }
-
-    /**
-     * Updates the items in the component select dropdown.
-     * Enables or disables the dropdown based on the availability of components.
-     */
-    private void updateSelectItems() {
-        componentSelect.setItems(availableComponents);
-        componentSelect.setEnabled(!availableComponents.isEmpty());
+        return component;
     }
 
     /**
      * Sets the editing mode and updates the UI to reflect the change.
      */
     private void setEditionMode() {
-        dropGrid.changeEditionMode(true);
-        dropGrid.getCellsContainingComponents().forEach(cell -> cell.getChild().ifPresent(component -> addContextMenuToComponent((DraggableComponent) component)));
-        componentSelect.setVisible(true);
+        changeEditionMode(true);
     }
 
     /**
      * Removes the edition mode and updates the UI accordingly.
      */
     private void removeEditionMode() {
-        dropGrid.changeEditionMode(false);
-        componentSelect.setVisible(false);
+        changeEditionMode(false);
+    }
+
+    private void changeEditionMode(boolean editionMode){
+        dropGrid.changeEditionMode(editionMode);
+        componentSelect.setVisible(editionMode);
     }
 
     /**
@@ -177,29 +175,9 @@ public class DashboardLayout extends VerticalLayout {
      *
      * @param component The component to which the context menu is added.
      */
-    private void addContextMenuToComponent(DraggableComponent component) {
-        ContextMenu contextMenu = new ContextMenu();
-        contextMenu.setTarget(component);
-        contextMenu.addItem(getTranslation("views.delete"), event -> removeComponent(component));
-        if (component.isChart()) {
-            contextMenu.addItem(getTranslation("views.charts.edit"), event -> editChart(component));
-        }
-    }
-
-    /**
-     * Removes a specified component from the parent layout and updates the dropdown.
-     *
-     * @param component The component to be removed.
-     */
-    private void removeComponent(DraggableComponent component) {
-        component.getParent().ifPresent(parent -> {
-            String componentId = component.getElement().getAttribute("data-custom-id");
-            if (componentId != null && !availableComponents.contains(componentId)) {
-                availableComponents.add(componentId);
-            }
-            updateSelectItems();
-            dropGrid.removeComponent((DropCell) parent, component);
-        });
+    private void addContextMenuToDraggableComponent(DraggableComponent component) {
+        component.getContextMenu().addItem(getTranslation("views.charts.edit"), event -> editChart(component), () -> component.isChart() && ((PublicationCategoryLayout<?>) component.getComponent()).isChartGenerated());
+        component.getContextMenu().addItem(getTranslation("views.delete"), event -> dropGrid.removeComponent(component), component::isDraggable);
     }
 
     /**
