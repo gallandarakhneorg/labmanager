@@ -1,4 +1,4 @@
-package fr.utbm.ciad.wprest;
+package fr.utbm.ciad.wprest.views;
 
 import fr.utbm.ciad.labmanager.Constants;
 import io.swagger.v3.oas.annotations.Operation;

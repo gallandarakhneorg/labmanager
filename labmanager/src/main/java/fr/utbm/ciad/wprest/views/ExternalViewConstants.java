@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.wprest;
+package fr.utbm.ciad.wprest.views;
 
 /** Definition of global constants for external views.
  * 

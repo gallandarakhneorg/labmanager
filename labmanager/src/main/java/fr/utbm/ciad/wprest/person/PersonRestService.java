@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing person-related operations.
@@ -54,6 +55,7 @@ import java.util.*;
  * The version of the API is determined by the constant
  * {@link Constants#MANAGER_MAJOR_VERSION}.</p>
  */
+@Transactional
 @RestController
 @RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION + "/persons")
 public class PersonRestService {
@@ -75,35 +77,19 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/card")
-    @Transactional
+    
     public ResponseEntity<PersonCardDTO> getPersonCard(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+        Person person = getPersonFromRequest(id, pageId);
+
+        ResponseEntity<PersonCardDTO> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        String firstName = p.getFirstName();
-        String lastName = p.getLastName();
-        String email = p.getEmail();
-        PhoneNumber mobilePhone = p.getMobilePhone();
-        PhoneNumber officePhone = p.getOfficePhone();
-        String room = p.getOfficeRoom();
-
-        String webpage = p.getWebPageId();
-        URL photo = p.getPhotoURL();
-
-        PersonService.PersonRankingUpdateInformation rankingUpdateInformation = personService.getPersonRankingUpdateInformation(p);
-        PersonService.PersonLinks personLinks = personService.getPersonLinks(p);
-
-        PersonCardDTO card = new PersonCardDTO(firstName, lastName, email, photo, mobilePhone, officePhone, room, rankingUpdateInformation, personLinks, webpage);
-
+        PersonCardDTO card = getPersonCardDto(person);
         return ResponseEntity.ok(card);
     }
 
@@ -122,22 +108,20 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/biography")
-    @Transactional
+    
     public ResponseEntity<PersonBiographyDTO> getPersonBiography(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+        Person person = getPersonFromRequest(id, pageId);
+
+        ResponseEntity<PersonBiographyDTO> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        boolean isPrivateBiography = p.getPrivateBiography();
-        String biographyContent = isPrivateBiography ? " " : p.getBiography();
+        boolean isPrivateBiography = person.getPrivateBiography();
+        String biographyContent = isPrivateBiography ? " " : person.getBiography();
 
         PersonBiographyDTO biography = new PersonBiographyDTO(isPrivateBiography, biographyContent);
         return ResponseEntity.ok(biography);
@@ -158,23 +142,19 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/guestInvitations")
-    @Transactional
+    
     public ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> getPersonGuestInvitations(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+
+        Person person = getPersonFromRequest(id, pageId);
+        ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Set<PersonInvitation> invitations = new HashSet<>(p.getGuestInvitations());
-
-        return ResponseEntity.ok(getInvitationsDTOEntity(invitations));
+        return ResponseEntity.ok(getInvitationsDTOEntity(person.getGuestInvitations()));
     }
 
 
@@ -193,21 +173,18 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/inviterInvitations")
-    @Transactional
+    
     public ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> getPersonInviterInvitations(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+        Person person = getPersonFromRequest(id, pageId);
+        ResponseEntity<Map<PersonInvitationType, Set<PersonInvitationData>>> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Set<PersonInvitation> invitations = new HashSet<>(p.getInviterInvitations());
+        Set<PersonInvitation> invitations = person.getInviterInvitations();
 
         return ResponseEntity.ok(getInvitationsDTOEntity(invitations));
     }
@@ -227,22 +204,19 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/invitations")
-    @Transactional
+    
     public ResponseEntity<PersonInvitationsDTO> getAllPersonInvitations(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+        Person person = getPersonFromRequest(id, pageId);
+        ResponseEntity<PersonInvitationsDTO> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Set<PersonInvitation> guestInvitations = new HashSet<>(p.getGuestInvitations());
-        Set<PersonInvitation> inviterInvitations = new HashSet<>(p.getInviterInvitations());
+        Set<PersonInvitation> guestInvitations = person.getGuestInvitations();
+        Set<PersonInvitation> inviterInvitations = person.getInviterInvitations();
 
         PersonInvitationsDTO allInvitations = new PersonInvitationsDTO(getInvitationsDTOEntity(guestInvitations), getInvitationsDTOEntity(inviterInvitations));
 
@@ -264,53 +238,20 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/jurys")
-    @Transactional
+    
     public ResponseEntity<Set<PersonJuryMembershipDTO>> getPersonJuryMemberships(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+        Person person = getPersonFromRequest(id, pageId);
+        ResponseEntity<Set<PersonJuryMembershipDTO>> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Set<PersonJuryMembershipDTO> jurys = new HashSet<>();
-
-        Set<JuryMembership> participationJurys = new HashSet<>(p.getParticipationJurys());
-        participationJurys.forEach(jury -> {
-            String title = jury.getTitle();
-            int year = jury.getDate().getYear();
-
-            String candidateName = jury.getCandidate().getFullName();
-            String candidateWebpageId = jury.getCandidate().getWebPageId();
-
-            PersonOnWebsite candidate = new PersonOnWebsite(candidateName, candidateWebpageId);
-
-            List<PersonOnWebsite> promotersOrDirectorsNames = new ArrayList<>();
-
-            List<Person> promotersOrDirectors = new ArrayList<>(jury.getPromoters());
-
-            for (Person person : promotersOrDirectors) {
-                String name = person.getFullName();
-                String webpageId = person.getWebPageId();
-
-                promotersOrDirectorsNames.add(new PersonOnWebsite(name, webpageId));
-            }
-
-            String universityName = jury.getUniversity();
-            String universityCountry = jury.getCountryDisplayName();
-            boolean inFrance = (universityCountry.equalsIgnoreCase("France"));
-
-            UniversityData university = new UniversityData(universityName, universityCountry, inFrance);
-
-            JuryType type = jury.getDefenseType();
-
-            jurys.add(new PersonJuryMembershipDTO(title, year, candidate, promotersOrDirectorsNames, type, university));
-        });
+        Set<PersonJuryMembershipDTO> jurys = person.getParticipationJurys().stream()
+                .map(this::getJuryMembershipDataFrom)
+                .collect(Collectors.toSet());
 
         return ResponseEntity.ok(jurys);
     }
@@ -330,49 +271,21 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/supervisions")
-    @Transactional
+    
     public ResponseEntity<List<SupervisionsDTO>> getPersonSupervisions(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId
     ) {
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+
+        Person person = getPersonFromRequest(id, pageId);
+        ResponseEntity<List<SupervisionsDTO>> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        List<SupervisionsDTO> supervisions = new ArrayList<>();
-
-        List<Supervision> supervised = supervisionService.getSupervisionsForSupervisor(p.getId());
-        for (Supervision supervision : supervised) {
-            String title = supervision.getTitle();
-            int year = supervision.getYear();
-
-            String supervisedPersonName = supervision.getSupervisedPerson().getPerson().getFullName();
-            String supervisedPersonWebPageId = supervision.getSupervisedPerson().getPerson().getWebPageId();
-            PersonOnWebsite supervisedPerson = new PersonOnWebsite(supervisedPersonName, supervisedPersonWebPageId);
-
-            PersonOrganizationData organisation = getOrganizationDataForSupervision(supervision);
-
-            List<Supervisor> supervisors = new ArrayList<>(supervision.getSupervisors());
-            List<SupervisedPersonSupervisorData> supervisorsData = getSupervisorsDataFrom(supervisors);
-
-            //filter with streams to get the type of supervision for the requested person
-            Optional<SupervisedPersonSupervisorData> personSupervisorData = supervisorsData.stream()
-                    .filter(data -> data.person().name().equals(p.getFullName()))
-                    .findFirst();
-
-            SupervisorType supervisionType = null;
-            if (personSupervisorData.isPresent()) {
-                supervisionType = personSupervisorData.get().type();
-            }
-
-            supervisions.add(new SupervisionsDTO(title, supervisedPerson, year, supervisionType, organisation, supervisorsData));
-
-        }
+        List<SupervisionsDTO> supervisions = supervisionService.getSupervisionsForSupervisor(person.getId()).stream()
+                .map(supervision -> this.getSupervisionsDataFrom(supervision, person))
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(supervisions);
     }
@@ -393,32 +306,20 @@ public class PersonRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no user is found with the provided ID or pageId.")
     })
     @GetMapping("/memberships")
-    @Transactional
+    
     public ResponseEntity<Set<PersonMembershipDTO>> getMemberships(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId) {
 
-        if ((id == null && pageId == null) || (id != null && pageId != null)) {
-            return ResponseEntity.badRequest().build();
+        Person person = getPersonFromRequest(id, pageId);
+        ResponseEntity<Set<PersonMembershipDTO>> errorPage = getErrorPage(id, pageId, person);
+        if (errorPage != null) {
+            return errorPage;
         }
 
-        Person p = getPersonFromRequest(id, pageId);
-        if (p == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Set<Membership> memberships = new HashSet<>(p.getMemberships());
-
-        Set<PersonMembershipDTO> personMembershipDTOS = new HashSet<>();
-
-        for (Membership membership : memberships) {
-            MemberStatus status = membership.getMemberStatus();
-
-            ResearchOrganization organization = membership.getDirectResearchOrganization();
-            OrganizationData organizationData = getOrganisationData(organization);
-
-            personMembershipDTOS.add(new PersonMembershipDTO(status, organizationData));
-        }
+        Set<PersonMembershipDTO> personMembershipDTOS = person.getMemberships().stream()
+                .map(this::getMembershipDataFrom)
+                .collect(Collectors.toSet());
 
         return ResponseEntity.ok(personMembershipDTOS);
     }
@@ -430,14 +331,7 @@ public class PersonRestService {
      * @param invitations a set of PersonInvitation entities
      * @return a map where keys are PersonInvitationType and values are sets of PersonInvitationData
      */
-    @Operation(summary = "Convert PersonInvitation entities to a map of PersonInvitationType",
-               description = "Transforms a set of PersonInvitation entities into a map categorized by PersonInvitationType, each containing sets of PersonInvitationData.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully transformed invitations"),
-        @ApiResponse(responseCode = "400", description = "Invalid input provided"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @Transactional
+    
     public Map<PersonInvitationType, Set<PersonInvitationData>> getInvitationsDTOEntity(Set<PersonInvitation> invitations) {
         Map<PersonInvitationType, Set<PersonInvitationData>> personInvitations = new HashMap<>();
 
@@ -472,14 +366,7 @@ public class PersonRestService {
      * @param supervision the supervision entity
      * @return a PersonOrganizationData object containing organization details for the supervision
      */
-    @Operation(summary = "Get organization data for a given supervision",
-               description = "Retrieves organization data for a given supervision, including both direct and super organizations if available.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved organization data"),
-        @ApiResponse(responseCode = "400", description = "Invalid input provided"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    private PersonOrganizationData getOrganizationDataForSupervision(Supervision supervision) {
+    public PersonOrganizationData getOrganizationDataForSupervision(Supervision supervision) {
         OrganizationData directOrganization = null;
         OrganizationData superOrganization = null;
 
@@ -501,7 +388,6 @@ public class PersonRestService {
      * @param id     an optional parameter for the person ID
      * @param pageId an optional parameter for the person's web page ID
      * @return the Person entity or null if not found
-     *
      * @see Person
      */
     public Person getPersonFromRequest(Long id, String pageId) {
@@ -509,6 +395,28 @@ public class PersonRestService {
             return personService.getPersonById(id);
         } else if (pageId != null) {
             return personService.getPersonByWebPageId(pageId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds a ResponseEntity error object if the given parameters are invalid
+     * or if the person entity is null.
+     *
+     * @param id     an optional parameter for the person ID
+     * @param pageId an optional parameter for the person's web page ID
+     * @param person the person entity, null if not found
+     * @return a ResponseEntity containing an error status code (400 or 404)
+     *         if the parameters are invalid or if the person is null, null otherwise
+     */
+    public <T> ResponseEntity<T> getErrorPage(Long id, String pageId, Person person) {
+        if ((id == null && pageId == null) || (id != null && pageId != null)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (person == null) {
+            return ResponseEntity.notFound().build();
         }
 
         return null;
@@ -523,7 +431,7 @@ public class PersonRestService {
      */
     public OrganizationData getOrganisationData(ResearchOrganization researchOrganization) {
         if (researchOrganization != null) {
-            Set<OrganizationAddress> organizationAddresses = new HashSet<>(researchOrganization.getAddresses());
+            Set<OrganizationAddress> organizationAddresses = researchOrganization.getAddresses();
 
             Set<String> organizationAddressesName = new HashSet<>();
             for (OrganizationAddress address : organizationAddresses) {
@@ -562,5 +470,113 @@ public class PersonRestService {
         }
 
         return supervisorsData;
+    }
+
+    /**
+     * Constructs a PersonJuryMembershipDTO containing details of a jury membership.
+     *
+     * @param jury the JuryMembership entity containing the jury details
+     * @return a PersonJuryMembershipDTO object populated with the jury membership's title, year, candidate,
+     *         directors or promoters, university, and type
+     */
+    public PersonJuryMembershipDTO getJuryMembershipDataFrom(JuryMembership jury) {
+        String title = jury.getTitle();
+        int year = jury.getDate().getYear();
+
+        String candidateName = jury.getCandidate().getFullName();
+        String candidateWebpageId = jury.getCandidate().getWebPageId();
+
+        PersonOnWebsite candidate = new PersonOnWebsite(candidateName, candidateWebpageId);
+
+        List<PersonOnWebsite> promotersOrDirectorsNames = new ArrayList<>();
+
+        List<Person> promotersOrDirectors = jury.getPromoters();
+
+        for (Person person : promotersOrDirectors) {
+            String name = person.getFullName();
+            String webpageId = person.getWebPageId();
+
+            promotersOrDirectorsNames.add(new PersonOnWebsite(name, webpageId));
+        }
+
+        String universityName = jury.getUniversity();
+        String universityCountry = jury.getCountryDisplayName();
+        boolean inFrance = (universityCountry.equalsIgnoreCase("France"));
+
+        UniversityData university = new UniversityData(universityName, universityCountry, inFrance);
+
+        JuryType type = jury.getDefenseType();
+
+        return new PersonJuryMembershipDTO(title, year, candidate, promotersOrDirectorsNames, type, university);
+    }
+
+    /**
+     * Constructs a SupervisionsDTO containing details of a supervision.
+     *
+     * @param supervision the Supervision entity containing the supervision details
+     * @param person the Person entity for whom the supervision details should be retrieved
+     * @return a SupervisionsDTO object populated with the supervision's title, year, supervised person,
+     *         organization, supervisors, and type of supervision
+     */
+    public SupervisionsDTO getSupervisionsDataFrom(Supervision supervision, Person person) {
+        String title = supervision.getTitle();
+        int year = supervision.getYear();
+
+        String supervisedPersonName = supervision.getSupervisedPerson().getPerson().getFullName();
+        String supervisedPersonWebPageId = supervision.getSupervisedPerson().getPerson().getWebPageId();
+        PersonOnWebsite supervisedPerson = new PersonOnWebsite(supervisedPersonName, supervisedPersonWebPageId);
+
+        PersonOrganizationData organisation = getOrganizationDataForSupervision(supervision);
+
+        List<Supervisor> supervisors = supervision.getSupervisors();
+        List<SupervisedPersonSupervisorData> supervisorsData = getSupervisorsDataFrom(supervisors);
+
+        //filter with streams to get the type of supervision for the requested person
+        Optional<SupervisedPersonSupervisorData> personSupervisorData = supervisorsData.stream()
+                .filter(data -> data.person().name().equals(person.getFullName()))
+                .findFirst();
+
+        SupervisorType supervisionType = null;
+        if (personSupervisorData.isPresent()) {
+            supervisionType = personSupervisorData.get().type();
+        }
+
+       return new SupervisionsDTO(title, supervisedPerson, year, supervisionType, organisation, supervisorsData);
+    }
+
+    /**
+     * Constructs a PersonMembershipDTO containing details of a person's membership.
+     *
+     * @param membership the Membership entity containing the person's membership details
+     * @return a PersonMembershipDTO object populated with the membership's status and organization data
+     */
+    public PersonMembershipDTO getMembershipDataFrom(Membership membership) {
+        MemberStatus status = membership.getMemberStatus();
+
+        ResearchOrganization organization = membership.getDirectResearchOrganization();
+        OrganizationData organizationData = getOrganisationData(organization);
+
+        return new PersonMembershipDTO(status, organizationData);
+    }
+
+    public PersonCardDTO getPersonCardDto(Person person) {
+        if (person == null) {
+            return null;
+        }
+
+        String firstName = person.getFirstName();
+        String lastName = person.getLastName();
+        String email = person.getEmail();
+        PhoneNumber mobilePhone = person.getMobilePhone();
+        PhoneNumber officePhone = person.getOfficePhone();
+        String room = person.getOfficeRoom();
+
+        String webpage = person.getWebPageId();
+        URL photo = person.getPhotoURL();
+
+        PersonService.PersonRankingUpdateInformation rankingUpdateInformation = personService.getPersonRankingUpdateInformation(person);
+        PersonService.PersonLinks personLinks = personService.getPersonLinks(person);
+
+        return new PersonCardDTO(firstName, lastName, email, photo, mobilePhone, officePhone, room, rankingUpdateInformation, personLinks, webpage);
     }
 }

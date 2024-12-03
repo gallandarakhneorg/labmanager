@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
  * The version of the API is determined by the constant
  * {@link Constants#MANAGER_MAJOR_VERSION}.</p>
  */
+@Transactional
 @RestController
 @RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION + "/publications")
 public class PublicationRestService {
@@ -86,7 +87,7 @@ public class PublicationRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no person is found with the provided ID or pageId.")
     })
     @GetMapping("/persons")
-    @Transactional
+    
     public ResponseEntity<List<PublicationsDTO>> getPersonPublications(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String pageId,
@@ -98,20 +99,13 @@ public class PublicationRestService {
             return ResponseEntity.badRequest().build();
         }
 
-        Person p = null;
-        if (id != null) {
-            p = personService.getPersonById(id);
-        }
-        else if (pageId != null) {
-            p = personService.getPersonByWebPageId(pageId);
-        }
-
+        Person p = getPublicationPerson(id, pageId);
         if (p == null) {
             return ResponseEntity.notFound().build();
         }
 
-        List<Publication> publicationList = new ArrayList<>(publicationService.getPublicationsByPersonId(p.getId()));
-        List<PublicationsDTO> publications = getAndFilterPublicationsDataFrom(publicationList, year, language, keywords);
+        List<Publication> publicationList = publicationService.getPublicationsByPersonId(p.getId());
+        List<PublicationsDTO> publications = getAndfilterPublicationsDataFrom(publicationList, year, language, keywords);
 
         return ResponseEntity.ok(publications);
     }
@@ -137,7 +131,7 @@ public class PublicationRestService {
             @ApiResponse(responseCode = "404", description = "Not Found if no organization is found with the provided ID or acronym.")
     })
     @GetMapping("/organizations")
-    @Transactional
+    
     public ResponseEntity<List<PublicationsDTO>> getOrganizationsPublications(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String acronym,
@@ -152,25 +146,15 @@ public class PublicationRestService {
             return ResponseEntity.badRequest().build();
         }
 
-        Optional<ResearchOrganization> optionalResearchOrganization = Optional.empty();
+        ResearchOrganization organization = getPublicationOrganization(id, acronym);
 
-        if (id != null) {
-            optionalResearchOrganization = researchOrganizationService.getResearchOrganizationById(id);
-        } else if (acronym != null) {
-            optionalResearchOrganization =  researchOrganizationService.getResearchOrganizationByAcronym(acronym);
-        }
-
-        if (optionalResearchOrganization.isEmpty()) {
+        if (organization == null) {
             return ResponseEntity.notFound().build();
         }
 
-        ResearchOrganization organization = optionalResearchOrganization.get();
 
-        Set<Publication> publications = new HashSet<>(publicationService.getPublicationsByOrganizationId(organization.getId(), subOrganizations, filterActive));
-        List<Publication> publicationsList = new ArrayList<>(publications);
-        publicationsList.addAll(publications);
-
-        List<PublicationsDTO> publicationsDTOList = getAndFilterPublicationsDataFrom(publicationsList, year, language, keywords);
+        Set<Publication> publications = publicationService.getPublicationsByOrganizationId(organization.getId(), subOrganizations, filterActive);
+        List<PublicationsDTO> publicationsDTOList = getAndfilterPublicationsDataFrom(publications, year, language, keywords);
 
         return ResponseEntity.ok(publicationsDTOList);
     }
@@ -184,43 +168,16 @@ public class PublicationRestService {
      * @param keywords - the list of keywords to filter
      * @return The filtered publications
      */
-    @Transactional
-    public List<PublicationsDTO> getAndFilterPublicationsDataFrom(List<Publication> publicationList,
+    
+    public List<PublicationsDTO> getAndfilterPublicationsDataFrom(Collection<Publication> publicationList,
                                                                   Long year,
                                                                   String language,
                                                                   String keywords) {
         List<PublicationsDTO> publications = new ArrayList<>();
 
         for (Publication publication : publicationList) {
-
-            // Filter by year
-            if (year != null && (publication.getPublicationDate() == null || year.intValue() != publication.getPublicationYear())) {
+            if (filterPublication(publication, year, language, keywords)) {
                 continue;
-            }
-
-            // Filter by language spoken
-            if (language != null) {
-                PublicationLanguage spokenLanguage = publication.getMajorLanguage();
-                if (!spokenLanguage.equals(PublicationLanguage.valueOfCaseInsensitive(language, PublicationLanguage.OTHER))) {
-                    continue;
-                }
-            }
-
-            // Filter by keywords (OR operator)
-            if (keywords != null && publication.getKeywords() != null) {
-                String[] splitKeywords = keywords.split("[ ,;]");
-                boolean found = false;
-
-                for (String keyword : splitKeywords) {
-                    if (publication.getKeywords().toUpperCase(Locale.ROOT).contains(keyword.toUpperCase(Locale.ROOT))) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    continue;
-                }
             }
 
             // get keywords as list
@@ -250,5 +207,98 @@ public class PublicationRestService {
         }
 
         return publications;
+    }
+
+    /**
+     * Returns a person entity based on either a person ID or a web page ID.
+     * If both are absent, returns null.
+     *
+     * @param id     an optional parameter for the person ID
+     * @param pageId an optional parameter for the person's web page ID
+     * @return the Person entity or null if not found
+     * @see Person
+     */
+    public Person getPublicationPerson(Long id, String pageId) {
+        Person person = null;
+        if (id != null) {
+            person = personService.getPersonById(id);
+        }
+        else if (pageId != null) {
+            person = personService.getPersonByWebPageId(pageId);
+        }
+
+        return person;
+    }
+
+    /**
+     * Returns a research organization entity based on either a research organization ID or acronym.
+     * If both are absent, returns null.
+     *
+     * @param id     an optional parameter for the research organization ID
+     * @param acronym an optional parameter for the research organization acronym
+     * @return the ResearchOrganization entity or null if not found
+     * @see ResearchOrganization
+     */
+    public ResearchOrganization getPublicationOrganization(Long id, String acronym) {
+        Optional<ResearchOrganization> optionalResearchOrganization = Optional.empty();
+
+        if (id != null) {
+            optionalResearchOrganization = researchOrganizationService.getResearchOrganizationById(id);
+        } else if (acronym != null) {
+            optionalResearchOrganization =  researchOrganizationService.getResearchOrganizationByAcronym(acronym);
+        }
+
+        return optionalResearchOrganization.orElse(null);
+    }
+
+    /**
+     * Applies filters to the given publication. Might be useful to directly request database (using a custom SQL query)
+     *
+     * @param publication the publication to filter
+     * @param year        the year of publication to filter results. If not provided, all years will be included
+     * @param language    the language of publication to filter results. If not provided, all languages will be included
+     * @param keywords    a comma-separated list of keywords to filter results. If not provided, all keywords will be included
+     * @return true if the publication should be excluded, false otherwise
+     */
+    public boolean filterPublication(Publication publication, Long year, String language, String keywords) {
+        //if there is no filter, return false
+        if (year == null && language == null && keywords == null) {
+            return false;
+        }
+
+        // no publication means that we want to ignore the publication
+        if (publication == null) {
+            return true;
+        }
+
+        // Filter by year
+        if (year != null && (publication.getPublicationDate() == null || year.intValue() != publication.getPublicationYear())) {
+            return true;
+        }
+
+        // Filter by language spoken
+        if (language != null) {
+            PublicationLanguage spokenLanguage = publication.getMajorLanguage();
+            if (!spokenLanguage.equals(PublicationLanguage.valueOfCaseInsensitive(language, PublicationLanguage.OTHER))) {
+                return true;
+            }
+        }
+
+        // Filter by keywords (OR operator)
+        if (keywords != null && publication.getKeywords() != null) {
+            String[] splitKeywords = keywords.split("[ ,;]");
+            boolean found = false;
+
+            for (String keyword : splitKeywords) {
+                if (publication.getKeywords().toUpperCase(Locale.ROOT).contains(keyword.toUpperCase(Locale.ROOT))) {
+                    found = true;
+                    break;
+                }
+            }
+
+            return !found;
+        }
+
+        return false;
     }
 }

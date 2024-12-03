@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.wprest;
+package fr.utbm.ciad.wprest.views;
 
 import java.util.Map;
 import java.util.regex.Matcher;

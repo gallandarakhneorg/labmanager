@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing project-related operations.
@@ -39,6 +40,7 @@ import java.util.*;
  * The version of the API is determined by the constant
  * {@link Constants#MANAGER_MAJOR_VERSION}.</p>
  */
+@Transactional
 @RestController
 @RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION + "/projects")
 public class ProjectRestService {
@@ -55,8 +57,8 @@ public class ProjectRestService {
      * @param id the id of the project
      * @return the data project data
      */
-    @Operation(summary = "Get a project by its id",
-            description = "Get the project with the given id",
+    @Operation(summary = "Gets a project by its id",
+            description = "Gets the project with the given id",
             tags = {"Project API"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "The project data",
@@ -64,7 +66,6 @@ public class ProjectRestService {
                     @ApiResponse(responseCode = "404", description = "The project does not exist"),
             })
     @GetMapping
-    @Transactional
     public ResponseEntity<ProjectDataDto> getProject(
             @RequestParam Long id
     ) {
@@ -86,20 +87,20 @@ public class ProjectRestService {
      * Get all public projects
      * @return the whole list of projects
      */
-    @Operation(summary = "Get all public projects",
-            description = "Get the whole list of public projects",
+    @Operation(summary = "Gets all public projects",
+            description = "Gets the whole list of public projects",
             tags = {"Project API"},
             responses = {
                     @ApiResponse(responseCode = "200", description = "The list of public projects",
                             content = @Content(schema = @Schema(implementation = ProjectDataDto.class), array = @ArraySchema(schema = @Schema(implementation = ProjectDataDto.class)))),
                     @ApiResponse(responseCode = "404", description = "No project found"),
             })
-    @Transactional
+    
     @GetMapping("/all")
     public ResponseEntity<List<ProjectDataDto>> getAllProjects(
 
     ) {
-        List<Project> projects = new ArrayList<>(projectService.getAllProjects());
+        List<Project> projects = projectService.getAllProjects();
         return getPublicProjectsFromList(projects);
     }
 
@@ -110,29 +111,26 @@ public class ProjectRestService {
      * @return - a list of the data associated to each project
      */
     public ResponseEntity<List<ProjectDataDto>> getPublicProjectsFromList(List<Project> projects) {
-        List<ProjectDataDto> projectsDtos = new ArrayList<>();
-
-        for (Project project : projects) {
-            if (!project.isConfidential() && (project.getStatus() == ProjectStatus.ACCEPTED)) {
-                projectsDtos.add(getProjectData(project));
-            }
-        }
+        List<ProjectDataDto> projectsDtos = projects.stream()
+                .filter(project -> !project.isConfidential() && project.getStatus() == ProjectStatus.ACCEPTED)
+                .map(this::getProjectData)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(projectsDtos);
     }
 
     /**
      * Get the different organizations names
-     * @param p - the project
+     * @param project - the project
      * @return - the organization data
      */
-    private ProjectOrganizationData getProjectOrganizationData(Project p) {
-        ResearchOrganization superOrganization = p.getSuperOrganization();
+    public ProjectOrganizationData getProjectOrganizationData(Project project) {
+        ResearchOrganization superOrganization = project.getSuperOrganization();
         String superOrganizationName = superOrganization.getName();
-        String learOrganizationName = p.getLearOrganization().getName();
-        String localOrganizationName = p.getLocalOrganization().getName();
+        String learOrganizationName = project.getLearOrganization().getName();
+        String localOrganizationName = project.getLocalOrganization().getName();
 
-        List<ResearchOrganization> partners = new ArrayList<>(p.getOtherPartners());
+        List<ResearchOrganization> partners = project.getOtherPartners();
         List<String> partnersNames = new ArrayList<>();
         partners.forEach(partner -> partnersNames.add(partner.getName()));
 
@@ -142,44 +140,87 @@ public class ProjectRestService {
 
     /**
      * Gets the information related to the page of a project
-     * @param p - the project to get information from.
+     * @param project - the project to get information from.
      * @return - the project information DTO
      */
-    private ProjectDataDto getProjectData(Project p) {
-        String acronym = p.getAcronym();
-        String title = p.getScientificTitle();
-        String description = p.getDescription();
+    public ProjectDataDto getProjectData(Project project) {
+        String acronym = project.getAcronym();
+        String title = project.getScientificTitle();
+        String description = project.getDescription();
 
-        LocalDate startDate = p.getStartDate();
-        LocalDate endDate = p.getEndDate();
-        DateRange date = new DateRange(startDate, endDate);
+        DateRange date = getProjectDates(project);
 
-        String projectURL = p.getProjectURL();
-        List<String> videosURL = new ArrayList<>(p.getVideoURLs());
+        ProjectOrganizationData organizationData = getProjectOrganizationData(project);
+        List<ProjectParticipantData> participantsData = getParticipantsData(project);
 
-        List<ResearchOrganization> partners = new ArrayList<>(p.getOtherPartners());
+        List<String> images = project.getPathsToImages();
+        String logo = project.getPathToLogo();
+
+        ProjectLinksData links = getProjectLinksData(project);
+
+        String webpageId = null;
+        if (project.getWebPageURI() != null) {
+            webpageId = project.getWebPageURI().toString();
+        }
+
+        boolean openSource = project.isOpenSource();
+        boolean isDone = date.endDate() != null && (LocalDate.now().isAfter(date.endDate()));
+
+        return new ProjectDataDto(acronym, title, description, date, organizationData, participantsData,
+                images, logo, links, webpageId, openSource, isDone);
+    }
+
+
+    /**
+     * Returns the date range of the project.
+     *
+     * @param project the project to get the date range from
+     * @return the date range of the project, or null if the project is null
+     */
+    public DateRange getProjectDates(Project project) {
+        if (project == null) {
+            return null;
+        }
+
+        LocalDate startDate = project.getStartDate();
+        LocalDate endDate = project.getEndDate();
+        return new DateRange(startDate, endDate);
+    }
+
+    /**
+     * Returns the links associated to a project.
+     *
+     * @param project the project to get the links from
+     * @return the links of the project, or null if the project is null
+     */
+    public ProjectLinksData getProjectLinksData(Project project) {
+        if (project == null) {
+            return null;
+        }
+
+        String projectURL = project.getProjectURL();
+        List<String> videosURL = new ArrayList<>(project.getVideoURLs());
+
+        List<ResearchOrganization> partners = project.getOtherPartners();
         Map<String, String> partnersLinks = new HashMap<>();
         partners.forEach(partner -> partnersLinks.put(partner.getName(), partner.getOrganizationURL()));
 
-        ProjectLinksData links = new ProjectLinksData(projectURL, videosURL, partnersLinks);
+        return new ProjectLinksData(projectURL, videosURL, partnersLinks);
+    }
 
-        ProjectOrganizationData organizationData = getProjectOrganizationData(p);
-
-        boolean openSource = p.isOpenSource();
-
-        boolean isDone = endDate != null && (LocalDate.now().isAfter(endDate));
-
-        List<ProjectMember> participants = new ArrayList<>(p.getParticipants());
-        List<ProjectParticipantData> participantsData = new ArrayList<>();
-
-        List<String> images = new ArrayList<>(p.getPathsToImages());
-        String logo = p.getPathToLogo();
-
-        String webpageId = null;
-
-        if (p.getWebPageURI() != null) {
-            webpageId = p.getWebPageURI().toString();
+    /**
+     * Returns the participants of the project.
+     *
+     * @param project the project to get the participants from
+     * @return the list of participants, or an empty list if the project is null
+     */
+    public List<ProjectParticipantData> getParticipantsData(Project project) {
+        if (project == null) {
+            return new ArrayList<>();
         }
+
+        List<ProjectMember> participants = project.getParticipants();
+        List<ProjectParticipantData> participantsData = new ArrayList<>();
 
         for (ProjectMember participant : participants) {
             String name = participant.getPerson().getFullName();
@@ -189,6 +230,6 @@ public class ProjectRestService {
             participantsData.add(new ProjectParticipantData(person, participant.getRole()));
         }
 
-        return new ProjectDataDto(acronym, title, description, date, organizationData, participantsData, images, logo, links, webpageId, openSource, isDone);
+        return participantsData;
     }
 }
