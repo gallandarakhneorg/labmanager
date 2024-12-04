@@ -21,6 +21,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION + "/organizations")
 public class OrganizationRestService {
+
+    private final Logger logger = LoggerFactory.getLogger(OrganizationRestService.class);
 
     OrganizationAddressService organizationAddressService;
     ResearchOrganizationService researchOrganizationService;
@@ -150,7 +154,7 @@ public class OrganizationRestService {
 
         ResearchOrganization organization = organizationOptional.get();
 
-        Map<String, Number> indicatorsMap = globalIndicatorsService.getVisibleIndicatorsWithValues(organization, useCache)
+        Map<String, Number> indicatorsMap = globalIndicatorsService.getVisibleIndicatorsWithValues(organization, useCache, logger)
                 .stream()
                 .collect(Collectors.toMap(
                         indicator -> indicator.getKey().getKey(),
