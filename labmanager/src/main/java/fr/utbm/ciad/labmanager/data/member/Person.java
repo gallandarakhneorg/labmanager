@@ -373,7 +373,7 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 
 	/** List of research organizations for the person.
 	 */
-	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Membership> memberships;
 
 	/** List of publications of the person.
@@ -1163,6 +1163,14 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 		return this.authorships;
 	}
 
+	/** Replies the number of publications of the person.
+	 *
+	 * @return the number of publications.
+	 */
+	public int getAuthorshipNumber(){
+		return getAuthorships().size();
+	}
+
 	/** Change the list of publications of the person.
 	 *
 	 * @param list the list of publications.
@@ -1177,7 +1185,8 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 	 */
 	public Set<Membership> getMemberships() {
 		if (this.memberships == null) {
-			this.memberships = new TreeSet<>(EntityUtils.getPreferredMembershipComparator());
+			//this.memberships = new TreeSet<>(EntityUtils.getPreferredMembershipComparator());
+			this.memberships = new HashSet<>();
 		}
 		return this.memberships;
 	}
@@ -1206,6 +1215,10 @@ public class Person extends AbstractContextData implements JsonSerializable, Att
 				// Sort the memberships from the highest date to the lowest date
 				BinaryOperator.minBy(EntityUtils.getPreferredMembershipComparator()),
 				() -> new TreeMap<>(EntityUtils.getPreferredResearchOrganizationComparator())));
+	}
+
+	public String getOrganizations() {
+		return getMemberships().stream().map(membership -> membership.getDirectResearchOrganization().getAcronym()).collect(Collectors.joining(", "));
 	}
 
 	/** Replies the supervisable memberships of the persons.

@@ -19,14 +19,19 @@
 
 package fr.utbm.ciad.labmanager.data.teaching;
 
+import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.Period;
+import java.util.Collection;
 import java.util.List;
 
 /** JPA repository for teaching activity declaration.
  * 
  * @author $Author: sgalland$
+ * @author $Author: erenon$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
@@ -34,13 +39,24 @@ import java.util.List;
  */
 public interface TeachingActivityRepository extends JpaRepository<TeachingActivity, Long>, JpaSpecificationExecutor<TeachingActivity> {
 
+	/** Replies the list of activities that associated to the person.
+	 *
+	 * @param person the identifier.
+	 * @return the list of activities.
+	 */
+	List<TeachingActivity> findDistinctByPerson(Person person);
+
+	/** Replies the list of activities that associated to the organization with the given id.
+	 *
+	 * @param organization the identifier.
+	 * @return the list of activities.
+	 */
+	List<TeachingActivity> findDistinctByUniversity(ResearchOrganization organization);
+
 	/** Replies the list of activities that associated to the person with the given id.
 	 *
-	 * @param id the identifier.
+	 * @param aLong the identifier.
 	 * @return the list of activities.
-	 * @deprecated no replacement
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
-	List<TeachingActivity> findDistinctByPersonId(Long id);
-
+	List<TeachingActivity> findDistinctByPersonId(Long aLong);
 }
