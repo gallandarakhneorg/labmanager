@@ -1,6 +1,6 @@
-package fr.utbm.ciad.labmanager.utils.grid;
+package fr.utbm.ciad.labmanager.views.components.dashboard.grid;
 
-import fr.utbm.ciad.labmanager.utils.cell.AbstractCell;
+import fr.utbm.ciad.labmanager.views.components.dashboard.cell.AbstractCell;
 
 /**
  * Interface defining the structure and behavior of a grid layout system.

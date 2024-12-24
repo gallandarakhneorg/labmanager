@@ -1,13 +1,18 @@
-package fr.utbm.ciad.labmanager.utils.container;
+package fr.utbm.ciad.labmanager.views.components.dashboard;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.dom.Style;
 import elemental.json.JsonValue;
+import fr.utbm.ciad.labmanager.utils.container.ComponentContainerWithContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ConditionalManagedContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ContextMenuFactory;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.ComponentType;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.InterfaceComponentEnum;
+
+import java.util.function.Consumer;
 
 /**
  * A component providing the drag-and-drop functionality, with support for conditional context menus.
@@ -22,12 +27,24 @@ import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategor
 public class DraggableComponent extends ComponentContainerWithContextMenu {
 
     private final DragSource<Component> dragSource;
+    private ComponentType componentType = ComponentType.NONE;
+    private Consumer<DraggableComponent> afterDragEventStart;
+    private Consumer<DraggableComponent> afterDragEventEnd;
+
 
     /**
      * Default Constructor
      */
     public DraggableComponent(){
         this(new FlexLayout());
+    }
+
+    /**
+     * Constructor
+     */
+    public DraggableComponent(Component component, ComponentType componentType) {
+        this(component);
+        this.componentType = componentType;
     }
 
     /**
@@ -84,9 +101,16 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
     public void setComponentSize(JsonValue width, JsonValue height) {
         super.setComponentSize(width, height);
         if (isChart()) {
-            ((PublicationCategoryLayout<?>) getComponent()).setSize(
+            ((PublicationCategoryLayout<?>) getComponent()).setChartSize(
                     Math.round(width.asNumber() * 0.9) + "px",
                     Math.round(height.asNumber() * 0.9) + "px");
+        }
+    }
+
+    @Override
+    protected void afterResizingInstructionsCall(){
+        if(getAfterResizingInstructions() != null){
+            getAfterResizingInstructions().accept(this);
         }
     }
 
@@ -101,6 +125,12 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
         });
         getElement().addEventListener("mouseleave", event ->
                 getComponent().getStyle().set("border", "none"));
+        getDragSource().addDragStartListener(event -> {
+            afterDragEventStart.accept(this);
+        });
+        getDragSource().addDragEndListener(event -> {
+            afterDragEventEnd.accept(this);
+        });
     }
 
     /**
@@ -152,5 +182,22 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
     @Override
     public ConditionalManagedContextMenu getContextMenu() {
         return (ConditionalManagedContextMenu) super.getContextMenu();
+    }
+
+    public ComponentType getComponentType() {
+        return componentType;
+    }
+
+    public void setAfterDragEventEnd(Consumer<DraggableComponent> afterDragEventEnd) {
+        this.afterDragEventEnd = afterDragEventEnd;
+    }
+
+    public void setAfterDragEventStart(Consumer<DraggableComponent> afterDragEventStart) {
+        this.afterDragEventStart = afterDragEventStart;
+    }
+
+    @Override
+    public String toString(){
+        return "Component : " + getComponent() + "\nComponentType : " + componentType;
     }
 }

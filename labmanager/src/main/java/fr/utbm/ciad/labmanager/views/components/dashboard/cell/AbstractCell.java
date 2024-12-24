@@ -1,4 +1,4 @@
-package fr.utbm.ciad.labmanager.utils.cell;
+package fr.utbm.ciad.labmanager.views.components.dashboard.cell;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -63,7 +63,7 @@ public abstract class AbstractCell extends FlexLayout implements InterfaceCell {
 
     @Override
     public void emptyCell() {
-        if (!isEmpty()) {
+        if (containsComponent()) {
             removeAll();
             component = null;
         }

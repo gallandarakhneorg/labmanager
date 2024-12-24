@@ -1,4 +1,4 @@
-package fr.utbm.ciad.labmanager.utils.cell;
+package fr.utbm.ciad.labmanager.views.components.dashboard.cell;
 
 import com.vaadin.flow.component.Component;
 

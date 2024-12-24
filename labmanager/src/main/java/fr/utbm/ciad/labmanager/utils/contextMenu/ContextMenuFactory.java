@@ -16,13 +16,6 @@ import com.vaadin.flow.component.contextmenu.ContextMenu;
 public abstract class ContextMenuFactory {
 
     /**
-     * Default Constructor
-     */
-    public ContextMenuFactory(){
-
-    }
-
-    /**
      * Creates a context menu based on the specified menu type and associates it with the given target component.
      *
      * @param type            the type of context menu to create; can be BASIC, MANAGED, or CONDITIONAL.

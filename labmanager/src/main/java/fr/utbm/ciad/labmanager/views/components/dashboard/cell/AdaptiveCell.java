@@ -1,6 +1,7 @@
-package fr.utbm.ciad.labmanager.utils.cell;
+package fr.utbm.ciad.labmanager.views.components.dashboard.cell;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.dom.Style;
 
 /**
  * An abstract extension of AbstractCell that supports resizing of contained components.
@@ -14,7 +15,7 @@ import com.vaadin.flow.component.Component;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AdaptiveCell extends AbstractCell {
+public class AdaptiveCell extends AbstractCell {
 
     /**
      * Default Constructor
@@ -62,20 +63,19 @@ public abstract class AdaptiveCell extends AbstractCell {
         return Integer.parseInt(component.getStyle().get(side).replace("px", ""));
     }
 
-    /**
-     * Resizes the contained component proportionally to the given scaling factor based on the cell's dimensions.
-     *
-     * @param side the scaling factor to apply to the component's dimensions.
-     */
-    public void resizeComponent(double side) {
-        if (!isEmpty()) {
-            getChild().ifPresent(component -> {
-                long newWidth = Math.round(getComponentSide(component, "width") * side / getCellSide());
-                long newHeight = Math.round(getComponentSide(component, "height") * side / getCellSide());
-
-                component.getElement().getStyle().setWidth(newWidth + "px");
-                component.getElement().getStyle().setHeight(newHeight + "px");
-            });
-        }
+    @Override
+    public void setCellStyle() {
+        setWidth("100%");
+        setHeight("100%");
+        getStyle().setBorder("1px solid transparent")
+                .setDisplay(Style.Display.FLEX)
+                .setAlignItems(Style.AlignItems.FLEX_START)
+                .setJustifyContent(Style.JustifyContent.FLEX_START)
+                .setPosition(Style.Position.RELATIVE)
+                .setPadding("0")
+                .setBoxSizing(Style.BoxSizing.BORDER_BOX)
+                .setMargin("0")
+                .setPadding("0")
+                .setDisplay(Style.Display.FLEX);
     }
 }

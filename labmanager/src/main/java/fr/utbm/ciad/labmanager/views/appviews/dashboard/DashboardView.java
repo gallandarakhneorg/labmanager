@@ -33,6 +33,8 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.DashboardLayout;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.InvocationTargetException;
+
 /** Dashboard for the lab manager application.
  *
  * @author $Author: sgalland$
@@ -53,7 +55,7 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
 	public DashboardView(@Autowired PublicationService publicationService,
-						 @Autowired ContextualLoggerFactory loggerFactory) {
+						 @Autowired ContextualLoggerFactory loggerFactory) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 		super(loggerFactory);
 
 		DashboardLayout dashboardLayout = new DashboardLayout(publicationService);

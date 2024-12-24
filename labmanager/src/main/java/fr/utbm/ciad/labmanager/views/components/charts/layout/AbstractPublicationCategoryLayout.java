@@ -7,14 +7,13 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.views.components.charts.observer.ChartObserver;
 import fr.utbm.ciad.labmanager.views.components.addons.value.YearRange;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryChart;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Abstract implementation of the layout for displaying charts about publication categories.
@@ -40,17 +39,39 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
 
     private final HorizontalLayout chartHorizontalLayout;
 
-    private final HorizontalLayout validationHorizontalLayout;
-
     private final YearRange yearRange;
 
     private SOChart soChart;
 
-    private String width;
+    private String chartWidth;
 
-    private String height;
+    private String chartHeight;
 
     private boolean isFormHidden = false;
+
+    private final List<ChartObserver> observers = new ArrayList<>();
+
+    public AbstractPublicationCategoryLayout(@Autowired PublicationService publicationService,
+                                             PublicationCategoryChartFactory<T> factory,
+                                             Set<String> multiSelectComboBoxItems,
+                                             Integer yearRangeStartValue,
+                                             Integer yearRangeEndValue,
+                                             boolean generateChart) {
+        this(publicationService, factory);
+
+        if(multiSelectComboBoxItems != null && !multiSelectComboBoxItems.isEmpty()){
+            multiSelectComboBox.setValue(multiSelectComboBoxItems);
+        }
+        if(yearRangeStartValue != null){
+            yearRange.getStart().setValue(yearRangeStartValue);
+        }
+        if(yearRangeEndValue != null){
+            yearRange.getEnd().setValue(yearRangeEndValue);
+        }
+        if(multiSelectComboBoxItems != null && yearRangeStartValue != null && generateChart){
+            createChart();
+        }
+    }
 
     /**
      * Constructor.
@@ -69,11 +90,11 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         chartHorizontalLayout = new HorizontalLayout();
         chartHorizontalLayout.setWidthFull();
 
-        validationHorizontalLayout = new HorizontalLayout();
+        HorizontalLayout validationHorizontalLayout = new HorizontalLayout();
         validationHorizontalLayout.setWidthFull();
 
         yearRange = new YearRange(this.publicationService);
-
+        yearRange.addValueChangeListener(e -> notifyObservers());
 
         multiSelectComboBox = new MultiSelectComboBox<>();
         multiSelectComboBox.setItems(this.publicationService.getAllCategories());
@@ -97,33 +118,13 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
                     validateButton.setEnabled(false);
                 }
             }
-
-
+            notifyObservers();
         });
 
         validateButton = new Button(getTranslation("views.charts.create"));
         validateButton.setEnabled(false);
         validateButton.addClickListener(e -> {
-            this.chart = factory.create(this.publicationService);
-
-            if (yearRange.getEnd().isEmpty()) {
-                chart.setYear(yearRange.getChosenStartValue());
-            } else {
-                chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
-            }
-
-            Set<String> items = multiSelectComboBox.getSelectedItems();
-            for (String item : items) {
-                this.chart.addData(item);
-            }
-
-            soChart = this.chart.createChart();
-            soChart.setSize(width, height);
-            chartHorizontalLayout.add(soChart);
-            if(isFormHidden){
-                yearRange.setVisible(false);
-                multiSelectComboBox.setVisible(false);
-            }
+            createChart();
             validateButton.setVisible(false);
         });
 
@@ -135,6 +136,34 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         form.setPadding(false);
         add(form);
 
+    }
+
+    private void createChart(Set<String> multiSelectComboBoxItems, Integer yearRangeStartValue, Integer yearRangeEndValue){
+
+        this.chart = factory.create(this.publicationService);
+        if (yearRange.getEnd().isEmpty()) {
+            chart.setYear(yearRangeStartValue);
+        } else {
+            chart.setPeriod(yearRangeStartValue, yearRangeEndValue);
+        }
+
+        for (String item : multiSelectComboBoxItems) {
+            this.chart.addData(item);
+        }
+
+        soChart = this.chart.createChart();
+        soChart.setSize(chartWidth, chartHeight);
+        chartHorizontalLayout.add(soChart);
+        if(isFormHidden){
+            yearRange.setVisible(false);
+            multiSelectComboBox.setVisible(false);
+        }
+
+        notifyObservers();
+    }
+
+    private void createChart(){
+        createChart(multiSelectComboBox.getSelectedItems(), yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
     }
 
     /**
@@ -150,27 +179,7 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
     public void refreshChart() {
         if(soChart != null) {
             chartHorizontalLayout.remove(soChart);
-
-            this.chart = factory.create(this.publicationService);
-
-            if (yearRange.getEnd().isEmpty()) {
-                chart.setYear(yearRange.getChosenStartValue());
-            } else {
-                chart.setPeriod(yearRange.getChosenStartValue(), yearRange.getChosenEndValue());
-            }
-
-            Set<String> items = multiSelectComboBox.getSelectedItems();
-            for (String item : items) {
-                this.chart.addData(item);
-            }
-            soChart.clear();
-            soChart = this.chart.createChart();
-            soChart.setSize(width, height);
-            chartHorizontalLayout.add(soChart);
-            if(isFormHidden){
-                yearRange.setVisible(false);
-                multiSelectComboBox.setVisible(false);
-            }
+            createChart();
         }
     }
 
@@ -180,12 +189,22 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
      * @param width  the width to set for the chart.
      * @param height the height to set for the chart.
      */
-    public void setSize(String width, String height) {
-        this.height = height;
-        this.width = width;
+    public void setChartSize(String width, String height) {
+        this.chartHeight = height;
+        this.chartWidth = width;
         if(soChart != null){
             soChart.setSize(width, height);
         }
+    }
+
+    /**
+     * Sets the size of the layout
+     *
+     * @param width  the width to set for the layout.
+     * @param height the height to set for the layout.
+     */
+    public void setSize(String width, String height){
+        getStyle().setWidth(width).setHeight(height);
     }
 
     /**
@@ -210,6 +229,7 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
         yearRange.setVisible(true);
         multiSelectComboBox.setVisible(true);
         validateButton.setVisible(true);
+        notifyObservers();
     }
 
     /**
@@ -219,5 +239,32 @@ public abstract class AbstractPublicationCategoryLayout<T extends PublicationCat
      */
     public boolean isChartGenerated(){
         return soChart != null;
+    }
+
+    public Integer getYearRangeStartValue(){
+        return yearRange.getChosenStartValue();
+    }
+
+    public Integer getYearRangeEndValue(){
+        return yearRange.getChosenEndValue();
+    }
+
+    public Set<String> getMultiSelectComboBoxItems(){
+        return multiSelectComboBox.getSelectedItems();
+    }
+
+
+    public void addObserver(ChartObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(ChartObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers() {
+        for (ChartObserver observer : observers) {
+            observer.onChartGenerated();
+        }
     }
 }

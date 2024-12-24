@@ -1,14 +1,19 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.WebStorage;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.utils.container.DraggableComponent;
-import fr.utbm.ciad.labmanager.utils.grid.DropGrid;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.ChartLocalStorageManager;
+import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
+import fr.utbm.ciad.labmanager.views.components.charts.observer.ChartHandler;
+import fr.utbm.ciad.labmanager.views.components.dashboard.grid.DropGrid;
 import fr.utbm.ciad.labmanager.utils.button.ToggleButton;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.ComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
@@ -17,10 +22,12 @@ import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategor
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryBarChart;
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryNightingaleRoseChart;
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryPieChart;
-import org.jetbrains.annotations.NotNull;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.InterfaceComponentEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.List;
 
 public class DashboardLayout extends VerticalLayout {
 
@@ -31,13 +38,14 @@ public class DashboardLayout extends VerticalLayout {
     private final PublicationCategoryChartFactory<PublicationCategoryBarChart> barChartFactory;
     private final PublicationCategoryChartFactory<PublicationCategoryPieChart> pieChartFactory;
     private final PublicationCategoryChartFactory<PublicationCategoryNightingaleRoseChart> nightingaleChartFactory;
+    private final ChartLocalStorageManager chartLocalStorageManager = new ChartLocalStorageManager();
 
     /**
      * Constructor that initializes the dashboard layout with publication service.
      *
      * @param publicationService the service for accessing the scientific publications.
      */
-    public DashboardLayout(@Autowired PublicationService publicationService) {
+    public DashboardLayout(@Autowired PublicationService publicationService) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         super();
         editionButton = new ToggleButton(
                 getTranslation("views.edit"),
@@ -45,6 +53,8 @@ public class DashboardLayout extends VerticalLayout {
                 getTranslation("views.stop_edit"),
                 this::removeEditionMode
         );
+
+
 
 
         barChartFactory = new PublicationCategoryBarChartFactory();
@@ -64,6 +74,12 @@ public class DashboardLayout extends VerticalLayout {
 
         // Add header and drop grid to layout.
         add(createHeader(), dropGrid);
+
+        Button button = new Button("Clear");
+        button.addClickListener(event -> WebStorage.clear());
+        add(button);
+
+        getWebStorageComponents(publicationService);
     }
 
     /**
@@ -101,10 +117,10 @@ public class DashboardLayout extends VerticalLayout {
             String selectedItem = event.getValue();
             if (selectedItem != null) {
 
-                DraggableComponent draggableComponent = getDraggableComponent(publicationService, selectedItem);
-                addContextMenuToDraggableComponent(draggableComponent);
+                DraggableComponent draggableComponent = getComponent(publicationService, selectedItem);
 
-                dropGrid.addComponentInFirstEmptyCell(draggableComponent);
+                addComponent(draggableComponent);
+
 
                 componentSelect.clear();
             }
@@ -115,6 +131,7 @@ public class DashboardLayout extends VerticalLayout {
         componentSelect.getStyle().setMarginRight("auto");
     }
 
+    //TODO the cases have to be the same as in the availableComponents list
     /**
      * Creates and returns a draggable UI component based on the selected item.
      *
@@ -122,33 +139,85 @@ public class DashboardLayout extends VerticalLayout {
      * @param selectedItem       the type of component to create.
      * @return DraggableComponent a draggable component based on the selected item.
      */
-    @NotNull
-    private DraggableComponent getDraggableComponent(PublicationService publicationService, String selectedItem) {
-        Component component = getComponent(publicationService, selectedItem);
-        if (component instanceof PublicationCategoryLayout<?>) {
-            ((PublicationCategoryLayout<?>) component).setWidth("500px");
-            ((PublicationCategoryLayout<?>) component).setHeight("200px");
-            ((PublicationCategoryLayout<?>) component).setSize("450px", "180px");
-            ((PublicationCategoryLayout<?>) component).setFormHidden(true);
+    private DraggableComponent getComponent(PublicationService publicationService, String selectedItem) {
+        ComponentType componentType;
+        PublicationCategoryLayout<?> chart;
+        switch (selectedItem) {
+            case "BarChart" -> {
+                chart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
+                componentType = ComponentType.BAR_CHART;
+            }
+            case "PieChart" -> {
+                chart = new PublicationCategoryLayout<>(publicationService, pieChartFactory);
+                componentType = ComponentType.PIE_CHART;
+            }
+            case "NightingaleRoseChart" -> {
+               chart = new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory);
+                componentType = ComponentType.NIGHTINGALE_CHART;
+            }
+            default -> {
+                chart = null;
+                componentType = ComponentType.NONE;
+            }
         }
-        component.getStyle().setBackgroundColor("#f2f2f2");
-        component.getStyle().setBorder("#bfbfbf");
-        return new DraggableComponent(component);
+        initializeChart(chart);
+
+        return new DraggableComponent(chart, componentType);
     }
 
-    //TODO the cases have to be the same as in the availableComponents list
-    @NotNull
-    private Component getComponent(PublicationService publicationService, String selectedItem) {
-        Component component = switch (selectedItem) {
-            case "BarChart" -> new PublicationCategoryLayout<>(publicationService, barChartFactory);
-            case "PieChart" -> new PublicationCategoryLayout<>(publicationService, pieChartFactory);
-            case "NightingaleRoseChart" -> new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory);
-            default -> null;
-        };
-        if (component == null) {
-            throw new IllegalArgumentException("Unknown component type: " + selectedItem);
+    private void initializeChart(PublicationCategoryLayout<?> chart){
+        if(chart != null){
+            chart.setSize("500px", "200px");
+            chart.setChartSize("450px", "180px");
+            chart.setFormHidden(true);
         }
-        return component;
+    }
+
+    private void getWebStorageComponents(PublicationService publicationService) {
+        for (DropCell cell : dropGrid.getCells()) {
+            DashBoardChartItem item = new DashBoardChartItem(cell.getIndex());
+
+            chartLocalStorageManager.getItem(item.getId(), dashBoardChartItem -> {
+                if (dashBoardChartItem != null) {
+                    DraggableComponent component;
+                    component = new DraggableComponent(dashBoardChartItem.getComponent(publicationService), dashBoardChartItem.getComponentType());
+                    addComponent(component, cell);
+                }
+            });
+        }
+    }
+
+    private void setupComponent(DraggableComponent component){
+        component.getStyle().setBackgroundColor("#f2f2f2");
+        component.getStyle().setBorder("#bfbfbf");
+        addObserver(component);
+        addContextMenuToDraggableComponent(component);
+    }
+
+    private void addComponent(DraggableComponent component, DropCell cell){
+        setupComponent(component);
+        component.setDraggable(false);
+        dropGrid.addNewComponent(cell, component);
+    }
+
+    private void addComponent(DraggableComponent component){
+        setupComponent(component);
+        dropGrid.addComponentInFirstEmptyCell(component);
+    }
+
+    private void addObserver(DraggableComponent component){
+        if(component.getComponent() instanceof PublicationCategoryLayout<?> publicationCategoryLayout){
+            ChartHandler chartHandler = new ChartHandler(this::saveComponent, component);
+            publicationCategoryLayout.addObserver(chartHandler);
+        }
+    }
+
+    private void saveComponent(DraggableComponent component){
+        component.getParent().ifPresent(parent -> {
+            if(parent instanceof DropCell dropCell){
+                chartLocalStorageManager.add(new DashBoardChartItem(dropCell.getIndex(), component));
+            }
+        });
     }
 
     /**
@@ -186,7 +255,6 @@ public class DashboardLayout extends VerticalLayout {
      * @param component the draggable component containing the chart to be edited.
      */
     private void editChart(DraggableComponent component) {
-        //TODO Remove Edit Chart button when there is no chart
         ((PublicationCategoryLayout<?>) component.getComponent()).removeChart();
     }
 }

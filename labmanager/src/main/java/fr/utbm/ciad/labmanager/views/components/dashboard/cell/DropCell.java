@@ -1,11 +1,6 @@
-package fr.utbm.ciad.labmanager.utils.cell;
+package fr.utbm.ciad.labmanager.views.components.dashboard.cell;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dnd.DropTarget;
-import com.vaadin.flow.dom.Style;
-
-import fr.utbm.ciad.labmanager.utils.container.DraggableComponent;
-import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 /**
  * A specialized cell that supports drag-and-drop functionality by handling drag events.
@@ -23,7 +18,7 @@ public class DropCell extends AdaptiveCell {
     private static String backgroundColorWhenEmpty = "#d2ffc4";
     private static String backgroundColorWhenFull = "#ffc4c4";
 
-    private boolean isEmpty = true;
+    private boolean isRecover = true;
     private final DropTarget<DropCell> dropTarget;
 
     /**
@@ -68,65 +63,27 @@ public class DropCell extends AdaptiveCell {
     }
 
     @Override
-    public void setCellStyle(){
-        setWidth("100%");
-        setHeight("100%");
-        getStyle().setBorder("1px solid transparent")
-                .setDisplay(Style.Display.FLEX)
-                .setAlignItems(Style.AlignItems.FLEX_START)
-                .setJustifyContent(Style.JustifyContent.FLEX_START)
-                .setPosition(Style.Position.RELATIVE)
-                .setPadding("0")
-                .setBoxSizing(Style.BoxSizing.BORDER_BOX)
-                .setMargin("0")
-                .setPadding("0")
-                .setDisplay(Style.Display.FLEX);
-    }
-
-    @Override
-    public void addComponent(Component component){
-        if(component instanceof  DraggableComponent){
-            addComponent((DraggableComponent) component);
-        }else{
-            super.addComponent(component);
-        }
-    }
-
-    /**
-     * Adds a draggable component to the cell, with specific handling for PublicationCategoryLayout components.
-     *
-     * @param component the DraggableComponent to add.
-     */
-    public void addComponent(DraggableComponent component) {
-        super.addComponent(component);
-        if (component.getComponent() instanceof PublicationCategoryLayout) {
-            ((PublicationCategoryLayout<?>) component.getComponent()).refreshChart();
-        }
-    }
-
-    @Override
     public void emptyCell() {
         super.emptyCell();
-        if (!isEmpty) {
-            isEmpty = true;
+        if (!isRecover) {
+            isRecover = true;
         }
     }
 
     /**
      * Checks if the cell is currently empty (does not contain any component or is not covered by any component).
      */
-    @Override
-    public boolean isEmpty() {
-        return isEmpty;
+    public boolean isRecover() {
+        return isRecover;
     }
 
     /**
      * Sets the emptiness state of the cell.
      *
-     * @param isEmpty true to mark the cell as empty; false otherwise.
+     * @param isRecover true to mark the cell as empty; false otherwise.
      */
-    public void setEmpty(boolean isEmpty) {
-        this.isEmpty = isEmpty;
+    public void setRecover(boolean isRecover) {
+        this.isRecover = isRecover;
     }
 
     /**
@@ -174,7 +131,7 @@ public class DropCell extends AdaptiveCell {
      */
     public void colorCell(boolean color, boolean error) {
         if (color) {
-            if (isEmpty && !error) {
+            if (isRecover && !error) {
                 changeToBackgroundColorWhenEmpty();
             } else {
                 changeToBackgroundColorWhenFull();

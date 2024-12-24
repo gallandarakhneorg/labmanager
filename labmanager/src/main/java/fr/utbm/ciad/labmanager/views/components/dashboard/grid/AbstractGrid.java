@@ -1,8 +1,8 @@
-package fr.utbm.ciad.labmanager.utils.grid;
+package fr.utbm.ciad.labmanager.views.components.dashboard.grid;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.dom.Style;
-import fr.utbm.ciad.labmanager.utils.cell.DropCell;
+import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,8 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
 
     private static String borderColor;
 
-    private final int numRows;
-    private final int numCols;
+    private final int rows;
+    private final int columns;
     private double cellSize = 50 ;
 
     private final List<DropCell> cells = new ArrayList<>();
@@ -43,8 +43,8 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      * @param borderColor the default border color for the grid and its cells.
      */
     public AbstractGrid(int rows, int columns, String borderColor) {
-        this.numRows = rows;
-        this.numCols = columns;
+        this.rows = rows;
+        this.columns = columns;
         AbstractGrid.borderColor = borderColor;
         initializeGrid();
     }
@@ -59,14 +59,14 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
         setFlexDirection(FlexDirection.ROW);
         getStyle().setBackgroundColor("rgba(255, 255, 255, 0.5)")
                 .setDisplay(Style.Display.GRID)
-                .set("grid-template-columns", "repeat(" + numCols + ", 1fr)")
-                .set("grid-template-rows", "repeat(" + numRows + ", 1fr)")
+                .set("grid-template-columns", "repeat(" + columns + ", 1fr)")
+                .set("grid-template-rows", "repeat(" + rows + ", 1fr)")
                 .set("gap", "0px");
     }
 
     @Override
     public void createCells(){
-        int cellCount = numRows * numCols;
+        int cellCount = rows * columns;
         cells.clear();
         removeAll();
         for (int i = 0; i < cellCount; i++) {
@@ -91,8 +91,12 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      * @param cell      the cell to which the component should be added.
      * @param component the component to add.
      */
-    protected void addComponentToCell(DropCell cell, Component component) {
+    protected void addComponent(DropCell cell, Component component) {
         cell.addComponent(component);
+    }
+
+    protected void addNewComponent(DropCell cell, Component component){
+        addComponent(cell, component);
     }
 
     /**
@@ -101,7 +105,7 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      * @param cell The cell from which the component is being removed.
      * @param component The draggable component to remove.
      */
-    public void removeComponentFromCell(DropCell cell, Component component) {
+    public void removeComponent(DropCell cell, Component component) {
         if(cell.contains(component)){
             cell.emptyCell();
         }
@@ -114,7 +118,11 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      * @param component The draggable component to remove.
      */
     public void removeComponent(Component component){
-        component.getParent().ifPresent(parent -> removeComponentFromCell((DropCell) parent, component));
+        component.getParent().ifPresent(parent -> {
+            if(parent instanceof DropCell cell){
+                removeComponent(cell, component);
+            }
+        });
     }
 
     /**
@@ -125,8 +133,8 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
     public void addComponentInFirstEmptyCell(Component component) {
         DropCell cell = findFirstEmptyCell(component);
         if (cell != null) {
-            addComponentToCell(cell, component);
-            cell.setEmpty(false);
+            addNewComponent(cell, component);
+            cell.setRecover(false);
         }
     }
 
@@ -138,7 +146,7 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      */
     public DropCell findFirstEmptyCell(Component component) {
         for (DropCell cell : getCells()) {
-            if (cell.isEmpty()) {
+            if (cell.isRecover()) {
                 return cell;
             }
         }
@@ -151,7 +159,7 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      */
 
     public boolean isEmpty() {
-        return getCells().stream().allMatch(DropCell::isEmpty);
+        return getCells().stream().allMatch(DropCell::isRecover);
     }
 
     /**
@@ -168,8 +176,8 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      *
      * @return the number of columns.
      */
-    public int getNumCols() {
-        return numCols;
+    public int getColumns() {
+        return columns;
     }
 
     /**
@@ -177,8 +185,8 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
      *
      * @return the number of rows.
      */
-    public int getNumRows() {
-        return numRows;
+    public int getRows() {
+        return rows;
     }
 
     /**

@@ -1,4 +1,4 @@
-package fr.utbm.ciad.labmanager.utils.grid;
+package fr.utbm.ciad.labmanager.views.components.dashboard.grid;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dnd.DropEvent;
@@ -6,11 +6,15 @@ import com.vaadin.flow.component.dnd.DropEvent;
 import elemental.json.JsonValue;
 
 import fr.utbm.ciad.labmanager.utils.container.ComponentContainer;
-import fr.utbm.ciad.labmanager.utils.container.DraggableComponent;
-import fr.utbm.ciad.labmanager.utils.cell.DropCell;
+import fr.utbm.ciad.labmanager.views.components.dashboard.DraggableComponent;
+import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.ChartLocalStorageManager;
+import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * DropGrid is an extension of AdaptiveGrid that supports drag-and-drop functionality.
@@ -32,6 +36,8 @@ public class DropGrid extends AdaptiveGrid {
 
     private String startWidth = "";
     private String startHeight = "";
+
+    private final ChartLocalStorageManager chartLocalStorageManager = new ChartLocalStorageManager();
 
     /**
      * Default Constructor
@@ -68,7 +74,6 @@ public class DropGrid extends AdaptiveGrid {
     @Override
     protected void setGridSize(JsonValue width){
         super.setGridSize(width);
-        getStyle().setWidth(width.asNumber() - 350 + "px");
     }
 
     /**
@@ -90,10 +95,8 @@ public class DropGrid extends AdaptiveGrid {
     protected void setupComponentListeners(ComponentContainer component){
         super.setupComponentListeners(component);
         if(component instanceof DraggableComponent draggableComponent){
-            addDragStartListener(draggableComponent);
-            addDragEndListener(draggableComponent);
-            mouseUp(draggableComponent);
-            mouseDown(draggableComponent);
+            draggableComponent.setAfterDragEventStart(this::addDragStartListener);
+            draggableComponent.setAfterDragEventEnd(this::addDragEndListener);
         }
     }
 
@@ -103,16 +106,12 @@ public class DropGrid extends AdaptiveGrid {
      * @param component The draggable component to which the drag-start listener is attached.
      */
     private void addDragStartListener(DraggableComponent component) {
-        component.getDragSource().addDragStartListener(event -> {
-            if(component.isDraggable()){
-                draggedComponent = component;
-                component.getParent().ifPresent(cell -> emptyComponentCells((DropCell) cell, component));
-                showBorders(true);
-                for (DropCell dropCell : getCells()) {
-                    dropCell.getChild().ifPresent(cellComponent -> cellComponent.getStyle().setOpacity("0.5").setZIndex(0));
-                }
-            }
-        });
+        if(component.isDraggable()){
+            draggedComponent = component;
+            component.getParent().ifPresent(cell -> markCellsAsState(true, getCoveredCells((DropCell) cell, component)));
+            showBorders(true);
+            addTransparencyToComponents();
+        }
     }
 
     /**
@@ -121,74 +120,76 @@ public class DropGrid extends AdaptiveGrid {
      * @param component The draggable component to which the drag-end listener is attached.
      */
     private void addDragEndListener(DraggableComponent component) {
-        component.getDragSource().addDragEndListener(event -> {
-            if(component.isDraggable()){
-                hideBorders(true);
+        if(component.isDraggable()){
+            hideBorders(true);
 
-                removeCellsColor();
-
-                draggedComponent = null;
-            }
-        });
-    }
-
-    /**
-     * Adds a listener to handle mouse up events for resizing components.
-     *
-     * @param component the draggable component.
-     */
-    private void mouseUp(DraggableComponent component){
-        setResizing(false);
-        component.getElement().addEventListener("mouseup", mouseUpEvent -> component.getParent().ifPresent(parent -> {
-            DropCell cell = (DropCell) parent;
-            if (!canBePlaced(component, cell)) {
-                component.getStyle()
-                        .setWidth(startWidth)
-                        .setHeight(startHeight);
-                component.adaptComponentSize(() -> {});
-            }
-            for (DropCell dropCell : getCoveredCells(cell, component)) {
-                dropCell.setEmpty(false);
-            }
             removeCellsColor();
-        }));
+
+            draggedComponent = null;
+        }
     }
 
-    /**
-     * Adds a listener to handle mouse down events for resizing components.
-     *
-     * @param component the draggable component.
-     */
-    private void mouseDown(DraggableComponent component){
-        component.getElement().addEventListener("mousedown", mouseUpEvent -> {
-            startWidth = component.getComponent().getStyle().get("width");
-            startHeight = component.getComponent().getStyle().get("height");
-
-            component.getParent().ifPresent(cell -> {
-                emptyComponentCells((DropCell) cell, component);
-                setResizing(true);
-            });
-        });
-    }
-
-    /**
-     * Abstract method to handle logic after a container's size has been changed,
-     * including the coloration of the cells when "covered" by a dragged component
-     */
-    @Override
-    protected void afterChangingComponentSize(Component component){
-        if(component instanceof DraggableComponent draggableComponent){
-            if(isResizing()){
-                component.getParent().ifPresent(parent -> {
-                    DropCell cell = (DropCell) parent;
-                    List<DropCell> coveredCells = getCoveredCells(cell, draggableComponent);
-                    boolean isOverTheEdge = isOverTheEdge(cell, draggedComponent);
-                    for (DropCell dropCell : getCells()) {
-                        dropCell.colorCell(coveredCells.contains(dropCell), isOverTheEdge);
-                        dropCell.getChild().ifPresent(cellComponent -> cellComponent.getStyle().setOpacity("0.5"));
+    private void addTransparencyToComponents(DraggableComponent exception){
+        for (DropCell dropCell : getCellsContainingComponents()) {
+            dropCell.getChild().ifPresent(cellComponent -> {
+                if(cellComponent instanceof DraggableComponent draggableComponent){
+                    draggableComponent.setTransparency(true);
+                    if(exception == null || !Objects.equals(draggableComponent, exception)){
+                        draggableComponent.setToTheFore(false);
                     }
-                });
+                }
+            });
+        }
+    }
+
+    private void addTransparencyToComponents(){
+        addTransparencyToComponents(null);
+    }
+
+    private void removeTransparencyFromComponents(){
+        for (DropCell dropCell : getCellsContainingComponents()) {
+            dropCell.getChild().ifPresent(component -> {
+                if(component instanceof DraggableComponent draggableComponent){
+                    draggableComponent.setTransparency(false);
+                    draggableComponent.setToTheFore(true);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void mouseUp(DropCell cell, ComponentContainer component) {
+        if(isResizing() && component instanceof DraggableComponent draggableComponent){
+            if (!canBePlaced(draggableComponent, cell)) {
+                draggableComponent.setSize(startWidth, startHeight);
             }
+            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
+            removeCellsColor();
+        }
+        makeComponentFitInCells(component);
+        setResizing(false);
+    }
+
+    @Override
+    protected void mouseDown(DropCell cell, ComponentContainer component){
+        super.mouseDown(cell, component);
+        if(component instanceof DraggableComponent draggableComponent){
+            startWidth = draggableComponent.getComponent().getStyle().get("width");
+            startHeight = draggableComponent.getComponent().getStyle().get("height");
+            markCellsAsState(true, getCoveredCells(cell, draggableComponent));
+        }
+    }
+
+    @Override
+    protected void afterResizingComponent(Component component){
+        if(isResizing() && component instanceof DraggableComponent draggableComponent){
+            draggableComponent.getParent().ifPresent(parent -> {
+                if(parent instanceof DropCell cell){
+                    chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    colorCells(cell, draggableComponent);
+                }
+            });
+            addTransparencyToComponents(draggableComponent);
         }
     }
 
@@ -203,31 +204,48 @@ public class DropGrid extends AdaptiveGrid {
     }
 
     @Override
-    protected void addComponentToCell(DropCell cell, Component component) {
-        super.addComponentToCell(cell, component);
-        for (DropCell dropCell : getCoveredCells(cell)) {
-            dropCell.setEmpty(false);
+    public void addComponent(DropCell cell, Component component) {
+        super.addComponent(cell, component);
+        if(component instanceof DraggableComponent draggableComponent){
+            chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
         }
     }
 
     @Override
-    public void removeComponentFromCell(DropCell cell, Component component) {
-        super.removeComponentFromCell(cell, component);
+    public void addNewComponent(DropCell cell, Component component){
+        super.addNewComponent(cell, component);
         if(component instanceof DraggableComponent draggableComponent){
-            emptyComponentCells(cell, draggableComponent);
+            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
         }
     }
 
     /**
-     * Marks all cells occupied by a given draggable component as empty. This is typically
+     * Marks all cells as empty or full. This is typically
      * called during drag operations to free up grid space.
      *
-     * @param startingCell The starting cell of the draggable component.
-     * @param component The draggable component being removed from the cells.
+     * @param empty The state to apply on the cell
+     * @param cells The cells to be made empty or full
      */
-    private void emptyComponentCells(DropCell startingCell, DraggableComponent component){
-        for (DropCell dropCell : getCoveredCells(startingCell, component)) {
-            dropCell.setEmpty(true);
+    private void markCellsAsState(boolean empty, List<DropCell> cells){
+        for (DropCell dropCell : cells) {
+            dropCell.setRecover(empty);
+        }
+    }
+
+    @Override
+    public void removeComponent(Component component){
+        setResizing(false);
+        if(component instanceof DraggableComponent draggableComponent){
+            draggableComponent.getParent().ifPresent(parent -> {
+                if(parent instanceof DropCell cell){
+                    removeComponent(cell, draggableComponent);
+                    chartLocalStorageManager.remove(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    markCellsAsState(true, getCoveredCells(cell, draggableComponent));
+                }
+            });
+        }else{
+            super.removeComponent(component);
         }
     }
 
@@ -253,12 +271,7 @@ public class DropGrid extends AdaptiveGrid {
         cell.getDropTarget().addDropListener(event -> handleDrop(event, cell));
 
         cell.getElement().addEventListener("dragenter", event -> event.getSource().getComponent().ifPresent(component -> {
-            boolean isOverTheEdge = isOverTheEdge(cell, draggedComponent);
-
-            List<DropCell> coveredCells = getCoveredCells(cell, draggedComponent);
-            for (DropCell dropCell : getCells()) {
-                dropCell.colorCell(coveredCells.contains(dropCell), isOverTheEdge);
-            }
+            colorCells(cell, draggedComponent);
         }));
     }
 
@@ -270,24 +283,26 @@ public class DropGrid extends AdaptiveGrid {
      */
     private void handleDrop(DropEvent<DropCell> event, DropCell cell) {
         event.getDragSourceComponent().ifPresent(component -> {
-
-            List<DropCell> targetCellList = getCoveredCells(cell);
-            if (canBePlaced((DraggableComponent) component, cell)) {
-                cell.addComponent(component);
-                component.getParent().ifPresent(parent -> {
-                    if (parent instanceof DropCell dropCell) {
-                        dropCell.emptyCell();
+            if(component instanceof DraggableComponent draggableComponent){
+                List<DropCell> targetCellList = getCoveredCells(cell);
+                if (canBePlaced(draggableComponent, cell)) {
+                    component.getParent().ifPresent(parent -> {
+                        if (parent instanceof DropCell dropCell) {
+                            chartLocalStorageManager.remove(new DashBoardChartItem(dropCell.getIndex(), component));
+                            dropCell.emptyCell();
+                        }
+                    });
+                    cell.addComponent(draggableComponent);
+                    if (draggableComponent.getComponent() instanceof PublicationCategoryLayout<?> publicationCategoryLayout) {
+                        publicationCategoryLayout.refreshChart();
                     }
-                });
-                for (DropCell dropCell : targetCellList) {
-                    dropCell.setEmpty(false);
+                    chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    markCellsAsState(false, targetCellList);
+                }else{
+                    draggableComponent.getParent().ifPresent(parent -> {
+                        markCellsAsState(false, getCoveredCells((DropCell) parent));
+                    });
                 }
-            }else{
-                component.getParent().ifPresent(parent -> {
-                    for (DropCell dropCell : getCoveredCells((DropCell) parent)) {
-                        dropCell.setEmpty(false);
-                    }
-                });
             }
         });
     }
@@ -299,29 +314,14 @@ public class DropGrid extends AdaptiveGrid {
      */
     @Override
     protected boolean canBePlaced(ComponentContainer component, DropCell cell) {
-        boolean overlapsElements = true;
+        boolean overlapsComponent = false;
         if(component instanceof DraggableComponent draggableComponent){
-            overlapsElements = getCoveredCells(cell, draggableComponent)
+            overlapsComponent = !getCoveredCells(cell, draggableComponent)
                     .stream()
-                    .allMatch(DropCell::isEmpty);
+                    .allMatch(DropCell::isRecover);
         }
-        return super.canBePlaced(component, cell) && overlapsElements;
+        return super.canBePlaced(component, cell) && !overlapsComponent;
 
-    }
-
-    /**
-     * Retrieves a list of all grid cells that currently contain components.
-     *
-     * @return A list of grid cells containing components.
-     */
-    public List<DropCell> getCellsContainingComponents() {
-        List<DropCell> cellsList = new ArrayList<>();
-        for (DropCell cell : getCells()) {
-            if (cell.containsComponent()) {
-                cellsList.add(cell);
-            }
-        }
-        return cellsList;
     }
 
     /**
@@ -346,14 +346,14 @@ public class DropGrid extends AdaptiveGrid {
         int componentHeightInCells = calculateComponentSizeInCells(component, "height");
 
         int startCellIndex = startingCell.getIndex();
-        int startingColumn = startCellIndex % getNumCols();
+        int startingColumn = startCellIndex % getColumns();
 
         List<DropCell> coveredCells = new ArrayList<>();
         for (int row = 0; row < componentHeightInCells; row++) {
             for (int col = 0; col < componentWidthInCells; col++) {
-                int cellIndex = startCellIndex + row * getNumCols() + col;
+                int cellIndex = startCellIndex + row * getColumns() + col;
 
-                if ((startingColumn + col) < getNumCols() && cellIndex < getCells().size()) {
+                if ((startingColumn + col) < getColumns() && cellIndex < getCells().size()) {
                     coveredCells.add(getCells().get(cellIndex));
                 }
             }
@@ -385,8 +385,16 @@ public class DropGrid extends AdaptiveGrid {
      */
     private void removeCellsColor(){
         for (DropCell dropCell : getCells()) {
-            dropCell.getChild().ifPresent(cellComponent -> cellComponent.getStyle().setOpacity("1").setZIndex(2));
             dropCell.colorCell(false, true);
+        }
+        removeTransparencyFromComponents();
+    }
+
+    private void colorCells(DropCell cell, DraggableComponent component){
+        List<DropCell> coveredCells = getCoveredCells(cell, component);
+        boolean isOverTheEdge = isOverTheEdge(cell, component);
+        for (DropCell dropCell : getCells()) {
+            dropCell.colorCell(coveredCells.contains(dropCell), isOverTheEdge);
         }
     }
 
