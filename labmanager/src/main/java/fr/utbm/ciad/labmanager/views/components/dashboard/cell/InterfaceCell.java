@@ -14,11 +14,6 @@ import com.vaadin.flow.component.Component;
  */
 public interface InterfaceCell {
 
-    /**
-     * Applies the style settings to the cell.
-     * Implementations should define specific styling logic.
-     */
-    void setCellStyle();
 
     /**
      * Adds a child component to the cell, replacing the existing one if present.

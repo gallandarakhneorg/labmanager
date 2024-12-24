@@ -68,23 +68,6 @@ public class AdaptiveGrid extends AbstractGrid {
             makeComponentFitInCells(componentContainer);
         }
         super.addNewComponent(cell, component);
-
-    }
-
-    protected void makeComponentFitInCells(ComponentContainer component){
-        long componentWidth = Math.round(calculateComponentSizeInCells(component, "width") * getCellSize());
-        long componentHeight = Math.round(calculateComponentSizeInCells(component, "height") * getCellSize());
-
-        component.setSize(componentWidth, componentHeight);
-    }
-
-    private void makeComponentFitInCells(double previousCellSize, ComponentContainer component){
-        double componentWidth = calculateComponentSizeInCells(previousCellSize, component, "width") * getCellSize();
-        double componentHeight = calculateComponentSizeInCells(previousCellSize, component, "height") * getCellSize();
-
-        component.getStyle()
-                .setWidth(componentWidth+"px")
-                .setHeight(componentHeight+"px");
     }
 
     /**
@@ -103,8 +86,9 @@ public class AdaptiveGrid extends AbstractGrid {
      * @param width the width to which the grid will be resized in pixels.
      */
     protected void setGridSize(int width){
-        getStyle().setWidth(width + "px");
-        getStyle().setHeight(width + "px");
+        getStyle()
+                .setWidth(width + "px")
+                .setHeight(width + "px");
         double cellSize = getCellSize();
         setCellSize((double) width / getColumns());
         for (AdaptiveCell cell : getCellsContainingComponents()) {
@@ -117,11 +101,38 @@ public class AdaptiveGrid extends AbstractGrid {
     }
 
     /**
+     * Adjusts the dimensions of a component to fit within the grid's cell size.
+     *
+     * @param component the component whose dimensions will be adjusted
+     */
+    protected void makeComponentFitInCells(ComponentContainer component){
+        long componentWidth = Math.round(calculateComponentSizeInCells(component, "width") * getCellSize());
+        long componentHeight = Math.round(calculateComponentSizeInCells(component, "height") * getCellSize());
+
+        component.setSize(componentWidth, componentHeight);
+    }
+
+    /**
+     * Adjusts the dimensions of a component to fit within the grid's cell size.
+     *
+     * @param previousCellSize the size of a cell before the adjustment
+     * @param component the component whose dimensions will be adjusted
+     */
+    private void makeComponentFitInCells(double previousCellSize, ComponentContainer component){
+        double componentWidth = calculateComponentSizeInCells(previousCellSize, component, "width") * getCellSize();
+        double componentHeight = calculateComponentSizeInCells(previousCellSize, component, "height") * getCellSize();
+
+        component.getStyle()
+                .setWidth(componentWidth+"px")
+                .setHeight(componentHeight+"px");
+    }
+
+    /**
      * Retrieves a list of all grid cells that currently contain components.
      *
      * @return A list of grid cells containing components.
      */
-    public List<DropCell> getCellsContainingComponents() {
+    protected List<DropCell> getCellsContainingComponents() {
         List<DropCell> cellsList = new ArrayList<>();
         for (DropCell cell : getCells()) {
             if (cell.containsComponent()) {
@@ -132,7 +143,7 @@ public class AdaptiveGrid extends AbstractGrid {
     }
 
     /**
-     * Sets up listeners to handle browser window resize events.
+     * Sets up listeners to handle grid-related events.
      */
     private void setupListeners(){
         UI.getCurrent().getPage().addBrowserWindowResizeListener(event -> setGridSize(event.getWidth()));
@@ -166,7 +177,6 @@ public class AdaptiveGrid extends AbstractGrid {
         makeComponentFitInCells(component);
         setResizing(false);
     }
-
 
     /**
      * Adds a listener to handle mouse down events for resizing components.

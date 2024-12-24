@@ -18,6 +18,7 @@ import java.util.List;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
+//TODO Use AbstractCell here
 public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
 
     private static String borderColor;
@@ -50,12 +51,54 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
     }
 
     @Override
-    public void initializeGrid(){
+    public void addComponent(DropCell cell, Component component) {
+        cell.addComponent(component);
+    }
+
+    @Override
+    public void addNewComponent(DropCell cell, Component component){
+        addComponent(cell, component);
+    }
+
+    @Override
+    public void removeComponent(DropCell cell, Component component) {
+        if(cell.contains(component)){
+            cell.emptyCell();
+        }
+    }
+
+    @Override
+    public void removeComponent(Component component){
+        component.getParent().ifPresent(parent -> {
+            if(parent instanceof DropCell cell){
+                removeComponent(cell, component);
+            }
+        });
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return getCells().stream().allMatch(DropCell::isRecover);
+    }
+
+    @Override
+    public List<DropCell> getCells() {
+        return cells;
+    }
+
+    /**
+     * Initializes the grid by configuring its layout, style and listeners.
+     */
+    protected void initializeGrid(){
         setGridStyle();
         createCells();
     }
 
-    public void setGridStyle() {
+    /**
+     * Applies the styling configuration for the grid.
+     * This can include properties like size, spacing, borders...
+     */
+    protected void setGridStyle() {
         setFlexDirection(FlexDirection.ROW);
         getStyle().setBackgroundColor("rgba(255, 255, 255, 0.5)")
                 .setDisplay(Style.Display.GRID)
@@ -64,8 +107,11 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
                 .set("gap", "0px");
     }
 
-    @Override
-    public void createCells(){
+    /**
+     * Creates all cells for the grid.
+     * This method handle the generation and placement of cells within the grid.
+     */
+    protected void createCells(){
         int cellCount = rows * columns;
         cells.clear();
         removeAll();
@@ -77,53 +123,12 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
     }
 
     /**
-     * Create a DropCell.
+     * Creates a new cell to be placed in the grid.
      *
      * @param index the index of the cell to be created.
-     * @return a new instance of DropCell.
+     * @return an instance of AbstractCell representing the created cell.
      */
-    @Override
-    public abstract DropCell createCell(int index);
-
-    /**
-     * Adds a component to a specific cell.
-     *
-     * @param cell      the cell to which the component should be added.
-     * @param component the component to add.
-     */
-    protected void addComponent(DropCell cell, Component component) {
-        cell.addComponent(component);
-    }
-
-    protected void addNewComponent(DropCell cell, Component component){
-        addComponent(cell, component);
-    }
-
-    /**
-     * Removes a specified component from a given grid cell.
-     *
-     * @param cell The cell from which the component is being removed.
-     * @param component The draggable component to remove.
-     */
-    public void removeComponent(DropCell cell, Component component) {
-        if(cell.contains(component)){
-            cell.emptyCell();
-        }
-    }
-
-    /**
-     * Removes a given draggable component from its parent cell, updating
-     * the state of the affected cells to be empty.
-     *
-     * @param component The draggable component to remove.
-     */
-    public void removeComponent(Component component){
-        component.getParent().ifPresent(parent -> {
-            if(parent instanceof DropCell cell){
-                removeComponent(cell, component);
-            }
-        });
-    }
+    protected abstract DropCell createCell(int index);
 
     /**
      * Adds a component to the first available empty cell in the grid.
@@ -151,24 +156,6 @@ public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
             }
         }
         return null;
-    }
-    /**
-     * Checks if all cells in the grid are empty.
-     *
-     * @return true if all cells are empty, false otherwise.
-     */
-
-    public boolean isEmpty() {
-        return getCells().stream().allMatch(DropCell::isRecover);
-    }
-
-    /**
-     * Retrieves the list of all cells in the grid.
-     *
-     * @return a list of DropCell objects.
-     */
-    public List<DropCell> getCells() {
-        return cells;
     }
 
     /**

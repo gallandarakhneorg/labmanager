@@ -1,10 +1,9 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.cell;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.dom.Style;
 
 /**
- * An abstract extension of AbstractCell that supports resizing of contained components.
+ * An extension of AbstractCell that supports resizing of contained components.
  * Provides additional functionality for adjusting the size of child components proportionally
  * to the size of the cell.
  *
@@ -41,26 +40,6 @@ public class AdaptiveCell extends AbstractCell {
      */
     public AdaptiveCell(int index, String borderColor){
         super(index, borderColor);
-    }
-
-    /**
-     * Retrieves the width of the cell as a reference dimension for resizing.
-     *
-     * @return the width of the cell in pixels.
-     */
-    private int getCellSide() {
-        return getComponentSide(this, "width");
-    }
-
-    /**
-     * Retrieves the size of a specified side (width or height) of the given component.
-     *
-     * @param component the component whose size is being queried.
-     * @param side      the side to measure ("width" or "height").
-     * @return the size of the specified side in pixels.
-     */
-    private int getComponentSide(Component component, String side) {
-        return Integer.parseInt(component.getStyle().get(side).replace("px", ""));
     }
 
     @Override

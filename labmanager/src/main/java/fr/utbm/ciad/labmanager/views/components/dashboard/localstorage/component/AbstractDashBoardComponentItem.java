@@ -2,75 +2,126 @@ package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.componen
 
 import com.vaadin.flow.component.Component;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.views.components.dashboard.DraggableComponent;
 import fr.utbm.ciad.labmanager.utils.localStorage.AbstractLocalStorageItem;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.InterfaceDashBoardComponentFactory;
 
+/**
+ * Abstract class defining items describing dashBoard components that can be store locally
+ *
+ * @author $Author: sgalland$
+ * @author $Author: pschneiderlin$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 4.0
+ */
 public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorageItem implements InterfaceDashBoardComponentItem {
 
     InterfaceDashBoardComponentFactory componentFactory;
-
-    private ComponentType componentType;
-    private final int index;
+    private DashBoardComponentType componentType;
+    private int index;
     private String width;
     private String height;
 
+    /**
+     * Constructor with a default index
+     *
+     * @param componentFactory the factory to create the component
+     */
     public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory){
         this(componentFactory, 0);
     }
 
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory,
-                                          int index){
+    /**
+     * Constructor
+     *
+     * @param componentFactory the factory to create the component
+     * @param index the index of the component in the dashboard
+     */
+    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, int index){
         super(index + "");
         this.componentFactory = componentFactory;
         this.index = index;
     }
 
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory,
-                                          int index, ComponentType componentType, String width, String height){
+    /**
+     * Constructor
+     *
+     * @param componentFactory the factory to create the component
+     * @param index the index of the component
+     * @param componentType the type of the component
+     * @param width the width of the component
+     * @param height the height of the component
+     */
+    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, int index, DashBoardComponentType componentType, String width, String height){
         this(componentFactory, index);
         this.componentType = componentType;
         this.width = width;
         this.height = height;
     }
-
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory,
-                                          int index, Component component){
-        this(componentFactory, index, ComponentType.NONE, component.getStyle().get("width"), component.getStyle().get("height"));
+    /**
+     * Constructor
+     *
+     * @param componentFactory the factory to create the component
+     * @param index the index of the component
+     * @param component the existing component to extract size and type
+     */
+    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, int index, Component component){
+        this(componentFactory, index, DashBoardComponentType.NONE, component.getStyle().get("width"), component.getStyle().get("height"));
     }
 
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory,
-                                          int index, DraggableComponent component){
-        this(componentFactory, index, component.getComponent());
-        this.componentType = component.getComponentType();
-    }
-
+    /**
+     * Constructor to create a new component from an existing AbstractDashBoardComponentItem.
+     *
+     * @param componentFactory the factory to create the component
+     * @param item the existing component item to copy properties from
+     */
     public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, AbstractDashBoardComponentItem item){
         this(componentFactory, item.getIndex(), item.getComponentType(), item.getWidth(), item.getHeight());
     }
 
     @Override
-    public Component getComponent(PublicationService publicationService) {
-        return componentFactory.createComponent(publicationService, this);
-    }
-
-    public ComponentType getComponentType(){
+    public DashBoardComponentType getComponentType(){
         return componentType;
     }
 
+    @Override
     public int getIndex() {
         return index;
     }
 
+    @Override
     public String getWidth() {
         return width;
     }
 
+    @Override
     public String getHeight() {
         return height;
     }
 
-    public void setComponentType(ComponentType componentType){
+    @Override
+    public void setComponentType(DashBoardComponentType componentType){
         this.componentType = componentType;
+    }
+
+    @Override
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    @Override
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    @Override
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    @Override
+    public Component createComponent(PublicationService publicationService) {
+        return componentFactory.createComponent(publicationService, this);
     }
 }

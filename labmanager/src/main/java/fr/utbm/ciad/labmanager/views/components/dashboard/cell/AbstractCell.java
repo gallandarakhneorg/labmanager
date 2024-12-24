@@ -75,6 +75,12 @@ public abstract class AbstractCell extends FlexLayout implements InterfaceCell {
     }
 
     /**
+     * Applies the style settings to the cell.
+     * Implementations should define specific styling logic.
+     */
+    protected abstract void setCellStyle();
+
+    /**
      * Checks if the cell contains any component.
      *
      * @return true if the cell contains a component; false otherwise.
@@ -109,6 +115,15 @@ public abstract class AbstractCell extends FlexLayout implements InterfaceCell {
      */
     public int getIndex() {
         return index;
+    }
+
+    /**
+     * Sets the border color shared by all instances of AbstractCell.
+     *
+     * @param borderColor the border color to set
+     */
+    public static void setBorderColor(String borderColor) {
+        AbstractCell.borderColor = borderColor;
     }
 
     /**

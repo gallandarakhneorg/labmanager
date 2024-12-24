@@ -5,7 +5,7 @@ import com.vaadin.flow.component.contextmenu.ContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ContextMenuFactory;
 
 /**
- * An abstract extension of ComponentContainer that includes a context menu for enhanced interaction capabilities.
+ * An extension of ComponentContainer that includes a context menu for enhanced interaction capabilities.
  *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
@@ -14,7 +14,7 @@ import fr.utbm.ciad.labmanager.utils.contextMenu.ContextMenuFactory;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class ComponentContainerWithContextMenu extends ComponentContainer {
+public class ComponentContainerWithContextMenu extends ComponentContainer {
 
     private final ContextMenu contextMenu;
 

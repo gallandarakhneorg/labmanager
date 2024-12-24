@@ -19,7 +19,7 @@ public class DropCell extends AdaptiveCell {
     private static String backgroundColorWhenFull = "#ffc4c4";
 
     private boolean isRecover = true;
-    private final DropTarget<DropCell> dropTarget;
+    private DropTarget<DropCell> dropTarget;
 
     /**
      * Default Constructor
@@ -41,6 +41,17 @@ public class DropCell extends AdaptiveCell {
     /**
      * Constructor
      *
+     * @param index       the index of the cell.
+     * @param borderColor the color of the cell's border.
+     */
+    public DropCell(int index, String borderColor){
+        this(index);
+        setBorderColor(borderColor);
+    }
+
+    /**
+     * Constructor
+     *
      * @param index                   the index of the cell.
      * @param borderColor             the default border color.
      * @param borderColorWhenDrag     the border color during drag events.
@@ -52,14 +63,12 @@ public class DropCell extends AdaptiveCell {
                     String borderColorWhenDrag,
                     String backgroundColorWhenEmpty,
                     String backgroundColorWhenFull) {
-        super(index, borderColor);
+        this(index, borderColor);
         DropCell.borderColorWhenDrag = borderColorWhenDrag;
         DropCell.backgroundColorWhenEmpty = backgroundColorWhenEmpty;
         DropCell.backgroundColorWhenFull = backgroundColorWhenFull;
 
         setCellStyle();
-
-        dropTarget = DropTarget.create(this);
     }
 
     @Override
@@ -71,16 +80,17 @@ public class DropCell extends AdaptiveCell {
     }
 
     /**
-     * Checks if the cell is currently empty (does not contain any component or is not covered by any component).
+     * Checks if the cell is currently recover by a component
+     * (does contain any component or is covered by any component).
      */
     public boolean isRecover() {
         return isRecover;
     }
 
     /**
-     * Sets the emptiness state of the cell.
+     * Sets the covertness state of the cell.
      *
-     * @param isRecover true to mark the cell as empty; false otherwise.
+     * @param isRecover true to mark the cell as recover; false otherwise.
      */
     public void setRecover(boolean isRecover) {
         this.isRecover = isRecover;
@@ -96,7 +106,7 @@ public class DropCell extends AdaptiveCell {
     }
 
     /**
-     * Displays the cell borders, using a different style for drag events.
+     * Displays the cell borders, using a different style depending on drag events.
      *
      * @param isDragging true if a drag event is active; false otherwise.
      */
@@ -109,7 +119,7 @@ public class DropCell extends AdaptiveCell {
     }
 
     /**
-     * Hides the cell borders, using a different style for drag events.
+     * Hides the cell borders, using a different style depending on drag events.
      *
      * @param isDragging true if a drag event is active; false otherwise.
      */

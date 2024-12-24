@@ -8,9 +8,8 @@ import elemental.json.JsonValue;
 import fr.utbm.ciad.labmanager.utils.container.ComponentContainerWithContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ConditionalManagedContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ContextMenuFactory;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.ComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.InterfaceComponentEnum;
 
 import java.util.function.Consumer;
 
@@ -27,7 +26,7 @@ import java.util.function.Consumer;
 public class DraggableComponent extends ComponentContainerWithContextMenu {
 
     private final DragSource<Component> dragSource;
-    private ComponentType componentType = ComponentType.NONE;
+    private DashBoardComponentType componentType = DashBoardComponentType.NONE;
     private Consumer<DraggableComponent> afterDragEventStart;
     private Consumer<DraggableComponent> afterDragEventEnd;
 
@@ -42,7 +41,7 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
     /**
      * Constructor
      */
-    public DraggableComponent(Component component, ComponentType componentType) {
+    public DraggableComponent(Component component, DashBoardComponentType componentType) {
         this(component);
         this.componentType = componentType;
     }
@@ -54,17 +53,11 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
      */
     public DraggableComponent(Component component) {
         super(component, ContextMenuFactory.MenuType.CONDITIONAL);
-
         dragSource = DragSource.create(this);
         setDraggable(true);
         setListeners();
     }
 
-    /**
-     * Adds a new component to the container, applying additional constraints if the component is a chart.
-     *
-     * @param component the new component to add.
-     */
     @Override
     public void setComponent(Component component) {
         if (isEmpty()) {
@@ -77,13 +70,6 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
     }
 
     @Override
-    protected void setComponentStyle(){
-        super.setComponentStyle();
-        getComponent().getStyle().setBoxShadow("0 4px 8px #00000033");
-        getComponent().getStyle().setBorderRadius("8px");
-    }
-
-    @Override
     protected void setStyle(){
         super.setStyle();
         getStyle().setBorderRadius("8px");
@@ -91,12 +77,13 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
         getStyle().setPosition(Style.Position.ABSOLUTE);
     }
 
-    /**
-     * Sets the size of the contained component and adjusts the size of child elements if the component is a chart.
-     *
-     * @param width  the new width for the component as a JsonValue.
-     * @param height the new height for the component as a JsonValue.
-     */
+    @Override
+    protected void setComponentStyle(){
+        super.setComponentStyle();
+        getComponent().getStyle().setBoxShadow("0 4px 8px #00000033");
+        getComponent().getStyle().setBorderRadius("8px");
+    }
+
     @Override
     public void setComponentSize(JsonValue width, JsonValue height) {
         super.setComponentSize(width, height);
@@ -114,6 +101,11 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
         }
     }
 
+    @Override
+    public ConditionalManagedContextMenu getContextMenu() {
+        return (ConditionalManagedContextMenu) super.getContextMenu();
+    }
+
     /**
      * Sets event listeners for the component.
      */
@@ -125,21 +117,8 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
         });
         getElement().addEventListener("mouseleave", event ->
                 getComponent().getStyle().set("border", "none"));
-        getDragSource().addDragStartListener(event -> {
-            afterDragEventStart.accept(this);
-        });
-        getDragSource().addDragEndListener(event -> {
-            afterDragEventEnd.accept(this);
-        });
-    }
-
-    /**
-     * Retrieves the drag source associated with this component.
-     *
-     * @return the DragSource instance managing the drag-and-drop behavior.
-     */
-    public DragSource<Component> getDragSource() {
-        return dragSource;
+        dragSource.addDragStartListener(event -> afterDragEventStart.accept(this));
+        dragSource.addDragEndListener(event -> afterDragEventEnd.accept(this));
     }
 
     /**
@@ -175,29 +154,31 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
     }
 
     /**
-     * Retrieves the context menu associated with this component, ensuring it is a ConditionalManagedContextMenu.
+     * Retrieves the type of the component.
      *
-     * @return the associated ConditionalManagedContextMenu instance.
+     * @return the component type
      */
-    @Override
-    public ConditionalManagedContextMenu getContextMenu() {
-        return (ConditionalManagedContextMenu) super.getContextMenu();
-    }
-
-    public ComponentType getComponentType() {
+    public DashBoardComponentType getComponentType() {
         return componentType;
     }
 
-    public void setAfterDragEventEnd(Consumer<DraggableComponent> afterDragEventEnd) {
-        this.afterDragEventEnd = afterDragEventEnd;
-    }
-
+    /**
+     * Sets the instructions to be executed after a drag event starts.
+     *
+     * @param afterDragEventStart a Consumer that defines the actions to be performed
+     *                          on a DraggableComponent after a drag event begins
+     */
     public void setAfterDragEventStart(Consumer<DraggableComponent> afterDragEventStart) {
         this.afterDragEventStart = afterDragEventStart;
     }
 
-    @Override
-    public String toString(){
-        return "Component : " + getComponent() + "\nComponentType : " + componentType;
+    /**
+     * Sets the instructions to be executed after a drag event ends.
+     *
+     * @param afterDragEventEnd a Consumer that defines the actions to be performed
+     *                          on a DraggableComponent after a drag event finishes
+     */
+    public void setAfterDragEventEnd(Consumer<DraggableComponent> afterDragEventEnd) {
+        this.afterDragEventEnd = afterDragEventEnd;
     }
 }

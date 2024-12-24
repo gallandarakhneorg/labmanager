@@ -4,14 +4,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentItem;
-import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
-import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
-import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
-import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryPieChartFactory;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.ComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
+
+import java.util.Objects;
 
 /**
- * The factory of a ContextMenu
+ * Factory class for creating Components based on a DashBoardComponentItem.
+ * Provides the logic for creating specific types of components based on the component type.
  *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
@@ -22,20 +21,20 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component
  */
 public class DashBoardComponentFactory implements InterfaceDashBoardComponentFactory<DashBoardComponentItem> {
 
-
+    @Override
     public Component createComponent(PublicationService publicationService, DashBoardComponentItem dashBoardComponentItem) {
-        PublicationCategoryChartFactory factory = null;
-        switch (dashBoardComponentItem.getComponentType()) {
-            case ComponentType.BAR_CHART -> factory = new PublicationCategoryBarChartFactory();
-            case ComponentType.PIE_CHART -> factory = new PublicationCategoryPieChartFactory();
-            case ComponentType.NIGHTINGALE_CHART -> factory = new PublicationCategoryNightingaleRoseChartFactory();
-            default ->  new FlexLayout();
+        Component component;
+        if (Objects.requireNonNull(dashBoardComponentItem.getComponentType()) == DashBoardComponentType.NONE) {
+            component = new FlexLayout();
+        } else {
+            component = null;
         }
-        Component component = new FlexLayout();
 
-        component.getStyle()
-                .setWidth(dashBoardComponentItem.getWidth())
-                .setHeight(dashBoardComponentItem.getHeight());
+        if(component != null){
+            component.getStyle()
+                    .setWidth(dashBoardComponentItem.getWidth())
+                    .setHeight(dashBoardComponentItem.getHeight());
+        }
         return component;
     }
 }

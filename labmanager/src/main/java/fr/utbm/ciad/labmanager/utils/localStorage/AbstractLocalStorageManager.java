@@ -7,14 +7,30 @@ import fr.utbm.ciad.labmanager.utils.localStorage.factory.LocalStorageItemFactor
 
 import java.util.function.Consumer;
 
-public abstract class AbstractLocalStorageManager<T extends LocalStorageItem> {
+/**
+ * Abstract class for managing items that can be store locally.
+ *
+ * @author $Author: sgalland$
+ * @author $Author: pschneiderlin$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 4.0
+ */
+public abstract class AbstractLocalStorageManager<T extends LocalStorageItem> implements LocalStorageManager<T> {
 
     LocalStorageItemFactory<T> factory;
 
+    /**
+     * Constructor
+     *
+     * @param factory the factory used to create items of type T
+     */
     public AbstractLocalStorageManager(LocalStorageItemFactory<T> factory){
         this.factory = factory;
     }
 
+    @Override
     public void getItem(String id, Consumer<T> onComplete) {
         WebStorage.getItem(id, jsonValue -> {
             T newItem = null;
@@ -25,6 +41,7 @@ public abstract class AbstractLocalStorageManager<T extends LocalStorageItem> {
         });
     }
 
+    @Override
     public void add(T item){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
@@ -35,12 +52,13 @@ public abstract class AbstractLocalStorageManager<T extends LocalStorageItem> {
         }
     }
 
+    @Override
     public void remove(T item){
         remove(item.getId());
     }
 
+    @Override
     public void remove(String id){
         WebStorage.removeItem(id);
     }
-
 }

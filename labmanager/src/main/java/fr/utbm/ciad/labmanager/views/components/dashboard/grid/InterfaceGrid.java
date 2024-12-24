@@ -1,6 +1,9 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.grid;
 
-import fr.utbm.ciad.labmanager.views.components.dashboard.cell.AbstractCell;
+import com.vaadin.flow.component.Component;
+import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
+
+import java.util.List;
 
 /**
  * Interface defining the structure and behavior of a grid layout system.
@@ -16,27 +19,48 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.cell.AbstractCell;
 public interface InterfaceGrid {
 
     /**
-     * Initializes the grid by configuring its layout, style and listeners.
-     */
-    void initializeGrid();
-
-    /**
-     * Applies the styling configuration for the grid.
-     * This includes properties like size, spacing, borders, and alignment.
-     */
-    void setGridStyle();
-
-    /**
-     * Creates all cells for the grid.
-     * This method handle the generation and placement of cells within the grid.
-     */
-    void createCells();
-
-    /**
-     * Creates a new cell to be placed in the grid.
+     * Adds a component to a specific cell.
      *
-     * @param index the index of the cell to be created.
-     * @return an instance of AbstractCell representing the created cell.
+     * @param cell      the cell to which the component should be added.
+     * @param component the component to add.
      */
-    AbstractCell createCell(int index);
+    void addComponent(DropCell cell, Component component);
+
+    /**
+     * Adds a new component to the grid, to a specific cell.
+     *
+     * @param cell      the cell to which the new component should be added.
+     * @param component the new component to add.
+     */
+    void addNewComponent(DropCell cell, Component component);
+
+    /**
+     * Removes a specified component from a given grid cell.
+     *
+     * @param cell The cell from which the component is being removed.
+     * @param component The draggable component to remove.
+     */
+    void removeComponent(DropCell cell, Component component);
+
+    /**
+     * Removes a given component from its parent cell.
+     *
+     * @param component The draggable component to remove.
+     */
+    void removeComponent(Component component);
+
+    /**
+     * Checks if all cells in the grid are empty.
+     *
+     * @return true if all cells are empty, false otherwise.
+     */
+    boolean isEmpty();
+
+    /**
+     * Retrieves the list of all cells in the grid.
+     *
+     * @return a list of AbstractCell objects.
+     */
+    List<DropCell> getCells();
+
 }

@@ -7,7 +7,7 @@ import elemental.json.JsonValue;
 import java.util.function.Consumer;
 
 /**
- * An abstract implementation of a specialized container to manage a single child component.
+ * An implementation of a specialized container to manage a single child component.
  *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class ComponentContainer extends FlexLayout {
+public class ComponentContainer extends FlexLayout implements InterfaceComponentContainer {
 
     private Component component;
     private Consumer<ComponentContainer> afterResizingInstructions;
@@ -39,12 +39,7 @@ public abstract class ComponentContainer extends FlexLayout {
         setStyle();
     }
 
-    /**
-     * Sets the specified component as the contained component of this container.
-     * Applies initial styling.
-     *
-     * @param component the component to set and manage within this container.
-     */
+    @Override
     public void setComponent(Component component) {
         if (isEmpty()) {
             this.component = component;
@@ -53,50 +48,42 @@ public abstract class ComponentContainer extends FlexLayout {
         }
     }
 
-    private void addResizeListener() {
-        String jsCode =
-                "const resizeObserver = new ResizeObserver(entries => {" +
-                        "   for (let entry of entries) {" +
-                        "       entry.target.dispatchEvent(new Event('custom-resize')); " +
-                        "   }" +
-                        "});" +
-                        "resizeObserver.observe(this);";
-
-        getElement().executeJs(jsCode);
-
-        getElement().addEventListener("custom-resize",event ->
-                adaptComponentSize());
+    @Override
+    public Component getComponent() {
+        return component;
     }
 
-    /**
-     * Initialize the component style and layout properties.
-     */
-    protected void setComponentStyle(){
-        component.getStyle().setZIndex(1);
-        getStyle().setWidth(component.getStyle().get("width"))
-                .setHeight(component.getStyle().get("height"));
+    @Override
+    public void setSize(String width, String height) {
+        getStyle()
+                .setWidth(width)
+                .setHeight(height);
+        setComponentSize(width, height);
     }
 
-    /**
-     * Initialize the container style and layout properties.
-     */
-    protected void setStyle(){
-        setToTheFore(true);
+    @Override
+    public void setComponentSize(String width, String height) {
+        component.getStyle()
+                .setWidth(width)
+                .setHeight(height);
     }
 
+    @Override
+    public boolean isEmpty(){
+        return component == null;
+    }
+
+    @Override
     public void setAfterResizingInstructions(Consumer<ComponentContainer> afterResizingInstructions) {
         this.afterResizingInstructions = afterResizingInstructions;
     }
 
+    @Override
     public Consumer<ComponentContainer> getAfterResizingInstructions() {
         return afterResizingInstructions;
     }
 
-    /**
-     * Adapts the size of the contained component to match its parent's dimensions,
-     * executing the provided callback once the adjustment is complete.
-     *
-     */
+    @Override
     public void adaptComponentSize() {
         getElement().executeJs("return this.offsetWidth;")
                 .then(width -> getElement().executeJs("return this.offsetHeight;")
@@ -104,25 +91,6 @@ public abstract class ComponentContainer extends FlexLayout {
                             setComponentSize(width, height);
                             afterResizingInstructionsCall();
                         }));
-    }
-
-    protected void afterResizingInstructionsCall(){
-        if(afterResizingInstructions != null){
-            afterResizingInstructions.accept(this);
-        }
-    }
-
-    /**
-     * Sets the size of the contained component to the specified width and height.
-     *
-     * @param width  the new width for the component, in pixels.
-     * @param height the new height for the component, in pixels.
-     */
-    public void setSize(String width, String height) {
-        getStyle()
-                .setWidth(width)
-                .setHeight(height);
-        setComponentSize(width, height);
     }
 
     /**
@@ -134,20 +102,6 @@ public abstract class ComponentContainer extends FlexLayout {
     public void setSize(long width, long height) {
         setSize(width + "px", height + "px");
     }
-
-
-    /**
-     * Sets the size of the contained component to the specified width and height.
-     *
-     * @param width  the new width for the component, in pixels.
-     * @param height the new height for the component, in pixels.
-     */
-    public void setComponentSize(String width, String height) {
-        component.getStyle()
-                .setWidth(width)
-                .setHeight(height);
-    }
-
 
     /**
      * Sets the size of the contained component to the specified width and height.
@@ -173,21 +127,46 @@ public abstract class ComponentContainer extends FlexLayout {
     }
 
     /**
-     * Retrieves the contained component.
-     *
-     * @return the currently contained component, or null if the container is empty.
+     * Initialize the container style and layout properties.
      */
-    public Component getComponent() {
-        return component;
+    protected void setStyle(){
+        setToTheFore(true);
     }
 
     /**
-     * Checks whether the container is empty (i.e., no component is currently contained).
-     *
-     * @return true if the container is empty; false otherwise.
+     * Initialize the component style and layout properties.
      */
-    public boolean isEmpty(){
-        return component == null;
+    protected void setComponentStyle(){
+        component.getStyle().setZIndex(1);
+        getStyle().setWidth(component.getStyle().get("width"))
+                .setHeight(component.getStyle().get("height"));
+    }
+
+    /**
+     * Executes the instructions defined for after resizing, if they are set.
+     */
+    protected void afterResizingInstructionsCall(){
+        if(afterResizingInstructions != null){
+            afterResizingInstructions.accept(this);
+        }
+    }
+
+    /**
+     * Adds a resize listener to the component that detects size changes and triggers an adaptation of the component's size.
+     */
+    private void addResizeListener() {
+        String jsCode =
+                "const resizeObserver = new ResizeObserver(entries => {" +
+                        "   for (let entry of entries) {" +
+                        "       entry.target.dispatchEvent(new Event('custom-resize')); " +
+                        "   }" +
+                        "});" +
+                        "resizeObserver.observe(this);";
+
+        getElement().executeJs(jsCode);
+
+        getElement().addEventListener("custom-resize",event ->
+                adaptComponentSize());
     }
 
     public void setTransparency(boolean transparent){

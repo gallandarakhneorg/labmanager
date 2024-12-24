@@ -1,6 +1,5 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component;
 
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
@@ -8,10 +7,11 @@ import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCatego
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryPieChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.ComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
 
 /**
- * The factory of a ContextMenu
+ * Factory class for creating PublicationCategoryLayout components based on a DashBoardChartItem.
+ * Provides the logic for creating specific types of chart components based on the component type.
  *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
@@ -22,14 +22,10 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component
  */
 public class DashBoardChartFactory implements InterfaceDashBoardComponentFactory<DashBoardChartItem> {
 
+    @Override
     public PublicationCategoryLayout<?> createComponent(PublicationService publicationService, DashBoardChartItem dashBoardChartItem) {
-        PublicationCategoryChartFactory factory = null;
-        switch (dashBoardChartItem.getComponentType()) {
-            case ComponentType.BAR_CHART -> factory = new PublicationCategoryBarChartFactory();
-            case ComponentType.PIE_CHART -> factory = new PublicationCategoryPieChartFactory();
-            case ComponentType.NIGHTINGALE_CHART -> factory = new PublicationCategoryNightingaleRoseChartFactory();
-            default ->  new FlexLayout();
-        }
+        PublicationCategoryChartFactory factory = getPublicationCategoryChartFactory(dashBoardChartItem);
+
         PublicationCategoryLayout component = new PublicationCategoryLayout<>(publicationService,
                 factory,
                 dashBoardChartItem.getMultiSelectComboBoxItems(),
@@ -42,6 +38,21 @@ public class DashBoardChartFactory implements InterfaceDashBoardComponentFactory
                 .setHeight(dashBoardChartItem.getHeight());
 
         return component;
+    }
+
+    /**
+     * Retrieves the appropriate PublicationCategoryChartFactory based on the DashBoardChartItem's component type.
+     *
+     * @param dashBoardChartItem the DashBoardChartItem used to determine the factory to be returned
+     * @return the corresponding PublicationCategoryChartFactory for the chart type, or null if the type is not recognized
+     */
+    private PublicationCategoryChartFactory getPublicationCategoryChartFactory(DashBoardChartItem dashBoardChartItem){
+        return switch (dashBoardChartItem.getComponentType()) {
+            case DashBoardComponentType.BAR_CHART -> new PublicationCategoryBarChartFactory();
+            case DashBoardComponentType.PIE_CHART -> new PublicationCategoryPieChartFactory();
+            case DashBoardComponentType.NIGHTINGALE_CHART -> new PublicationCategoryNightingaleRoseChartFactory();
+            default ->  null;
+        };
     }
 }
 

@@ -67,19 +67,11 @@ public class DropGrid extends AdaptiveGrid {
         DropGrid.backgroundColorWhenFull = backgroundColorWhenFull;
     }
 
-    /**
-     * Sets the grid size based on a given width (given as a JsonValue) with an adjustment
-     * for additional spacing, like a header.
-     */
     @Override
     protected void setGridSize(JsonValue width){
         super.setGridSize(width);
     }
 
-    /**
-     * Sets the grid size based on a given width (in pixels) with an adjustment
-     * for additional spacing, like a header.
-     */
     @Override
     protected void setGridSize(int width) {
         int header = 50;
@@ -92,68 +84,74 @@ public class DropGrid extends AdaptiveGrid {
     }
 
     @Override
+    public DropCell createCell(int index){
+        DropCell cell = new DropCell(index, getBorderColor(), borderColorWhenDrag, backgroundColorWhenEmpty, backgroundColorWhenFull);
+        setupCellListeners(cell);
+        return cell;
+    }
+
+    @Override
+    public void addComponent(DropCell cell, Component component) {
+        super.addComponent(cell, component);
+        if(component instanceof DraggableComponent draggableComponent){
+            chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
+        }
+    }
+
+    @Override
+    public void addNewComponent(DropCell cell, Component component){
+        super.addNewComponent(cell, component);
+        if(component instanceof DraggableComponent draggableComponent){
+            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
+        }
+    }
+
+    @Override
+    public void removeComponent(Component component){
+        setResizing(false);
+        if(component instanceof DraggableComponent draggableComponent){
+            draggableComponent.getParent().ifPresent(parent -> {
+                if(parent instanceof DropCell cell){
+                    removeComponent(cell, draggableComponent);
+                    chartLocalStorageManager.remove(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    markCellsAsState(true, getCoveredCells(cell, draggableComponent));
+                }
+            });
+        }else{
+            super.removeComponent(component);
+        }
+    }
+
+    @Override
+    public DropCell findFirstEmptyCell(Component component) {
+        if(component instanceof ComponentContainer componentContainer){
+            for (DropCell cell : getCells()) {
+                if (canBePlaced(componentContainer, cell)) {
+                    return cell;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected boolean canBePlaced(ComponentContainer component, DropCell cell) {
+        boolean overlapsComponent = false;
+        if(component instanceof DraggableComponent draggableComponent){
+            overlapsComponent = !getCoveredCells(cell, draggableComponent)
+                    .stream()
+                    .allMatch(DropCell::isRecover);
+        }
+        return super.canBePlaced(component, cell) && !overlapsComponent;
+    }
+
+    @Override
     protected void setupComponentListeners(ComponentContainer component){
         super.setupComponentListeners(component);
         if(component instanceof DraggableComponent draggableComponent){
             draggableComponent.setAfterDragEventStart(this::addDragStartListener);
             draggableComponent.setAfterDragEventEnd(this::addDragEndListener);
-        }
-    }
-
-    /**
-     * Adds a listener to handle the start of a drag operation for a draggable component.
-     *
-     * @param component The draggable component to which the drag-start listener is attached.
-     */
-    private void addDragStartListener(DraggableComponent component) {
-        if(component.isDraggable()){
-            draggedComponent = component;
-            component.getParent().ifPresent(cell -> markCellsAsState(true, getCoveredCells((DropCell) cell, component)));
-            showBorders(true);
-            addTransparencyToComponents();
-        }
-    }
-
-    /**
-     * Adds a listener to handle the end of a drag operation for a draggable component.
-     *
-     * @param component The draggable component to which the drag-end listener is attached.
-     */
-    private void addDragEndListener(DraggableComponent component) {
-        if(component.isDraggable()){
-            hideBorders(true);
-
-            removeCellsColor();
-
-            draggedComponent = null;
-        }
-    }
-
-    private void addTransparencyToComponents(DraggableComponent exception){
-        for (DropCell dropCell : getCellsContainingComponents()) {
-            dropCell.getChild().ifPresent(cellComponent -> {
-                if(cellComponent instanceof DraggableComponent draggableComponent){
-                    draggableComponent.setTransparency(true);
-                    if(exception == null || !Objects.equals(draggableComponent, exception)){
-                        draggableComponent.setToTheFore(false);
-                    }
-                }
-            });
-        }
-    }
-
-    private void addTransparencyToComponents(){
-        addTransparencyToComponents(null);
-    }
-
-    private void removeTransparencyFromComponents(){
-        for (DropCell dropCell : getCellsContainingComponents()) {
-            dropCell.getChild().ifPresent(component -> {
-                if(component instanceof DraggableComponent draggableComponent){
-                    draggableComponent.setTransparency(false);
-                    draggableComponent.setToTheFore(true);
-                }
-            });
         }
     }
 
@@ -194,71 +192,32 @@ public class DropGrid extends AdaptiveGrid {
     }
 
     /**
-     * Create a DropCell and add listeners to it to handle drop event.
+     * Adds a listener to handle the start of a drag operation for a draggable component.
+     *
+     * @param component The draggable component to which the drag-start listener is attached.
      */
-    @Override
-    public DropCell createCell(int index){
-        DropCell cell = new DropCell(index, getBorderColor(), borderColorWhenDrag, backgroundColorWhenEmpty, backgroundColorWhenFull);
-        setupCellListeners(cell);
-        return cell;
-    }
-
-    @Override
-    public void addComponent(DropCell cell, Component component) {
-        super.addComponent(cell, component);
-        if(component instanceof DraggableComponent draggableComponent){
-            chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
-            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
-        }
-    }
-
-    @Override
-    public void addNewComponent(DropCell cell, Component component){
-        super.addNewComponent(cell, component);
-        if(component instanceof DraggableComponent draggableComponent){
-            markCellsAsState(false, getCoveredCells(cell, draggableComponent));
+    private void addDragStartListener(DraggableComponent component) {
+        if(component.isDraggable()){
+            draggedComponent = component;
+            component.getParent().ifPresent(cell -> markCellsAsState(true, getCoveredCells((DropCell) cell, component)));
+            showBorders(true);
+            addTransparencyToComponents();
         }
     }
 
     /**
-     * Marks all cells as empty or full. This is typically
-     * called during drag operations to free up grid space.
+     * Adds a listener to handle the end of a drag operation for a draggable component.
      *
-     * @param empty The state to apply on the cell
-     * @param cells The cells to be made empty or full
+     * @param component The draggable component to which the drag-end listener is attached.
      */
-    private void markCellsAsState(boolean empty, List<DropCell> cells){
-        for (DropCell dropCell : cells) {
-            dropCell.setRecover(empty);
-        }
-    }
+    private void addDragEndListener(DraggableComponent component) {
+        if(component.isDraggable()){
+            hideBorders(true);
 
-    @Override
-    public void removeComponent(Component component){
-        setResizing(false);
-        if(component instanceof DraggableComponent draggableComponent){
-            draggableComponent.getParent().ifPresent(parent -> {
-                if(parent instanceof DropCell cell){
-                    removeComponent(cell, draggableComponent);
-                    chartLocalStorageManager.remove(new DashBoardChartItem(cell.getIndex(), draggableComponent));
-                    markCellsAsState(true, getCoveredCells(cell, draggableComponent));
-                }
-            });
-        }else{
-            super.removeComponent(component);
-        }
-    }
+            removeCellsColor();
 
-    @Override
-    public DropCell findFirstEmptyCell(Component component) {
-        if(component instanceof ComponentContainer componentContainer){
-            for (DropCell cell : getCells()) {
-                if (canBePlaced(componentContainer, cell)) {
-                    return cell;
-                }
-            }
+            draggedComponent = null;
         }
-        return null;
     }
 
     /**
@@ -270,9 +229,8 @@ public class DropGrid extends AdaptiveGrid {
 
         cell.getDropTarget().addDropListener(event -> handleDrop(event, cell));
 
-        cell.getElement().addEventListener("dragenter", event -> event.getSource().getComponent().ifPresent(component -> {
-            colorCells(cell, draggedComponent);
-        }));
+        cell.getElement().addEventListener("dragenter", event -> event.getSource().getComponent().ifPresent(
+                component -> colorCells(cell, draggedComponent)));
     }
 
     /**
@@ -299,29 +257,13 @@ public class DropGrid extends AdaptiveGrid {
                     chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
                     markCellsAsState(false, targetCellList);
                 }else{
-                    draggableComponent.getParent().ifPresent(parent -> {
-                        markCellsAsState(false, getCoveredCells((DropCell) parent));
-                    });
+                    draggableComponent.getParent().ifPresent(parent -> markCellsAsState(
+                            false,
+                            getCoveredCells((DropCell) parent)
+                    ));
                 }
             }
         });
-    }
-
-    /**
-     * Determines if a component can be placed in a given cell. This checks
-     * whether the component overlaps with any other elements or extends beyond
-     * the grid's boundaries.
-     */
-    @Override
-    protected boolean canBePlaced(ComponentContainer component, DropCell cell) {
-        boolean overlapsComponent = false;
-        if(component instanceof DraggableComponent draggableComponent){
-            overlapsComponent = !getCoveredCells(cell, draggableComponent)
-                    .stream()
-                    .allMatch(DropCell::isRecover);
-        }
-        return super.canBePlaced(component, cell) && !overlapsComponent;
-
     }
 
     /**
@@ -365,6 +307,18 @@ public class DropGrid extends AdaptiveGrid {
     }
 
     /**
+     * Marks all cells as empty or recover.
+     *
+     * @param state The state to apply on the cell (true for recover, false otherwise)
+     * @param cells The cells to be made empty or recover
+     */
+    private void markCellsAsState(boolean state, List<DropCell> cells){
+        for (DropCell dropCell : cells) {
+            dropCell.setRecover(state);
+        }
+    }
+
+    /**
      * Toggles the grid's edition mode. In edition mode, components can be dragged
      * and edited, and the grid's borders are hidden or shown accordingly.
      *
@@ -390,11 +344,56 @@ public class DropGrid extends AdaptiveGrid {
         removeTransparencyFromComponents();
     }
 
+    /**
+     * Colors cells recovered by a component.
+     *
+     * @param cell the starting cell where the component is placed
+     * @param component the draggable component being placed in the grid
+     */
     private void colorCells(DropCell cell, DraggableComponent component){
         List<DropCell> coveredCells = getCoveredCells(cell, component);
         boolean isOverTheEdge = isOverTheEdge(cell, component);
         for (DropCell dropCell : getCells()) {
             dropCell.colorCell(coveredCells.contains(dropCell), isOverTheEdge);
+        }
+    }
+
+    /**
+     * Applies transparency to all components in the grid, except for a specified exception.
+     *
+     * @param exception the component that should not have transparency applied; if null, all components will be affected
+     */
+    private void addTransparencyToComponents(DraggableComponent exception){
+        for (DropCell dropCell : getCellsContainingComponents()) {
+            dropCell.getChild().ifPresent(cellComponent -> {
+                if(cellComponent instanceof DraggableComponent draggableComponent){
+                    draggableComponent.setTransparency(true);
+                    if(exception == null || !Objects.equals(draggableComponent, exception)){
+                        draggableComponent.setToTheFore(false);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Applies transparency to all components in the grid, except for a specified exception.
+     */
+    private void addTransparencyToComponents(){
+        addTransparencyToComponents(null);
+    }
+
+    /**
+     * Removes transparency from all components in the grid and brings them to the foreground.
+     */
+    private void removeTransparencyFromComponents(){
+        for (DropCell dropCell : getCellsContainingComponents()) {
+            dropCell.getChild().ifPresent(component -> {
+                if(component instanceof DraggableComponent draggableComponent){
+                    draggableComponent.setTransparency(false);
+                    draggableComponent.setToTheFore(true);
+                }
+            });
         }
     }
 
