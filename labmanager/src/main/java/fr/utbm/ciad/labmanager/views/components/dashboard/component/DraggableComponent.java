@@ -1,4 +1,4 @@
-package fr.utbm.ciad.labmanager.views.components.dashboard;
+package fr.utbm.ciad.labmanager.views.components.dashboard.component;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dnd.DragSource;

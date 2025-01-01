@@ -1,11 +1,10 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component;
 
 import com.vaadin.flow.component.Component;
-import fr.utbm.ciad.labmanager.views.components.dashboard.DraggableComponent;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.DashBoardComponentFactory;
+import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 
 /**
- * Class defining items describing dashBoard components that can be store locally
+ * Interface defining items describing dashBoard components that can be store locally
  *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
@@ -14,67 +13,69 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.c
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardComponentItem extends AbstractDashBoardComponentItem {
+public interface DashBoardComponentItem {
 
     /**
-     * Default Constructor
-     */
-    public DashBoardComponentItem(){
-        super(new DashBoardComponentFactory());
-    }
-
-    /**
-     * Constructor
+     * Create the component described by the item.
      *
-     * @param index the index of the component in the dashboard
+     * @param publicationService the service used for publication-related tasks
+     * @return the component for this item
      */
-    public DashBoardComponentItem(int index){
-        super(new DashBoardComponentFactory(), index);
-    }
+    Component createComponent(PublicationService publicationService);
 
     /**
-     * Constructor
+     * Retrieves the index of the component.
      *
-     * @param index the index of the component
-     * @param componentType the type of the component
-     * @param width the width of the component
-     * @param height the height of the component
+     * @return the index of the component
      */
-    public DashBoardComponentItem(int index, DashBoardComponentType componentType, String width, String height){
-        super(new DashBoardComponentFactory(), index, componentType, width, height);
-    }
+    int getIndex();
 
     /**
-     * Constructor to initialize the item from attributes of a component.
+     * Retrieves the width of the component.
      *
-     * @param index the index of the component
-     * @param component the existing component to extract attributes
+     * @return the width as a string (e.g., "200px")
      */
-    public DashBoardComponentItem(int index, Component component){
-        super(new DashBoardComponentFactory(), index, component);
-    }
+    String getWidth();
 
     /**
-     * Constructor to initialize the item from attributes of a component currently stored into a DraggableComponent
+     * Retrieves the height of the component.
      *
-     * @param index the index of the component
-     * @param component the draggable component from which to extract the size and type
+     * @return the height as a string (e.g., "300px")
      */
-    public DashBoardComponentItem(int index, DraggableComponent component){
-        this(index, component.getComponent());
-    }
+    String getHeight();
 
     /**
-     * Constructor to create a new DashBoardComponentItem from an existing one.
+     * Retrieves the type of the dashboard component.
      *
-     * @param item the existing DashBoardComponentItem to copy properties from
+     * @return the component type
      */
-    public DashBoardComponentItem(DashBoardComponentItem item){
-        super(new DashBoardComponentFactory(), item);
-    }
+    DashBoardComponentType getComponentType();
 
-    @Override
-    public void setId(String id){
-        super.setId("DashBoardComponent_" + id);
-    }
+    /**
+     * Sets the index of the dashboard component.
+     *
+     * @param index the index to set
+     */
+    void setIndex(int index);
+
+    /**
+     * Sets the width of the dashboard component.
+     *
+     * @param width the width to set
+     */
+    void setWidth(String width);
+
+    /**
+     * Sets the height of the dashboard component.
+     *
+     * @param height the height to set
+     */
+    void setHeight(String height);
+
+    /**
+     * Sets the type of the dashboard component.
+     *
+     * @param componentType the type to set
+     */
+    void setComponentType(DashBoardComponentType componentType);
 }

@@ -1,16 +1,14 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentItem;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
-
-import java.util.Objects;
 
 /**
- * Factory class for creating Components based on a DashBoardComponentItem.
- * Provides the logic for creating specific types of components based on the component type.
+ * Factory interface for creating components associated with an item that can be stored locally.
+ * Defines the method for creating a component based on a given local storage item.
+ *
+ * @param <T> The type of the item that represents the item used to create the component.
+ * @param <S> The possible service needed to create the component.
  *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
@@ -19,23 +17,16 @@ import java.util.Objects;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardComponentFactory implements InterfaceDashBoardComponentFactory<DashBoardComponentItem> {
+public interface DashBoardComponentFactory<T extends DashBoardComponentItem, S> {
 
-    @Override
-    public Component createComponent(PublicationService publicationService, DashBoardComponentItem dashBoardComponentItem) {
-        Component component;
-        if (Objects.requireNonNull(dashBoardComponentItem.getComponentType()) == DashBoardComponentType.NONE) {
-            component = new FlexLayout();
-        } else {
-            component = null;
-        }
-
-        if(component != null){
-            component.getStyle()
-                    .setWidth(dashBoardComponentItem.getWidth())
-                    .setHeight(dashBoardComponentItem.getHeight());
-        }
-        return component;
-    }
+    /**
+     * Creates a component based on the given local storage item and publication service.
+     *
+     * @param service the service to be used during the component creation
+     * @param localStorageItem the local storage item containing the data needed to create the component
+     * @return the created component
+     */
+    Component createComponent(
+            S service,
+            T localStorageItem);
 }
-

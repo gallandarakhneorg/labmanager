@@ -7,6 +7,8 @@ import com.vaadin.flow.component.page.WebStorage;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
+import fr.utbm.ciad.labmanager.views.components.dashboard.component.SelectComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.ChartLocalStorageManager;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 import fr.utbm.ciad.labmanager.views.components.charts.observer.ChartHandler;
@@ -25,22 +27,35 @@ import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.Publi
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 import java.util.List;
 
+/**
+ * Implementation a dashboard layout.
+ *
+ * @author $Author: sgalland$
+ * @author $Author: pschneiderlin
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 4.0
+ */
 public class DashboardLayout extends VerticalLayout {
 
-    private final Select<String> componentSelect = new Select<>();
-    private final ToggleButton editionButton;
     private final DropGrid dropGrid = new DropGrid();
-    private final List<String> availableComponents = new ArrayList<>(List.of("BarChart", "PieChart", "NightingaleRoseChart"));
+
+    private final Select<String> componentSelect = new Select<>();
+    private final List<SelectComponent<DraggableComponent>> availableComponents;
+
+    private final ToggleButton editionButton;
+
     private final PublicationCategoryChartFactory<PublicationCategoryBarChart> barChartFactory;
     private final PublicationCategoryChartFactory<PublicationCategoryPieChart> pieChartFactory;
     private final PublicationCategoryChartFactory<PublicationCategoryNightingaleRoseChart> nightingaleChartFactory;
+
     private final ChartLocalStorageManager chartLocalStorageManager = new ChartLocalStorageManager();
 
     /**
-     * Constructor that initializes the dashboard layout with publication service.
+     * Constructor.
      *
      * @param publicationService the service for accessing the scientific publications.
      */
@@ -57,7 +72,22 @@ public class DashboardLayout extends VerticalLayout {
         pieChartFactory = new PublicationCategoryPieChartFactory();
         nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
 
-        createSelect(publicationService);
+        availableComponents = List.of(
+                new SelectComponent<>(
+                        "BarChart",
+                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, barChartFactory), DashBoardComponentType.BAR_CHART),
+                        this::initializeChart),
+                new SelectComponent<>(
+                        "PieChart",
+                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, pieChartFactory), DashBoardComponentType.PIE_CHART),
+                        this::initializeChart),
+                new SelectComponent<>(
+                        "NightingaleChart",
+                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory), DashBoardComponentType.NIGHTINGALE_CHART),
+                        this::initializeChart)
+                );
+
+        createSelect();
         add(createHeader(), dropGrid);
 
         Button button = new Button("Clear");
@@ -89,6 +119,57 @@ public class DashboardLayout extends VerticalLayout {
     private void changeEditionMode(boolean editionMode){
         dropGrid.changeEditionMode(editionMode);
         componentSelect.setVisible(editionMode);
+    }
+
+    /**
+     * Create the Select component used for selecting components.
+     * Sets the label, populates items, and defines behavior on component selection.
+     */
+    private void createSelect() {
+        componentSelect.setLabel(getTranslation("views.select_component"));
+
+        componentSelect.setItems(
+                availableComponents.stream().map(SelectComponent::getName).toList()
+        );
+
+        componentSelect.addValueChangeListener(event -> {
+            String selectedItem = event.getValue();
+            if (selectedItem != null) {
+                availableComponents.stream()
+                        .filter(c -> c.getName().equals(selectedItem))
+                        .findFirst()
+                        .ifPresent(selectComponent -> addComponent(selectComponent.getComponent()));
+                componentSelect.clear();
+            }
+        });
+
+        componentSelect.setVisible(!dropGrid.isEmpty());
+        componentSelect.getStyle().set("grid-column", "1");
+        componentSelect.getStyle().setMarginRight("auto");
+    }
+
+    /**
+     * Initializes the properties of the given PublicationCategoryLayout chart.
+     *
+     * @param chart the chart (PublicationCategoryLayout) to initialize
+     */
+    private void initializeChart(PublicationCategoryLayout<?> chart){
+        if(chart != null){
+            chart.setSize("500px", "200px");
+            chart.setChartSize("450px", "180px");
+            chart.setFormHidden(true);
+        }
+    }
+
+    /**
+     * Initializes the properties of the PublicationCategoryLayout chart contained in the given DraggableComponent.
+     *
+     * @param component the draggableComponent containing the chart (PublicationCategoryLayout) to initialize
+     */
+    private void initializeChart(DraggableComponent component){
+        if(component.getComponent() instanceof PublicationCategoryLayout<?> chart){
+            initializeChart(chart);
+        }
     }
 
     /**
@@ -128,81 +209,6 @@ public class DashboardLayout extends VerticalLayout {
                     addComponent(component, cell);
                 }
             });
-        }
-    }
-
-    /**
-     * Create the Select component used for selecting components.
-     * Sets the label, populates items, and defines behavior on component selection.
-     *
-     * @param publicationService the service used to manage publications.
-     */
-    private void createSelect(PublicationService publicationService) {
-        componentSelect.setLabel(getTranslation("views.select_component"));
-        componentSelect.setItems(availableComponents);
-
-        componentSelect.addValueChangeListener(event -> {
-            String selectedItem = event.getValue();
-            if (selectedItem != null) {
-
-                DraggableComponent draggableComponent = getComponent(publicationService, selectedItem);
-
-                addComponent(draggableComponent);
-
-
-                componentSelect.clear();
-            }
-        });
-
-        componentSelect.setVisible(!dropGrid.isEmpty());
-        componentSelect.getStyle().set("grid-column", "1");
-        componentSelect.getStyle().setMarginRight("auto");
-    }
-
-    //TODO the cases have to be the same as in the availableComponents list
-    /**
-     * Creates and returns a draggable UI component based on a given selected item.
-     *
-     * @param publicationService the service for accessing publication data.
-     * @param selectedItem       the type of component to create.
-     * @return DraggableComponent a draggable component based on the selected item.
-     */
-    private DraggableComponent getComponent(PublicationService publicationService, String selectedItem) {
-        DashBoardComponentType componentType;
-        PublicationCategoryLayout<?> chart;
-        switch (selectedItem) {
-            case "BarChart" -> {
-                chart = new PublicationCategoryLayout<>(publicationService, barChartFactory);
-                componentType = DashBoardComponentType.BAR_CHART;
-            }
-            case "PieChart" -> {
-                chart = new PublicationCategoryLayout<>(publicationService, pieChartFactory);
-                componentType = DashBoardComponentType.PIE_CHART;
-            }
-            case "NightingaleRoseChart" -> {
-               chart = new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory);
-                componentType = DashBoardComponentType.NIGHTINGALE_CHART;
-            }
-            default -> {
-                chart = null;
-                componentType = DashBoardComponentType.NONE;
-            }
-        }
-        initializeChart(chart);
-
-        return new DraggableComponent(chart, componentType);
-    }
-
-    /**
-     * Initializes the properties of the given PublicationCategoryLayout chart.
-     *
-     * @param chart the chart (PublicationCategoryLayout) to initialize
-     */
-    private void initializeChart(PublicationCategoryLayout<?> chart){
-        if(chart != null){
-            chart.setSize("500px", "200px");
-            chart.setChartSize("450px", "180px");
-            chart.setFormHidden(true);
         }
     }
 

@@ -20,7 +20,7 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardChartFactory implements InterfaceDashBoardComponentFactory<DashBoardChartItem> {
+public class DashBoardChartFactory implements DashBoardComponentFactory<DashBoardChartItem, PublicationService> {
 
     @Override
     public PublicationCategoryLayout<?> createComponent(PublicationService publicationService, DashBoardChartItem dashBoardChartItem) {

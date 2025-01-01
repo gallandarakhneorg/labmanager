@@ -3,7 +3,7 @@ package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.componen
 import com.vaadin.flow.component.Component;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.utils.localStorage.AbstractLocalStorageItem;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.InterfaceDashBoardComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.DashBoardComponentFactory;
 
 /**
  * Abstract class defining items describing dashBoard components that can be store locally
@@ -15,9 +15,9 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.c
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorageItem implements InterfaceDashBoardComponentItem {
+public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorageItem implements DashBoardComponentItem {
 
-    InterfaceDashBoardComponentFactory componentFactory;
+    DashBoardComponentFactory componentFactory;
     private DashBoardComponentType componentType;
     private int index;
     private String width;
@@ -28,7 +28,7 @@ public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorag
      *
      * @param componentFactory the factory to create the component
      */
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory){
+    public AbstractDashBoardComponentItem(DashBoardComponentFactory<?, ?> componentFactory){
         this(componentFactory, 0);
     }
 
@@ -38,7 +38,7 @@ public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorag
      * @param componentFactory the factory to create the component
      * @param index the index of the component in the dashboard
      */
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, int index){
+    public AbstractDashBoardComponentItem(DashBoardComponentFactory<?, ?> componentFactory, int index){
         super(index + "");
         this.componentFactory = componentFactory;
         this.index = index;
@@ -53,7 +53,7 @@ public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorag
      * @param width the width of the component
      * @param height the height of the component
      */
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, int index, DashBoardComponentType componentType, String width, String height){
+    public AbstractDashBoardComponentItem(DashBoardComponentFactory<?, ?> componentFactory, int index, DashBoardComponentType componentType, String width, String height){
         this(componentFactory, index);
         this.componentType = componentType;
         this.width = width;
@@ -66,7 +66,7 @@ public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorag
      * @param index the index of the component
      * @param component the existing component to extract size and type
      */
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, int index, Component component){
+    public AbstractDashBoardComponentItem(DashBoardComponentFactory<?, ?> componentFactory, int index, Component component){
         this(componentFactory, index, DashBoardComponentType.NONE, component.getStyle().get("width"), component.getStyle().get("height"));
     }
 
@@ -76,7 +76,7 @@ public abstract class AbstractDashBoardComponentItem extends AbstractLocalStorag
      * @param componentFactory the factory to create the component
      * @param item the existing component item to copy properties from
      */
-    public AbstractDashBoardComponentItem(InterfaceDashBoardComponentFactory<?> componentFactory, AbstractDashBoardComponentItem item){
+    public AbstractDashBoardComponentItem(DashBoardComponentFactory<?, ?> componentFactory, AbstractDashBoardComponentItem item){
         this(componentFactory, item.getIndex(), item.getComponentType(), item.getWidth(), item.getHeight());
     }
 

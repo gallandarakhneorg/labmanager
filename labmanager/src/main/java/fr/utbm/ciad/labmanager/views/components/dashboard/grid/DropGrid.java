@@ -6,7 +6,7 @@ import com.vaadin.flow.component.dnd.DropEvent;
 import elemental.json.JsonValue;
 
 import fr.utbm.ciad.labmanager.utils.container.ComponentContainer;
-import fr.utbm.ciad.labmanager.views.components.dashboard.DraggableComponent;
+import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.ChartLocalStorageManager;

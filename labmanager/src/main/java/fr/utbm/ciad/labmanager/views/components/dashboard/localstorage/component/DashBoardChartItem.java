@@ -1,6 +1,6 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component;
 import com.vaadin.flow.component.Component;
-import fr.utbm.ciad.labmanager.views.components.dashboard.DraggableComponent;
+import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.DashBoardChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
