@@ -1,5 +1,6 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -9,13 +10,13 @@ import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.SelectComponent;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.ChartLocalStorageManager;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardChartItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.manager.ChartLocalStorageManager;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 import fr.utbm.ciad.labmanager.views.components.charts.observer.ChartHandler;
 import fr.utbm.ciad.labmanager.views.components.dashboard.grid.DropGrid;
 import fr.utbm.ciad.labmanager.utils.button.ToggleButton;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardComponentType;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
@@ -43,8 +44,7 @@ public class DashboardLayout extends VerticalLayout {
 
     private final DropGrid dropGrid = new DropGrid();
 
-    private final Select<String> componentSelect = new Select<>();
-    private final List<SelectComponent<DraggableComponent>> availableComponents;
+    private final Select<SelectComponent<DraggableComponent>> componentSelect = new Select<>();
 
     private final ToggleButton editionButton;
 
@@ -61,6 +61,7 @@ public class DashboardLayout extends VerticalLayout {
      */
     public DashboardLayout(@Autowired PublicationService publicationService) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         super();
+
         editionButton = new ToggleButton(
                 getTranslation("views.edit"),
                 this::setEditionMode,
@@ -72,23 +73,9 @@ public class DashboardLayout extends VerticalLayout {
         pieChartFactory = new PublicationCategoryPieChartFactory();
         nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
 
-        availableComponents = List.of(
-                new SelectComponent<>(
-                        "BarChart",
-                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, barChartFactory), DashBoardComponentType.BAR_CHART),
-                        this::initializeChart),
-                new SelectComponent<>(
-                        "PieChart",
-                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, pieChartFactory), DashBoardComponentType.PIE_CHART),
-                        this::initializeChart),
-                new SelectComponent<>(
-                        "NightingaleChart",
-                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory), DashBoardComponentType.NIGHTINGALE_CHART),
-                        this::initializeChart)
-                );
+        createSelect(publicationService);
 
-        createSelect();
-        add(createHeader(), dropGrid);
+        add(getHeader(), dropGrid);
 
         Button button = new Button("Clear");
         button.addClickListener(event -> WebStorage.clear());
@@ -125,20 +112,30 @@ public class DashboardLayout extends VerticalLayout {
      * Create the Select component used for selecting components.
      * Sets the label, populates items, and defines behavior on component selection.
      */
-    private void createSelect() {
+    private void createSelect(PublicationService publicationService) {
         componentSelect.setLabel(getTranslation("views.select_component"));
 
-        componentSelect.setItems(
-                availableComponents.stream().map(SelectComponent::getName).toList()
+        componentSelect.setItems(List.of(
+                new SelectComponent<>(
+                        "BarChart",
+                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, barChartFactory), DashboardComponentType.BAR_CHART),
+                        this::initializeChart),
+                new SelectComponent<>(
+                        "PieChart",
+                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, pieChartFactory), DashboardComponentType.PIE_CHART),
+                        this::initializeChart),
+                new SelectComponent<>(
+                        "NightingaleChart",
+                        () -> new DraggableComponent(new PublicationCategoryLayout<>(publicationService, nightingaleChartFactory), DashboardComponentType.NIGHTINGALE_CHART),
+                        this::initializeChart))
         );
 
+        componentSelect.setItemLabelGenerator(SelectComponent::getName);
+
         componentSelect.addValueChangeListener(event -> {
-            String selectedItem = event.getValue();
+            SelectComponent<DraggableComponent> selectedItem = event.getValue();
             if (selectedItem != null) {
-                availableComponents.stream()
-                        .filter(c -> c.getName().equals(selectedItem))
-                        .findFirst()
-                        .ifPresent(selectComponent -> addComponent(selectComponent.getComponent()));
+                addComponent(selectedItem.getComponent());
                 componentSelect.clear();
             }
         });
@@ -178,7 +175,7 @@ public class DashboardLayout extends VerticalLayout {
      *
      * @return HorizontalLayout the configured header layout.
      */
-    private HorizontalLayout createHeader() {
+    private HorizontalLayout getHeader() {
         HorizontalLayout header = new HorizontalLayout();
         header.getStyle().setDisplay(Style.Display.GRID);
         header.getStyle().set("grid-template-columns", "repeat(2, 1fr)");
@@ -200,7 +197,7 @@ public class DashboardLayout extends VerticalLayout {
      */
     private void getWebStorageComponents(PublicationService publicationService) {
         for (DropCell cell : dropGrid.getCells()) {
-            DashBoardChartItem item = new DashBoardChartItem(cell.getIndex());
+            DashboardChartItem item = new DashboardChartItem(cell.getIndex());
 
             chartLocalStorageManager.getItem(item.getId(), dashBoardChartItem -> {
                 if (dashBoardChartItem != null) {
@@ -268,12 +265,14 @@ public class DashboardLayout extends VerticalLayout {
      *
      * @param component the DraggableComponent to be saved
      */
-    private void saveComponent(DraggableComponent component){
-        component.getParent().ifPresent(parent -> {
-            if(parent instanceof DropCell dropCell){
-                chartLocalStorageManager.add(new DashBoardChartItem(dropCell.getIndex(), component));
-            }
-        });
+    private void saveComponent(Component component){
+        if(component instanceof DraggableComponent draggableComponent){
+            component.getParent().ifPresent(parent -> {
+                if(parent instanceof DropCell dropCell){
+                    chartLocalStorageManager.add(dropCell.getIndex(), draggableComponent.getComponent(), draggableComponent.getComponentType());
+                }
+            });
+        }
     }
 
     /**

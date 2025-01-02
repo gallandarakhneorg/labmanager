@@ -8,7 +8,7 @@ import elemental.json.JsonValue;
 import fr.utbm.ciad.labmanager.utils.container.ComponentContainerWithContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ConditionalManagedContextMenu;
 import fr.utbm.ciad.labmanager.utils.contextMenu.ContextMenuFactory;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardComponentType;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 import java.util.function.Consumer;
@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 public class DraggableComponent extends ComponentContainerWithContextMenu {
 
     private final DragSource<Component> dragSource;
-    private DashBoardComponentType componentType = DashBoardComponentType.NONE;
+    private DashboardComponentType componentType = DashboardComponentType.NONE;
     private Consumer<DraggableComponent> afterDragEventStart;
     private Consumer<DraggableComponent> afterDragEventEnd;
 
@@ -41,7 +41,7 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
     /**
      * Constructor
      */
-    public DraggableComponent(Component component, DashBoardComponentType componentType) {
+    public DraggableComponent(Component component, DashboardComponentType componentType) {
         this(component);
         this.componentType = componentType;
     }
@@ -158,7 +158,7 @@ public class DraggableComponent extends ComponentContainerWithContextMenu {
      *
      * @return the component type
      */
-    public DashBoardComponentType getComponentType() {
+    public DashboardComponentType getComponentType() {
         return componentType;
     }
 

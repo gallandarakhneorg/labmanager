@@ -13,7 +13,7 @@ import fr.utbm.ciad.labmanager.services.publication.PublicationService;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public interface DashBoardComponentItem {
+public interface DashboardComponentItem {
 
     /**
      * Create the component described by the item.
@@ -49,7 +49,7 @@ public interface DashBoardComponentItem {
      *
      * @return the component type
      */
-    DashBoardComponentType getComponentType();
+    DashboardComponentType getComponentType();
 
     /**
      * Sets the index of the dashboard component.
@@ -77,5 +77,5 @@ public interface DashBoardComponentItem {
      *
      * @param componentType the type to set
      */
-    void setComponentType(DashBoardComponentType componentType);
+    void setComponentType(DashboardComponentType componentType);
 }

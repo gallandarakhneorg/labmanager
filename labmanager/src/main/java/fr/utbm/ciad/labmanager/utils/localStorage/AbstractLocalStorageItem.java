@@ -27,7 +27,7 @@ public abstract class AbstractLocalStorageItem implements LocalStorageItem {
      * @param id the unique identifier to assign to the item
      */
     public AbstractLocalStorageItem(String id){
-        setId(id);
+        createId(id);
     }
 
     @Override
@@ -36,7 +36,7 @@ public abstract class AbstractLocalStorageItem implements LocalStorageItem {
     }
 
     @Override
-    public void setId(String id){
+    public void setId(String id) {
         this.id = id;
     }
 }

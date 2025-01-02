@@ -13,9 +13,16 @@ package fr.utbm.ciad.labmanager.utils.localStorage;
 public interface LocalStorageItem {
 
     /**
-     * Sets the unique identifier for the item.
+     * Create and set the unique identifier for the item.
      *
-     * @param id the unique identifier to set for the item
+     * @param idPart the unique identifier part used to create the id
+     */
+    void createId(String idPart);
+
+    /**
+     * Set the unique identifier for the item.
+     *
+     * @param id the unique identifier to set
      */
     void setId(String id);
 

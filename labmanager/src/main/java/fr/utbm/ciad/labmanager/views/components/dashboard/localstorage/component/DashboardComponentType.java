@@ -10,7 +10,7 @@ package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.componen
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public enum DashBoardComponentType {
+public enum DashboardComponentType {
     BAR_CHART,
     PIE_CHART,
     NIGHTINGALE_CHART,

@@ -1,7 +1,6 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component;
 import com.vaadin.flow.component.Component;
-import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.DashBoardChartFactory;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component.DashboardChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 import java.util.Set;
@@ -16,7 +15,7 @@ import java.util.Set;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardChartItem extends AbstractDashBoardComponentItem {
+public class DashboardChartItem extends AbstractDashboardComponentItem {
 
     private Set<String> multiSelectComboBoxItems;
     private Integer yearRangeStartValue;
@@ -26,8 +25,8 @@ public class DashBoardChartItem extends AbstractDashBoardComponentItem {
     /**
      * Default Constructor
      */
-    public DashBoardChartItem(){
-        super(new DashBoardChartFactory());
+    public DashboardChartItem(){
+        super(new DashboardChartFactory());
     }
 
     /**
@@ -35,8 +34,8 @@ public class DashBoardChartItem extends AbstractDashBoardComponentItem {
      *
      * @param index the index of the component in the dashboard
      */
-    public DashBoardChartItem(int index){
-        super(new DashBoardChartFactory(), index);
+    public DashboardChartItem(int index){
+        super(new DashboardChartFactory(), index);
     }
 
     /**
@@ -47,8 +46,8 @@ public class DashBoardChartItem extends AbstractDashBoardComponentItem {
      * @param width the width of the component
      * @param height the height of the component
      */
-    public DashBoardChartItem(int index, DashBoardComponentType componentType, String width, String height){
-        super(new DashBoardChartFactory(), index, componentType, width, height);
+    public DashboardChartItem(int index, DashboardComponentType componentType, String width, String height){
+        super(new DashboardChartFactory(), index, componentType, width, height);
     }
 
     /**
@@ -57,8 +56,8 @@ public class DashBoardChartItem extends AbstractDashBoardComponentItem {
      * @param index the index of the component
      * @param component the existing component to extract properties from
      */
-    public DashBoardChartItem(int index, Component component){
-        super(new DashBoardChartFactory(), index, component);
+    public DashboardChartItem(int index, Component component, DashboardComponentType componentType){
+        super(new DashboardChartFactory(), index, component, componentType);
         if(component instanceof PublicationCategoryLayout<?> publicationCategoryLayout) {
             multiSelectComboBoxItems = publicationCategoryLayout.getMultiSelectComboBoxItems();
             yearRangeStartValue = publicationCategoryLayout.getYearRangeStartValue();
@@ -68,23 +67,12 @@ public class DashBoardChartItem extends AbstractDashBoardComponentItem {
     }
 
     /**
-     * Constructor to initialize the item from attributes of a component currently stored into a DraggableComponent
-     *
-     * @param index the index of the component
-     * @param component the draggable component from which to extract size and type
-     */
-    public DashBoardChartItem(int index, DraggableComponent component){
-        this(index, component.getComponent());
-        setComponentType(component.getComponentType());
-    }
-
-    /**
      * Constructor to create a new DashBoardComponentItem from an existing one.
      *
      * @param item the existing DashBoardComponentItem to copy properties from
      */
-    public DashBoardChartItem(DashBoardChartItem item){
-        super(new DashBoardChartFactory(), item);
+    public DashboardChartItem(DashboardChartItem item){
+        super(new DashboardChartFactory(), item);
         this.multiSelectComboBoxItems = item.getMultiSelectComboBoxItems();
         this.yearRangeStartValue = item.getYearRangeStartValue();
         this.yearRangeEndValue = item.getYearRangeEndValue();
@@ -92,8 +80,8 @@ public class DashBoardChartItem extends AbstractDashBoardComponentItem {
     }
 
     @Override
-    public void setId(String id){
-        super.setId("DashBoardChart_" + id);
+    public void createId(String idPart){
+        super.setId("DashBoardChart_" + idPart);
     }
 
     /**

@@ -1,13 +1,13 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component;
 
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardChartItem;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryNightingaleRoseChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryPieChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardComponentType;
 
 /**
  * Factory class for creating PublicationCategoryLayout components based on a DashBoardChartItem.
@@ -20,10 +20,10 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardChartFactory implements DashBoardComponentFactory<DashBoardChartItem, PublicationService> {
+public class DashboardChartFactory implements DashboardComponentFactory<DashboardChartItem, PublicationService> {
 
     @Override
-    public PublicationCategoryLayout<?> createComponent(PublicationService publicationService, DashBoardChartItem dashBoardChartItem) {
+    public PublicationCategoryLayout<?> createComponent(PublicationService publicationService, DashboardChartItem dashBoardChartItem) {
         PublicationCategoryChartFactory factory = getPublicationCategoryChartFactory(dashBoardChartItem);
 
         PublicationCategoryLayout component = new PublicationCategoryLayout<>(publicationService,
@@ -46,11 +46,11 @@ public class DashBoardChartFactory implements DashBoardComponentFactory<DashBoar
      * @param dashBoardChartItem the DashBoardChartItem used to determine the factory to be returned
      * @return the corresponding PublicationCategoryChartFactory for the chart type, or null if the type is not recognized
      */
-    private PublicationCategoryChartFactory getPublicationCategoryChartFactory(DashBoardChartItem dashBoardChartItem){
+    private PublicationCategoryChartFactory getPublicationCategoryChartFactory(DashboardChartItem dashBoardChartItem){
         return switch (dashBoardChartItem.getComponentType()) {
-            case DashBoardComponentType.BAR_CHART -> new PublicationCategoryBarChartFactory();
-            case DashBoardComponentType.PIE_CHART -> new PublicationCategoryPieChartFactory();
-            case DashBoardComponentType.NIGHTINGALE_CHART -> new PublicationCategoryNightingaleRoseChartFactory();
+            case DashboardComponentType.BAR_CHART -> new PublicationCategoryBarChartFactory();
+            case DashboardComponentType.PIE_CHART -> new PublicationCategoryPieChartFactory();
+            case DashboardComponentType.NIGHTINGALE_CHART -> new PublicationCategoryNightingaleRoseChartFactory();
             default ->  null;
         };
     }

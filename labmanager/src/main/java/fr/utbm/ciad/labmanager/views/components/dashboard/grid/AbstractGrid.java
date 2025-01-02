@@ -19,7 +19,7 @@ import java.util.List;
  * @since 4.0
  */
 //TODO Use AbstractCell here
-public abstract class AbstractGrid extends FlexLayout implements InterfaceGrid {
+public abstract class AbstractGrid extends FlexLayout implements Grid {
 
     private static String borderColor;
 

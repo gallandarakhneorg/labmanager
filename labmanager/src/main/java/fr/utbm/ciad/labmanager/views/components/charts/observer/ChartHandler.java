@@ -1,6 +1,6 @@
 package fr.utbm.ciad.labmanager.views.components.charts.observer;
 
-import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
+import com.vaadin.flow.component.Component;
 
 import java.util.function.Consumer;
 
@@ -16,8 +16,8 @@ import java.util.function.Consumer;
  */
 public class ChartHandler implements ChartObserver {
 
-    private Consumer<DraggableComponent> callback;
-    private DraggableComponent component;
+    private Consumer<Component> callback;
+    private Component component;
 
     /**
      * Default Constructor
@@ -31,7 +31,7 @@ public class ChartHandler implements ChartObserver {
      * @param callback  the action to perform when the chart is generated
      * @param component the draggable component associated with the chart
      */
-    public ChartHandler(Consumer<DraggableComponent> callback, DraggableComponent component){
+    public ChartHandler(Consumer<Component> callback, Component component){
         this.callback = callback;
         this.component = component;
     }

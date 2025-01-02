@@ -3,7 +3,6 @@ package fr.utbm.ciad.labmanager.views.components.dashboard.grid;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import elemental.json.JsonValue;
-import fr.utbm.ciad.labmanager.views.components.dashboard.cell.AdaptiveCell;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 import fr.utbm.ciad.labmanager.utils.container.ComponentContainer;
 
@@ -91,7 +90,7 @@ public class AdaptiveGrid extends AbstractGrid {
                 .setHeight(width + "px");
         double cellSize = getCellSize();
         setCellSize((double) width / getColumns());
-        for (AdaptiveCell cell : getCellsContainingComponents()) {
+        for (DropCell cell : getCellsContainingComponents()) {
             cell.getChild().ifPresent(component -> {
                 if(component instanceof ComponentContainer componentContainer){
                     makeComponentFitInCells(cellSize, componentContainer);

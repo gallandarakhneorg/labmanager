@@ -1,7 +1,7 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.item;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardChartItem;
 import fr.utbm.ciad.labmanager.utils.localStorage.factory.LocalStorageItemFactory;
 
 /**
@@ -15,20 +15,20 @@ import fr.utbm.ciad.labmanager.utils.localStorage.factory.LocalStorageItemFactor
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardChartItemFactory implements LocalStorageItemFactory<DashBoardChartItem> {
+public class DashboardChartItemFactory implements LocalStorageItemFactory<DashboardChartItem> {
 
     @Override
-    public DashBoardChartItem createItem(String jsonValue) {
+    public DashboardChartItem createItem(String jsonValue) {
         if(jsonValue == null){
-            return new DashBoardChartItem();
+            return new DashboardChartItem();
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        DashBoardChartItem item;
+        DashboardChartItem item;
         try {
-            item = new DashBoardChartItem(objectMapper.readValue(jsonValue, DashBoardChartItem.class));
+            item = new DashboardChartItem(objectMapper.readValue(jsonValue, DashboardChartItem.class));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        return new DashBoardChartItem(item);
+        return new DashboardChartItem(item);
     }
 }

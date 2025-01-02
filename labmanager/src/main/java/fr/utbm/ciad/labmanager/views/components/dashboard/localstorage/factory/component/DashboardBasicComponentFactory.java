@@ -2,8 +2,8 @@ package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardBasicComponentItem;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentType;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardBasicComponentItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardComponentType;
 
 import java.util.Objects;
 
@@ -18,12 +18,12 @@ import java.util.Objects;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardBasicComponentFactory implements DashBoardComponentFactory<DashBoardBasicComponentItem, Void> {
+public class DashboardBasicComponentFactory implements DashboardComponentFactory<DashboardBasicComponentItem, Void> {
 
     @Override
-    public Component createComponent(Void service, DashBoardBasicComponentItem dashBoardBasicComponentItem) {
+    public Component createComponent(Void service, DashboardBasicComponentItem dashBoardBasicComponentItem) {
         Component component;
-        if (Objects.requireNonNull(dashBoardBasicComponentItem.getComponentType()) == DashBoardComponentType.NONE) {
+        if (Objects.requireNonNull(dashBoardBasicComponentItem.getComponentType()) == DashboardComponentType.NONE) {
             component = new FlexLayout();
         } else {
             component = null;

@@ -16,7 +16,7 @@ import java.util.List;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public interface InterfaceGrid {
+public interface Grid {
 
     /**
      * Adds a component to a specific cell.

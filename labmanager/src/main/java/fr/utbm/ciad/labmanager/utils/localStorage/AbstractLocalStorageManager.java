@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 /**
  * Abstract class for managing items that can be store locally.
  *
+ * @param <T> The LocalStorageItem containing the data to store locally
+ *
  * @author $Author: sgalland$
  * @author $Author: pschneiderlin$
  * @version $Name$ $Revision$ $Date$

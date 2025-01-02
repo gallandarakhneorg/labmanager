@@ -8,8 +8,7 @@ import elemental.json.JsonValue;
 import fr.utbm.ciad.labmanager.utils.container.ComponentContainer;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardChartItem;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.ChartLocalStorageManager;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.manager.ChartLocalStorageManager;
 import fr.utbm.ciad.labmanager.views.components.charts.layout.PublicationCategoryLayout;
 
 import java.util.ArrayList;
@@ -94,7 +93,7 @@ public class DropGrid extends AdaptiveGrid {
     public void addComponent(DropCell cell, Component component) {
         super.addComponent(cell, component);
         if(component instanceof DraggableComponent draggableComponent){
-            chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+            chartLocalStorageManager.add(cell.getIndex(), draggableComponent.getComponent(), draggableComponent.getComponentType());
             markCellsAsState(false, getCoveredCells(cell, draggableComponent));
         }
     }
@@ -114,7 +113,7 @@ public class DropGrid extends AdaptiveGrid {
             draggableComponent.getParent().ifPresent(parent -> {
                 if(parent instanceof DropCell cell){
                     removeComponent(cell, draggableComponent);
-                    chartLocalStorageManager.remove(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    chartLocalStorageManager.remove(cell.getIndex());
                     markCellsAsState(true, getCoveredCells(cell, draggableComponent));
                 }
             });
@@ -183,7 +182,7 @@ public class DropGrid extends AdaptiveGrid {
         if(isResizing() && component instanceof DraggableComponent draggableComponent){
             draggableComponent.getParent().ifPresent(parent -> {
                 if(parent instanceof DropCell cell){
-                    chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    chartLocalStorageManager.add(cell.getIndex(), draggableComponent.getComponent(), draggableComponent.getComponentType());
                     colorCells(cell, draggableComponent);
                 }
             });
@@ -246,7 +245,7 @@ public class DropGrid extends AdaptiveGrid {
                 if (canBePlaced(draggableComponent, cell)) {
                     component.getParent().ifPresent(parent -> {
                         if (parent instanceof DropCell dropCell) {
-                            chartLocalStorageManager.remove(new DashBoardChartItem(dropCell.getIndex(), component));
+                            chartLocalStorageManager.remove(dropCell.getIndex());
                             dropCell.emptyCell();
                         }
                     });
@@ -254,7 +253,7 @@ public class DropGrid extends AdaptiveGrid {
                     if (draggableComponent.getComponent() instanceof PublicationCategoryLayout<?> publicationCategoryLayout) {
                         publicationCategoryLayout.refreshChart();
                     }
-                    chartLocalStorageManager.add(new DashBoardChartItem(cell.getIndex(), draggableComponent));
+                    chartLocalStorageManager.add(cell.getIndex(), draggableComponent.getComponent(), draggableComponent.getComponentType());
                     markCellsAsState(false, targetCellList);
                 }else{
                     draggableComponent.getParent().ifPresent(parent -> markCellsAsState(

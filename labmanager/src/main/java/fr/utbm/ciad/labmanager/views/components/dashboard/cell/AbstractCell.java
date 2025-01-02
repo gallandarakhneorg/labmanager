@@ -15,7 +15,7 @@ import java.util.Optional;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public abstract class AbstractCell extends FlexLayout implements InterfaceCell {
+public abstract class AbstractCell extends FlexLayout implements Cell {
 
     private static String borderColor;
     private final Integer index;

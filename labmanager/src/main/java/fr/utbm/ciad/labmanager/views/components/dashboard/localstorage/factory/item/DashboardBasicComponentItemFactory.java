@@ -1,7 +1,7 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.item;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardBasicComponentItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardBasicComponentItem;
 import fr.utbm.ciad.labmanager.utils.localStorage.factory.LocalStorageItemFactory;
 
 /**
@@ -15,20 +15,20 @@ import fr.utbm.ciad.labmanager.utils.localStorage.factory.LocalStorageItemFactor
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class DashBoardBasicComponentItemFactory implements LocalStorageItemFactory<DashBoardBasicComponentItem> {
+public class DashboardBasicComponentItemFactory implements LocalStorageItemFactory<DashboardBasicComponentItem> {
 
     @Override
-    public DashBoardBasicComponentItem createItem(String jsonValue) {
+    public DashboardBasicComponentItem createItem(String jsonValue) {
         if(jsonValue == null){
-            return new DashBoardBasicComponentItem();
+            return new DashboardBasicComponentItem();
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        DashBoardBasicComponentItem item;
+        DashboardBasicComponentItem item;
         try {
-            item = new DashBoardBasicComponentItem(objectMapper.readValue(jsonValue, DashBoardBasicComponentItem.class));
+            item = new DashboardBasicComponentItem(objectMapper.readValue(jsonValue, DashboardBasicComponentItem.class));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        return new DashBoardBasicComponentItem(item);
+        return new DashboardBasicComponentItem(item);
     }
 }

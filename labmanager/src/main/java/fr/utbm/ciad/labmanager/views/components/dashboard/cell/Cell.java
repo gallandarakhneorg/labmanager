@@ -12,7 +12,7 @@ import com.vaadin.flow.component.Component;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public interface InterfaceCell {
+public interface Cell {
 
 
     /**

@@ -1,7 +1,7 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.factory.component;
 
 import com.vaadin.flow.component.Component;
-import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashBoardComponentItem;
+import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardComponentItem;
 
 /**
  * Factory interface for creating components associated with an item that can be stored locally.
@@ -17,7 +17,7 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public interface DashBoardComponentFactory<T extends DashBoardComponentItem, S> {
+public interface DashboardComponentFactory<T extends DashboardComponentItem, S> {
 
     /**
      * Creates a component based on the given local storage item and publication service.
