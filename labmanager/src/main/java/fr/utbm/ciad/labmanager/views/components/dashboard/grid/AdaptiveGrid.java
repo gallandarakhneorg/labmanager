@@ -91,11 +91,9 @@ public class AdaptiveGrid extends AbstractGrid {
         double cellSize = getCellSize();
         setCellSize((double) width / getColumns());
         for (DropCell cell : getCellsContainingComponents()) {
-            cell.getChild().ifPresent(component -> {
-                if(component instanceof ComponentContainer componentContainer){
-                    makeComponentFitInCells(cellSize, componentContainer);
-                }
-            });
+            if(cell.getComponent() instanceof ComponentContainer componentContainer){
+                makeComponentFitInCells(cellSize, componentContainer);
+            }
         }
     }
 
@@ -139,6 +137,12 @@ public class AdaptiveGrid extends AbstractGrid {
             }
         }
         return cellsList;
+    }
+
+    public List<Component> getComponents(){
+        List<Component> list = new ArrayList<>();
+        getCellsContainingComponents().forEach(cell -> list.add(cell.getComponent()));
+        return list;
     }
 
     /**

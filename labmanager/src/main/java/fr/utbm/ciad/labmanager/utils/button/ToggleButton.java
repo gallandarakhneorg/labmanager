@@ -14,11 +14,7 @@ import com.vaadin.flow.component.button.Button;
  */
 public class ToggleButton extends Button {
 
-    private boolean mode = false;
-    private final String textFirstMode;
-    private final String textSecondMode;
-    private final Runnable firstMode;
-    private final Runnable secondMode;
+    ToggleTextComponent toggleTextComponent;
 
     /**
      * Default Constructor
@@ -36,54 +32,11 @@ public class ToggleButton extends Button {
      * @param secondMode     the action to execute when switching to the second mode.
      */
     public ToggleButton(String textFirstMode, Runnable firstMode, String textSecondMode, Runnable secondMode) {
-        this.textFirstMode = textFirstMode;
-        this.firstMode = firstMode;
-        this.textSecondMode = textSecondMode;
-        this.secondMode = secondMode;
-        setText(textFirstMode);
-        addClickListener(event -> changeMode());
-    }
-
-    /**
-     * Toggles the button's mode and updates the text and behavior accordingly.
-     *
-     * @param mode true to first mode; false to second one.
-     */
-    private void changeMode(boolean mode) {
-        if (mode) {
-            setText(textSecondMode);
-            firstMode.run();
-        } else {
-            setText(textFirstMode);
-            secondMode.run();
-        }
-        if (this.mode != mode) {
-            this.mode = mode;
-        }
-    }
-
-    /**
-     * Toggles the current mode.
-     */
-    private void changeMode() {
-        changeMode(!mode);
-    }
-
-    /**
-     * Manually sets the mode state without triggering any associated actions.
-     *
-     * @param mode true to firstMode mode; false to second one.
-     */
-    public void setMode(boolean mode) {
-        this.mode = mode;
-    }
-
-    /**
-     * Checks whether the button is currently in first mode.
-     *
-     * @return true if in first mode; false otherwise.
-     */
-    public boolean isInFirstMode() {
-        return mode;
+        toggleTextComponent = new ToggleTextComponent(textFirstMode, firstMode, textSecondMode, secondMode);
+        setText(toggleTextComponent.getText());
+        addClickListener(event -> {
+            toggleTextComponent.changeMode();
+            setText(toggleTextComponent.getText());
+        });
     }
 }

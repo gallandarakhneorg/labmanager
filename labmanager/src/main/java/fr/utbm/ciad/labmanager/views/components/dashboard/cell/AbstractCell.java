@@ -109,6 +109,14 @@ public abstract class AbstractCell extends FlexLayout implements Cell {
     }
 
     /**
+     * Get the component contained in the cell
+     * @return the component
+     */
+    public Component getComponent() {
+        return component;
+    }
+
+    /**
      * Retrieves the index of the cell.
      *
      * @return the index of the cell.

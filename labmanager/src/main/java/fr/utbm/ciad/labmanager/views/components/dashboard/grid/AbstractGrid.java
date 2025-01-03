@@ -3,6 +3,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
+import fr.utbm.ciad.labmanager.views.components.dashboard.grid.observer.GridObserver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,8 @@ public abstract class AbstractGrid extends FlexLayout implements Grid {
 
     private final List<DropCell> cells = new ArrayList<>();
 
+    private final List<GridObserver> observers = new ArrayList<>();
+
     /**
      * Default Constructor
      */
@@ -53,16 +56,19 @@ public abstract class AbstractGrid extends FlexLayout implements Grid {
     @Override
     public void addComponent(DropCell cell, Component component) {
         cell.addComponent(component);
+        notifyComponentAdded(component);
     }
 
     @Override
     public void addNewComponent(DropCell cell, Component component){
         addComponent(cell, component);
+        notifyNewComponentAdded(component);
     }
 
     @Override
     public void removeComponent(DropCell cell, Component component) {
         if(cell.contains(component)){
+            notifyComponentRemoved(component);
             cell.emptyCell();
         }
     }
@@ -202,4 +208,62 @@ public abstract class AbstractGrid extends FlexLayout implements Grid {
     public void setCellSize(double cellSize){
         this.cellSize = cellSize;
     }
+
+
+    /**
+     * Adds a GridObserver to the list of observers.
+     * @param observer the observer to be added
+     */
+    public void addObserver(GridObserver observer) {
+        observers.add(observer);
+    }
+
+    /**
+     * Removes an from the list of observers.
+     * @param observer the observer to be removed
+     */
+    public void removeObserver(GridObserver observer) {
+        observers.remove(observer);
+    }
+
+    /**
+     * Notifies all observers that a component has been added to the grid.
+     * @param component the component that was added
+     */
+    protected void notifyComponentAdded(Component component) {
+        for (GridObserver observer : observers) {
+            observer.onComponentAdded(component);
+        }
+    }
+
+    /**
+     * Notifies all observers that a new component has been added to the grid.
+     * @param component the new component that was added
+     */
+    protected void notifyNewComponentAdded(Component component) {
+        for (GridObserver observer : observers) {
+            observer.onNewComponentAdded(component);
+        }
+    }
+
+    /**
+     * Notifies all observers about changes to a new component.
+     * @param component the new component that has changes
+     */
+    protected void notifyNewComponentChanges(Component component) {
+        for (GridObserver observer : observers) {
+            observer.onComponentChanges(component);
+        }
+    }
+
+    /**
+     * Notifies all observers that a component has been removed from the grid.
+     * @param component the component that was removed
+     */
+    protected void notifyComponentRemoved(Component component) {
+        for (GridObserver observer : observers) {
+            observer.onComponentRemoved(component);
+        }
+    }
+
 }

@@ -2,14 +2,18 @@ package fr.utbm.ciad.labmanager.views.components.dashboard;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.icon.FontIcon;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.WebStorage;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.utils.button.ToggleIconComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.SelectComponent;
+import fr.utbm.ciad.labmanager.views.components.dashboard.grid.observer.GridLogger;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardChartItem;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.manager.ChartLocalStorageManager;
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
@@ -44,9 +48,10 @@ public class DashboardLayout extends VerticalLayout {
 
     private final DropGrid dropGrid = new DropGrid();
 
-    private final Select<SelectComponent<DraggableComponent>> componentSelect = new Select<>();
+    private final ToggleIconComponent editionButton;
+    private final Button clearAllButton = new Button(getTranslation("views.clear_all"));
 
-    private final ToggleButton editionButton;
+    private final Select<SelectComponent<DraggableComponent>> componentSelect = new Select<>();
 
     private final PublicationCategoryChartFactory<PublicationCategoryBarChart> barChartFactory;
     private final PublicationCategoryChartFactory<PublicationCategoryPieChart> pieChartFactory;
@@ -62,24 +67,27 @@ public class DashboardLayout extends VerticalLayout {
     public DashboardLayout(@Autowired PublicationService publicationService) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         super();
 
-        editionButton = new ToggleButton(
-                getTranslation("views.edit"),
-                this::setEditionMode,
-                getTranslation("views.stop_edit"),
-                this::removeEditionMode
-        );
+        GridLogger gridLogger = new GridLogger(
+                this::onComponentAdded,
+                this::onNewComponentAdded,
+                this::saveComponent,
+                this::onComponentRemoved);
+        dropGrid.addObserver(gridLogger);
 
         barChartFactory = new PublicationCategoryBarChartFactory();
         pieChartFactory = new PublicationCategoryPieChartFactory();
         nightingaleChartFactory = new PublicationCategoryNightingaleRoseChartFactory();
 
+        editionButton = new ToggleIconComponent(
+                new Icon(VaadinIcon.EDIT),
+                this::setEditionMode,
+                new Icon(VaadinIcon.CLOSE),
+                this::removeEditionMode
+        );
+
         createSelect(publicationService);
 
         add(getHeader(), dropGrid);
-
-        Button button = new Button("Clear");
-        button.addClickListener(event -> WebStorage.clear());
-        add(button);
 
         getWebStorageComponents(publicationService);
     }
@@ -106,6 +114,7 @@ public class DashboardLayout extends VerticalLayout {
     private void changeEditionMode(boolean editionMode){
         dropGrid.changeEditionMode(editionMode);
         componentSelect.setVisible(editionMode);
+        clearAllButton.setVisible(!dropGrid.isEmpty() && editionMode);
     }
 
     /**
@@ -113,7 +122,7 @@ public class DashboardLayout extends VerticalLayout {
      * Sets the label, populates items, and defines behavior on component selection.
      */
     private void createSelect(PublicationService publicationService) {
-        componentSelect.setLabel(getTranslation("views.select_component"));
+        componentSelect.setLabel(getTranslation("views.add_component"));
 
         componentSelect.setItems(List.of(
                 new SelectComponent<>(
@@ -135,7 +144,7 @@ public class DashboardLayout extends VerticalLayout {
         componentSelect.addValueChangeListener(event -> {
             SelectComponent<DraggableComponent> selectedItem = event.getValue();
             if (selectedItem != null) {
-                addComponent(selectedItem.getComponent());
+                dropGrid.addComponentInFirstEmptyCell(selectedItem.getComponent());
                 componentSelect.clear();
             }
         });
@@ -177,16 +186,33 @@ public class DashboardLayout extends VerticalLayout {
      */
     private HorizontalLayout getHeader() {
         HorizontalLayout header = new HorizontalLayout();
-        header.getStyle().setDisplay(Style.Display.GRID);
-        header.getStyle().set("grid-template-columns", "repeat(2, 1fr)");
+        header.getStyle()
+                .setPosition(Style.Position.RELATIVE)
+                .setWidth("100%")
+                .setHeight("70px");
 
-        header.getStyle().setWidth("100%");
+        editionButton.getIcon().getStyle()
+                .setMarginLeft("2px");
 
-        editionButton.getStyle().setWidth("200px");
-        editionButton.getStyle().set("grid-column", "2");
-        editionButton.getStyle().setMarginLeft("auto");
+        clearAllButton.setVisible(false);
+        clearAllButton.addClickListener(event -> {
+            dropGrid.emptyGrid();
+            clearAllButton.setVisible(false);
+        });
+        clearAllButton.getStyle()
+                .setWidth("150px")
+                .setColor("#ba1d16");
 
-        header.add(componentSelect, editionButton);
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.add(clearAllButton ,editionButton);
+        horizontalLayout.getStyle()
+                .setPosition(Style.Position.ABSOLUTE)
+                .setRight("0")
+                .setBottom("0")
+                .setWidth("fit-content")
+                .setJustifyContent(Style.JustifyContent.RIGHT);
+
+        header.add(componentSelect, horizontalLayout);
         return header;
     }
 
@@ -203,7 +229,7 @@ public class DashboardLayout extends VerticalLayout {
                 if (dashBoardChartItem != null) {
                     DraggableComponent component;
                     component = new DraggableComponent(dashBoardChartItem.createComponent(publicationService), dashBoardChartItem.getComponentType());
-                    addComponent(component, cell);
+                    dropGrid.addNewComponent(cell, component);
                 }
             });
         }
@@ -222,29 +248,44 @@ public class DashboardLayout extends VerticalLayout {
     }
 
     /**
-     * Adds a DraggableComponent to a specific DropCell in the drop grid.
-     * This method sets up the component's visual style, disables its draggable functionality,
-     * and then adds it to the specified cell in the drop grid.
-     *
-     * @param component the DraggableComponent to be added
-     * @param cell the DropCell where the component will be placed
+     * Called when a component has been added to the grid.
+     * @param component the component that was added
      */
-    private void addComponent(DraggableComponent component, DropCell cell){
-        setupComponent(component);
-        component.setDraggable(false);
-        dropGrid.addNewComponent(cell, component);
+    private void onComponentAdded(Component component){
+        if(editionButton.getMode()){
+            clearAllButton.setVisible(true);
+        }
+        saveComponent(component);
     }
 
     /**
-     * Adds a DraggableComponent in the first empty cell in the drop grid.
-     * This method sets up the component's visual style, disables its draggable functionality,
-     * and then adds it in the first empty cell in the drop grid.
-     *
-     * @param component the DraggableComponent to be added
+     * Called when a new component has been added to the grid.
+     * @param component the new component that was added
      */
-    private void addComponent(DraggableComponent component){
-        setupComponent(component);
-        dropGrid.addComponentInFirstEmptyCell(component);
+    private void onNewComponentAdded(Component component){
+        if(component instanceof DraggableComponent draggableComponent){
+            setupComponent(draggableComponent);
+            if(!editionButton.getMode()){
+                draggableComponent.setDraggable(false);
+            }
+        }
+    }
+
+    /**
+     * Called when a component has been removed from the grid.
+     * @param component the component that was removed
+     */
+    private void onComponentRemoved(Component component){
+        if(dropGrid.getComponents().size() <= 1){
+            clearAllButton.setVisible(false);
+        }
+        if(component instanceof DraggableComponent draggableComponent){
+            draggableComponent.getParent().ifPresent(parent -> {
+                if(parent instanceof DropCell cell){
+                    chartLocalStorageManager.remove(cell.getIndex());
+                }
+            });
+        }
     }
 
     /**
