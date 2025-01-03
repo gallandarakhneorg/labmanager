@@ -2,7 +2,6 @@ package fr.utbm.ciad.labmanager.views.components.dashboard;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.icon.FontIcon;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,7 +18,6 @@ import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.manager.C
 import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 import fr.utbm.ciad.labmanager.views.components.charts.observer.ChartHandler;
 import fr.utbm.ciad.labmanager.views.components.dashboard.grid.DropGrid;
-import fr.utbm.ciad.labmanager.utils.button.ToggleButton;
 import fr.utbm.ciad.labmanager.views.components.dashboard.localstorage.component.DashboardComponentType;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryBarChartFactory;
 import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCategoryChartFactory;
