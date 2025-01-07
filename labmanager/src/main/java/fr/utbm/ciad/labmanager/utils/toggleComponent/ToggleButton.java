@@ -1,4 +1,4 @@
-package fr.utbm.ciad.labmanager.utils.button;
+package fr.utbm.ciad.labmanager.utils.toggleComponent;
 
 import com.vaadin.flow.component.button.Button;
 

@@ -1,7 +1,6 @@
 package fr.utbm.ciad.labmanager.views.components.dashboard.grid.observer;
 
 import com.vaadin.flow.component.Component;
-import fr.utbm.ciad.labmanager.views.components.dashboard.cell.DropCell;
 
 import java.util.function.Consumer;
 

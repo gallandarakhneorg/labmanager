@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.dom.Style;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
-import fr.utbm.ciad.labmanager.utils.button.ToggleIconComponent;
+import fr.utbm.ciad.labmanager.utils.toggleComponent.ToggleIconComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.DraggableComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.component.SelectComponent;
 import fr.utbm.ciad.labmanager.views.components.dashboard.grid.observer.GridLogger;
