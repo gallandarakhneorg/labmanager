@@ -134,10 +134,11 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	protected final void configure(HttpSecurity http) throws Exception {
 		if (isCasLoginDisabled()) {
 			http.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(new AntPathRequestMatcher(API_URL)).anonymous()
+				.requestMatchers(new AntPathRequestMatcher("/api/**/*")).permitAll()
 				.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll() //$NON-NLS-1$
 				.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll() //$NON-NLS-1$
 				.requestMatchers(new AntPathRequestMatcher("/VAADIN/**/")).permitAll() //$NON-NLS-1$
+				.requestMatchers(new AntPathRequestMatcher("/themes/**")).permitAll() //$NON-NLS-1$
 				.requestMatchers(new AntPathRequestMatcher("/themes/**")).permitAll() //$NON-NLS-1$
 				.requestMatchers("/").permitAll() //$NON-NLS-1$
 			);
@@ -153,7 +154,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 			//
 			http.authorizeHttpRequests(authorize ->
 				authorize
-				.requestMatchers(new AntPathRequestMatcher(API_URL)).anonymous()
+				.requestMatchers(new AntPathRequestMatcher("/api/**/*")).permitAll()
 				.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll() //$NON-NLS-1$
 				.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll() //$NON-NLS-1$
 				.requestMatchers(new AntPathRequestMatcher("/VAADIN/**/")).permitAll() //$NON-NLS-1$

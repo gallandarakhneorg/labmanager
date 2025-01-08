@@ -109,7 +109,6 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	/** Replies all the research organizations.
 	 *
 	 * @return the research organizations.
-	 * @Deprecated no replacement.
 	 */
 	public List<ResearchOrganization> getAllResearchOrganizations() {
 		return this.organizationRepository.findAll();
@@ -174,9 +173,7 @@ public class ResearchOrganizationService extends AbstractEntityService<ResearchO
 	 *
 	 * @param acronym the acronym to search for.
 	 * @return the research organization.
-	 * @Deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public Optional<ResearchOrganization> getResearchOrganizationByAcronym(String acronym) {
 		return this.organizationRepository.findDistinctByAcronym(acronym);
 	}

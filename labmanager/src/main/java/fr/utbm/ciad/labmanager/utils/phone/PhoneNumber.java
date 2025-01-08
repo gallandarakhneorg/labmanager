@@ -392,6 +392,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 		generator.writeStartObject();
 		generator.writeObjectField("country", getCountry()); //$NON-NLS-1$
 		generator.writeObjectField("localNumber", getLocalNumber()); //$NON-NLS-1$
+		generator.writeObjectField("prefix", getCountry().getCallingCode()); //$NON-NLS-1$
 		generator.writeEndObject();
 	}
 

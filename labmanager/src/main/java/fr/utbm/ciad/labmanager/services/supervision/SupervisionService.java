@@ -128,7 +128,6 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 *
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervised person.
-	 * @deprecated no replacement.
 	 */
 	public List<Supervision> getSupervisionsForSupervisor(long supervisorId) {
 		return this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(supervisorId));

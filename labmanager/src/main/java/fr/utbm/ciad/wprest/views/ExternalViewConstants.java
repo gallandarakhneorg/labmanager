@@ -17,19 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.wprest.person;
+package fr.utbm.ciad.wprest.views;
 
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
-import com.vaadin.hilla.Endpoint;
-import fr.utbm.ciad.labmanager.Constants;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-/** Testing endpoint.
+/** Definition of global constants for external views.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -37,17 +27,26 @@ import org.springframework.web.bind.annotation.RestController;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-//@RestController
-//@RequestMapping("/api/v" + Constants.MANAGER_MAJOR_VERSION)
-//@ResponseBody
-//@CrossOrigin
-@Endpoint
-@AnonymousAllowed
-public class TestEndPoint {
+public final class ExternalViewConstants {
 
-//	@GetMapping(value = "/hello")
-	public int addOne(int value) {
-		return value + 1;
+	/** Name of the endpoint parameter "dbId".
+	 */
+	public static final String DBID_ENDPOINT_PARAMETER = "dbId"; //$NON-NLS-1$
+
+	/** Name of the endpoint for obtaining the Vcard of a person.
+	 */
+	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "inAttachment".
+	 */
+	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "organization".
+	 */
+	public static final String ORGANIZATION_ENDPOINT_PARAMETER = "organization"; //$NON-NLS-1$
+
+	private ExternalViewConstants() {
+		//
 	}
-
+	
 }

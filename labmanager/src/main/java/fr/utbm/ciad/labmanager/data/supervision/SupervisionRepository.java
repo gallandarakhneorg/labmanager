@@ -54,7 +54,6 @@ public interface SupervisionRepository extends JpaRepository<Supervision, Long>,
 	 *
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervisor.
-	 * @deprecated no replacement
 	 */
 	List<Supervision> findAllDisctinctBySupervisorsSupervisorId(Long supervisorId);
 

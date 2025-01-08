@@ -24,9 +24,12 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.Async;
 
 /**
@@ -41,7 +44,15 @@ import org.springframework.scheduling.annotation.Async;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
+@OpenAPIDefinition(
+		info = @Info(
+				title = "API LabManager",
+				version = "4.0",
+				description = "LabManager API Documentation"
+		)
+)
 @SpringBootApplication
+@ComponentScan(basePackages = {"fr.utbm.ciad.labmanager", "fr.utbm.ciad.wprest"})
 @Async
 @Push
 @Theme(value = ViewConstants.DEFAULT_BACKEND_THEME)

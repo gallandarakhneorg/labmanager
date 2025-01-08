@@ -17,12 +17,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.wprest.person;
+package fr.utbm.ciad.wprest.views;
 
-import static fr.utbm.ciad.wprest.ExternalViewConstants.DBID_ENDPOINT_PARAMETER;
-import static fr.utbm.ciad.wprest.ExternalViewConstants.INATTACHMENT_ENDPOINT_PARAMETER;
-import static fr.utbm.ciad.wprest.ExternalViewConstants.ORGANIZATION_ENDPOINT_PARAMETER;
-import static fr.utbm.ciad.wprest.ExternalViewConstants.PERSON_VCARD_ENDPOINT;
+import static fr.utbm.ciad.wprest.views.ExternalViewConstants.DBID_ENDPOINT_PARAMETER;
+import static fr.utbm.ciad.wprest.views.ExternalViewConstants.INATTACHMENT_ENDPOINT_PARAMETER;
+import static fr.utbm.ciad.wprest.views.ExternalViewConstants.ORGANIZATION_ENDPOINT_PARAMETER;
+import static fr.utbm.ciad.wprest.views.ExternalViewConstants.PERSON_VCARD_ENDPOINT;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +40,6 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
-import fr.utbm.ciad.wprest.AbstractExternalView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.RequestParam;

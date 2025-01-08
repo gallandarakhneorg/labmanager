@@ -101,4 +101,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
 	 */
 	Optional<Project> findDistinctByAcronymOrScientificTitle(String acronym, String scientificTitle);
 
+	/** Replies all projects that have a logo that can be displayed on the public projects page.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	List<Project> findByPathToLogoIsNotNull();
+
+	/** Replies all projects that have a project website id.
+	 *
+	 * @return the list of projects.
+	 * @since 4.0
+	 */
+	List<Project> findByWebPageNamingIsNotNull();
 }
