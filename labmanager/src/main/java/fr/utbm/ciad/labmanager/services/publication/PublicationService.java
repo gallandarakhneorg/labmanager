@@ -429,9 +429,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *
 	 * @param identifier the identifier of the publication.
 	 * @return the publication, or {@code null} if not found.
-	 * @deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public Publication getPublicationById(long identifier) {
 		final var byId = this.publicationRepository.findById(Long.valueOf(identifier));
 		return byId.orElse(null);

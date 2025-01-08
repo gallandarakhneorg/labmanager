@@ -156,6 +156,7 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 		this.saveButton = new Button("", event -> { //$NON-NLS-1$
 			if (isValidData()) {
 				save();
+				MainLayout.refreshReporting();
 			} else {
 				notifyInvalidity();
 			}

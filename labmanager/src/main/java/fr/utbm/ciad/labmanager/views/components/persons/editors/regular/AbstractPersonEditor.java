@@ -57,6 +57,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.data.member.Gender;
@@ -98,6 +99,8 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 	private static final long serialVersionUID = 4532244485914692596L;
 
 	protected final PersonService personService;
+
+	private final boolean editOrcid;
 
 	protected DetailsWithErrorMark personalInformationDetails;
 
@@ -201,13 +204,27 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 			PersonService personService, boolean relinkEntityWhenSaving,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			ConstructionPropertiesBuilder properties) {
-		super(Person.class, authenticatedUser, messages, personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
+        super(Person.class, authenticatedUser, messages, personCreationStatusComputer, userContext.getPersonContext(), null, relinkEntityWhenSaving,
 				properties
 				.map(PROP_ADMIN_SECTION, "views.persons.administration_details") //$NON-NLS-1$
 				.map(PROP_ADMIN_VALIDATION_BOX, "views.persons.administration.validated_person")); //$NON-NLS-1$
+		boolean editOrcid1;
 		this.userContext = userContext;
 		this.personService = personService;
-	}
+		final var session = VaadinService.getCurrentRequest().getWrappedSession();
+		final String key = new StringBuilder().append(ViewConstants.OPEN_DEFAULT_ORCID_DETAILS).toString();
+		final var attr = session.getAttribute(key);
+		editOrcid1 = false;
+		if (attr != null) {
+			if (attr instanceof Boolean bvalue) {
+				editOrcid1 = bvalue.booleanValue();
+			} else if (attr instanceof String svalue) {
+				editOrcid1 = Boolean.parseBoolean(svalue);
+			}
+			session.removeAttribute(key);
+		}
+        this.editOrcid = editOrcid1;
+    }
 
 	@Override
 	public boolean isValidData() {
@@ -411,7 +428,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		content.add(this.photo, 2);
 		updatePhoto();
 		
-		this.personalInformationDetails = createDetailsWithErrorMark(receiver, content, "personal", true); //$NON-NLS-1$
+		this.personalInformationDetails = createDetailsWithErrorMark(receiver, content, "personal", !this.editOrcid, this.editOrcid); //$NON-NLS-1$
 		
 		getEntityDataBinder().forField(this.lastname)
 			.withConverter(new StringTrimer())
@@ -466,7 +483,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.officeRoom.setPrefixComponent(VaadinIcon.OFFICE.create());
 		content.add(this.officeRoom, 2);
 
-		this.contactInformationDetails = createDetailsWithErrorMark(receiver, content, "contact"); //$NON-NLS-1$
+		this.contactInformationDetails = createDetailsWithErrorMark(receiver, content, "contact", false, this.editOrcid); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.primaryEmail)
 			.withConverter(new StringTrimer())
@@ -524,7 +541,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.gscholar.setPrefixComponent(VaadinIcon.HASH.create());
 		content.add(this.gscholar, 2);
 
-		this.researcherIdsDetails = createDetailsWithErrorMark(receiver, content, "identifiers"); //$NON-NLS-1$
+		this.researcherIdsDetails = createDetailsWithErrorMark(receiver, content, "identifiers", this.editOrcid, this.editOrcid); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.orcid)
 			.withConverter(new StringTrimer())
@@ -556,7 +573,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.biography = new MarkdownField();
 		content.add(this.biography, 2);
 
-		this.biographyDetails = createDetailsWithErrorMark(receiver, content, "biography"); //$NON-NLS-1$
+		this.biographyDetails = createDetailsWithErrorMark(receiver, content, "biography", false, this.editOrcid); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.privateBiography)
 			.bind(Person::getPrivateBiography, Person::setPrivateBiography);
@@ -631,7 +648,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		final var vl = new VerticalLayout(content0, content1);
 		vl.setSpacing(false);
 
-		this.indexesDetails = createDetails(receiver, vl, "indexes"); //$NON-NLS-1$
+		this.indexesDetails = createDetails(receiver, vl, "indexes", false, this.editOrcid); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.wosHindex).bind(Person::getWosHindex, Person::setWosHindex);
 		getEntityDataBinder().forField(this.scopusHindex).bind(Person::getScopusHindex, Person::setScopusHindex);
@@ -700,7 +717,7 @@ public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> 
 		this.facebook.setPrefixComponent(VaadinIcon.HASH.create());
 		content.add(this.facebook);
 
-		this.socialLinksDetails = createDetailsWithErrorMark(receiver, content, "social"); //$NON-NLS-1$
+		this.socialLinksDetails = createDetailsWithErrorMark(receiver, content, "social", false, this.editOrcid); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 		
