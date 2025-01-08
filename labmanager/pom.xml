@@ -228,7 +228,12 @@
             <artifactId>vaadin-testbench-junit5</artifactId>
             <scope>test</scope>
           </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.vaadin.addon</groupId>
+			<artifactId>idle</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+	</dependencies>
 
     <build>
     	<finalName>LabManagerApi##${mainVersionNumber}</finalName>
