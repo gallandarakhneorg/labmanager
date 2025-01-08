@@ -30,14 +30,21 @@ import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
+import fr.utbm.ciad.labmanager.data.conference.Conference;
+import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.services.AbstractEntityService;
+import fr.utbm.ciad.labmanager.services.member.MembershipService;
+import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.names.OrganizationNameComparator;
 import org.hibernate.SessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -52,7 +59,6 @@ import org.springframework.stereotype.Service;
  * @since 3.2
  * @Deprecated no replacement.
  */
-@Deprecated(since = "4.0", forRemoval = true)
 @Service
 public class OrganizationMergingService extends AbstractEntityService<ResearchOrganization> {
 
@@ -61,6 +67,8 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	private final ResearchOrganizationService organizationService;
 
 	private final ResearchOrganizationRepository organizationRepository;
+
+	private final MembershipService membershipService;
 
 	private final MembershipRepository membershipRepository;
 
@@ -72,7 +80,11 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 
 	private OrganizationNameComparator nameComparator;
 
-	/** Constructor for injector.
+    private final TeachingService teachingService;
+
+    private final TeachingActivityRepository teachingRepository;
+
+    /** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param organizationService the organization service.
@@ -89,6 +101,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	public OrganizationMergingService(
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
+			@Autowired MembershipService membershipService,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository,
@@ -96,16 +109,21 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 			@Autowired OrganizationNameComparator nameComparator,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired ConfigurationConstants constants,
-			@Autowired SessionFactory sessionFactory) {			
+			@Autowired SessionFactory sessionFactory,
+			@Autowired TeachingService teachingService,
+			@Autowired TeachingActivityRepository teachingRepository) {
 		super(messages, constants, sessionFactory);
 		this.organizationService = organizationService;
 		this.organizationRepository = organizationRepository;
+		this.membershipService = membershipService;
 		this.membershipRepository = membershipRepository;
 		this.projectRepository = projectRepository;
 		this.structureRepository = structureRepository;
 		this.structureHolderRepository = structureHolderRepository;
 		this.nameComparator = nameComparator;
-	}
+        this.teachingService = teachingService;
+        this.teachingRepository = teachingRepository;
+    }
 
 	/** Replies the duplicate organizations.
 	 * The replied list contains groups of organizations who have similar acronym or names.
@@ -116,7 +134,9 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 	 * @return the duplicate persons that is finally computed.
 	 * @throws Exception if a problem occurred during the building.
 	 */
-	public List<Set<ResearchOrganization>> getOrganizationDuplicates(Comparator<? super ResearchOrganization> comparator, OrganizationDuplicateCallback callback) throws Exception {
+	public List<Set<ResearchOrganization>> getOrganizationDuplicates(Comparator<? super ResearchOrganization> comparator,
+																	 OrganizationDuplicateCallback callback,
+																	 double threshold) throws Exception {
 		// Each list represents a group of organizations that could be duplicate
 		final var matchingOrganizations = new ArrayList<Set<ResearchOrganization>>();
 
@@ -132,7 +152,8 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 			callback.onDuplicate(0, 0, total);
 		}
 		int duplicateCount = 0;
-		
+
+		nameComparator.setSimilarityLevel(threshold);
 		for (var i = 0; i < organizationsList.size() - 1; ++i) {
 			final var referenceOrganization = organizationsList.get(i);
 
@@ -203,12 +224,14 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 		for (final var source : sources) {
 			if (source.getId() != target.getId()) {
 				//getLogger().info("Reassign to " + target.getAcronymOrName() + " the elements of " + source.getAcronymOrName()); //$NON-NLS-1$ //$NON-NLS-2$
-				var lchange = reassignOrganizationMemberships(source, target);
+				var lchange = reassignOrganizationProperties(source, target);
+				lchange = reassignOrganizationMemberships(source, target) || lchange;
+				lchange = reassignSuperOrganizationMemberships(source, target) || lchange;
 				lchange = reassignProjects(source, target) || lchange;
 				lchange = reassignAssociatedStructures(source, target) || lchange;
-				throw new IllegalStateException();
-				//TODO this.organizationService.removeResearchOrganization(source.getId());
-				//TODO changed = changed || lchange;
+				lchange = reassignTeachingActivities(source, target) || lchange;
+				this.organizationService.removeResearchOrganization(source.getId());
+				changed = changed || lchange;
 			}
 		}
 		if (changed) {
@@ -216,17 +239,89 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 		}
 	}
 
+	/** Re-assign the properties attached to the source organization to the target organization. There are attached only if
+	 * the target organization has null properties.
+	 *
+	 * @param source the organization to remove and replace by the target organization.
+	 * @param target the target organization which should replace the source organization.
+	 * @return {@code true} if organization properties has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignOrganizationProperties(ResearchOrganization source, ResearchOrganization target){
+
+		boolean changed = false;
+
+		if (target.getAcronym() == null && source.getAcronym() != null) {
+			target.setAcronym(source.getAcronym());
+			changed = true;
+		}
+
+		if (target.getName() == null && source.getName() != null) {
+			target.setName(source.getName());
+			changed = true;
+		}
+
+		if (target.getDescription() == null && source.getDescription() != null) {
+			target.setDescription(source.getDescription());
+			changed = true;
+		}
+
+		if (target.getRnsr() == null && source.getRnsr() != null) {
+			target.setRnsr(source.getRnsr());
+			changed = true;
+		}
+
+		if (target.getCountry() == null && source.getCountry() != null) {
+			target.setCountry(source.getCountry());
+			changed = true;
+		}
+
+		if (target.getType() == null && source.getType() != null) {
+			target.setType(source.getType());
+			changed = true;
+		}
+
+		if (target.getOrganizationURL() == null && source.getOrganizationURL() != null) {
+			target.setOrganizationURL(source.getOrganizationURL());
+			changed = true;
+		}
+
+		if (target.getPathToLogo() == null && source.getPathToLogo() != null) {
+			target.setPathToLogo(source.getPathToLogo());
+			changed = true;
+		}
+
+		return changed;
+	}
+
 	/** Re-assign the organization memberships attached to the source organization to the target organization.
 	 * 
-	 * @param sources the organization to remove and replace by the target organization.
+	 * @param source the organization to remove and replace by the target organization.
 	 * @param target the target organization which should replace the source organizations.
 	 * @return {@code true} if organization membership has changed.
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignOrganizationMemberships(ResearchOrganization source, ResearchOrganization target) throws Exception {
 		var changed = false;
-		for (final var membership : this.membershipRepository.findDistinctByResearchOrganizationId(source.getId())) {
+		for (final var membership : this.membershipService.getByResearchOrganization(source)) {
 			membership.setDirectResearchOrganization(target);
+			this.membershipRepository.save(membership);
+			changed = true;
+		}
+		return changed;
+	}
+
+	/** Re-assign the super organization memberships attached to the source organization to the target organization.
+	 *
+	 * @param source the organization to remove and replace by the target organization.
+	 * @param target the target organization which should replace the source organizations.
+	 * @return {@code true} if organization membership has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignSuperOrganizationMemberships(ResearchOrganization source, ResearchOrganization target) throws Exception {
+		var changed = false;
+		for (final var membership : this.membershipService.getBySuperResearchOrganization(source)) {
+			membership.setSuperResearchOrganization(target);
 			this.membershipRepository.save(membership);
 			changed = true;
 		}
@@ -235,7 +330,7 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 
 	/** Re-assign the project organizations attached to the source organization to the target organization.
 	 * 
-	 * @param sources the organization to remove and replace by the target organization.
+	 * @param source the organization to remove and replace by the target organization.
 	 * @param target the target organization who should replace the source organizations.
 	 * @return {@code true} if project has changed.
 	 * @throws Exception if the change cannot be completed.
@@ -330,6 +425,27 @@ public class OrganizationMergingService extends AbstractEntityService<ResearchOr
 		}
 		//
 		return structureChanged || holderChanged;
+	}
+
+	/** Re-assign the teaching activities attached to the source organization to the target organization.
+	 *
+	 * @param source the organization to remove and replace by the target organization.
+	 * @param target the target organization which should replace the source organizations.
+	 * @return {@code true} if teaching activities has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignTeachingActivities(ResearchOrganization source, ResearchOrganization target) throws Exception {
+		boolean changed = false;
+
+		List<TeachingActivity> teachingActivities = teachingService.getActivitiesByOrganizationId(source);
+
+		for(TeachingActivity activity : teachingActivities) {
+			activity.setUniversity(target);
+			teachingRepository.save(activity);
+			changed = true;
+		}
+
+		return changed;
 	}
 
 	@Override

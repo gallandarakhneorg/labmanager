@@ -22,15 +22,7 @@ package fr.utbm.ciad.labmanager.services.member;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -38,11 +30,9 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
-import fr.utbm.ciad.labmanager.data.member.Gender;
-import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.member.PersonRepository;
-import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
+import fr.utbm.ciad.labmanager.data.member.*;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
@@ -591,7 +581,6 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @return the updated person.
 	 * @Deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public Person updatePerson(long identifier, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
 			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
 			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
@@ -646,7 +635,6 @@ public class PersonService extends AbstractEntityService<Person> {
 	 *     the identifier does not correspond to a person.
 	 * @Deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public Person removePerson(long identifier) {
 		final var id = Long.valueOf(identifier);

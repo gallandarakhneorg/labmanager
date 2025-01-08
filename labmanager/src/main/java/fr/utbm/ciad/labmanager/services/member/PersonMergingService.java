@@ -37,11 +37,19 @@ import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.ProjectMemberRepository;
+import fr.utbm.ciad.labmanager.data.publication.Authorship;
+import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
+import fr.utbm.ciad.labmanager.data.publication.Publication;
+import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
+import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
 import fr.utbm.ciad.labmanager.services.supervision.SupervisionService;
+import fr.utbm.ciad.labmanager.services.teaching.TeachingService;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
+import org.apache.commons.compress.harmony.archive.internal.nls.Messages;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -55,7 +63,6 @@ import org.springframework.stereotype.Service;
  * @mavenartifactid $ArtifactId$
  * @Deprecated no replacement.
  */
-@Deprecated(since = "4.0", forRemoval = true)
 @Service
 public class PersonMergingService extends AbstractService {
 
@@ -79,7 +86,13 @@ public class PersonMergingService extends AbstractService {
 
 	private final AssociatedStructureHolderRepository structureHolderRepository;
 
-	private PersonNameComparator nameComparator;
+	private final AuthorshipRepository authorshipRepository;
+
+    private final TeachingService teachingService;
+
+    private final TeachingActivityRepository teachingRepository;
+
+    private PersonNameComparator nameComparator;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
@@ -111,7 +124,10 @@ public class PersonMergingService extends AbstractService {
 			@Autowired PersonNameComparator nameComparator,
 			@Autowired MessageSourceAccessor messages,
 			@Autowired ConfigurationConstants constants,
-			@Autowired SessionFactory sessionFactory) {
+			@Autowired SessionFactory sessionFactory,
+			@Autowired AuthorshipRepository publicationRepository,
+			@Autowired TeachingService teachingService,
+			@Autowired TeachingActivityRepository teachingRepository) {
 		super(messages, constants, sessionFactory);
 		this.personRepository = personRepository;
 		this.personService = personService;
@@ -123,7 +139,11 @@ public class PersonMergingService extends AbstractService {
 		this.projectMemberRepository = projectMemberRepository;
 		this.structureHolderRepository = structureHolderRepository;
 		this.nameComparator = nameComparator;
-	}
+		this.authorshipRepository = publicationRepository;
+        this.teachingService = teachingService;
+        this.teachingRepository = teachingRepository;
+    }
+
 
 	/** Replies the duplicate person names.
 	 * The replied list contains groups of persons who have similar names.
@@ -134,7 +154,8 @@ public class PersonMergingService extends AbstractService {
 	 * @return the duplicate persons that is finally computed.
 	 * @throws Exception if a problem occurred during the building.
 	 */
-	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback) throws Exception {
+	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback,
+												 double threshold) throws Exception {
 		// Each list represents a group of authors that could be duplicate
 		final var matchingAuthors = new ArrayList<Set<Person>>();
 
@@ -150,7 +171,8 @@ public class PersonMergingService extends AbstractService {
 			callback.onDuplicate(0, 0, total);
 		}
 		var duplicateCount = 0;
-		
+
+		nameComparator.setSimilarityLevel(threshold);
 		for (var i = 0; i < authorsList.size() - 1; ++i) {
 			final var referencePerson = authorsList.get(i);
 
@@ -225,14 +247,16 @@ public class PersonMergingService extends AbstractService {
 		for (final var source : sources) {
 			if (source.getId() != target.getId()) {
 				//getLogger().info("Reassign to " + target.getFullName() + " the elements of " + source.getFullName()); //$NON-NLS-1$ //$NON-NLS-2$
-				var lchange = reassignPublications(source, target);
+				var lchange = reassignPersonProperties(source, target);
+				lchange = reassignPublicationsV2(source, target);
 				lchange = reassignOrganizationMemberships(source, target) || lchange;
 				lchange = reassignJuryMemberships(source, target) || lchange;
 				lchange = reassignSupervisions(source, target) || lchange;
 				lchange = reassignInvitations(source, target) || lchange;
 				lchange = reassignProjects(source, target) || lchange;
 				lchange = reassignAssociatedStructures(source, target) || lchange;
-				//
+				lchange = reassignTeachingActivities(source, target) || lchange;
+
 				this.personService.removePerson(source.getId());
 				changed = changed || lchange;
 			}
@@ -241,6 +265,7 @@ public class PersonMergingService extends AbstractService {
 			this.personRepository.save(target);
 		}
 	}
+
 
 	/** Re-assign the publication attached to the source person to the target person.
 	 * 
@@ -259,6 +284,209 @@ public class PersonMergingService extends AbstractService {
 			// Test if the target is co-author. If yes, don't do re-assignment to avoid
 			// the same person multiple times as author.
 			if (!authorship.getPublication().getAuthors().contains(target)) {
+				authorship.setPerson(target);
+				iterator.remove();
+				target.getAuthorships().add(authorship);
+				changed = true;
+			}
+		}
+		return changed;
+	}
+
+	/** Re-assign the properties attached to the source person to the target person. There are attached only if
+	 * the target person has null properties.
+	 *
+	 * @param source the personn to remove and replace by the target person.
+	 * @param target the target person which should replace the source person.
+	 * @return {@code true} if person properties has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignPersonProperties(Person source, Person target){
+
+		boolean changed = false;
+
+		if (target.getFirstName() == null && source.getFirstName() != null) {
+			target.setFirstName(source.getFirstName());
+			changed = true;
+		}
+
+		if (target.getLastName() == null && source.getLastName() != null) {
+			target.setLastName(source.getLastName());
+			changed = true;
+		}
+
+		if (target.getGender() == null && source.getGender() != null) {
+			target.setGender(source.getGender());
+			changed = true;
+		}
+
+		if (target.getPrimaryEmail() == null && source.getPrimaryEmail() != null) {
+			target.setPrimaryEmail(source.getPrimaryEmail());
+			changed = true;
+		}
+
+		if (target.getSecondaryEmail() == null && source.getSecondaryEmail() != null) {
+			target.setSecondaryEmail(source.getSecondaryEmail());
+			changed = true;
+		}
+
+		if (target.getWebPageNaming() == null && source.getWebPageNaming() != null) {
+			target.setWebPageNaming(source.getWebPageNaming());
+			changed = true;
+		}
+
+		if (target.getWebPageId() == null && source.getWebPageId() != null) {
+			target.setWebPageId(source.getWebPageId());
+			changed = true;
+		}
+
+		if (target.getORCID() == null && source.getORCID() != null) {
+			target.setORCID(source.getORCID());
+			changed = true;
+		}
+
+		if (target.getAcademiaURL() == null && source.getAcademiaURL() != null) {
+			target.setAcademiaURL(source.getAcademiaURL());
+			changed = true;
+		}
+
+		if (target.getOfficePhone() == null && source.getOfficePhone() != null) {
+			target.setOfficePhone(source.getOfficePhone());
+			changed = true;
+		}
+
+		if (target.getMobilePhone() == null && source.getMobilePhone() != null) {
+			target.setMobilePhone(source.getMobilePhone());
+			changed = true;
+		}
+
+		if (target.getOfficeRoom() == null && source.getOfficeRoom() != null) {
+			target.setOfficeRoom(source.getOfficeRoom());
+			changed = true;
+		}
+
+		if (target.getCordisURL() == null && source.getCordisURL() != null) {
+			target.setCordisURL(source.getCordisURL());
+			changed = true;
+		}
+
+		if (target.getDblpURL() == null && source.getDblpURL() != null) {
+			target.setDblpURL(source.getDblpURL());
+			changed = true;
+		}
+
+		if (target.getFacebookId() == null && source.getFacebookId() != null) {
+			target.setFacebookId(source.getFacebookId());
+			changed = true;
+		}
+
+		if (target.getGithubId() == null && source.getGithubId() != null) {
+			target.setGithubId(source.getGithubId());
+			changed = true;
+		}
+
+		if (target.getLinkedInId() == null && source.getLinkedInId() != null) {
+			target.setLinkedInId(source.getLinkedInId());
+			changed = true;
+		}
+
+		if (target.getResearcherId() == null && source.getResearcherId() != null) {
+			target.setResearcherId(source.getResearcherId());
+			changed = true;
+		}
+
+		if (target.getScopusId() == null && source.getScopusId() != null) {
+			target.setScopusId(source.getScopusId());
+			changed = true;
+		}
+
+		if (target.getGoogleScholarId() == null && source.getGoogleScholarId() != null) {
+			target.setGoogleScholarId(source.getGoogleScholarId());
+			changed = true;
+		}
+
+		if (target.getGoogleScholarId() == null && source.getGoogleScholarId() != null) {
+			target.setGoogleScholarId(source.getGoogleScholarId());
+			changed = true;
+		}
+
+		if (target.getIdhal() == null && source.getIdhal() != null) {
+			target.setIdhal(source.getIdhal());
+			changed = true;
+		}
+
+		if (target.getResearchGateId() == null && source.getResearchGateId() != null) {
+			target.setResearchGateId(source.getResearchGateId());
+			changed = true;
+		}
+
+		if (target.getAdScientificIndexId() == null && source.getAdScientificIndexId() != null) {
+			target.setAdScientificIndexId(source.getAdScientificIndexId());
+			changed = true;
+		}
+
+		if (target.getGoogleScholarHindex() == 0 && source.getGoogleScholarHindex() != 0) {
+			target.setGoogleScholarHindex(source.getGoogleScholarHindex());
+			changed = true;
+		}
+
+		if (target.getWosHindex() == 0 && source.getWosHindex() != 0) {
+			target.setWosHindex(source.getWosHindex());
+			changed = true;
+		}
+
+		if (target.getScopusHindex() == 0 && source.getScopusHindex() != 0) {
+			target.setScopusHindex(source.getScopusHindex());
+			changed = true;
+		}
+
+		if (target.getGoogleScholarCitations() == 0 && source.getGoogleScholarCitations() != 0) {
+			target.setGoogleScholarCitations(source.getGoogleScholarCitations());
+			changed = true;
+		}
+
+		if (target.getWosCitations() == 0 && source.getWosCitations() != 0) {
+			target.setWosCitations(source.getWosCitations());
+			changed = true;
+		}
+
+		if (target.getScopusCitations() == 0 && source.getScopusCitations() != 0) {
+			target.setScopusCitations(source.getScopusCitations());
+			changed = true;
+		}
+
+		if (target.getGravatarId() == null && source.getGravatarId() != null) {
+			target.setGravatarId(source.getGravatarId());
+			changed = true;
+		}
+
+		if (target.getBiography() == null && source.getBiography() != null) {
+			target.setBiography(source.getBiography());
+			changed = true;
+		}
+
+		return changed;
+	}
+
+	/** Re-assign the publication attached to the source person to the target person.
+	 *
+	 * @param source the person to remove and replace by the target person.
+	 * @param target the target person who should replace the source persons.
+	 * @return {@code true} if publication has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	@SuppressWarnings("static-method")
+	protected boolean reassignPublicationsV2(Person source, Person target) throws Exception {
+
+		List<Authorship> autPubs = authorshipRepository.findByPersonId(source.getId());
+		final var iterator = autPubs.iterator();
+
+		var changed = false;
+		while (iterator.hasNext()) {
+			final var authorship = iterator.next();
+			// Test if the target is co-author. If yes, don't do re-assignment to avoid
+			// the same person multiple times as author.
+			if (authorshipRepository.findByPersonIdAndPublicationId(target.getId(), authorship.getPublication().getId()).isEmpty()) {
 				authorship.setPerson(target);
 				iterator.remove();
 				target.getAuthorships().add(authorship);
@@ -426,6 +654,27 @@ public class PersonMergingService extends AbstractService {
 			this.structureHolderRepository.save(holder);
 		}
 		return true;
+	}
+
+	/** Re-assign the teaching activities attached to the source person to the target person.
+	 *
+	 * @param source the person to remove and replace by the target person.
+	 * @param target the target person who should replace the source persons.
+	 * @return {@code true} if associated structure has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	private boolean reassignTeachingActivities(Person source, Person target) {
+		boolean changed = false;
+
+		List<TeachingActivity> teachingActivities = teachingService.getActivitiesByPersonId(source);
+
+		for(TeachingActivity activity : teachingActivities) {
+			activity.setPerson(target);
+			teachingRepository.save(activity);
+			changed = true;
+		}
+
+		return changed;
 	}
 
 	/** Callback that is invoked when building the list of duplicate persons.
