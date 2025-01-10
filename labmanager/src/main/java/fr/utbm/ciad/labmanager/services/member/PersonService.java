@@ -21,26 +21,18 @@ package fr.utbm.ciad.labmanager.services.member;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.net.URL;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.ConfigurationConstants;
+import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntityComparator;
-import fr.utbm.ciad.labmanager.data.member.Gender;
-import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.member.PersonRepository;
-import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
+import fr.utbm.ciad.labmanager.data.member.*;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
@@ -57,6 +49,7 @@ import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.jena.vocabulary.VOID;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.hibernate.Hibernate;
@@ -588,7 +581,6 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @return the updated person.
 	 * @Deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public Person updatePerson(long identifier, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
 			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
 			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
@@ -643,7 +635,6 @@ public class PersonService extends AbstractEntityService<Person> {
 	 *     the identifier does not correspond to a person.
 	 * @Deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	@Transactional
 	public Person removePerson(long identifier) {
 		final var id = Long.valueOf(identifier);
@@ -1250,7 +1241,7 @@ public class PersonService extends AbstractEntityService<Person> {
 
 	}
 
-	/** Description of the information for a person.
+	/** Description of the personal ranking information for a person.
 	 * 
 	 * @param person the person. 
 	 * @param wosHindex the new WOS H-index, or {@code null} to avoid indicator change.
@@ -1265,9 +1256,79 @@ public class PersonService extends AbstractEntityService<Person> {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 4.0
 	 */
-	public record PersonRankingUpdateInformation(Person person, Integer wosHindex, Integer wosCitations,
-			Integer scopusHindex, Integer scopusCitations, Integer googleScholarHindex, Integer googleScholarCitations) {
+	public record PersonRankingUpdateInformation(@JsonIgnore Person person, Integer wosHindex, Integer wosCitations,
+												 Integer scopusHindex, Integer scopusCitations, Integer googleScholarHindex, Integer googleScholarCitations) {
 		//
 	}
 
+	/** Replies the ranking information for a given person.
+	 *
+	 * @param person the given person.
+	 * @return the Person Ranking Information.
+	 */
+	public PersonRankingUpdateInformation getPersonRankingUpdateInformation(Person person) {
+		Integer wosHindex = person.getWosHindex();
+		Integer wosCitations = person.getWosCitations();
+		Integer scopusIndex = person.getScopusHindex();
+		Integer scopusCitations = person.getScopusCitations();
+		Integer googleScholarHindex = person.getGoogleScholarHindex();
+		Integer googleScholarCitations = person.getGoogleScholarCitations();
+		return new PersonRankingUpdateInformation(person, wosHindex, wosCitations, scopusIndex, scopusCitations, googleScholarHindex, googleScholarCitations);
+	}
+
+
+	/**
+	 * Stores the different links attached to a person
+	 * @param orcidURL The ORCID link for the person
+	 * @param gravatarURL The gravatar URL
+	 * @param halURL The hal URL
+	 * @param facebookURL The facebook link for the person
+	 * @param googleScholarURL The Google Scholar link for the person
+	 * @param academiaURL The Academia link for the person
+	 * @param researcherIdURL The Researcher ID link for the person
+	 * @param cordisURL The Cordis link for the person
+	 * @param researchGateURL The ResearchGate link for the person
+	 * @param dblpURL The DBPL link for the person
+	 * @param linkedInURL The LinkedIn link for the person
+	 * @param adScientificIndexURL The Scientific Index link for the person
+	 * @param githubURL The GitHub link for the person
+	 */
+	public record PersonLinks(
+			URL orcidURL,
+			URL gravatarURL,
+			URL halURL,
+			URL facebookURL,
+			URL googleScholarURL,
+			URL academiaURL,
+			URL researcherIdURL,
+			URL cordisURL,
+			URL researchGateURL,
+			URL dblpURL,
+			URL linkedInURL,
+			URL adScientificIndexURL,
+			URL githubURL
+	) {}
+
+	/**
+	 * Get the links attached to the given person
+	 * @param person The person
+	 * @return The person links
+	 */
+	public PersonLinks getPersonLinks(Person person) {
+		return new PersonLinks(
+				person.getOrcidURL(),
+				person.getGravatarURL(),
+				person.getHalURL(),
+				person.getFacebookURL(),
+				person.getGoogleScholarURL(),
+				person.getAcademiaURLObject(),
+				person.getResearcherIdURL(),
+				person.getCordisURLObject(),
+				person.getResearchGateURL(),
+				person.getDblpURLObject(),
+				person.getLinkedInURL(),
+				person.getAdScientificIndexURL(),
+				person.getGithubURL()
+		);
+	}
 }

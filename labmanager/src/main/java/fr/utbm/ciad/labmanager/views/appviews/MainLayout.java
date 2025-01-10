@@ -19,9 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.appviews;
 
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -41,6 +39,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
@@ -51,6 +50,7 @@ import fr.utbm.ciad.labmanager.views.appviews.charts.ChartsView;
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferencesListView;
 import fr.utbm.ciad.labmanager.views.appviews.culture.ScientificCultureActionsListView;
 import fr.utbm.ciad.labmanager.views.appviews.dashboard.DashboardView;
+import fr.utbm.ciad.labmanager.views.appviews.database.DatabaseCheckSimilarityView;
 import fr.utbm.ciad.labmanager.views.appviews.database.DatabaseInputOutputView;
 import fr.utbm.ciad.labmanager.views.appviews.exports.ReportExportView;
 import fr.utbm.ciad.labmanager.views.appviews.invitations.IncomingInvitationsListView;
@@ -75,6 +75,7 @@ import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesListVie
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingPublicationsListView;
 import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.dashboard.Reporting;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,11 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private H2 viewTitle;
 
+	private static Reporting reporting;
+
 	private final AuthenticatedUser authenticatedUser;
+
+	private final AuthorshipRepository authorshipRepository;
 
 	private final AccessAnnotationChecker accessChecker;
 
@@ -201,6 +206,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private SideNavItem charts;
 
+	private SideNavItem databaseSimilarity;
+
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the logged-in user.
@@ -211,12 +218,14 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 */
 	public MainLayout(@Autowired AuthenticatedUser authenticatedUser, @Autowired AccessAnnotationChecker accessChecker,
 			@Autowired MessageSourceAccessor messages, @Value("${labmanager.application-name}") String applicationName,
-			@Value("${labmanager.disable-cas-login}") boolean disableCasLogin) {
+			@Value("${labmanager.disable-cas-login}") boolean disableCasLogin,
+					  @Autowired AuthorshipRepository authorshipRepository) {
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
 		this.disableCasLogin = disableCasLogin;
 		this.accessChecker = accessChecker;
 		this.applicationName = applicationName;
+		this.authorshipRepository = authorshipRepository;
 		setPrimarySection(Section.DRAWER);
 		addNavigationPanel();
 		addViewHeader();
@@ -228,8 +237,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		final var toggle = new DrawerToggle();
 		toggle.setAriaLabel(getTranslation("views.menu_toggle")); //$NON-NLS-1$
 		this.viewTitle = new H2();
-		this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-		addToNavbar(true, toggle, this.viewTitle);
+		this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Whitespace.NOWRAP);
+		reporting = new Reporting(authorshipRepository, authenticatedUser);
+		addToNavbar(true, toggle, this.viewTitle, reporting);
 	}
 
 	/** Add the navigation panel, with the application header, the menus, and the navigation footer.
@@ -456,6 +466,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			this.databaseSection = new SideNavItem(""); //$NON-NLS-1$
 			this.databaseInputOutput = new SideNavItem("", DatabaseInputOutputView.class, LineAwesomeIcon.DATABASE_SOLID.create()); //$NON-NLS-1$
 			this.databaseSection.addItem(this.databaseInputOutput);
+			this.databaseSimilarity = new SideNavItem("", DatabaseCheckSimilarityView.class, LineAwesomeIcon.ANGLE_DOUBLE_RIGHT_SOLID.create()); //$NON-NLS-1$
+			this.databaseSection.addItem(this.databaseSimilarity);
+
 			nav.addItem(this.databaseSection);
 		}
 	}
@@ -671,13 +684,17 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			updateUserRoleInMenu(user.getRole());
 		}
 	}
+
+	public static void refreshReporting() {
+		reporting.refresh();
+	}
 	
 	private void logout() {
 		if (this.authenticatedUser != null && this.disableCasLogin) {
 			this.authenticatedUser.logout();
 		} else {
 			//TODO Move to AuthenticatedUser class?
-			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8443/LabManager/logout'");
+			UI.getCurrent().getPage().executeJs("window.location.href = 'https://localhost:8080/LabManager/logout'");
 		}
 	}
 
@@ -709,6 +726,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 		
 		this.viewTitle.setText(getCurrentPageTitle());
+		this.reporting.setText(getTranslation("views.dashboard.reporting.doi"), getTranslation("views.dashboard.reporting.orcid")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (this.positionSection != null) {
 			this.positionSection.setLabel(getTranslation("views.navitem.positionSection")); //$NON-NLS-1$
@@ -820,6 +838,10 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		if (this.databaseInputOutput != null) {
 			this.databaseInputOutput.setLabel(getTranslation("views.navitem.database_io")); //$NON-NLS-1$
 		}
+		if (this.databaseSimilarity != null) {
+			this.databaseSimilarity.setLabel(getTranslation("views.navitem.database_similarity")); //$NON-NLS-1$
+		}
+
 
 		if (this.documentationSection != null) {
 			this.documentationSection.setLabel(getTranslation("views.navitem.documentations")); //$NON-NLS-1$

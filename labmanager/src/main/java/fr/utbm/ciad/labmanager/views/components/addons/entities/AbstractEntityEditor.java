@@ -688,11 +688,26 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @see #initializeDetails(Details, String, boolean)
 	 */
 	protected DetailsWithErrorMark createDetailsWithErrorMark(HasComponents container, Component content, String sectionId, boolean openByDefault) {
+		return createDetailsWithErrorMark(container, content, sectionId, openByDefault, false);
+	}
+
+	/** Create a "details" section that may be marked with error.
+	 *
+	 * @param container the container of the section.
+	 * @param content the content of the section.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
+	 * @param forceDefault indicates if the default value must be forced.
+	 * @return the section container.
+	 * @see #createDetails(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String, boolean)
+	 */
+	protected DetailsWithErrorMark createDetailsWithErrorMark(HasComponents container, Component content, String sectionId, boolean openByDefault, boolean forceDefault) {
 		final var details = new DetailsWithErrorMark(content);
 		if (container != null) {
 			container.add(details);
 		}
-		initializeDetails(details, sectionId, openByDefault);
+		initializeDetails(details, sectionId, openByDefault, forceDefault);
 		return details;
 	}
 
@@ -717,14 +732,30 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
 	 * @return the section container.
 	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
+	 * @see #createDetails(HasComponents, Component, String, boolean, boolean)
 	 * @see #initializeDetails(Details, String, boolean) 
 	 */
 	protected Details createDetails(HasComponents container, Component content, String sectionId, boolean openByDefault) {
+		return createDetails(container, content, sectionId, openByDefault, false);
+	}
+
+	/** Create a "details" section.
+	 *
+	 * @param container the container of the section.
+	 * @param content the content of the section.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
+	 * @param forceDefault indicates if the default value must be forced.
+	 * @return the section container.
+	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String, boolean)
+	 */
+	protected Details createDetails(HasComponents container, Component content, String sectionId, boolean openByDefault, boolean forceDefault) {
 		final var details = new Details("", content); //$NON-NLS-1$
 		if (container != null) {
 			container.add(details);
 		}
-		initializeDetails(details, sectionId, openByDefault);
+		initializeDetails(details, sectionId, openByDefault, forceDefault);
 		return details;
 	}
 
@@ -735,26 +766,45 @@ public abstract class AbstractEntityEditor<T extends IdentifiableEntity> extends
 	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
 	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
 	 * @see #createDetails(HasComponents, Component, String)
+	 * @see #initializeDetails(Details, String, boolean, boolean)
 	 */
 	protected void initializeDetails(Details details, String sectionId, boolean openByDefault) {
+		initializeDetails(details, sectionId, openByDefault, false);
+	}
+
+	/** Initialize a "details" section.
+	 *
+	 * @param details the component to initialize.
+	 * @param sectionId the identifier of the section in the editor.
+	 * @param openByDefault indicates if the details must be open by default, i.e., when there is opening preference stored in the session.
+	 * @param forceDefault indicates if the default value must be forced.
+	 * @see #createDetailsWithErrorMark(HasComponents, Component, String)
+	 * @see #createDetails(HasComponents, Component, String)
+	 */
+	protected void initializeDetails(Details details, String sectionId, boolean openByDefault, boolean forceDefault) {
 		final var key = new StringBuilder().append(ViewConstants.DETAILS_SECTION_OPENING_ROOT).append(getClass().getName());
 		final var sectionKey = key.toString();
 		final var attributeKey = key.append('.').append(sectionId).toString();
 		
 		final var request = VaadinService.getCurrentRequest();
 		final var session = request != null ? request.getWrappedSession() : null;
-		if (session == null || session.getAttribute(sectionKey) == null) {
-			// Section was never defined. Use the default configuration.
+
+		if (forceDefault) {
 			details.setOpened(openByDefault);
 		} else {
-			// Section was defined. Use the stored configuration.
-			final var value = session.getAttribute(attributeKey);
-			if (value instanceof Boolean bvalue) {
-				details.setOpened(bvalue.booleanValue());
-			} else if (value instanceof String svalue) {
-					details.setOpened(Boolean.parseBoolean(svalue));
-			} else {
+			if (session == null || session.getAttribute(sectionKey) == null) {
+				// Section was never defined. Use the default configuration.
 				details.setOpened(openByDefault);
+			} else {
+				// Section was defined. Use the stored configuration.
+				final var value = session.getAttribute(attributeKey);
+				if (value instanceof Boolean bvalue) {
+					details.setOpened(bvalue.booleanValue());
+				} else if (value instanceof String svalue) {
+					details.setOpened(Boolean.parseBoolean(svalue));
+				} else {
+					details.setOpened(openByDefault);
+				}
 			}
 		}
 

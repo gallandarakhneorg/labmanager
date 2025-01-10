@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,17 +22,23 @@ package fr.utbm.ciad.labmanager.views.appviews.dashboard;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.dashboard.DashboardLayout;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.InvocationTargetException;
+
 /** Dashboard for the lab manager application.
- * 
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -44,21 +50,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Uses(Icon.class)
 public class DashboardView extends AbstractLoggerComposite<VerticalLayout> implements HasDynamicTitle {
 
-    private static final long serialVersionUID = -1583805930880620625L;
+	private static final long serialVersionUID = -1583805930880620625L;
 
 	/** Constructor.
 	 *
 	 * @param loggerFactory the factory to be used for the composite logger.
 	 */
-	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
+	public DashboardView(@Autowired PublicationService publicationService,
+						 @Autowired ContextualLoggerFactory loggerFactory) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 		super(loggerFactory);
-		
+
+		DashboardLayout dashboardLayout = new DashboardLayout(publicationService);
+
 		final var bt = new Button();
 		bt.setText("Show log");
 		bt.addClickListener(event -> {
 			getLogger().info("Test logger / User name should appear");
 		});
-		getContent().add(bt);
+		getContent().add(dashboardLayout, bt);
 	}
 
 	@Override

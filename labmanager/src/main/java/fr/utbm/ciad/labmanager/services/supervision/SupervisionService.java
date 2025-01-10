@@ -128,9 +128,7 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 *
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervised person.
-	 * @deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Supervision> getSupervisionsForSupervisor(long supervisorId) {
 		return this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(supervisorId));
 	}
@@ -141,7 +139,6 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 * @return the list of the supervisions for the supervised person.
 	 * @deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public List<Supervision> getSupervisionsForSupervisedPerson(long supervisedPersonId) {
 		return this.supervisionRepository.findAllBySupervisedPersonPersonId(Long.valueOf(supervisedPersonId));
 	}
@@ -318,7 +315,6 @@ public class SupervisionService extends AbstractEntityService<Supervision> {
 	 * @param supervisor the supervisor to save.
 	 * @deprecated no replacement.
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	public void save(Supervisor supervisor) {
 		this.supervisorRepository.save(supervisor);
 	}

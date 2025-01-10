@@ -182,6 +182,11 @@
 			<artifactId>so-charts</artifactId>
 			<version>3.2.6</version>
 		  </dependency>
+		<dependency>
+			<groupId>com.vaadin.componentfactory</groupId>
+			<artifactId>popup</artifactId>
+			<version>24.1.1</version>
+		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -212,18 +217,32 @@
 		    <artifactId>junit-jupiter-engine</artifactId>
 		    <scope>test</scope>
 		  </dependency>
-		  <dependency>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jaxb-api</artifactId>
-		    <version>2.3.1</version>
-		    <scope>test</scope>
-		  </dependency>
           <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-testbench-junit5</artifactId>
             <scope>test</scope>
           </dependency>
-    </dependencies>
+
+		<!--OpenAPI (swagger) dependencies-->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+		<!-- Might cause issues with jakarta JAXB but necessary for springdoc.
+		Remove this dependency if it causes issues. This will make OpenApi documentation unavailable -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.vaadin.addon</groupId>
+			<artifactId>idle</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+	</dependencies>
 
     <build>
     	<finalName>LabManagerApi##${mainVersionNumber}</finalName>

@@ -47,6 +47,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
@@ -77,6 +78,7 @@ import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToDoiConverter;
 import fr.utbm.ciad.labmanager.views.components.addons.converters.StringToKeywordsConverter;
@@ -147,6 +149,8 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 	protected final boolean enableTypeSelector;
 
 	protected final boolean mandatoryAbstractText;
+
+	private final boolean openDoiDetails;
 
 	protected final DownloadableFileManager fileManager;
 
@@ -306,6 +310,20 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 
 		// Must be the latest initialization for ensuring that all the class's fields are initialized before creating the dynamic field builder
 		this.fieldBuilder = createDynamicFieldBuilder();
+
+		final var session = VaadinService.getCurrentRequest().getWrappedSession();
+		final String key = new StringBuilder().append(ViewConstants.OPEN_DEFAULT_DOI_DETAILS).toString();
+		final var attr = session.getAttribute(key);
+		boolean b = false;
+		if (attr != null) {
+			if (attr instanceof Boolean bvalue) {
+				b = bvalue.booleanValue();
+			} else if (attr instanceof String svalue) {
+				b = Boolean.parseBoolean(svalue);
+			}
+			session.removeAttribute(key);
+		}
+		this.openDoiDetails = b;
 	}
 
 	/** Create the instance of the dynamic field builder.
@@ -438,7 +456,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.publicationDate.setClearButtonVisible(true);
 		this.generalLayout.add(this.publicationDate, 1);
 
-		this.generalDetails = createDetailsWithErrorMark(rootContainer, this.generalLayout, "general"); //$NON-NLS-1$
+		this.generalDetails = createDetailsWithErrorMark(rootContainer, this.generalLayout, "general", false, this.openDoiDetails); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.title)
 			.withConverter(new StringTrimer())
@@ -503,7 +521,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 			this.isbn = null;
 		}
 
-		this.identificationDetails = createDetailsWithErrorMark(rootContainer, this.identificationLayout, "identification"); //$NON-NLS-1$
+		this.identificationDetails = createDetailsWithErrorMark(rootContainer, this.identificationLayout, "identification", this.openDoiDetails, this.openDoiDetails); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
@@ -570,7 +588,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.language.setValue(PublicationLanguage.getDefault());
 		content.add(this.language, 1);
 
-		this.contentDetails = createDetailsWithErrorMark(rootContainer, content, "content"); //$NON-NLS-1$
+		this.contentDetails = createDetailsWithErrorMark(rootContainer, content, "content", false, this.openDoiDetails); //$NON-NLS-1$
 
 		final var abstractFieldBinder = getEntityDataBinder().forField(this.abstractText)
 			.withConverter(new StringTrimer());
@@ -616,7 +634,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		this.extraUrl.setPrefixComponent(VaadinIcon.INFO_CIRCLE.create());
 		content.add(this.extraUrl, 1);
 
-		this.resourcesDetails = createDetailsWithErrorMark(rootContainer, content, "resources"); //$NON-NLS-1$
+		this.resourcesDetails = createDetailsWithErrorMark(rootContainer, content, "resources", false, this.openDoiDetails); //$NON-NLS-1$
 
 		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 
@@ -657,7 +675,7 @@ public abstract class AbstractPublicationEditor extends AbstractEntityEditor<Pub
 		});
 		content.add(this.scientificAxes, 2);
 
-		this.referencesDetails = createDetailsWithErrorMark(rootContainer, content, "references"); //$NON-NLS-1$
+		this.referencesDetails = createDetailsWithErrorMark(rootContainer, content, "references", false, this.openDoiDetails); //$NON-NLS-1$
 
 		getEntityDataBinder().forField(this.scientificAxes).bind(Publication::getScientificAxes, Publication::setScientificAxes);
 	}

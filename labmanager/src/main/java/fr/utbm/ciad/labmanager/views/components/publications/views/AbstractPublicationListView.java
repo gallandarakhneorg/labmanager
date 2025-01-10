@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import com.helger.commons.io.stream.StringInputStream;
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -51,6 +52,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -68,6 +70,7 @@ import fr.utbm.ciad.labmanager.utils.io.bibtex.BibTeXConstants;
 import fr.utbm.ciad.labmanager.utils.io.od.OpenDocumentConstants;
 import fr.utbm.ciad.labmanager.utils.io.ris.RISConstants;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
+import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeRenderer;
 import fr.utbm.ciad.labmanager.views.components.addons.badges.BadgeState;
@@ -212,6 +215,27 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		this.publicationEditorFactory = publicationEditorFactory;
 		this.journalService = journalService;
 		this.organizationService = organizationService;
+
+		final var session = VaadinService.getCurrentRequest().getWrappedSession();
+		final String key = new StringBuilder().append(ViewConstants.PUBLICATION_ID_TO_EDIT).toString();
+		final var attr = session.getAttribute(key);
+		if (attr != null) {
+			int publicationId = -1;
+			if (attr instanceof Integer ivalue) {
+				publicationId = ivalue.intValue();
+			} else if (attr instanceof Long lvalue) {
+				publicationId = lvalue.intValue();
+			} else if (attr instanceof String svalue) {
+				publicationId = Integer.parseInt(svalue);
+			}
+			session.removeAttribute(key);
+			if (publicationId >= 0) {
+				final var publication = this.publicationService.getPublicationById(publicationId);
+				if (publication != null) {
+					edit(publication); //$NON-NLS-1$
+				}
+			}
+		}
 	}
 
 	/** Create the instance of the publication exporter.
@@ -500,7 +524,10 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 	 * @param isCreation indicates if the editor is opened for creating an entity or updating an exisitng entity.
 	 */
 	protected void openPublicationEditor(Publication publication, String title, boolean saveInDatabase, boolean isCreation) {
-		openPublicationEditor(publication, title, saveInDatabase, isCreation, (dialog, entity) -> refreshGrid());
+		openPublicationEditor(publication, title, saveInDatabase, isCreation, (dialog, entity) -> {
+			refreshGrid();
+			MainLayout.refreshReporting();
+		});
 	}
 
 	/**
@@ -594,6 +621,8 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 
 		private Checkbox includeYears;
 
+		private ToggleButton restrictToMissingDOI;
+
 		/** Constructor.
 		 *
 		 * @param user the connected user, or {@code null} if the filter does not care about a connected user.
@@ -601,6 +630,55 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 		 */
 		public PublicationFilters(AuthenticatedUser user, Runnable onSearch) {
 			super(user, onSearch);
+
+			if (user != null) {
+				final var session = VaadinService.getCurrentRequest().getWrappedSession();
+				final var attr = session.getAttribute(buildPreferenceSectionKeyForMissingDOIFiltering());
+				var checked = false;
+				if (attr != null) {
+					if (attr instanceof Boolean bvalue) {
+						checked = bvalue.booleanValue();
+					} else if (attr instanceof String svalue) {
+						checked = Boolean.parseBoolean(svalue);
+					}
+				}
+				this.restrictToMissingDOI = new ToggleButton(checked);
+				this.restrictToMissingDOI.addValueChangeListener(it -> onMissingDOIFilteringChange(it.getValue() == null ? false : it.getValue().booleanValue(), onSearch));
+			} else {
+				this.restrictToMissingDOI = null;
+			}
+
+			if (this.restrictToMissingDOI != null) {
+				addComponentAtIndex(1, this.restrictToMissingDOI);
+			}
+		}
+
+		private boolean isRestrictedToMissingDOI() {
+			if (this.restrictToMissingDOI != null) {
+				final var bvalue = this.restrictToMissingDOI.getValue();
+				if (bvalue == null) {
+					return false;
+				}
+				return bvalue.booleanValue();
+			}
+			return false;
+		}
+
+		private String buildPreferenceSectionKeyForMissingDOIFiltering() {
+			return new StringBuilder().append(ViewConstants.MISSING_DOI_FILTER).toString();
+		}
+
+		/** Invoked when the filtering on the authenticated person has changed.
+		 *
+		 * @param missingDOIFilter indicates if the filtering is enable or disable.
+		 * @param onSearch the callback function for running the filtering.
+		 */
+		protected void onMissingDOIFilteringChange(boolean missingDOIFilter, Runnable onSearch) {
+			final var session0 = VaadinService.getCurrentRequest().getWrappedSession();
+			session0.setAttribute(buildPreferenceSectionKeyForMissingDOIFiltering(), Boolean.valueOf(missingDOIFilter));
+			if (onSearch != null) {
+				onSearch.run();
+			}
 		}
 
 		@Override
@@ -623,6 +701,30 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			return criteriaBuilder.equal(root.get("authorships").get("person"), user); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
+		private Predicate buildPredicateForMissingDOI(Root<Publication> root,
+															   CriteriaBuilder criteriaBuilder, boolean missingDOI) {
+			if (missingDOI) {
+				return criteriaBuilder.isNull(root.get("doi")); //$NON-NLS-1$
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public Predicate toPredicate(Root<Publication> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			final var keywordFilter = super.toPredicate(root, query, criteriaBuilder);
+			if (isRestrictedToMissingDOI()) {
+				final var userPredicate = buildPredicateForMissingDOI(root, criteriaBuilder, isRestrictedToMissingDOI());
+				if (userPredicate != null) {
+					if (keywordFilter != null) {
+						return criteriaBuilder.and(userPredicate, keywordFilter);
+					}
+					return userPredicate;
+				}
+			}
+            return keywordFilter;
+        }
+
 		@Override
 		protected void buildQueryFor(String keywords, List<Predicate> predicates, Root<Publication> root,
 				CriteriaBuilder criteriaBuilder) {
@@ -639,6 +741,9 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
 			super.localeChange(event);
 			this.includeTitles.setLabel(getTranslation("views.filters.include_titles")); //$NON-NLS-1$
 			this.includeYears.setLabel(getTranslation("views.filters.include_years")); //$NON-NLS-1$
+			if (this.restrictToMissingDOI != null) {
+				this.restrictToMissingDOI.setLabel(getTranslation("views.filters.restrictToMissingDOI")); //$NON-NLS-1$
+			}
 		}
 
 	}

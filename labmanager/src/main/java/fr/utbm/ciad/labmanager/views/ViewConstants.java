@@ -350,6 +350,26 @@ public final class ViewConstants {
 	 */
 	public static final String AUTHENTICATED_USER_FILTER_ROOT = PREFERENCE_ROOT + "authenticated_user_filter."; //$NON-NLS-1$
 
+	/** Root attribute name for the filter checkbox for the missing DOI.
+	 * @since 4.0
+	 */
+	public static final String MISSING_DOI_FILTER = PREFERENCE_ROOT + "missing_doi_filter"; //$NON-NLS-1$
+
+	/** Root attribute name for publication ID to edit.
+	 * @since 4.0
+	 */
+	public static final String PUBLICATION_ID_TO_EDIT = PREFERENCE_ROOT + "publication_id_to_edit"; //$NON-NLS-1$
+
+	/** Root attribut name for opening by default the ORCID details of the person.
+	 * @since 4.0
+	 */
+	public static final String OPEN_DEFAULT_ORCID_DETAILS = PREFERENCE_ROOT + "open_default_orcid_details"; //$NON-NLS-1$
+
+	/** Root attribut name for opening by default the DOI details.
+	 * @since 4.0
+	 */
+	public static final String OPEN_DEFAULT_DOI_DETAILS = PREFERENCE_ROOT + "open_default_doi_details"; //$NON-NLS-1$
+
 	/** Root attribute name for the filter checkbox for the default organization.
 	 * @since 4.0
 	 */

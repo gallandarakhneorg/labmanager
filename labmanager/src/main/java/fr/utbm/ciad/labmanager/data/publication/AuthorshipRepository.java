@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 /** JPA repository for the authorship relations.
  * 
@@ -40,10 +41,15 @@ public interface AuthorshipRepository extends JpaRepository<Authorship, Long>, J
 	 * @param personId the identifier of the person.
 	 * @param publicationId the publication of the publication.
 	 * @return the authorship.
-	 * @deprecated no replacement
 	 */
-	@Deprecated(since = "4.0", forRemoval = true)
 	Optional<Authorship> findByPersonIdAndPublicationId(long personId, long publicationId);
+
+	/** Find authorships that corresponds to the given person identifier.
+	 *
+	 * @param personId the identifier of the person.
+	 * @return the authorship.
+	 */
+	List<Authorship> findByPersonId(long personId);
 
 	/** Find the authorships that corresponds are linked to the publication with the given identifier.
 	 *
@@ -51,6 +57,9 @@ public interface AuthorshipRepository extends JpaRepository<Authorship, Long>, J
 	 * @return the authorships linked to the publication with the given id.
 	 */
 	List<Authorship> findByPublicationId(long publicationId);
+
+	@Query("SELECT a.publication FROM Authorship a where a.person.id = :personId and a.publication.doi is null")
+	List<Publication> findPublicationIdsByPersonIdAndPublicationDoiIsNull(long personId);
 
 	/** Count the number of authorships for the person with the given id.
 	 *
