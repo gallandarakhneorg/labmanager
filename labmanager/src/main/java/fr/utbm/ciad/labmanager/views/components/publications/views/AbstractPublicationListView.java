@@ -275,12 +275,6 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
         final var exportSubMenu = this.exportButton.getSubMenu();
         getPublicationExporter().createExportButtons(exportSubMenu);
 
-        final Class<? extends Component> importViewType = getProperties().get(PROP_IMPORT_VIEW);
-        if (importViewType != null) {
-            this.importButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.FILE_IMPORT_SOLID, null, null,
-                    it -> getUI().ifPresent(ui -> ui.navigate(importViewType)));
-        }
-
         return menu;
     }
 
