@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,15 +21,30 @@ package fr.utbm.ciad.labmanager.data.conference;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-/** JPA repository for conference quality indicators.
- * 
+import java.util.List;
+
+/**
+ * JPA repository for conference quality indicators.
+ *
  * @author $Author: sgalland$
+ * @author $Author: erenon$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
 public interface ConferenceQualityAnnualIndicatorsRepository extends JpaRepository<ConferenceQualityAnnualIndicators, Long>, JpaSpecificationExecutor<ConferenceQualityAnnualIndicators> {
-	//
+
+    /**
+     * Replies the quality indicators of the conference with the given identifier.
+     *
+     * @param conferenceId the identifier of the conference.
+     * @return the quality indicators.
+     */
+    @Query("SELECT ci FROM Conference c JOIN c.qualityIndicators ci WHERE c.id = :conferenceId")
+    List<ConferenceQualityAnnualIndicators> findByConferenceId(@Param("conferenceId") Long conferenceId);
+
 }

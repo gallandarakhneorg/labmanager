@@ -23,4 +23,8 @@ public abstract class AbstractChartLayout extends VerticalLayout implements Char
         setHeight(1000, Unit.PIXELS);
     }
 
+    /**
+     * Refreshes the chart by deleting it and creating it with the same values
+     */
+    public abstract void refreshChart();
 }

@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,14 +25,19 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.AbstractLoggerComposite;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
+import fr.utbm.ciad.labmanager.views.components.dashboard.DashboardLayout;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/** Dashboard for the lab manager application.
- * 
+import java.lang.reflect.InvocationTargetException;
+
+/**
+ * Dashboard for the lab manager application.
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
@@ -46,23 +51,27 @@ public class DashboardView extends AbstractLoggerComposite<VerticalLayout> imple
 
     private static final long serialVersionUID = -1583805930880620625L;
 
-	/** Constructor.
-	 *
-	 * @param loggerFactory the factory to be used for the composite logger.
-	 */
-	public DashboardView(@Autowired ContextualLoggerFactory loggerFactory) {
-		super(loggerFactory);
-		
-		final var bt = new Button();
-		bt.setText("Show log");
-		bt.addClickListener(event -> {
-			getLogger().info("Test logger / User name should appear");
-		});
-		getContent().add(bt);
-	}
+    /**
+     * Constructor.
+     *
+     * @param loggerFactory the factory to be used for the composite logger.
+     */
+    public DashboardView(@Autowired PublicationService publicationService,
+                         @Autowired ContextualLoggerFactory loggerFactory) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        super(loggerFactory);
 
-	@Override
-	public String getPageTitle() {
-		return getTranslation("views.dashboard.title"); //$NON-NLS-1$
-	}
+        DashboardLayout dashboardLayout = new DashboardLayout(publicationService);
+
+        final var bt = new Button();
+        bt.setText("Show log");
+        bt.addClickListener(event -> {
+            getLogger().info("Test logger / User name should appear");
+        });
+        getContent().add(dashboardLayout, bt);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return getTranslation("views.dashboard.title"); //$NON-NLS-1$
+    }
 }

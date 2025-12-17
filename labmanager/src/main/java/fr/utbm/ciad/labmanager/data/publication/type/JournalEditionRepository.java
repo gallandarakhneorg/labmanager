@@ -1,6 +1,6 @@
 /*
  * $Id$
- * 
+ *
  * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,11 +19,15 @@
 
 package fr.utbm.ciad.labmanager.data.publication.type;
 
+import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-/** JPA Repository for editions of journals and special issues.
- * 
+import java.util.Set;
+
+/**
+ * JPA Repository for editions of journals and special issues.
+ *
  * @author $Author: sgalland$
  * @author $Author: tmartine$
  * @version $Name$ $Revision$ $Date$
@@ -31,6 +35,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  */
 public interface JournalEditionRepository extends JpaRepository<JournalEdition, Long>, JpaSpecificationExecutor<JournalEdition> {
-	//
+
+    /**
+     * Find all papers associated with a specific journal.
+     *
+     * @param journalId the ID of the journal to retrieve papers for.
+     * @return a set of publications associated with the given journal.
+     */
+    Set<AbstractJournalBasedPublication> findByJournalId(Long journalId);
+
 }
 

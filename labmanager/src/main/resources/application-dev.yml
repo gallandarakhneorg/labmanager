@@ -57,6 +57,15 @@ spring:
     serialization:
       indent-output: true
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/api-docs
+  swagger-ui:
+    enabled: true
+    path: /api/swagger-ui
+  packages-to-scan: fr.utbm.ciad.wprest
+
 server:
   port: ${labmanager.application-port}
   ssl:
@@ -94,8 +103,11 @@ vaadin:
   # To improve the performance during development.
   # For more information https://vaadin.com/docs/flow/spring/tutorial-spring-configuration.html#special-configuration-parameters
   allowed-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application,com.storedobject
+  exclude-urls:
+    - /api/**/*
 
 labmanager:
+  disable-cas-login: true
   cas-servers:
     utbm:
       key: "13792c4f-5188-46da-922d-3f1cee3f85c8"
@@ -112,7 +124,7 @@ labmanager:
   application-name: CIAD Lab Manager
   application-image: /images/ciadpicture.svg
   application-copyright: Copyright CIAD Laboratory, Université de Technologie de Belfort Montbéliard 2019-2024. This program is under the terms of the GNU Affero General Public License.
-  application-port: 8080
+  application-port: 8085
   application-url: https://localhost:${labmanager.application-port}/LabManager
   default-organization: CIAD
   default-super-organization: UTBM

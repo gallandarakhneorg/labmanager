@@ -5,6 +5,8 @@ import fr.utbm.ciad.labmanager.views.components.charts.factory.PublicationCatego
 import fr.utbm.ciad.labmanager.views.components.charts.publicationcategory.PublicationCategoryChart;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Set;
+
 /**
  * Implementation a publication category chart.
  *
@@ -25,6 +27,15 @@ public class PublicationCategoryLayout<T extends PublicationCategoryChart> exten
      */
     public PublicationCategoryLayout(@Autowired PublicationService publicationService, PublicationCategoryChartFactory<T> factory) {
         super(publicationService, factory);
+    }
+
+    public PublicationCategoryLayout(@Autowired PublicationService publicationService,
+                                     PublicationCategoryChartFactory<T> factory,
+                                     Set<String> multiSelectComboBoxItems,
+                                     Integer yearRangeStartValue,
+                                     Integer yearRangeEndValue,
+                                     boolean generateChart) {
+        super(publicationService, factory, multiSelectComboBoxItems, yearRangeStartValue, yearRangeEndValue, generateChart);
     }
 
 }
