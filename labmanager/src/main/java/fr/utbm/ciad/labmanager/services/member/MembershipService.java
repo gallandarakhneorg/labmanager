@@ -722,34 +722,34 @@ public class MembershipService extends AbstractEntityService<Membership> {
     }
 
     /**
-         * Specification that is validating with a person identifier.
+     * Specification that is validating with a person identifier.
+     *
+     * @author $Author: sgalland$
+     * @version $Name$ $Revision$ $Date$
+     * @mavengroupid $GroupId$
+     * @mavenartifactid $ArtifactId$
+     * @since 4.0
+     */
+    private record PersonIdentifierSpecification(Long identifier) implements Specification<Membership> {
+
+        private static final long serialVersionUID = -4832779518488220502L;
+
+        /**
+         * Constructor.
          *
-         * @author $Author: sgalland$
-         * @version $Name$ $Revision$ $Date$
-         * @mavengroupid $GroupId$
-         * @mavenartifactid $ArtifactId$
-         * @since 4.0
+         * @param identifier the person identifier to match.
          */
-        private record PersonIdentifierSpecification(Long identifier) implements Specification<Membership> {
-
-            private static final long serialVersionUID = -4832779518488220502L;
-
-            /**
-             * Constructor.
-             *
-             * @param identifier the person identifier to match.
-             */
-            private PersonIdentifierSpecification(long identifier) {
-                this.identifier = Long.valueOf(identifier);
-            }
-
-            @Override
-            public jakarta.persistence.criteria.Predicate toPredicate(Root<Membership> root,
-                                                                      CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-                return criteriaBuilder.equal(root.get("person").get("id"), this.identifier); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-
+        private PersonIdentifierSpecification(long identifier) {
+            this(Long.valueOf(identifier));
         }
+
+        @Override
+        public jakarta.persistence.criteria.Predicate toPredicate(Root<Membership> root,
+                                                                  CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+            return criteriaBuilder.equal(root.get("person").get("id"), this.identifier); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+
+    }
 
     /**
      * Specification that is validating a supervisable membership.

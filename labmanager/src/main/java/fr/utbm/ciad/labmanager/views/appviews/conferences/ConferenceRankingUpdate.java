@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.views.appviews.conferences;
 
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ import java.util.stream.Stream;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class ConferenceRankingUpdate extends AbstractContextData {
+public class ConferenceRankingUpdate {
 
     private static final long serialVersionUID = 1506566568548752541L;
     private final Map<Long, ConferenceRankingInformation> core = new TreeMap<>();

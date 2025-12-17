@@ -35,7 +35,6 @@ import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.appviews.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.PersonEditorFactory;
 import fr.utbm.ciad.labmanager.views.components.persons.views.StandardPersonListView;
 import jakarta.annotation.security.RolesAllowed;
@@ -58,8 +57,6 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 public class PersonsListView extends StandardPersonListView implements HasDynamicTitle {
 
     private static final long serialVersionUID = 1616874715478139507L;
-
-    private MenuItem updateRankingsButton;
 
     private MenuItem switchView;
 
@@ -105,30 +102,13 @@ public class PersonsListView extends StandardPersonListView implements HasDynami
             menu = new MenuBar();
             menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
         }
-        this.updateRankingsButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openRankingsUpdateWizard());
         this.switchView = ComponentFactory.addIconItem(menu, LineAwesomeIcon.ID_CARD_SOLID, getTranslation("views.persons.switch_to_card_view"), null, it -> getUI().ifPresent(ui -> ui.navigate(PersonsCardView.class))); //$NON-NLS-1$
         return menu;
-    }
-
-    /**
-     * Open the wizard for updating the person rankings.
-     */
-    protected void openRankingsUpdateWizard() {
-        final var selection = getGrid().getSelectedItems();
-        if (selection != null && !selection.isEmpty()) {
-            final var identifiers = AbstractLabManagerWizard.buildQueryParameters(selection);
-            getUI().ifPresent(ui -> ui.navigate(PersonRankingUpdaterWizard.class, identifiers));
-        } else {
-            getUI().ifPresent(ui -> ui.navigate(PersonRankingUpdaterWizard.class));
-        }
     }
 
     @Override
     public void localeChange(LocaleChangeEvent event) {
         super.localeChange(event);
-        if (this.updateRankingsButton != null) {
-            ComponentFactory.setIconItemText(this.updateRankingsButton, getTranslation("views.persons.updateRankings")); //$NON-NLS-1$
-        }
         if (this.switchView != null) {
             ComponentFactory.setIconItemText(this.switchView, getTranslation("views.persons.switch_to_card_view")); //$NON-NLS-1$
         }

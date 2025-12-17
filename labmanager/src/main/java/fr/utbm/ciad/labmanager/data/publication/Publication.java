@@ -32,7 +32,6 @@ import fr.utbm.ciad.labmanager.data.publication.comparators.AuthorshipComparator
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -61,7 +60,7 @@ import java.util.stream.Collectors;
 @Table(name = "Publications")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "Publication_Type")
-public abstract class Publication extends AbstractContextData implements Production, JsonSerializable, Comparable<Publication>, AttributeProvider {
+public abstract class Publication implements Production, JsonSerializable, Comparable<Publication>, AttributeProvider {
 
     private static final long serialVersionUID = -5980560007123809890L;
 

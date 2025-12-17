@@ -32,7 +32,6 @@ import fr.utbm.ciad.labmanager.data.publication.AbstractJournalBasedPublication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 import jakarta.persistence.*;
 import org.arakhne.afc.util.IntegerList;
 import org.arakhne.afc.util.ListUtil;
@@ -56,7 +55,7 @@ import java.util.function.Predicate;
  */
 @Entity
 @Table(name = "Journals")
-public class Journal extends AbstractContextData implements JsonSerializable, AttributeProvider, IdentifiableEntity {
+public class Journal implements JsonSerializable, AttributeProvider, IdentifiableEntity {
 
     private static final long serialVersionUID = -2046765660549008074L;
 

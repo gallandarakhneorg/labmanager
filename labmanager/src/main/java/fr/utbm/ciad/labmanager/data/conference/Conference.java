@@ -32,7 +32,6 @@ import fr.utbm.ciad.labmanager.data.publication.AbstractConferenceBasedPublicati
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 import jakarta.persistence.*;
 import org.arakhne.afc.util.IntegerList;
 import org.arakhne.afc.util.ListUtil;
@@ -59,7 +58,7 @@ import java.util.function.Predicate;
  */
 @Entity
 @Table(name = "Conferences")
-public class Conference extends AbstractContextData implements JsonSerializable, AttributeProvider, IdentifiableEntity {
+public class Conference implements JsonSerializable, AttributeProvider, IdentifiableEntity {
 
     private static final long serialVersionUID = -2286554831898694393L;
 

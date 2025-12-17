@@ -807,17 +807,17 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
     }
 
     /**
-         * Sized iterator on files.
-         *
-         * @author $Author: sgalland$
-         * @version $Name$ $Revision$ $Date$
-         * @mavengroupid $GroupId$
-         * @mavenartifactid $ArtifactId$
-         * @since 2.2
-         */
-        private record BasenameFilter(String basename) implements FileFilter, Serializable {
+     * Sized iterator on files.
+     *
+     * @author $Author: sgalland$
+     * @version $Name$ $Revision$ $Date$
+     * @mavengroupid $GroupId$
+     * @mavenartifactid $ArtifactId$
+     * @since 2.2
+     */
+    private record BasenameFilter(String basename) implements FileFilter, Serializable {
 
-            private static final long serialVersionUID = 973524364322175521L;
+        private static final long serialVersionUID = 973524364322175521L;
 
         /**
          * Constructor.
@@ -827,11 +827,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
         private BasenameFilter {
         }
 
-            @Override
-            public boolean accept(File pathname) {
-                return pathname != null && pathname.getName().startsWith(this.basename);
-            }
-
+        @Override
+        public boolean accept(File pathname) {
+            return pathname != null && pathname.getName().startsWith(this.basename);
         }
+
+    }
 
 }

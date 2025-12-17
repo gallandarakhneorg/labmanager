@@ -68,9 +68,7 @@ import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEd
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityListView;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractFilters;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractLabManagerWizard;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
-import fr.utbm.ciad.labmanager.views.components.publications.editors.wizard.ThumbnailGeneratorWizard;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -178,32 +176,23 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
     /**
      * Constructor.
      *
-     * @param authenticatedUser         the connected user.
-     * @param messages                  the accessor to the localized messages (spring layer).
-     * @param loggerFactory             the factory to be used for the composite logger.
-     * @param publicationService        the service for accessing the publications.
-     * @param publicationEditorFactory  the factory for creating the publication editors.
-     * @param journalService            the service for accessing the JPA entities for journal.
-     * @param organizationService       the service for accessing the JPA entities for research organization.
-     * @param importView                the name of the view for importating publications.
-     * @param authorsColumnLabelKey     the key in the localized messages for the messages related to the label of the authors column.
-     * @param personCreationLabelKey    the key that is used for retrieving the text for creating a new person and associating it to the publication.
-     * @param personFieldLabelKey       the key that is used for retrieving the text for the label of the author/editor field.
-     * @param personFieldHelperLabelKey the key that is used for retrieving the text for the helper of the author/editor field.
-     * @param personNullErrorKey        the key that is used for retrieving the text of the author/editor null error.
-     * @param personDuplicateErrorKey   the key that is used for retrieving the text of the author/editor duplicate error.
-     * @param properties                specification of properties that may be passed to the construction function {@link #createFilters()},
-     *                                  {@link #createGrid()} and {@link #createMenuBar()} and {@link #createMobileFilters()}.
+     * @param authenticatedUser        the connected user.
+     * @param messages                 the accessor to the localized messages (spring layer).
+     * @param loggerFactory            the factory to be used for the composite logger.
+     * @param publicationService       the service for accessing the publications.
+     * @param publicationEditorFactory the factory for creating the publication editors.
+     * @param journalService           the service for accessing the JPA entities for journal.
+     * @param organizationService      the service for accessing the JPA entities for research organization.
+     * @param properties               specification of properties that may be passed to the construction function {@link #createFilters()},
+     *                                 {@link #createMenuBar()} and {@link #createMobileFilters()}.
      * @since 4.0
      */
     public AbstractPublicationListView(
             AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, ContextualLoggerFactory loggerFactory,
             PublicationService publicationService, PublicationEditorFactory publicationEditorFactory,
-            JournalService journalService, ResearchOrganizationService organizationService,
-            Class<? extends Component> importView, ConstructionPropertiesBuilder properties) {
+            JournalService journalService, ResearchOrganizationService organizationService, ConstructionPropertiesBuilder properties) {
         super(Publication.class, authenticatedUser, messages, loggerFactory,
                 properties
-                        .map(PROP_IMPORT_VIEW, importView)
                         .map(PROP_DELETION_TITLE_MESSAGE, "views.addresses.delete.title") //$NON-NLS-1$
                         .map(PROP_DELETION_MESSAGE, "views.addresses.delete.message") //$NON-NLS-1$
                         .map(PROP_DELETION_SUCCESS_MESSAGE, "views.addresses.delete_success") //$NON-NLS-1$
@@ -292,22 +281,7 @@ public abstract class AbstractPublicationListView extends AbstractEntityListView
                     it -> getUI().ifPresent(ui -> ui.navigate(importViewType)));
         }
 
-        this.regenerateThumbnailButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.SYNC_ALT_SOLID, null, null, it -> openThumbnailRegenerationWizard());
-
         return menu;
-    }
-
-    /**
-     * Open the wizard for regenerating the publication thumbnails.
-     */
-    protected void openThumbnailRegenerationWizard() {
-        final var selection = getGrid().getSelectedItems();
-        if (selection != null && !selection.isEmpty()) {
-            final var identifiers = AbstractLabManagerWizard.buildQueryParameters(selection);
-            getUI().ifPresent(ui -> ui.navigate(ThumbnailGeneratorWizard.class, identifiers));
-        } else {
-            getUI().ifPresent(ui -> ui.navigate(ThumbnailGeneratorWizard.class));
-        }
     }
 
     private AbstractEntityEditor<Publication> createPublicationUpdateEditor(Publication publication) {

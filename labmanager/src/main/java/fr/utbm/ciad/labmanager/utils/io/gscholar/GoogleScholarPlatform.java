@@ -59,9 +59,9 @@ public interface GoogleScholarPlatform {
      * @see "https://scholar.google.com/"
      * @since 3.3
      */
-        record GoogleScholarPerson(int hindex, int citations) implements Serializable {
+    record GoogleScholarPerson(int hindex, int citations) implements Serializable {
 
-            private static final long serialVersionUID = 5779940249749841338L;
+        private static final long serialVersionUID = 5779940249749841338L;
 
         /**
          * Constructor.
@@ -72,6 +72,6 @@ public interface GoogleScholarPlatform {
         public GoogleScholarPerson {
         }
 
-        }
+    }
 
 }

@@ -95,17 +95,17 @@ public final class ConstructionPropertiesBuilder implements Serializable {
     private record ConstructionPropertiesImpl1(String name, Object value,
                                                ConstructionProperties parent) implements ConstructionProperties {
 
-            private static final long serialVersionUID = -4418631141943849767L;
+        private static final long serialVersionUID = -4418631141943849767L;
 
         @SuppressWarnings("unchecked")
-            @Override
-            public <PT> PT get(String name) {
-                if (Objects.equals(this.name, name)) {
-                    return (PT) this.value;
-                }
-                return this.parent.get(name);
+        @Override
+        public <PT> PT get(String name) {
+            if (Objects.equals(this.name, name)) {
+                return (PT) this.value;
             }
-
+            return this.parent.get(name);
         }
+
+    }
 
 }

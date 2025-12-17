@@ -25,7 +25,6 @@ import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import fr.utbm.ciad.labmanager.utils.builders.ConstructionPropertiesBuilder;
-import fr.utbm.ciad.labmanager.views.appviews.publications.PublicationImportWizard;
 import fr.utbm.ciad.labmanager.views.components.addons.logger.ContextualLoggerFactory;
 import fr.utbm.ciad.labmanager.views.components.publications.editors.PublicationEditorFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -82,7 +81,6 @@ public class StandardScientificPublicationListView extends AbstractPublicationLi
             ContextualLoggerFactory loggerFactory, PublicationService publicationService,
             PublicationEditorFactory publicationEditorFactory, JournalService journalService, ResearchOrganizationService organizationService) {
         super(authenticatedUser, messages, loggerFactory, publicationService, publicationEditorFactory, journalService, organizationService,
-                PublicationImportWizard.class,
                 ConstructionPropertiesBuilder.create()
                         .map(PROP_DELETION_TITLE_MESSAGE, "views.publication.delete.title") //$NON-NLS-1$
                         .map(PROP_DELETION_MESSAGE, "views.publication.delete.message") //$NON-NLS-1$

@@ -36,7 +36,6 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 import jakarta.persistence.*;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -56,7 +55,7 @@ import java.util.*;
  */
 @Entity
 @Table(name = "ResearchOrgs")
-public class ResearchOrganization extends AbstractContextData implements JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
+public class ResearchOrganization implements JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
     /**
      * Default type for research organizations.
@@ -512,7 +511,6 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
      *
      * @return the acronym and the name, or {@code null} if there is neither acronym nor name.
      * @see #getAcronymOrName()
-     * @see #ACRONYM_NAME_SEPARATOR
      * @since 4.0
      */
     public String getAcronymAndName() {
@@ -617,7 +615,6 @@ public class ResearchOrganization extends AbstractContextData implements JsonSer
      * Change the country of the organization.
      *
      * @param country the country, or {@code null} if the country is the default country.
-     * @see #DEFAULT_COUNTRY
      */
     public void setCountry(CountryCode country) {
         if (country == null) {

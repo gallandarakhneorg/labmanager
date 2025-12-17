@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.components.publications.imports;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.EntityCreationStatus;
 import fr.utbm.ciad.labmanager.views.components.addons.uploads.generic.UploadBuffer;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 import org.arakhne.afc.vmutil.FileSystem;
 
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import java.util.List;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class ImportData extends AbstractContextData {
+public class ImportData {
 
     private static final long serialVersionUID = 6899799982482982442L;
 
@@ -100,7 +99,6 @@ public class ImportData extends AbstractContextData {
     /**
      * Replies the list of the importable publications.
      * The set of publication replied by this function is included in the set of publications
-     * given by {@link #getPublicationEditors()}.
      *
      * @return the list of publications that are marked as importable.
      */

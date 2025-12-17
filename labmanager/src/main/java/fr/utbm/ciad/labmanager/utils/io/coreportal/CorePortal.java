@@ -67,9 +67,9 @@ public interface CorePortal {
      * @see "http://portal.core.edu.au/"
      * @since 3.6
      */
-        record CorePortalConference(CoreRanking ranking) implements Serializable {
+    record CorePortalConference(CoreRanking ranking) implements Serializable {
 
-            private static final long serialVersionUID = -6517131062597187166L;
+        private static final long serialVersionUID = -6517131062597187166L;
 
         /**
          * Constructor.
@@ -79,6 +79,6 @@ public interface CorePortal {
         public CorePortalConference {
         }
 
-        }
+    }
 
 }

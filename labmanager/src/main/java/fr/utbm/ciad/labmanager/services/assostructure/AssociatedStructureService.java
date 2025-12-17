@@ -336,9 +336,9 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
      * @Deprecated no replacement.
      * @since 3.2
      */
-        @Deprecated(since = "4.0", forRemoval = true)
-        public record HolderDescription(Person person, HolderRole role, String roleDescription,
-                                        ResearchOrganization organization, ResearchOrganization superOrganization) {
+    @Deprecated(since = "4.0", forRemoval = true)
+    public record HolderDescription(Person person, HolderRole role, String roleDescription,
+                                    ResearchOrganization organization, ResearchOrganization superOrganization) {
 
         /**
          * Constructor.
@@ -352,7 +352,7 @@ public class AssociatedStructureService extends AbstractEntityService<Associated
         public HolderDescription {
         }
 
-        }
+    }
 
     /**
      * Context for editing a {@link AssociatedStructure}.

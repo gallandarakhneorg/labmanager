@@ -27,7 +27,6 @@ import fr.utbm.ciad.labmanager.services.user.UserService.UserEditingContext;
 import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.EmbeddedPersonEditor;
 import fr.utbm.ciad.labmanager.views.components.persons.editors.regular.PersonCreationStatusComputer;
-import fr.utbm.ciad.labmanager.views.components.persons.editors.wizard.EmbeddedPersonEditorWizard;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -87,7 +86,7 @@ public class DefaultPersonEditorFactory implements PersonEditorFactory {
 
     @Override
     public AbstractEntityEditor<Person> createAdditionEditor(UserEditingContext userContext) {
-        return new EmbeddedPersonEditorWizard(userContext, this.personCreationStatusComputer, this.authenticatedUser, this.messages, this.personService);
+        return new EmbeddedPersonEditor(userContext, this.personCreationStatusComputer, this.personService, this.authenticatedUser, this.messages);
     }
 
     @Override

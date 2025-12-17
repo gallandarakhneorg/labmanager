@@ -177,22 +177,22 @@ public interface WebOfSciencePlatform {
      * @see "https://www.webofscience.com"
      * @since 2.5
      */
-        record WebOfScienceJournal(Map<String, QuartileRanking> quartiles, float impactFactor) implements Serializable {
+    record WebOfScienceJournal(Map<String, QuartileRanking> quartiles, float impactFactor) implements Serializable {
 
-            private static final long serialVersionUID = -5636236034630289851L;
+        private static final long serialVersionUID = -5636236034630289851L;
 
-            /**
-             * Constructor.
-             *
-             * @param quartiles    the rankings per category.
-             * @param impactFactor the impact factor.
-             */
-            public WebOfScienceJournal(Map<String, QuartileRanking> quartiles, float impactFactor) {
-                this.quartiles = Collections.unmodifiableMap(quartiles);
-                this.impactFactor = impactFactor;
-            }
-
+        /**
+         * Constructor.
+         *
+         * @param quartiles    the rankings per category.
+         * @param impactFactor the impact factor.
+         */
+        public WebOfScienceJournal(Map<String, QuartileRanking> quartiles, float impactFactor) {
+            this.quartiles = Collections.unmodifiableMap(quartiles);
+            this.impactFactor = impactFactor;
         }
+
+    }
 
     /**
      * Accessor to the online Web-of-Science platform.
@@ -206,9 +206,9 @@ public interface WebOfSciencePlatform {
      * @see "https://www.webofscience.com"
      * @since 3.3
      */
-        record WebOfSciencePerson(int hindex, int citations) implements Serializable {
+    record WebOfSciencePerson(int hindex, int citations) implements Serializable {
 
-            private static final long serialVersionUID = 4017710928346959632L;
+        private static final long serialVersionUID = 4017710928346959632L;
 
         /**
          * Constructor.
@@ -219,6 +219,6 @@ public interface WebOfSciencePlatform {
         public WebOfSciencePerson {
         }
 
-        }
+    }
 
 }

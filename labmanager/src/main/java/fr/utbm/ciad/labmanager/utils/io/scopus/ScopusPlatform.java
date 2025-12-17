@@ -72,9 +72,9 @@ public interface ScopusPlatform {
      * @see "https://www.scopus.com/"
      * @since 3.3
      */
-        record ScopusPerson(int hindex, int citations) implements Serializable {
+    record ScopusPerson(int hindex, int citations) implements Serializable {
 
-            private static final long serialVersionUID = 8357860848328947999L;
+        private static final long serialVersionUID = 8357860848328947999L;
 
         /**
          * Constructor.
@@ -85,6 +85,6 @@ public interface ScopusPlatform {
         public ScopusPerson {
         }
 
-        }
+    }
 
 }

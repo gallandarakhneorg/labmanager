@@ -24,7 +24,6 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -39,7 +38,7 @@ import java.util.stream.Stream;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class JournalRankingUpdate extends AbstractContextData {
+public class JournalRankingUpdate {
 
     private static final long serialVersionUID = -7689528428844273761L;
     private final Map<Long, JournalRankingInformation> scimago = new TreeMap<>();

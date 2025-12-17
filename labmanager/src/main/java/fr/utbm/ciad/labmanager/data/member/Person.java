@@ -37,7 +37,6 @@ import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
-import fr.utbm.ciad.labmanager.views.components.addons.wizard.AbstractContextData;
 import jakarta.persistence.*;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -60,7 +59,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "Persons")
-public class Person extends AbstractContextData implements JsonSerializable, AttributeProvider, Comparable<Person>, IdentifiableEntity {
+public class Person implements JsonSerializable, AttributeProvider, Comparable<Person>, IdentifiableEntity {
 
     /**
      * Base URL of the ResearchGate platform, with the final slash character.
